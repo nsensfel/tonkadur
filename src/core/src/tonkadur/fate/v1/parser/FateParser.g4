@@ -1,13 +1,13 @@
-parser grammar LangParser;
+parser grammar FateParser;
 
 options
 {
-   tokenVocab = LangLexer;
+   tokenVocab = FateLexer;
 }
 
 @header
 {
-   package tonkadur.parser;
+   package tonkadur.fate.v1.parser;
 }
 
 @members
@@ -19,11 +19,13 @@ options
 /******************************************************************************/
 /******************************************************************************/
 fate_file:
-   (WS*
+   WS* FATE_VERSION_KW WORD L_PAREN WS*
+   (
       (first_level_fate_instr|general_fate_instr)
       {
       }
-   WS*)*
+      WS*
+   )*
    EOF
    {
    }
@@ -41,6 +43,10 @@ first_level_fate_instr:
    }
 
    | DECLARE_VARIABLE_KW range=WORD WS+ type=WORD WS+ name=WORD R_PAREN
+   {
+   }
+
+   | DECLARE_TEXT_EFFECT_KW range=WORD R_PAREN
    {
    }
 
@@ -109,10 +115,6 @@ general_fate_instr:
    {
    }
 
-   | ENABLE_TEXT_PARAMETER_KW value WS+ sentence R_PAREN
-   {
-   }
-
    | ASSERT_KW value R_PAREN
    {
    }
@@ -125,7 +127,21 @@ general_fate_instr:
    {
    }
 
-   | sentence
+   | text
+   {
+   }
+;
+
+text:
+   sentence text*
+   {
+   }
+
+   | (ENABLE_TEXT_PARAMETER_KW WORD WS+ text R_PAREN) text*
+   {
+   }
+
+   | non_text_value text*
    {
    }
 ;
@@ -263,10 +279,16 @@ value:
    {
    }
 
-   | L_PAREN WS+ sentence WS+ R_PAREN
+   | L_PAREN WS* sentence R_PAREN
    {
    }
 
+   | non_text_value
+   {
+   }
+;
+
+non_text_value:
    | IF_ELSE_KW value WS+ value WS+ value R_PAREN
    {
    }

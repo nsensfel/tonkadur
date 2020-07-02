@@ -2,7 +2,7 @@ package tonkadur;
 
 import java.io.IOException;
 
-import tonkadur.parser.Fate;
+import tonkadur.fate.v1.Utils;
 
 public class Main
 {
@@ -12,6 +12,6 @@ public class Main
    public static void main (final String[] args)
    throws IOException
    {
-      Fate.parse_file(args[0]);
+      Utils.parse_file(args[0]);
    }
 }

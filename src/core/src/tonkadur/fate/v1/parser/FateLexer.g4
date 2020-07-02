@@ -1,8 +1,8 @@
-lexer grammar LangLexer;
+lexer grammar FateLexer;
 
 @header
 {
-   package tonkadur.parser;
+   package tonkadur.fate.v1.parser;
 }
 
 
@@ -26,6 +26,7 @@ DECLARE_ALIAS_TYPE_KW: L_PAREN 'declare_alias_type' WS*;
 DECLARE_DICT_TYPE_KW: L_PAREN 'declare_dict_type' WS*;
 DECLARE_ENUM_TYPE_KW: L_PAREN 'declare_enum_type' WS*;
 DECLARE_EVENT_TYPE_KW: L_PAREN 'declare_event_type' WS*;
+DECLARE_TEXT_EFFECT: L_PAREN 'declare_text_effect' WS*;
 DECLARE_VARIABLE_KW: L_PAREN 'declare_variable' WS*;
 DEFINE_MACRO_KW: L_PAREN 'define_macro' WS*;
 DEFINE_SEQUENCE_KW: L_PAREN 'define_sequence' WS*;
@@ -33,6 +34,7 @@ DIVIDE_KW: L_PAREN 'divide' WS*;
 ENABLE_TEXT_PARAMETER_KW: L_PAREN 'enable_text_parameter' WS*;
 EQUALS_KW: L_PAREN 'equals' WS*;
 EVENT_KW: L_PAREN 'event' WS*;
+FATE_VERSION_KW: L_PAREN 'fate_version' WS*;
 GREATER_EQUAL_THAN_KW: L_PAREN 'greater_equal_than' WS*;
 GREATER_THAN_KW: L_PAREN 'greater_than' WS*;
 IF_ELSE_KW: L_PAREN 'if_else' WS*;
