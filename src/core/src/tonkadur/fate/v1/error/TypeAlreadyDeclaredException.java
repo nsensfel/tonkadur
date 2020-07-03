@@ -1,8 +1,13 @@
 package tonkadur.fate.v1.error;
 
+import tonkadur.error.ErrorLevel;
+
+import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
+
 import tonkadur.fate.v1.lang.Type;
 
-public class TypeAlreadyDeclaredException extends InputException
+public class TypeAlreadyDeclaredException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -12,8 +17,13 @@ public class TypeAlreadyDeclaredException extends InputException
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public TypeAlreadyDeclaredException (final Type original_type)
+   public TypeAlreadyDeclaredException
+   (
+      final Origin origin,
+      final Type original_type
+   )
    {
+      super(ErrorLevel.WARNING, ErrorCategory.DUPLICATE_DECLARATION, origin);
       this.original_type = original_type;
    }
 

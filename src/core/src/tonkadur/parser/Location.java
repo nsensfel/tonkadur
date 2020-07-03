@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.parser;
+package tonkadur.parser;
 
 public class Location
 {

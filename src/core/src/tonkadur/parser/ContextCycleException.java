@@ -1,9 +1,12 @@
-package tonkadur.fate.v1.error;
+package tonkadur.parser;
 
-import tonkadur.fate.v1.parser.Location;
-import tonkadur.fate.v1.parser.Origin;
+import tonkadur.parser.Location;
+import tonkadur.parser.Origin;
 
-public class ContextCycleException extends InputException
+import tonkadur.error.ErrorCategory;
+import tonkadur.error.ErrorLevel;
+
+class ContextCycleException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -20,10 +23,13 @@ public class ContextCycleException extends InputException
    /***************************************************************************/
    public ContextCycleException
    (
+      final Origin origin,
       final Location original_require_location,
       final String filename
    )
    {
+      super(ErrorLevel.FATAL, ErrorCategory.INVALID_INPUT, origin);
+
       this.original_require_location = original_require_location;
       this.filename = filename;
    }

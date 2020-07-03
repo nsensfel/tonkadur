@@ -1,15 +1,12 @@
-package tonkadur.fate.v1.parser;
+package tonkadur.parser;
 
 import java.util.Stack;
-
-import tonkadur.fate.v1.error.ContextCycleException;
 
 public class Context
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final boolean locked;
    protected final Stack<Location> source;
    protected String current_file;
 
@@ -20,7 +17,6 @@ public class Context
    /**** Constructors *********************************************************/
    public Context (final String filename)
    {
-      locked = false;
       source = new Stack<Location>();
       current_file = filename;
    }
@@ -29,7 +25,7 @@ public class Context
    public void push (final Location location, final String new_file)
    throws ContextCycleException
    {
-      throw_exception_on_cycle(new_file);
+      throw_exception_on_cycle(location, new_file);
 
       current_file = new_file;
 
@@ -45,7 +41,12 @@ public class Context
    /**** Utils ****************************************************************/
    public Origin get_origin_at (final int line, final int column)
    {
-      return new Origin(this, new Location(current_file, line, column));
+      return new Origin(clone(), new Location(current_file, line, column));
+   }
+
+   public Origin get_origin_at (final Location location)
+   {
+      return new Origin(clone(), location);
    }
 
    /**** Misc. ****************************************************************/
@@ -94,10 +95,35 @@ public class Context
       return (source.hashCode() + current_file.hashCode());
    }
 
+   @Override
+   public Context clone ()
+   {
+      final Context result;
+
+      result = new Context("");
+
+      /*
+       * That's in FIFO order, as we want it to be, due to arguable design
+       * decisions in Java.
+       */
+      for (final Location location: source)
+      {
+         result.source.push(location);
+      }
+
+      result.current_file = current_file;
+
+      return result;
+   }
+
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-   protected void throw_exception_on_cycle (final String new_file)
+   protected void throw_exception_on_cycle
+   (
+      final Location declared_at,
+      final String new_file
+   )
    throws ContextCycleException
    {
       Location previous_import;
@@ -112,7 +138,13 @@ public class Context
       {
          if (location.get_filename().equals(new_file))
          {
-            throw new ContextCycleException(previous_import, new_file);
+            throw
+               new ContextCycleException
+               (
+                  get_origin_at(declared_at),
+                  previous_import,
+                  new_file
+               );
          }
 
          previous_import = location;
@@ -120,7 +152,13 @@ public class Context
 
       if (current_file.equals(new_file))
       {
-         throw new ContextCycleException(previous_import, new_file);
+         throw
+            new ContextCycleException
+            (
+               get_origin_at(declared_at),
+               previous_import,
+               new_file
+            );
       }
    }
 }

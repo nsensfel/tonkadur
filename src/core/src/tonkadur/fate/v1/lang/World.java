@@ -11,10 +11,10 @@ public class World
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Collection<String> loaded_files;
-   protected final Collection<String> text_effects;
    protected final Map<String, Event> events;
    protected final Map<String, Macro> macros;
    protected final Map<String, Sequence> sequences;
+   protected final Map<String, TextEffect> text_effects;
    protected final Map<String, Type> types;
    protected final Map<String, Variable> variables;
 
@@ -26,18 +26,15 @@ public class World
    public World ()
    {
       loaded_files = new HashSet<String>();
-      text_effects = new HashSet<String>();
 
       events = new HashMap<String, Event>();
       macros = new HashMap<String, Macro>();
       sequences = new HashMap<String, Sequence>();
+      text_effects = new HashMap<String, TextEffect>();
       types = new HashMap<String, Type>();
       variables = new HashMap<String, Variable>();
 
-      for (final Type t: Type.BASE_TYPES)
-      {
-         types.add(t.get_name(), t);
-      }
+      add_base_types();
    }
 
    /**** Accessors ************************************************************/
@@ -57,23 +54,6 @@ public class World
       loaded_files.add(name);
    }
 
-   /**** Text Effects ****/
-   public Collection<String> get_text_effects ()
-   {
-      return text_effects.clone();
-   }
-
-   public boolean has_text_effect (final String name)
-   {
-      return text_effects.contains(name);
-   }
-
-   public void add_text_effect (final String name)
-   throws TextEffectAlreadyDeclaredException
-   {
-      text_effects.add(name);
-   }
-
    /**** Events ****/
    public Collection<Event> get_events ()
    {
@@ -85,15 +65,43 @@ public class World
       return events.containsKey(name);
    }
 
-   public void add_event (final String name, final List<Type> parameter_types)
+   public void add_event
+   (
+      final Origin origin,
+      final String name,
+      final List<Type> parameter_types
+   )
    throws EventAlreadyDeclaredException, UnknownTypeException
    {
-
+      if (has_event(name))
+      {
+         
+      }
+      for (final Type t: parameter_types)
+      {
+         if (!has_type(t))
+         {
+            throw new UnknownTypeException()
+         }
+      }
    }
 
    /**** Misc. ****************************************************************/
 
    /***************************************************************************/
-   /**** PRIVATE **************************************************************/
+   /**** PROTECTED ************************************************************/
    /***************************************************************************/
+   protected void add_base_types ()
+   {
+      final Origin base;
+
+      base = new Origin(new Context(""), Location.BASE_LANGUAGE);
+
+      add_type(base, null, "dict");
+      add_type(base, null, "float");
+      add_type(base, null, "int");
+      add_type(base, null, "list");
+      add_type(base, null, "set");
+      add_type(base, null, "string");
+   }
 }
