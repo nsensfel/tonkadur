@@ -1,20 +1,31 @@
 package tonkadur.fate.v1.error;
 
-import tonkadur.fate.v1.lang.Type;
+import tonkadur.fate.v1.parser.Location;
+import tonkadur.fate.v1.parser.Origin;
 
-public class TypeAlreadyDeclaredException extends InputException
+public class ContextCycleException extends InputException
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type original_type;
+   /*
+    * Using a Location instead of an Origin here, because the file refers to
+    * something in 'origin' anyway.
+    */
+   protected final Location original_require_location;
+   protected final String filename;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public TypeAlreadyDeclaredException (final Type original_type)
+   public ContextCycleException
+   (
+      final Location original_require_location,
+      final String filename
+   )
    {
-      this.original_type = original_type;
+      this.original_require_location = original_require_location;
+      this.filename = filename;
    }
 
    @Override
@@ -23,12 +34,12 @@ public class TypeAlreadyDeclaredException extends InputException
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.get_context().toString());
-      sb.append("Declaration for type '");
-      sb.append(original_type.get_name());
-      sb.append("' at ");
+      sb.append("Cyclic dependency for file '");
+      sb.append(filename);
+      sb.append("' required at ");
       sb.append(origin.get_location().toString());
-      sb.append(" when it was already declared at ");
-      sb.append(original_type.get_origin().get_location().toString());
+      sb.append(" when it was already required at ");
+      sb.append(original_require_location.toString());
       sb.append(".");
 
       return sb.toString();

@@ -80,11 +80,9 @@ clean:
 	rm -rf $(BIN_DIR)/*
 	rm -rf $(TARGET) $(STANDALONE)
 
-$(SRC_DIR)/tonkadur/parser/LangParser.java: $(ANTLR_SOURCES)
-
 # Pattern rules can be used to generate multiple target in a single action.
-LangLexer%java LangParser%java: $(ANTLR_SOURCES)
-	$(JAVA) -jar $(ANTLR_JAR) -lib $(SRC_DIR)/tonkadur/parser/ $^
+%Lexer.java %Parser.java: $(ANTLR_SOURCES)
+	$(JAVA) -jar $(ANTLR_JAR) -lib $(dir $@) $^
 
 $(CLASSES): $(BIN_DIR)/%.class: $(SRC_DIR)/%.java $(BIN_DIR)
 	$(JAVAC) -cp $(CLASSPATH) -d $(BIN_DIR) $<

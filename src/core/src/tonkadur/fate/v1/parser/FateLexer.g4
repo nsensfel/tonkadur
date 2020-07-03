@@ -5,8 +5,6 @@ lexer grammar FateLexer;
    package tonkadur.fate.v1.parser;
 }
 
-
-
 fragment SEP: [ \t\r\n]+;
 
 WS: SEP;
@@ -53,6 +51,9 @@ PARAMETER_KW: L_PAREN 'parameter' WS*;
 PLUS_KW: L_PAREN 'plus' WS*;
 POWER_KW: L_PAREN 'power' WS*;
 RANDOM_KW: L_PAREN 'random' WS*;
+DECLARE_TEXT_EFFECT_KW: L_PAREN 'declare_text_effect' WS*;
+PLAYER_CHOICE_KW: L_PAREN 'player_choice' WS*;
+CAST_KW: L_PAREN 'cast' WS*;
 REMOVE_ALL_KW: L_PAREN 'remove_all' WS*;
 REMOVE_ONE_KW: L_PAREN 'remove_one' WS*;
 REQUIRE_KW: L_PAREN 'require' WS*;

@@ -123,25 +123,67 @@ general_fate_instr:
    {
    }
 
-   | NEWLINE_KW
+   | IF_ELSE_KW value WS+ general_fate_instr WS+ general_fate_instr R_PAREN
    {
    }
 
-   | text
+   | COND_KW instr_cond_list R_PAREN
+   {
+   }
+
+   | PLAYER_CHOICE_KW player_choice* R_PAREN
+   {
+   }
+
+   | text+
+   {
+   }
+;
+
+instr_cond_list:
+   (L_PAREN value WS+ general_fate_instr R_PAREN)+
+   {
+   }
+;
+
+player_choice:
+   L_PAREN L_PAREN text+ R_PAREN WS+ general_fate_instr R_PAREN
+   {
+   }
+
+   | IF_KW value WS+ player_choice R_PAREN
+   {
+   }
+
+   | IF_ELSE_KW value WS+ player_choice WS+ player_choice R_PAREN
+   {
+   }
+
+   | COND_KW player_choice_cond_list R_PAREN
+   {
+   }
+;
+
+player_choice_cond_list:
+   (L_PAREN value WS+ player_choice R_PAREN)+
    {
    }
 ;
 
 text:
-   sentence text*
+   sentence
    {
    }
 
-   | (ENABLE_TEXT_PARAMETER_KW WORD WS+ text R_PAREN) text*
+   | ENABLE_TEXT_PARAMETER_KW WORD WS+ text+ R_PAREN
    {
    }
 
-   | non_text_value text*
+   | NEWLINE_KW
+   {
+   }
+
+   | non_text_value
    {
    }
 ;
@@ -289,7 +331,7 @@ value:
 ;
 
 non_text_value:
-   | IF_ELSE_KW value WS+ value WS+ value R_PAREN
+   IF_ELSE_KW value WS+ value WS+ value R_PAREN
    {
    }
 
@@ -302,6 +344,10 @@ non_text_value:
    }
 
    | math_expression
+   {
+   }
+
+   | CAST_KW WORD WORD value R_PAREN
    {
    }
 
@@ -325,13 +371,15 @@ value_reference:
 ;
 
 value_cond_list:
-   (L_PAREN value WS value R_PAREN)+
+   (L_PAREN value WS+ value R_PAREN)+
    {
    }
 ;
 
 value_list:
-   value*
+   value* (WS+ value)*
    {
    }
 ;
+
+

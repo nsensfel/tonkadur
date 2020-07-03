@@ -1,5 +1,8 @@
 package tonkadur.fate.v1.error;
 
+import tonkadur.fate.v1.parser.Context;
+import tonkadur.fate.v1.parser.Origin;
+
 abstract class InputException extends Throwable
 {
    /***************************************************************************/
@@ -10,43 +13,28 @@ abstract class InputException extends Throwable
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected String filename = "";
-   protected int line = -1;
-   protected int column = -1;
+   protected Origin origin;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public InputException set_location
+   public void set_origin (final Origin origin)
+   {
+      this.origin = origin;
+   }
+
+   public void set_origin
    (
-      final String filename,
+      final Context context,
       final int line,
       final int column
    )
    {
-      this.filename = filename;
-      this.line = line;
-      this.column = column;
-
-      return this;
+      origin = context.get_origin_at(line, column);
    }
 
-   public String get_location ()
+   public Origin get_origin ()
    {
-      final StringBuilder sb = new StringBuilder();
-
-      sb.append(filename);
-      sb.append(":");
-      sb.append(line);
-      sb.append(",");
-      sb.append(column);
-
-      return sb.toString();
-   }
-
-   @Override
-   public String toString ()
-   {
-      return get_location();
+      return origin;
    }
 }
