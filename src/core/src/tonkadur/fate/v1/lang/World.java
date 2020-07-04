@@ -1,9 +1,14 @@
 package tonkadur.fate.v1.lang;
 
-import tonkadur.fate.v1.error.EventAlreadyDeclaredException;
-import tonkadur.fate.v1.error.TypeAlreadyDeclaredException;
-import tonkadur.fate.v1.error.TextEffectAlreadyDeclaredException;
-import tonkadur.fate.v1.error.UnknownTypeException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+
+import tonkadur.parser.Context;
+import tonkadur.parser.Location;
+import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.lang.meta.DeclarationCollection;
 
 public class World
 {
@@ -11,12 +16,12 @@ public class World
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Collection<String> loaded_files;
-   protected final Map<String, Event> events;
-   protected final Map<String, Macro> macros;
-   protected final Map<String, Sequence> sequences;
-   protected final Map<String, TextEffect> text_effects;
-   protected final Map<String, Type> types;
-   protected final Map<String, Variable> variables;
+   protected final DeclarationCollection<Event> event_collection;
+//   protected final DeclarationCollection<Macro> macros;
+//   protected final DeclarationCollection<Sequence> sequences;
+//   protected final DeclarationCollection<TextEffect> text_effects;
+   protected final DeclarationCollection<Type> type_collection;
+//   protected final DeclarationCollection<Variable> variables;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -27,12 +32,14 @@ public class World
    {
       loaded_files = new HashSet<String>();
 
-      events = new HashMap<String, Event>();
-      macros = new HashMap<String, Macro>();
-      sequences = new HashMap<String, Sequence>();
-      text_effects = new HashMap<String, TextEffect>();
-      types = new HashMap<String, Type>();
-      variables = new HashMap<String, Variable>();
+      event_collection =
+         new DeclarationCollection<Event>(Event.value_on_missing());
+      //macros = new DeclarationCollection<Macro>();
+      //sequences = new DeclarationCollection<Sequence>();
+      //text_effects = new DeclarationCollection<TextEffect>();
+      type_collection =
+         new DeclarationCollection<Type>(Type.value_on_missing());
+      //variables = new DeclarationCollection<Variable>();
 
       add_base_types();
    }
@@ -41,7 +48,7 @@ public class World
    /**** Loaded Files ****/
    public Collection<String> get_loaded_files ()
    {
-      return loaded_files.clone();
+      return loaded_files;
    }
 
    public boolean has_loaded_file (final String name)
@@ -54,36 +61,14 @@ public class World
       loaded_files.add(name);
    }
 
-   /**** Events ****/
-   public Collection<Event> get_events ()
+   public DeclarationCollection<Type> types()
    {
-      return events.values();
+      return type_collection;
    }
 
-   public boolean has_event (final String name)
+   public DeclarationCollection<Event> events()
    {
-      return events.containsKey(name);
-   }
-
-   public void add_event
-   (
-      final Origin origin,
-      final String name,
-      final List<Type> parameter_types
-   )
-   throws EventAlreadyDeclaredException, UnknownTypeException
-   {
-      if (has_event(name))
-      {
-         
-      }
-      for (final Type t: parameter_types)
-      {
-         if (!has_type(t))
-         {
-            throw new UnknownTypeException()
-         }
-      }
+      return event_collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -97,11 +82,20 @@ public class World
 
       base = new Origin(new Context(""), Location.BASE_LANGUAGE);
 
-      add_type(base, null, "dict");
-      add_type(base, null, "float");
-      add_type(base, null, "int");
-      add_type(base, null, "list");
-      add_type(base, null, "set");
-      add_type(base, null, "string");
+      try
+      {
+         type_collection.add(new Type(base, null, "dict"));
+         type_collection.add(new Type(base, null, "float"));
+         type_collection.add(new Type(base, null, "int"));
+         type_collection.add(new Type(base, null, "list"));
+         type_collection.add(new Type(base, null, "set"));
+         type_collection.add(new Type(base, null, "string"));
+      }
+      catch (final Throwable t)
+      {
+         System.err.println("Unable to add base types:" + t.toString());
+         System.exit(-1);
+      }
+
    }
 }

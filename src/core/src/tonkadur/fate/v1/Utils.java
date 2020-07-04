@@ -29,6 +29,7 @@ public class Utils
       lexer = new FateLexer(CharStreams.fromFileName(filename));
       tokens = new CommonTokenStream(lexer);
       parser = new FateParser(tokens);
+
       parser.fate_file(world);
    }
 }

@@ -1,31 +1,36 @@
 package tonkadur.fate.v1.lang;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import tonkadur.functional.Merge;
+
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
-public class Type extends DeclaredEntity
+public class Event extends DeclaredEntity
 {
-   protected static final Type ANY;
+   protected static final Event ANY;
 
    static
    {
       ANY =
-         new Type
+         new Event
          (
             new Origin(new Context(""), Location.BASE_LANGUAGE),
-            null,
+            new ArrayList<Type>(),
             /*
              * Use of a space necessary to avoid conflicting with a user created
              * type.
              */
-            "undetermined type"
+            "undetermined event"
          );
    }
 
-   public static Type value_on_missing ()
+   public static Event value_on_missing ()
    {
       return ANY;
    }
@@ -33,79 +38,71 @@ public class Type extends DeclaredEntity
    @Override
    public /* static */ String get_type_name ()
    {
-      return "Type";
+      return "Event";
    }
+
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type true_type;
-   protected final Type parent;
+   protected final List<Type> signature;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   public Type
+   public Event
    (
       final Origin origin,
-      final Type parent,
+      final List<Type> signature,
       final String name
    )
    {
       super(origin, name);
 
-      if (parent == null)
-      {
-         true_type = this;
-      }
-      else
-      {
-         true_type = parent.true_type;
-      }
-
-      this.parent = parent;
+      this.signature = signature;
    }
 
    /**** Accessors ************************************************************/
-
-   public Type get_true_type ()
+   public List<Type> get_signature ()
    {
-      return true_type;
-   }
-
-   public boolean is_base_type ()
-   {
-      return (parent == null);
-   }
-
-   /**** Compatibility ********************************************************/
-   public boolean can_be_used_as (final Type t)
-   {
-      if (!true_type.equals(t.true_type))
-      {
-         return false;
-      }
-
-      return this_or_parent_equals(t);
+      return signature;
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public boolean is_incompatible_with_declaration (final DeclaredEntity de)
    {
-      if (de instanceof Type)
+      if (de instanceof Event)
       {
-         final Type t;
+         final Event e;
 
-         t = (Type) de;
+         e = (Event) de;
 
-         /*
-          * If the previous type cannot be used when the new one will do, the
-          * new declaration cannot safely stand.
-          */
-         return !can_be_used_as(t);
+         if (signature.size() == e.signature.size())
+         {
+            final List<Boolean> compatibility_result;
+
+            /*
+             * Basically, the events are compatible if, and only if, the old
+             * signature is as least as restrictive as the new one.
+             */
+            compatibility_result =
+               (
+                  new Merge<Type,Type,Boolean>()
+                  {
+                     @Override
+                     protected Boolean merge_fun (final Type a, final Type b)
+                     {
+                        return
+                           new Boolean(a.is_incompatible_with_declaration(b));
+                     }
+                  }.merge(signature, e.signature)
+               );
+
+            return compatibility_result.contains(Boolean.TRUE);
+         }
       }
 
       return true;
@@ -116,13 +113,30 @@ public class Type extends DeclaredEntity
    {
       final StringBuilder sb = new StringBuilder();
 
-      if (parent != null)
-      {
-         sb.append(parent.toString());
-         sb.append("::");
-      }
-
       sb.append(name);
+
+      if (!signature.isEmpty())
+      {
+         boolean first_argument;
+
+         sb.append(": ");
+
+         first_argument = true;
+
+         for (final Type type: signature)
+         {
+            if (first_argument)
+            {
+               first_argument = false;
+            }
+            else
+            {
+               sb.append(" -> ");
+            }
+
+            sb.append(type.get_name());
+         }
+      }
 
       return sb.toString();
    }
@@ -130,18 +144,4 @@ public class Type extends DeclaredEntity
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-   protected boolean this_or_parent_equals (final Type t)
-   {
-      if (equals(t))
-      {
-         return true;
-      }
-
-      if (parent == null)
-      {
-         return false;
-      }
-
-      return parent.this_or_parent_equals(t);
-   }
 }

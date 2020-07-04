@@ -8,6 +8,8 @@ options
 @header
 {
    package tonkadur.fate.v1.parser;
+
+   import tonkadur.fate.v1.lang.World;
 }
 
 @members
@@ -18,7 +20,7 @@ options
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-fate_file:
+fate_file [World world]:
    WS* FATE_VERSION_KW WORD L_PAREN WS*
    (
       (first_level_fate_instr|general_fate_instr)
