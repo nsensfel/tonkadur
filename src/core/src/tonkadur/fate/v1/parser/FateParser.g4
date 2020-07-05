@@ -9,11 +9,15 @@ options
 {
    package tonkadur.fate.v1.parser;
 
+   import java.util.Map;
+   import java.util.HashMap;
+
    import tonkadur.error.ErrorManager;
 
    import tonkadur.parser.Context;
    import tonkadur.parser.Origin;
 
+   import tonkadur.fate.v1.error.IllegalReferenceNameException;
    import tonkadur.fate.v1.error.UnknownVariableScopeException;
 
    import tonkadur.fate.v1.lang.*;
@@ -55,7 +59,11 @@ general_fate_sequence:
 ;
 
 first_level_fate_instr:
-   DEFINE_SEQUENCE_KW WORD WS+ first_node=general_fate_sequence R_PAREN
+   DEFINE_SEQUENCE_KW
+      new_reference_name
+      WS+
+      first_node=general_fate_sequence
+   R_PAREN
    {
    /*
       world.sequences().add
@@ -65,13 +73,13 @@ first_level_fate_instr:
             ($DEFINE_SEQUENCE_KW.getLine()),
             ($DEFINE_SEQUENCE_KW.getCharPositionInLine())
          ),
-         ($WORD.text),
+         ($new_reference_name.result),
          //(first_node.result)
       );
    */
    }
 
-   | DECLARE_VARIABLE_KW scope=WORD WS+ type WS+ name=WORD R_PAREN
+   | DECLARE_VARIABLE_KW scope=WORD WS+ type WS+ name=new_reference_name R_PAREN
    {
       final Origin start_origin, scope_origin, type_origin;
       final Variable new_variable;
@@ -109,13 +117,13 @@ first_level_fate_instr:
             start_origin,
             variable_scope,
             ($type.result),
-            ($name.text)
+            ($name.result)
          );
 
       WORLD.variables().add(new_variable);
    }
 
-   | DECLARE_TEXT_EFFECT_KW params=type_list name=WORD R_PAREN
+   | DECLARE_TEXT_EFFECT_KW params=type_list new_reference_name R_PAREN
    {
       final Origin start_origin;
       final TextEffect new_text_effect;
@@ -128,17 +136,22 @@ first_level_fate_instr:
          );
 
       new_text_effect =
-         new TextEffect(start_origin, ($type_list.result), ($name.text));
+         new TextEffect
+         (
+            start_origin,
+            ($type_list.result),
+            ($new_reference_name.result)
+         );
 
       WORLD.text_effects().add(new_text_effect);
    }
 
-   | REQUIRE_EXTENSION_KW name=WORD R_PAREN
+   | REQUIRE_EXTENSION_KW WORD R_PAREN
    {
-      WORLD.add_required_extension(($name.text));
+      WORLD.add_required_extension(($WORD.text));
    }
 
-   | DECLARE_ALIAS_TYPE_KW parent=type WS+ name=WORD R_PAREN
+   | DECLARE_ALIAS_TYPE_KW parent=type WS+ new_reference_name R_PAREN
    {
       final Origin start_origin;
       final Type new_type;
@@ -150,13 +163,50 @@ first_level_fate_instr:
             ($DECLARE_ALIAS_TYPE_KW.getCharPositionInLine())
          );
 
-      new_type = new Type(start_origin, ($parent.result), ($name.text));
+      new_type =
+         new Type
+         (
+            start_origin,
+            ($parent.result),
+            ($new_reference_name.result)
+         );
 
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_DICT_TYPE_KW name=WORD typed_param_list R_PAREN
+   | DECLARE_DICT_TYPE_KW new_reference_name WS* typed_entry_list R_PAREN
    {
+      final Origin start_origin;
+      final Type new_type;
+      final Map<String, Type> field_types;
+
+      field_types = new HashMap<String, Type>();
+
+      for
+      (
+         final TypedEntryList.TypedEntry te:
+            ($typed_entry_list.result).get_entries()
+      )
+      {
+         field_types.put(te.get_name(), te.get_type());
+      }
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_DICT_TYPE_KW.getLine()),
+            ($DECLARE_DICT_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_type =
+         new DictType
+         (
+            start_origin,
+            field_types,
+            ($new_reference_name.result)
+         );
+
+      WORLD.types().add(new_type);
    }
 
    | ADD_KW value WS+ value_reference R_PAREN
@@ -171,7 +221,7 @@ first_level_fate_instr:
    {
    }
 
-   | DECLARE_EVENT_TYPE_KW name=WORD WS+ type_list R_PAREN
+   | DECLARE_EVENT_TYPE_KW new_reference_name WS+ type_list R_PAREN
    {
       final Origin start_origin;
       final Event new_event;
@@ -183,7 +233,13 @@ first_level_fate_instr:
             ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
          );
 
-      new_event = new Event(start_origin, ($type_list.result), ($name.text));
+      new_event =
+         new Event
+         (
+            start_origin,
+            ($type_list.result),
+            ($new_reference_name.result)
+         );
 
       WORLD.events().add(new_event);
    }
@@ -193,7 +249,8 @@ first_level_fate_instr:
    }
 
    | DEFINE_MACRO_KW
-         L_PAREN WS+ typed_param_list R_PAREN
+         new_reference_name WS*
+         L_PAREN WS+ typed_entry_list R_PAREN
          general_fate_sequence
       R_PAREN
    {
@@ -357,30 +414,83 @@ type_list
 returns [List<Type> result]
 @init
 {
-   final List<Type> result = new ArrayList<Type>();
+   $result = new ArrayList<Type>();
 }
 :
    (
       type
       {
-         result.add(($type.result));
+         $result.add(($type.result));
       }
    )?
    (WS+
       type
       {
-         result.add(($type.result));
+         $result.add(($type.result));
       }
    )*
    {
    }
 ;
 
-typed_param_list:
-   (L_PAREN WORD WS+ type R_PAREN)*
+typed_entry_list
+returns [TypedEntryList result]
+@init
+{
+   $result = new TypedEntryList();
+}
+:
+   (
+      L_PAREN type WS+ new_reference_name R_PAREN
+      {
+         $result.add
+         (
+            CONTEXT.get_origin_at
+            (
+               ($L_PAREN.getLine()),
+               ($L_PAREN.getCharPositionInLine())
+            ),
+            ($type.result),
+            ($new_reference_name.result)
+         );
+      }
+   )*
    {
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
+
+new_reference_name
+returns [String result]
+:
+   WORD
+   {
+      if (($WORD.text).indexOf('.') != -1)
+      {
+         ErrorManager.handle
+         (
+            new IllegalReferenceNameException
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($WORD.getLine()),
+                  ($WORD.getCharPositionInLine())
+               ),
+               ($WORD.text)
+            )
+         );
+      }
+
+      $result = ($WORD.text);
+   }
+;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 /******************************************************************************/
 /**** VALUES ******************************************************************/

@@ -151,7 +151,7 @@ public class World
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("Variable: ");
+      sb.append("Variables: ");
       sb.append(System.lineSeparator());
       sb.append(variable_collection.toString());
       sb.append(System.lineSeparator());
