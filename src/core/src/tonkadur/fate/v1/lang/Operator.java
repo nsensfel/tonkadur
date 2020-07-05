@@ -3,35 +3,95 @@ package tonkadur.fate.v1.lang;
 import java.util.Collections;
 import java.util.Set;
 
-public enum Operator
+/*
+ * Yes, it *could* have been an enum. In fact, it used to be one. Except that
+ * unless you want to ensure coverage of all cases in a switch, Java enums are
+ * clearly inferior to classes in everyway. Having this be a class will, at
+ * the very least, let you extend it to add new operators in extensions.
+ */
+public class Operator
 {
-   PLUS("+", 2, 0, Type.NUMBER_TYPES, null),
-   MINUS("-", 2, 0, Type.NUMBER_TYPES, null),
-   TIMES("*", 2, 0, Type.NUMBER_TYPES, null),
-   DIVIDE("/", 2, 2, Type.NUMBER_TYPES, null),
-   POWER("^", 2, 2, Type.NUMBER_TYPES, null),
-   RANDOM("rand", 2, 2, Collections.singleton(Type.INT), null),
+   public static final Operator PLUS;
+   public static final Operator MINUS;
+   public static final Operator TIMES;
+   public static final Operator DIVIDE;
+   public static final Operator POWER;
+   public static final Operator RANDOM;
 
-   AND("and", 2, 0, Collections.singleton(Type.BOOLEAN), null),
-   OR("or", 2, 0, Collections.singleton(Type.BOOLEAN), null),
-   NOT("not", 1, 1, Collections.singleton(Type.BOOLEAN), null),
-   IMPLIES("implies", 2, 2, Collections.singleton(Type.BOOLEAN), null),
-   ONE_IN("one_in", 1, 0, Collections.singleton(Type.BOOLEAN), null),
+   public static final Operator AND;
+   public static final Operator OR;
+   public static final Operator NOT;
+   public static final Operator IMPLIES;
+   public static final Operator ONE_IN;
 
-   EQUALS("equals", 2, 0, Type.COLLECTION_COMPATIBLE_TYPES, Type.BOOLEAN),
+   public static final Operator EQUALS;
 
-   LOWER_THAN("<", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN),
-   LOWER_EQUAL_THAN("=<", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN),
-   GREATER_EQUAL_THAN(">=", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN),
-   GREATER_THAN(">", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+   public static final Operator LOWER_THAN;
+   public static final Operator LOWER_EQUAL_THAN;
+   public static final Operator GREATER_EQUAL_THAN;
+   public static final Operator GREATER_THAN;
 
-   final private String name;
-   final private int min_arity;
-   final private int max_arity;
-   final private Set<Type> valid_input_types;
-   final private Type output_type_transform;
 
-   private Operator
+   static
+   {
+      PLUS = new Operator("+", 2, 0, Type.NUMBER_TYPES, null);
+      MINUS = new Operator("-", 2, 0, Type.NUMBER_TYPES, null);
+      TIMES = new Operator("*", 2, 0, Type.NUMBER_TYPES, null);
+      DIVIDE = new Operator("/", 2, 2, Type.NUMBER_TYPES, null);
+      POWER = new Operator("^", 2, 2, Type.NUMBER_TYPES, null);
+      RANDOM =
+         new Operator("rand", 2, 2, Collections.singleton(Type.INT), null);
+
+      AND =
+         new Operator("and", 2, 0, Collections.singleton(Type.BOOLEAN), null);
+      OR =
+         new Operator("or", 2, 0, Collections.singleton(Type.BOOLEAN), null);
+      NOT =
+         new Operator("not", 1, 1, Collections.singleton(Type.BOOLEAN), null);
+      IMPLIES =
+         new Operator
+         (
+            "implies",
+            2,
+            2,
+            Collections.singleton(Type.BOOLEAN),
+            null
+         );
+      ONE_IN =
+         new Operator
+         (
+            "one_in",
+            1,
+            0,
+            Collections.singleton(Type.BOOLEAN),
+            null
+         );
+
+      EQUALS =
+         new Operator
+         (
+            "equals",
+            2,
+            0,
+            Type.COLLECTION_COMPATIBLE_TYPES,
+            Type.BOOLEAN
+         );
+
+      LOWER_THAN = new Operator("<", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+      LOWER_EQUAL_THAN =
+         new Operator("=<", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+      GREATER_EQUAL_THAN =
+         new Operator(">=", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+      GREATER_THAN = new Operator(">", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+   }
+
+   final protected String name;
+   final protected int min_arity;
+   final protected int max_arity;
+   final protected Set<Type> valid_input_types;
+   final protected Type output_type_transform;
+
+   protected Operator
    (
       final String name,
       final int min_arity,
