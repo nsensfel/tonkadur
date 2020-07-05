@@ -127,7 +127,7 @@ public class Event extends DeclaredEntity
                      protected Boolean lambda (final Type a, final Type b)
                      {
                         return
-                           new Boolean(a.is_incompatible_with_declaration(b));
+                           new Boolean(a.can_be_used_as(b));
                      }
                   }.merge(signature, e.signature)
                );
@@ -171,8 +171,4 @@ public class Event extends DeclaredEntity
 
       return sb.toString();
    }
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
 }

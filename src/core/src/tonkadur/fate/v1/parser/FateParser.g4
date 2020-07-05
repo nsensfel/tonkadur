@@ -9,10 +9,12 @@ options
 {
    package tonkadur.fate.v1.parser;
 
-   import tonkadur.error.Error;
+   import tonkadur.error.ErrorManager;
 
    import tonkadur.parser.Context;
    import tonkadur.parser.Origin;
+
+   import tonkadur.fate.v1.error.UnknownVariableScopeException;
 
    import tonkadur.fate.v1.lang.*;
    import tonkadur.fate.v1.lang.meta.*;
@@ -71,11 +73,10 @@ first_level_fate_instr:
 
    | DECLARE_VARIABLE_KW scope=WORD WS+ type=WORD WS+ name=WORD R_PAREN
    {
-   /*
       final Origin start_origin, scope_origin, type_origin;
-      final VariableScope variable_scope;
       final Type variable_type;
       final Variable new_variable;
+      VariableScope variable_scope;
 
       start_origin =
          CONTEXT.get_origin_at
@@ -98,8 +99,19 @@ first_level_fate_instr:
             ($type.getCharPositionInLine())
          );
 
-      variable_scope = VariableScope.value_of(scope_origin, ($scope.text));
-      variable_type = WORLD.types().get(($type.text));
+      variable_scope = VariableScope.value_of(($scope.text));
+
+      if (variable_scope == null)
+      {
+         ErrorManager.handle
+         (
+            new UnknownVariableScopeException(scope_origin, ($scope.text))
+         );
+
+         variable_scope = VariableScope.ANY;
+      }
+
+      variable_type = WORLD.types().get(type_origin, ($type.text));
       new_variable =
          new Variable
          (
@@ -110,7 +122,6 @@ first_level_fate_instr:
          );
 
       WORLD.variables().add(new_variable);
-   */
    }
 
    | DECLARE_TEXT_EFFECT_KW params=word_list name=WORD R_PAREN

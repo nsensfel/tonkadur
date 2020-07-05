@@ -21,7 +21,7 @@ public class World
 //   protected final DeclarationCollection<Sequence> sequences;
 //   protected final DeclarationCollection<TextEffect> text_effects;
    protected final DeclarationCollection<Type> type_collection;
-//   protected final DeclarationCollection<Variable> variables;
+   protected final DeclarationCollection<Variable> variable_collection;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -39,7 +39,8 @@ public class World
       //text_effects = new DeclarationCollection<TextEffect>();
       type_collection =
          new DeclarationCollection<Type>(Type.value_on_missing());
-      //variables = new DeclarationCollection<Variable>();
+      variable_collection =
+         new DeclarationCollection<Variable>(Variable.value_on_missing());
 
       add_base_types();
    }
@@ -61,14 +62,19 @@ public class World
       loaded_files.add(name);
    }
 
-   public DeclarationCollection<Type> types()
+   public DeclarationCollection<Type> types ()
    {
       return type_collection;
    }
 
-   public DeclarationCollection<Event> events()
+   public DeclarationCollection<Event> events ()
    {
       return event_collection;
+   }
+
+   public DeclarationCollection<Variable> variables ()
+   {
+      return variable_collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -100,6 +106,12 @@ public class World
       sb.append("Types: ");
       sb.append(System.lineSeparator());
       sb.append(type_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("Variable: ");
+      sb.append(System.lineSeparator());
+      sb.append(variable_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
