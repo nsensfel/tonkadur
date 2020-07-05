@@ -1,5 +1,11 @@
 package tonkadur.fate.v1.lang;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
@@ -8,21 +14,37 @@ import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 public class Type extends DeclaredEntity
 {
-   protected static final Type ANY;
+   public static final Type ANY;
+   public static final Type BOOLEAN;
+   public static final Type DICT;
+   public static final Type FLOAT;
+   public static final Type INT;
+   public static final Type LIST;
+   public static final Type SET;
+   public static final Type STRING;
+
+   public static final Type[] NUMBER_TYPES;
 
    static
    {
-      ANY =
-         new Type
-         (
-            new Origin(new Context(""), Location.BASE_LANGUAGE),
-            null,
-            /*
-             * Use of a space necessary to avoid conflicting with a user created
-             * type.
-             */
-            "undetermined type"
-         );
+      final Origin base;
+
+      base = new Origin(new Context(""), Location.BASE_LANGUAGE);
+
+      /*
+       * Use of a space necessary to avoid conflicting with a user created type.
+       */
+      ANY = new Type(base, null, "undetermined type");
+
+      BOOLEAN = new Type(base, null, "boolean");
+      DICT = new Type(base, null, "dict");
+      FLOAT = new Type(base, null, "float");
+      INT = new Type(base, null, "int");
+      LIST = new Type(base, null, "list");
+      SET = new Type(base, null, "set");
+      STRING = new Type(base, null, "string");
+
+      NUMBER_TYPES = new Type[]{FLOAT, INT};
    }
 
    public static Type value_on_missing ()
@@ -35,6 +57,7 @@ public class Type extends DeclaredEntity
    {
       return "Type";
    }
+
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -69,7 +92,6 @@ public class Type extends DeclaredEntity
    }
 
    /**** Accessors ************************************************************/
-
    public Type get_true_type ()
    {
       return true_type;
@@ -90,6 +112,44 @@ public class Type extends DeclaredEntity
 
       return this_or_parent_equals(t);
    }
+
+   /*
+    * This is for the very special case where a type is used despite not being
+    * even a sub-type of the expected one. Using this rather expensive function,
+    * the most restrictive shared type will be returned. If no such type exists,
+    * the ANY time is returned.
+    */
+   @Override
+   public DeclaredEntity generate_comparable_to (final DeclaredEntity de)
+   {
+      final Iterator<Type> it0, it1;
+      Type result, candidate;
+
+      if (!(de instanceof Type))
+      {
+         return ANY;
+      }
+
+      it0 = ((Type) de).compute_full_type_chain().iterator();
+      it1 = compute_full_type_chain().iterator();
+
+      result = Type.ANY;
+
+      while (it0.hasNext() && it1.hasNext())
+      {
+         candidate = it0.next();
+
+         if (!candidate.name.equals(it1.next().name))
+         {
+            break;
+         }
+
+         result = candidate;
+      }
+
+      return result;
+   }
+
 
    /**** Misc. ****************************************************************/
    @Override
@@ -143,5 +203,26 @@ public class Type extends DeclaredEntity
       }
 
       return parent.this_or_parent_equals(t);
+   }
+
+   protected List<Type> compute_full_type_chain ()
+   {
+      final List<Type> result;
+      Type t;
+
+      result = new ArrayList<Type>();
+
+      t = this;
+
+      while (t != null)
+      {
+         result.add(t);
+
+         t = t.parent;
+      }
+
+      Collections.reverse(result);
+
+      return result;
    }
 }

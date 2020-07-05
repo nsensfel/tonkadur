@@ -28,7 +28,7 @@ public class Merge <Input0, Input1, Output>
       {
          output.add
          (
-            merge_fun
+            lambda
             (
                it0.hasNext() ? it0.next() : null,
                it1.hasNext() ? it1.next() : null
@@ -39,7 +39,7 @@ public class Merge <Input0, Input1, Output>
       return output;
    }
 
-   protected Output merge_fun (final Input0 i0, final Input1 i1)
+   protected Output lambda (final Input0 i0, final Input1 i1)
    {
       return null;
    }

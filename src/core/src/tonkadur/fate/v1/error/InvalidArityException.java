@@ -5,27 +5,33 @@ import tonkadur.error.ErrorLevel;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-public class MissingDeclarationException extends ParsingError
+public class InvalidArityException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final String type_name;
-   protected final String name;
+   protected final int arity;
+   protected final int arguments_count;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public MissingDeclarationException
+   public InvalidArityException
    (
-      final Origin origin,
-      final String type_name,
-      final String name
+      final Origin call_origin,
+      final int arguments_count,
+      final int arity
    )
    {
-      super(ErrorLevel.ERROR, ErrorCategory.MISSING_DECLARATION, origin);
-      this.type_name = type_name;
-      this.name = name;
+      super
+      (
+         ErrorLevel.FATAL,
+         ErrorCategory.INVALID_USE,
+         call_origin
+      );
+
+      this.arguments_count = arguments_count;
+      this.arity = arity;
    }
 
    @Override
@@ -35,13 +41,11 @@ public class MissingDeclarationException extends ParsingError
 
       sb.append(origin.get_context().toString());
       sb.append(error_category.toString());
-      sb.append(" Unknown ");
-      sb.append(type_name);
-      sb.append(" '");
-      sb.append(name);
-      sb.append("' at ");
-      sb.append(origin.get_location().toString());
-      sb.append(".");
+      sb.append(" This supports a maximum or a minimum of ");
+      sb.append(arity);
+      sb.append(" parameter(s), but was given ");
+      sb.append(arguments_count);
+      sb.append(" of them.");
 
       return sb.toString();
    }

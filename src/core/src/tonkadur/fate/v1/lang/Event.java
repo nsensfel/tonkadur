@@ -70,6 +70,37 @@ public class Event extends DeclaredEntity
       return signature;
    }
 
+   @Override
+   public DeclaredEntity generate_comparable_to (final DeclaredEntity de)
+   {
+      final List<Type> new_signature;
+      final Event e;
+
+      if (!(de instanceof Event))
+      {
+         return ANY;
+      }
+
+      e = (Event) de;
+
+      if (signature.size() != e.signature.size())
+      {
+         return ANY;
+      }
+
+      new_signature =
+         new Merge<Type, Type, Type>()
+         {
+            @Override
+            protected Type lambda (final Type a, final Type b)
+            {
+               return (Type) a.generate_comparable_to(b);
+            }
+         }.merge(signature, e.signature);
+
+      return new Event(origin, new_signature, name);
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public boolean is_incompatible_with_declaration (final DeclaredEntity de)
@@ -90,10 +121,10 @@ public class Event extends DeclaredEntity
              */
             compatibility_result =
                (
-                  new Merge<Type,Type,Boolean>()
+                  new Merge<Type, Type, Boolean>()
                   {
                      @Override
-                     protected Boolean merge_fun (final Type a, final Type b)
+                     protected Boolean lambda (final Type a, final Type b)
                      {
                         return
                            new Boolean(a.is_incompatible_with_declaration(b));

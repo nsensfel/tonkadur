@@ -7,7 +7,7 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
-public class ConflictingDeclarationException extends ParsingError
+public class IncomparableDeclarationException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -18,7 +18,7 @@ public class ConflictingDeclarationException extends ParsingError
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public ConflictingDeclarationException
+   public IncomparableDeclarationException
    (
       final DeclaredEntity new_declaration,
       final DeclaredEntity original_declaration
@@ -27,7 +27,7 @@ public class ConflictingDeclarationException extends ParsingError
       super
       (
          ErrorLevel.ERROR,
-         ErrorCategory.CONFLICTING,
+         ErrorCategory.INCOMPARABLE,
          new_declaration.get_origin()
       );
 
@@ -48,7 +48,7 @@ public class ConflictingDeclarationException extends ParsingError
       sb.append(original_declaration.get_name());
       sb.append("' at ");
       sb.append(origin.get_location().toString());
-      sb.append(" conflicts with its declaration at ");
+      sb.append(" is incomparable with its declaration at ");
       sb.append(original_declaration.get_origin().get_location().toString());
       sb.append(".");
       sb.append(System.lineSeparator());

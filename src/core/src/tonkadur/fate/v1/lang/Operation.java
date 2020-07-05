@@ -1,0 +1,142 @@
+package tonkadur.fate.v1.lang;
+
+import java.util.Collection;
+import java.util.List;
+
+import tonkadur.error.ErrorManager;
+
+import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.error.ConflictingTypeException;
+import tonkadur.fate.v1.error.IncomparableTypeException;
+import tonkadur.fate.v1.error.IncompatibleTypeException;
+import tonkadur.fate.v1.error.InvalidArityException;
+import tonkadur.fate.v1.error.InvalidTypeException;
+
+import tonkadur.fate.v1.lang.meta.ValueNode;
+
+public class Operation extends ValueNode
+{
+   protected final Operator operator;
+   protected final List<ValueNode> operands;
+
+   protected Operation
+   (
+      final Origin origin,
+      final Type result_type,
+      final Operator operator,
+      final List<ValueNode> operands
+   )
+   {
+      super(origin, result_type);
+
+      this.operator = operator;
+      this.operands = operands;
+   }
+
+   public Operation build
+   (
+      final Origin origin,
+      final Operator operator,
+      final List<ValueNode> operands
+   )
+   throws
+      ConflictingTypeException,
+      IncomparableTypeException,
+      IncompatibleTypeException,
+      InvalidArityException,
+      InvalidTypeException
+   {
+      final Collection<Type> allowed_base_types;
+      final int operator_arity;
+      Type computed_type, previous_computed_type;
+
+      allowed_base_types = operator.get_allowed_base_types();
+      operator_arity = operator.get_arity();
+
+      if
+      (
+         (operator_arity != 0)
+         && (operator_arity < operands.size())
+      )
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException(origin, operands.size(), operator_arity)
+         );
+      }
+
+      computed_type = operands.get(0).get_type();
+
+      for (final ValueNode operand: operands)
+      {
+         final Type operand_type;
+
+         operand_type = operand.get_type();
+
+         if (!allowed_base_types.contains(operand_type.get_true_type()))
+         {
+            ErrorManager.handle
+            (
+               new InvalidTypeException
+               (
+                  operand.get_origin(),
+                  operand_type,
+                  allowed_base_types
+               )
+            );
+         }
+
+         if (computed_type.equals(operand_type))
+         {
+            continue;
+         }
+
+         ErrorManager.handle
+         (
+            new ConflictingTypeException
+            (
+               operand.get_origin(),
+               operand_type,
+               computed_type
+            )
+         );
+
+         if (operand_type.can_be_used_as(computed_type))
+         {
+            continue;
+         }
+
+         ErrorManager.handle
+         (
+            new IncompatibleTypeException
+            (
+               operand.get_origin(),
+               operand_type,
+               computed_type
+            )
+         );
+
+         previous_computed_type = computed_type;
+         computed_type =
+            (Type) computed_type.generate_comparable_to(operand_type);
+
+         if (computed_type.equals(Type.ANY))
+         {
+            ErrorManager.handle
+            (
+               new IncomparableTypeException
+               (
+                  operand.get_origin(),
+                  operand_type,
+                  previous_computed_type
+               )
+            );
+         }
+      }
+
+      computed_type = operator.transform_type(computed_type);
+
+      return new Operation(origin, computed_type, operator, operands);
+   }
+}

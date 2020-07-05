@@ -12,18 +12,28 @@ import tonkadur.fate.v1.error.MissingDeclarationException;
 import tonkadur.fate.v1.error.DuplicateDeclarationException;
 import tonkadur.fate.v1.error.ConflictingDeclarationException;
 import tonkadur.fate.v1.error.IncompatibleDeclarationException;
+import tonkadur.fate.v1.error.IncomparableDeclarationException;
 
 public class DeclarationCollection <Declared extends DeclaredEntity>
 {
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
    protected final Map<String, Declared> collection;
    protected final Declared value_on_missing;
 
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
+
+   /**** Constructors *********************************************************/
    public DeclarationCollection (final Declared value_on_missing)
    {
       collection = new HashMap<String, Declared>();
       this.value_on_missing = value_on_missing;
    }
 
+   /**** Accessors ************************************************************/
    public Collection<Declared> get_all ()
    {
       return collection.values();
@@ -34,13 +44,14 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
       return collection.containsKey(name);
    }
 
-   public void add (final Declared entity)
+   public void add (Declared entity)
    throws
       DuplicateDeclarationException,
       ConflictingDeclarationException,
-      IncompatibleDeclarationException
+      IncompatibleDeclarationException,
+      IncomparableDeclarationException
    {
-      assert_entity_can_be_added(entity);
+      entity = assert_entity_can_be_added(entity);
       collection.put(entity.get_name(), entity);
    }
 
@@ -72,19 +83,21 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-   protected void assert_entity_can_be_added (final Declared new_version)
+   protected Declared assert_entity_can_be_added (Declared new_version)
    throws
       DuplicateDeclarationException,
       ConflictingDeclarationException,
-      IncompatibleDeclarationException
+      IncompatibleDeclarationException,
+      IncomparableDeclarationException
    {
+      final DeclaredEntity de;
       final Declared previous_version;
 
       previous_version = collection.get(new_version.get_name());
 
       if (previous_version == null)
       {
-         return;
+         return new_version;
       }
 
       ErrorManager.handle
@@ -98,7 +111,7 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
 
       if (!previous_version.conflicts_with_declaration(new_version))
       {
-         return;
+         return new_version;
       }
 
       ErrorManager.handle
@@ -108,12 +121,35 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
 
       if (!previous_version.is_incompatible_with_declaration(new_version))
       {
-         return;
+         return new_version;
       }
 
       ErrorManager.handle
       (
          new IncompatibleDeclarationException(new_version, previous_version)
       );
+
+      de = new_version.generate_comparable_to(previous_version);
+
+      try
+      {
+         new_version = (Declared) de;
+      }
+      catch (final ClassCastException e)
+      {
+         e.printStackTrace();
+
+         System.exit(-1);
+      }
+
+      if (new_version.equals(value_on_missing))
+      {
+         ErrorManager.handle
+         (
+            new IncomparableDeclarationException(new_version, previous_version)
+         );
+      }
+
+      return new_version;
    }
 }

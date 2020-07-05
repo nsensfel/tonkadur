@@ -78,18 +78,16 @@ public class World
    /***************************************************************************/
    protected void add_base_types ()
    {
-      final Origin base;
-
-      base = new Origin(new Context(""), Location.BASE_LANGUAGE);
 
       try
       {
-         type_collection.add(new Type(base, null, "dict"));
-         type_collection.add(new Type(base, null, "float"));
-         type_collection.add(new Type(base, null, "int"));
-         type_collection.add(new Type(base, null, "list"));
-         type_collection.add(new Type(base, null, "set"));
-         type_collection.add(new Type(base, null, "string"));
+         type_collection.add(Type.BOOLEAN);
+         type_collection.add(Type.DICT);
+         type_collection.add(Type.FLOAT);
+         type_collection.add(Type.INT);
+         type_collection.add(Type.LIST);
+         type_collection.add(Type.SET);
+         type_collection.add(Type.STRING);
       }
       catch (final Throwable t)
       {

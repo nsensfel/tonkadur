@@ -49,6 +49,7 @@ public abstract class DeclaredEntity
       return origin;
    }
 
+   /**** Compatibility ********************************************************/
    public boolean conflicts_with_declaration (final DeclaredEntity de)
    {
       return !equals(de);
@@ -59,6 +60,13 @@ public abstract class DeclaredEntity
       return !equals(de);
    }
 
+   public <ThisType extends DeclaredEntity>
+   ThisType generate_comparable_to (final ThisType de)
+   {
+      return null;
+   }
+
+   /**** Misc. ****************************************************************/
    @Override
    public boolean equals (final Object o)
    {

@@ -5,27 +5,35 @@ import tonkadur.error.ErrorLevel;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-public class MissingDeclarationException extends ParsingError
+import tonkadur.fate.v1.lang.Type;
+
+public class IncomparableTypeException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final String type_name;
-   protected final String name;
+   protected final Type given_type;
+   protected final Type expected_type;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public MissingDeclarationException
+   public IncomparableTypeException
    (
-      final Origin origin,
-      final String type_name,
-      final String name
+      final Origin call_origin,
+      final Type given_type,
+      final Type expected_type
    )
    {
-      super(ErrorLevel.ERROR, ErrorCategory.MISSING_DECLARATION, origin);
-      this.type_name = type_name;
-      this.name = name;
+      super
+      (
+         ErrorLevel.ERROR,
+         ErrorCategory.INCOMPARABLE,
+         call_origin
+      );
+
+      this.given_type = given_type;
+      this.expected_type = expected_type;
    }
 
    @Override
@@ -35,13 +43,12 @@ public class MissingDeclarationException extends ParsingError
 
       sb.append(origin.get_context().toString());
       sb.append(error_category.toString());
-      sb.append(" Unknown ");
-      sb.append(type_name);
-      sb.append(" '");
-      sb.append(name);
-      sb.append("' at ");
-      sb.append(origin.get_location().toString());
-      sb.append(".");
+      sb.append(" Resulting type '");
+      sb.append(given_type.toString());
+      sb.append("' ");
+      sb.append(" is incomparable with the expected one ('");
+      sb.append(expected_type.toString());
+      sb.append("').");
 
       return sb.toString();
    }
