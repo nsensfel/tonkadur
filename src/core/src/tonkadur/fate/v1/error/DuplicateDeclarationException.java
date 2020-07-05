@@ -32,9 +32,12 @@ public class DuplicateDeclarationException extends ParsingError
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.get_context().toString());
+      sb.append(origin.toString());
+      sb.append(" ");
       sb.append(error_category.toString());
-      sb.append(" Declaration for ");
+      sb.append(System.lineSeparator());
+
+      sb.append("Declaration for ");
       sb.append(original_declaration.get_type_name());
       sb.append(" '");
       sb.append(original_declaration.get_name());

@@ -30,4 +30,15 @@ public class Origin
    {
       return location;
    }
+
+   @Override
+   public String toString()
+   {
+      final StringBuilder sb = new StringBuilder();
+
+      sb.append(context.toString());
+      sb.append(location.toString());
+
+      return sb.toString();
+   }
 }

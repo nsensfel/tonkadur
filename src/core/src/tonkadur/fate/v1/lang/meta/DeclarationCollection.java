@@ -80,6 +80,27 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
       return result;
    }
 
+   /**** Misc. ****************************************************************/
+   public String toString ()
+   {
+      final StringBuilder sb = new StringBuilder();
+
+      sb.append("Default Value: ");
+      sb.append(value_on_missing.toString());
+      sb.append(System.lineSeparator());
+
+      for (final Map.Entry<String, Declared> entry: collection.entrySet())
+      {
+         sb.append("- ");
+         sb.append(entry.getKey());
+         sb.append(": ");
+         sb.append(entry.getValue().toString());
+         sb.append(System.lineSeparator());
+      }
+
+      return sb.toString();
+   }
+
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/

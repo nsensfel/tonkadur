@@ -72,6 +72,41 @@ public class World
    }
 
    /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb = new StringBuilder();
+
+      sb.append("(World");
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+      sb.append("Loaded files: ");
+      sb.append(System.lineSeparator());
+
+      for (final String filename: loaded_files)
+      {
+         sb.append("- ");
+         sb.append(filename);
+         sb.append(System.lineSeparator());
+      }
+
+      sb.append(System.lineSeparator());
+      sb.append("Events: ");
+      sb.append(System.lineSeparator());
+      sb.append(event_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("Types: ");
+      sb.append(System.lineSeparator());
+      sb.append(type_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append(")");
+
+      return sb.toString();
+   }
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/

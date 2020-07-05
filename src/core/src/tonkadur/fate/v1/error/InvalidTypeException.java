@@ -43,9 +43,12 @@ public class InvalidTypeException extends ParsingError
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.get_context().toString());
+      sb.append(origin.toString());
+      sb.append(" ");
       sb.append(error_category.toString());
-      sb.append(" Type '");
+      sb.append(System.lineSeparator());
+
+      sb.append("Type '");
       sb.append(given_type.toString());
       sb.append("' ");
       sb.append(" is not useable here. The following base types are allowed:");
@@ -54,7 +57,7 @@ public class InvalidTypeException extends ParsingError
       {
          sb.append(System.lineSeparator());
          sb.append("- ");
-         sb.append(allowed_types.toString());
+         sb.append(allowed_type.toString());
       }
 
       return sb.toString();

@@ -41,9 +41,12 @@ public class IncomparableTypeException extends ParsingError
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.get_context().toString());
+      sb.append(origin.toString());
+      sb.append(" ");
       sb.append(error_category.toString());
-      sb.append(" Resulting type '");
+      sb.append(System.lineSeparator());
+
+      sb.append("Resulting type '");
       sb.append(given_type.toString());
       sb.append("' ");
       sb.append(" is incomparable with the expected one ('");

@@ -9,19 +9,32 @@ options
 {
    package tonkadur.fate.v1.parser;
 
-   import tonkadur.fate.v1.lang.World;
+   import tonkadur.error.Error;
+
+   import tonkadur.parser.Context;
+   import tonkadur.parser.Origin;
+
+   import tonkadur.fate.v1.lang.*;
+   import tonkadur.fate.v1.lang.meta.*;
 }
 
 @members
 {
-   /* of the class */
+   Context CONTEXT;
+   World WORLD;
 }
 
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-fate_file [World world]:
-   WS* FATE_VERSION_KW WORD L_PAREN WS*
+fate_file [Context context, World world]
+   @init
+   {
+      CONTEXT = context;
+      WORLD = world;
+   }
+   :
+   WS* FATE_VERSION_KW WORD R_PAREN WS*
    (
       (first_level_fate_instr|general_fate_instr)
       {
@@ -40,24 +53,94 @@ general_fate_sequence:
 ;
 
 first_level_fate_instr:
-   DEFINE_SEQUENCE_KW WORD WS+ general_fate_sequence R_PAREN
+   DEFINE_SEQUENCE_KW WORD WS+ first_node=general_fate_sequence R_PAREN
    {
+   /*
+      world.sequences().add
+      (
+         CONTEXT.get_origin_at
+         (
+            ($DEFINE_SEQUENCE_KW.getLine()),
+            ($DEFINE_SEQUENCE_KW.getCharPositionInLine())
+         ),
+         ($WORD.text),
+         //(first_node.result)
+      );
+   */
    }
 
-   | DECLARE_VARIABLE_KW range=WORD WS+ type=WORD WS+ name=WORD R_PAREN
+   | DECLARE_VARIABLE_KW scope=WORD WS+ type=WORD WS+ name=WORD R_PAREN
    {
+   /*
+      final Origin start_origin, scope_origin, type_origin;
+      final VariableScope variable_scope;
+      final Type variable_type;
+      final Variable new_variable;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_VARIABLE_KW.getLine()),
+            ($DECLARE_VARIABLE_KW.getCharPositionInLine())
+         );
+
+      scope_origin =
+         CONTEXT.get_origin_at
+         (
+            ($scope.getLine()),
+            ($scope.getCharPositionInLine())
+         );
+
+      type_origin =
+         CONTEXT.get_origin_at
+         (
+            ($type.getLine()),
+            ($type.getCharPositionInLine())
+         );
+
+      variable_scope = VariableScope.value_of(scope_origin, ($scope.text));
+      variable_type = WORLD.types().get(($type.text));
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            variable_scope,
+            variable_type,
+            ($name.text)
+         );
+
+      WORLD.variables().add(new_variable);
+   */
    }
 
-   | DECLARE_TEXT_EFFECT_KW range=WORD R_PAREN
-   {
-   }
-
-   | ADD_VARIABLE_ATTRIBUTE_KW WORD WS+ WORD R_PAREN
+   | DECLARE_TEXT_EFFECT_KW params=word_list name=WORD R_PAREN
    {
    }
 
    | DECLARE_ALIAS_TYPE_KW parent=WORD WS+ name=WORD R_PAREN
    {
+      final Origin start_origin, parent_origin;
+      final Type parent_type;
+      final Type new_type;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_ALIAS_TYPE_KW.getLine()),
+            ($DECLARE_ALIAS_TYPE_KW.getCharPositionInLine())
+         );
+
+      parent_origin =
+         CONTEXT.get_origin_at
+         (
+            ($parent.getLine()),
+            ($parent.getCharPositionInLine())
+         );
+
+      parent_type = WORLD.types().get(parent_origin, ($parent.text));
+      new_type = new Type(start_origin, parent_type, ($name.text));
+
+      WORLD.types().add(new_type);
    }
 
    | DECLARE_DICT_TYPE_KW name=WORD typed_param_list R_PAREN
@@ -87,9 +170,13 @@ first_level_fate_instr:
    {
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 general_fate_instr:
-   L_PAREN general_fate_sequence R_PAREN
+   L_PAREN WS+ general_fate_sequence R_PAREN
    {
    }
 
@@ -228,81 +315,299 @@ typed_param_list:
 /******************************************************************************/
 /**** VALUES ******************************************************************/
 /******************************************************************************/
-boolean_expression:
-   AND_KW value_list R_PAREN
+boolean_expression
+returns [ValueNode result]:
+   TRUE_KW
    {
+      $result =
+         Constant.build_boolean
+         (
+            CONTEXT.get_origin_at
+            (
+               ($TRUE_KW.getLine()),
+               ($TRUE_KW.getCharPositionInLine())
+            ),
+            true
+         );
+   }
+
+   | FALSE_KW
+   {
+      $result =
+         Constant.build_boolean
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FALSE_KW.getLine()),
+               ($FALSE_KW.getCharPositionInLine())
+            ),
+            false
+         );
+   }
+
+   | AND_KW value_list R_PAREN
+   {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($AND_KW.getLine()),
+               ($AND_KW.getCharPositionInLine())
+            ),
+            Operator.AND,
+            ($value_list.result)
+         );
    }
 
    | OR_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($OR_KW.getLine()),
+               ($OR_KW.getCharPositionInLine())
+            ),
+            Operator.OR,
+            ($value_list.result)
+         );
    }
 
    | ONE_IN_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ONE_IN_KW.getLine()),
+               ($ONE_IN_KW.getCharPositionInLine())
+            ),
+            Operator.ONE_IN,
+            ($value_list.result)
+         );
    }
 
-   | NOT_KW value R_PAREN
+   | NOT_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($NOT_KW.getLine()),
+               ($NOT_KW.getCharPositionInLine())
+            ),
+            Operator.NOT,
+            ($value_list.result)
+         );
    }
 
-   | IMPLIES_KW value WS+ value R_PAREN
+   | IMPLIES_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMPLIES_KW.getLine()),
+               ($IMPLIES_KW.getCharPositionInLine())
+            ),
+            Operator.IMPLIES,
+            ($value_list.result)
+         );
    }
 
-   | LOWER_THAN_KW value WS+ value R_PAREN
+   | LOWER_THAN_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($LOWER_THAN_KW.getLine()),
+               ($LOWER_THAN_KW.getCharPositionInLine())
+            ),
+            Operator.LOWER_THAN,
+            ($value_list.result)
+         );
    }
 
-   | LOWER_EQUAL_THAN_KW value WS+ value R_PAREN
+   | LOWER_EQUAL_THAN_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($LOWER_EQUAL_THAN_KW.getLine()),
+               ($LOWER_EQUAL_THAN_KW.getCharPositionInLine())
+            ),
+            Operator.LOWER_EQUAL_THAN,
+            ($value_list.result)
+         );
    }
 
-   | EQUALS_KW value WS+ value R_PAREN
+   | EQUALS_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($EQUALS_KW.getLine()),
+               ($EQUALS_KW.getCharPositionInLine())
+            ),
+            Operator.EQUALS,
+            ($value_list.result)
+         );
    }
 
-   | GREATER_EQUAL_THAN_KW value WS+ value R_PAREN
+   | GREATER_EQUAL_THAN_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($GREATER_EQUAL_THAN_KW.getLine()),
+               ($GREATER_EQUAL_THAN_KW.getCharPositionInLine())
+            ),
+            Operator.GREATER_EQUAL_THAN,
+            ($value_list.result)
+         );
    }
 
-   | GREATER_THAN_KW value WS+ value R_PAREN
+   | GREATER_THAN_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($GREATER_THAN_KW.getLine()),
+               ($GREATER_THAN_KW.getCharPositionInLine())
+            ),
+            Operator.GREATER_THAN,
+            ($value_list.result)
+         );
    }
 
    | IS_MEMBER_KW value WS+ value_reference R_PAREN
    {
+      /* TODO */
+      $result = null;
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
-math_expression:
+math_expression
+returns [ValueNode result]:
    PLUS_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PLUS_KW.getLine()),
+               ($PLUS_KW.getCharPositionInLine())
+            ),
+            Operator.PLUS,
+            ($value_list.result)
+         );
    }
 
    | MINUS_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MINUS_KW.getLine()),
+               ($MINUS_KW.getCharPositionInLine())
+            ),
+            Operator.MINUS,
+            ($value_list.result)
+         );
    }
 
    | TIMES_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($TIMES_KW.getLine()),
+               ($TIMES_KW.getCharPositionInLine())
+            ),
+            Operator.TIMES,
+            ($value_list.result)
+         );
    }
 
-   | DIVIDE_KW value WS+ value R_PAREN
+   | DIVIDE_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($DIVIDE_KW.getLine()),
+               ($DIVIDE_KW.getCharPositionInLine())
+            ),
+            Operator.DIVIDE,
+            ($value_list.result)
+         );
    }
 
-   | POWER_KW value WS+ value R_PAREN
+   | POWER_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($POWER_KW.getLine()),
+               ($POWER_KW.getCharPositionInLine())
+            ),
+            Operator.POWER,
+            ($value_list.result)
+         );
    }
 
-   | RANDOM_KW value WS+ value R_PAREN
+   | RANDOM_KW value_list R_PAREN
    {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($RANDOM_KW.getLine()),
+               ($RANDOM_KW.getCharPositionInLine())
+            ),
+            Operator.RANDOM,
+            ($value_list.result)
+         );
    }
 
    | COUNT_KW value WS+ value_reference R_PAREN
    {
+      /* TODO */
+      $result= null;
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 bag_expression:
    | ADD_KW value WS+ value_reference R_PAREN
@@ -318,47 +623,76 @@ bag_expression:
    }
 ;
 
-value:
+value
+returns [ValueNode result]
+:
    WORD
    {
+      $result =
+         Constant.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
    }
 
-   | L_PAREN WS* sentence R_PAREN
+   | L_PAREN WS+ sentence R_PAREN
    {
+      /* TODO */
+      $result = null;
    }
 
    | non_text_value
    {
+      $result = ($non_text_value.result);
    }
 ;
 
-non_text_value:
+non_text_value
+returns [ValueNode result]
+:
    IF_ELSE_KW value WS+ value WS+ value R_PAREN
    {
+      /* TODO */
+      $result = null;
    }
 
    | COND_KW value_cond_list R_PAREN
    {
+      /* TODO */
+      $result = null;
    }
 
    | boolean_expression
    {
+      $result = ($boolean_expression.result);
    }
 
    | math_expression
    {
+      $result = ($math_expression.result);
    }
 
    | CAST_KW WORD WORD value R_PAREN
    {
+      /* TODO */
+      $result = null;
    }
 
    | value_reference
    {
+      /* TODO */
+      $result = null;
    }
 
    | SET_KW value WS+ value_reference R_PAREN
    {
+      /* TODO */
+      $result = null;
    }
 ;
 
@@ -378,8 +712,25 @@ value_cond_list:
    }
 ;
 
-value_list:
-   value* (WS+ value)*
+value_list
+returns [List<ValueNode> result]
+@init
+{
+   $result = new ArrayList<ValueNode>();
+}
+:
+   (
+      value
+      {
+         ($result).add(($value.result));
+      }
+   )*
+   (WS+
+      value
+      {
+         ($result).add(($value.result));
+      }
+   )*
    {
    }
 ;

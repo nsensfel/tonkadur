@@ -33,9 +33,12 @@ public class MissingDeclarationException extends ParsingError
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.get_context().toString());
+      sb.append(origin.toString());
+      sb.append(" ");
       sb.append(error_category.toString());
-      sb.append(" Unknown ");
+      sb.append(System.lineSeparator());
+
+      sb.append("Unknown ");
       sb.append(type_name);
       sb.append(" '");
       sb.append(name);

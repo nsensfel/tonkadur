@@ -10,7 +10,8 @@ public class InvalidArityException extends ParsingError
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final int arity;
+   protected final int min_arity;
+   protected final int max_arity;
    protected final int arguments_count;
 
    /***************************************************************************/
@@ -20,7 +21,8 @@ public class InvalidArityException extends ParsingError
    (
       final Origin call_origin,
       final int arguments_count,
-      final int arity
+      final int min_arity,
+      final int max_arity
    )
    {
       super
@@ -31,7 +33,8 @@ public class InvalidArityException extends ParsingError
       );
 
       this.arguments_count = arguments_count;
-      this.arity = arity;
+      this.min_arity = min_arity;
+      this.max_arity = max_arity;
    }
 
    @Override
@@ -39,10 +42,20 @@ public class InvalidArityException extends ParsingError
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.get_context().toString());
+      sb.append(origin.toString());
+      sb.append(" ");
       sb.append(error_category.toString());
-      sb.append(" This supports a maximum or a minimum of ");
-      sb.append(arity);
+      sb.append(System.lineSeparator());
+
+      sb.append("This supports a minimum of ");
+      sb.append(min_arity);
+
+      if (max_arity > 0)
+      {
+         sb.append(" and a maximum of ");
+         sb.append(max_arity);
+      }
+
       sb.append(" parameter(s), but was given ");
       sb.append(arguments_count);
       sb.append(" of them.");

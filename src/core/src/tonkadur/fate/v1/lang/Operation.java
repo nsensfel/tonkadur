@@ -34,7 +34,7 @@ public class Operation extends ValueNode
       this.operands = operands;
    }
 
-   public Operation build
+   public static Operation build
    (
       final Origin origin,
       final Operator operator,
@@ -48,21 +48,35 @@ public class Operation extends ValueNode
       InvalidTypeException
    {
       final Collection<Type> allowed_base_types;
-      final int operator_arity;
+      final int operator_max_arity;
+      final int operator_min_arity;
+      final int operands_size;
       Type computed_type, previous_computed_type;
 
       allowed_base_types = operator.get_allowed_base_types();
-      operator_arity = operator.get_arity();
+      operator_max_arity = operator.get_maximum_arity();
+      operator_min_arity = operator.get_minimum_arity();
+      operands_size = operands.size();
 
       if
       (
-         (operator_arity != 0)
-         && (operator_arity < operands.size())
+         (operands_size < operator_min_arity)
+         ||
+         (
+            (operator_max_arity != 0)
+            && (operator_max_arity < operands_size)
+         )
       )
       {
          ErrorManager.handle
          (
-            new InvalidArityException(origin, operands.size(), operator_arity)
+            new InvalidArityException
+            (
+               origin,
+               operands_size,
+               operator_min_arity,
+               operator_max_arity
+            )
          );
       }
 

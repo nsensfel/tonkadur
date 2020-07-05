@@ -31,7 +31,16 @@ public class Constant extends ValueNode
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Constant build (final Origin origin, final String as_string)
+   public static Constant build_boolean
+   (
+      final Origin origin,
+      final boolean value
+   )
+   {
+      return new Constant(origin, Type.BOOLEAN, value ? "true" : "false");
+   }
+
+   public static Constant build (final Origin origin, final String as_string)
    {
       try
       {
@@ -49,17 +58,6 @@ public class Constant extends ValueNode
          Float.valueOf(as_string);
 
          return new Constant(origin, Type.FLOAT, as_string);
-      }
-      catch (final NumberFormatException nfe)
-      {
-         /* That's fine, we're just testing... */
-      }
-
-      try
-      {
-         Boolean.valueOf(as_string);
-
-         return new Constant(origin, Type.BOOLEAN, as_string);
       }
       catch (final NumberFormatException nfe)
       {

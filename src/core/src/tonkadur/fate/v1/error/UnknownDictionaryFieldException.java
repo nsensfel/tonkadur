@@ -38,9 +38,12 @@ public class UnknownDictionaryFieldException extends ParsingError
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.get_context().toString());
+      sb.append(origin.toString());
+      sb.append(" ");
       sb.append(error_category.toString());
-      sb.append(" Unknown field '");
+      sb.append(System.lineSeparator());
+
+      sb.append("Unknown field '");
       sb.append(field_name);
       sb.append("' for dictionary type '");
       sb.append(dict.get_name());
