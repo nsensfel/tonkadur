@@ -25,7 +25,7 @@ public class Type extends DeclaredEntity
    public static final Type STRING;
 
    public static final Set<Type> NUMBER_TYPES;
-   public static final Set<Type> SET_COMPATIBLE_TYPES;
+   public static final Set<Type> COLLECTION_COMPATIBLE_TYPES;
 
    static
    {
@@ -50,12 +50,12 @@ public class Type extends DeclaredEntity
       NUMBER_TYPES.add(FLOAT);
       NUMBER_TYPES.add(INT);
 
-      SET_COMPATIBLE_TYPES = new HashSet<Type>();
+      COLLECTION_COMPATIBLE_TYPES = new HashSet<Type>();
 
-      SET_COMPATIBLE_TYPES.add(FLOAT);
-      SET_COMPATIBLE_TYPES.add(INT);
-      SET_COMPATIBLE_TYPES.add(STRING);
-      SET_COMPATIBLE_TYPES.add(BOOLEAN);
+      COLLECTION_COMPATIBLE_TYPES.add(FLOAT);
+      COLLECTION_COMPATIBLE_TYPES.add(INT);
+      COLLECTION_COMPATIBLE_TYPES.add(STRING);
+      COLLECTION_COMPATIBLE_TYPES.add(BOOLEAN);
    }
 
    public static Type value_on_missing ()

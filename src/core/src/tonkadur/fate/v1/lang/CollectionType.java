@@ -8,27 +8,35 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
-public class SetType extends Type
+public class CollectionType extends Type
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Type content_type;
+   protected final boolean is_set;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   public static SetType build
+   public static CollectionType build
    (
       final Origin origin,
       final Type content_type,
+      final boolean is_set,
       final String name
    )
    throws InvalidTypeException
    {
-      if (!Type.SET_COMPATIBLE_TYPES.contains(content_type.get_true_type()))
+      if
+      (
+         !Type.COLLECTION_COMPATIBLE_TYPES.contains
+         (
+            content_type.get_true_type()
+         )
+      )
       {
          ErrorManager.handle
          (
@@ -36,12 +44,12 @@ public class SetType extends Type
             (
                origin,
                content_type,
-               Type.SET_COMPATIBLE_TYPES
+               Type.COLLECTION_COMPATIBLE_TYPES
             )
          );
       }
 
-      return new SetType(origin, content_type, name);
+      return new CollectionType(origin, content_type, is_set, name);
    }
 
 
@@ -55,9 +63,17 @@ public class SetType extends Type
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof SetType)
+      if (t instanceof CollectionType)
       {
-         return content_type.can_be_used_as(((SetType) t).content_type);
+         final CollectionType ct;
+
+         ct = (CollectionType) t;
+
+         return
+            (
+               (!ct.is_set || is_set)
+               && content_type.can_be_used_as(ct.content_type)
+            );
       }
 
       return false;
@@ -72,21 +88,21 @@ public class SetType extends Type
    @Override
    public DeclaredEntity generate_comparable_to (final DeclaredEntity de)
    {
-      if (!(de instanceof SetType))
+      final CollectionType ct;
+
+      if (!(de instanceof CollectionType))
       {
          return Type.ANY;
       }
 
+      ct = (CollectionType) de;
+
       return
-         new SetType
+         new CollectionType
          (
             get_origin(),
-            (
-               (Type) content_type.generate_comparable_to
-               (
-                  ((SetType) de).content_type
-               )
-            ),
+            ((Type) content_type.generate_comparable_to (ct.content_type)),
+            (ct.is_set || is_set),
             name
          );
    }
@@ -98,7 +114,15 @@ public class SetType extends Type
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Set ");
+      if (is_set)
+      {
+         sb.append("(Set ");
+      }
+      else
+      {
+         sb.append("(List ");
+      }
+
       sb.append(content_type.toString());
       sb.append(")::");
       sb.append(name);
@@ -111,15 +135,17 @@ public class SetType extends Type
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   protected SetType
+   protected CollectionType
    (
       final Origin origin,
       final Type content_type,
+      final boolean is_set,
       final String name
    )
    {
-      super(origin, Type.SET, name);
+      super(origin, (is_set ? Type.SET : Type.LIST), name);
 
+      this.is_set = is_set;
       this.content_type = content_type;
    }
 }
