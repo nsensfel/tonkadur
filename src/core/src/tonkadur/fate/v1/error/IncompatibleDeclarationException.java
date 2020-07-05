@@ -14,6 +14,7 @@ public class IncompatibleDeclarationException extends ParsingError
    /***************************************************************************/
    protected final DeclaredEntity new_declaration;
    protected final DeclaredEntity original_declaration;
+   protected final DeclaredEntity correction_hint;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -33,6 +34,26 @@ public class IncompatibleDeclarationException extends ParsingError
 
       this.new_declaration = new_declaration;
       this.original_declaration = original_declaration;
+      this.correction_hint = null;
+   }
+
+   public IncompatibleDeclarationException
+   (
+      final DeclaredEntity new_declaration,
+      final DeclaredEntity original_declaration,
+      final DeclaredEntity correction_hint
+   )
+   {
+      super
+      (
+         ErrorLevel.ERROR,
+         ErrorCategory.INCOMPATIBLE,
+         new_declaration.get_origin()
+      );
+
+      this.new_declaration = new_declaration;
+      this.original_declaration = original_declaration;
+      this.correction_hint = correction_hint;
    }
 
    @Override
@@ -59,6 +80,14 @@ public class IncompatibleDeclarationException extends ParsingError
       sb.append("New declaration is ");
       sb.append(new_declaration.toString());
       sb.append(".");
+
+      if (correction_hint != null)
+      {
+         sb.append(System.lineSeparator());
+         sb.append("Recommended compatible declaration: ");
+         sb.append(correction_hint.toString());
+         sb.append(".");
+      }
 
       return sb.toString();
    }

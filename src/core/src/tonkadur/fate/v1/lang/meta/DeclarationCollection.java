@@ -83,7 +83,7 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-   protected Declared assert_entity_can_be_added (Declared new_version)
+   protected Declared assert_entity_can_be_added (final Declared new_version)
    throws
       DuplicateDeclarationException,
       ConflictingDeclarationException,
@@ -92,6 +92,7 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
    {
       final DeclaredEntity de;
       final Declared previous_version;
+      Declared hint;
 
       previous_version = collection.get(new_version.get_name());
 
@@ -124,19 +125,15 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
          return new_version;
       }
 
-      ErrorManager.handle
-      (
-         new IncompatibleDeclarationException(new_version, previous_version)
-      );
-
       de = new_version.generate_comparable_to(previous_version);
 
       try
       {
-         new_version = (Declared) de;
+         hint = (Declared) de;
       }
       catch (final ClassCastException e)
       {
+         hint = null;
          e.printStackTrace();
 
          System.exit(-1);
@@ -146,10 +143,27 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
       {
          ErrorManager.handle
          (
+            new IncompatibleDeclarationException(new_version, previous_version)
+         );
+
+         ErrorManager.handle
+         (
             new IncomparableDeclarationException(new_version, previous_version)
          );
       }
+      else
+      {
+         ErrorManager.handle
+         (
+            new IncompatibleDeclarationException
+            (
+               new_version,
+               previous_version,
+               hint
+            )
+         );
+      }
 
-      return new_version;
+      return hint;
    }
 }

@@ -1,8 +1,10 @@
 package tonkadur.fate.v1.lang;
 
-import java.util.Iterator;
+import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
@@ -18,17 +20,30 @@ public class SetType extends Type
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   public SetType
+   public static SetType build
    (
       final Origin origin,
       final Type content_type,
       final String name
    )
+   throws InvalidTypeException
    {
-      super(origin, Type.SET, name);
+      if (!Type.SET_COMPATIBLE_TYPES.contains(content_type.get_true_type()))
+      {
+         ErrorManager.handle
+         (
+            new InvalidTypeException
+            (
+               origin,
+               content_type,
+               Type.SET_COMPATIBLE_TYPES
+            )
+         );
+      }
 
-      this.content_type = content_type;
+      return new SetType(origin, content_type, name);
    }
+
 
    /**** Accessors ************************************************************/
    public Type get_content_type ()
@@ -65,7 +80,7 @@ public class SetType extends Type
       return
          new SetType
          (
-            de.get_origin(),
+            get_origin(),
             (
                (Type) content_type.generate_comparable_to
                (
@@ -85,8 +100,26 @@ public class SetType extends Type
 
       sb.append("(Set ");
       sb.append(content_type.toString());
-      sb.append(")");
+      sb.append(")::");
+      sb.append(name);
 
       return sb.toString();
+   }
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
+
+   /**** Constructors *********************************************************/
+   protected SetType
+   (
+      final Origin origin,
+      final Type content_type,
+      final String name
+   )
+   {
+      super(origin, Type.SET, name);
+
+      this.content_type = content_type;
    }
 }

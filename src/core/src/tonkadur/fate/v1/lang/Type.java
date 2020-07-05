@@ -1,10 +1,11 @@
 package tonkadur.fate.v1.lang;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
@@ -23,7 +24,8 @@ public class Type extends DeclaredEntity
    public static final Type SET;
    public static final Type STRING;
 
-   public static final Type[] NUMBER_TYPES;
+   public static final Set<Type> NUMBER_TYPES;
+   public static final Set<Type> SET_COMPATIBLE_TYPES;
 
    static
    {
@@ -44,7 +46,16 @@ public class Type extends DeclaredEntity
       SET = new Type(base, null, "set");
       STRING = new Type(base, null, "string");
 
-      NUMBER_TYPES = new Type[]{FLOAT, INT};
+      NUMBER_TYPES = new HashSet<Type>();
+      NUMBER_TYPES.add(FLOAT);
+      NUMBER_TYPES.add(INT);
+
+      SET_COMPATIBLE_TYPES = new HashSet<Type>();
+
+      SET_COMPATIBLE_TYPES.add(FLOAT);
+      SET_COMPATIBLE_TYPES.add(INT);
+      SET_COMPATIBLE_TYPES.add(STRING);
+      SET_COMPATIBLE_TYPES.add(BOOLEAN);
    }
 
    public static Type value_on_missing ()
@@ -147,7 +158,7 @@ public class Type extends DeclaredEntity
          result = candidate;
       }
 
-      return result;
+      return new Type(origin, result, name);
    }
 
 
