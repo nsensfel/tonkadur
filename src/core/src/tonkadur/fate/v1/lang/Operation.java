@@ -7,7 +7,7 @@ import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.error.ConflictingTypeException;
+//import tonkadur.fate.v1.error.ConflictingTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
@@ -41,7 +41,7 @@ public class Operation extends ValueNode
       final List<ValueNode> operands
    )
    throws
-      ConflictingTypeException,
+      //ConflictingTypeException,
       IncomparableTypeException,
       IncompatibleTypeException,
       InvalidArityException,
@@ -101,6 +101,8 @@ public class Operation extends ValueNode
             );
          }
 
+         /*
+
          if (computed_type.equals(operand_type))
          {
             continue;
@@ -115,6 +117,8 @@ public class Operation extends ValueNode
                computed_type
             )
          );
+
+         */
 
          if (operand_type.can_be_used_as(computed_type))
          {

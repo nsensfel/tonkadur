@@ -14,6 +14,7 @@ public class IncompatibleTypeException extends ParsingError
    /***************************************************************************/
    protected final Type given_type;
    protected final Type expected_type;
+   protected final Type hint;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -34,6 +35,27 @@ public class IncompatibleTypeException extends ParsingError
 
       this.given_type = given_type;
       this.expected_type = expected_type;
+      this.hint = null;
+   }
+
+   public IncompatibleTypeException
+   (
+      final Origin call_origin,
+      final Type given_type,
+      final Type expected_type,
+      final Type hint
+   )
+   {
+      super
+      (
+         ErrorLevel.ERROR,
+         ErrorCategory.INCOMPATIBLE,
+         call_origin
+      );
+
+      this.given_type = given_type;
+      this.expected_type = expected_type;
+      this.hint = hint;
    }
 
    @Override
@@ -52,6 +74,13 @@ public class IncompatibleTypeException extends ParsingError
       sb.append(" is incompatible with the expected one ('");
       sb.append(expected_type.toString());
       sb.append("').");
+
+      if (hint != null)
+      {
+         sb.append(System.lineSeparator());
+         sb.append("Recommended compatible type: ");
+         sb.append(hint.get_name());
+      }
 
       return sb.toString();
    }

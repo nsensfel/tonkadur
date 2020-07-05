@@ -117,6 +117,10 @@ first_level_fate_instr:
    {
    }
 
+   | REQUIRE_EXTENSION_KW name=WORD R_PAREN
+   {
+   }
+
    | DECLARE_ALIAS_TYPE_KW parent=WORD WS+ name=WORD R_PAREN
    {
       final Origin start_origin, parent_origin;
@@ -147,15 +151,19 @@ first_level_fate_instr:
    {
    }
 
-   | DECLARE_ENUM_TYPE_KW name=WORD R_PAREN
+   | ADD_KW value WS+ value_reference R_PAREN
+   {
+   }
+
+   | REMOVE_ONE_KW value WS+ value_reference R_PAREN
+   {
+   }
+
+   | REMOVE_ALL_KW value WS+ value_reference R_PAREN
    {
    }
 
    | DECLARE_EVENT_TYPE_KW name=WORD WS+ word_list R_PAREN
-   {
-   }
-
-   | ADD_TO_ENUM_TYPE_KW entry=WORD WS+ name=WORD R_PAREN
    {
    }
 
@@ -188,8 +196,13 @@ general_fate_instr:
    {
    }
 
+   | SET_FIELD_KW WORD WS+ value WS+ value_reference R_PAREN
+   {
+   }
+
    | SET_EXPRESSION_KW value WS+ value_reference R_PAREN
    {
+      /* that one isn't resolved until the value is referenced */
    }
 
    | EVENT_KW WORD WS+ value_list R_PAREN
@@ -609,20 +622,6 @@ catch [final Throwable e]
    throw new ParseCancellationException(e);
 }
 
-bag_expression:
-   | ADD_KW value WS+ value_reference R_PAREN
-   {
-   }
-
-   | REMOVE_ONE_KW value WS+ value_reference R_PAREN
-   {
-   }
-
-   | REMOVE_ALL_KW value WS+ value_reference R_PAREN
-   {
-   }
-;
-
 value
 returns [ValueNode result]
 :
@@ -677,10 +676,31 @@ returns [ValueNode result]
       $result = ($math_expression.result);
    }
 
-   | CAST_KW WORD WORD value R_PAREN
+   | CAST_KW WORD value R_PAREN
    {
-      /* TODO */
-      $result = null;
+      final Origin target_type_origin;
+      final Type target_type;
+
+      target_type_origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      target_type = WORLD.types().get(target_type_origin, ($WORD.text));
+
+      $result =
+         Cast.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            target_type,
+            ($value.result)
+         );
    }
 
    | value_reference
@@ -688,13 +708,11 @@ returns [ValueNode result]
       /* TODO */
       $result = null;
    }
-
-   | SET_KW value WS+ value_reference R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 value_reference:
    VARIABLE_KW WORD R_PAREN
@@ -702,6 +720,10 @@ value_reference:
    }
 
    | PARAMETER_KW WORD R_PAREN
+   {
+   }
+
+   | GET_KW value_reference R_PAREN
    {
    }
 ;

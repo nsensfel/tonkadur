@@ -160,7 +160,7 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
          System.exit(-1);
       }
 
-      if (new_version.equals(value_on_missing))
+      if (hint.equals(value_on_missing))
       {
          ErrorManager.handle
          (
