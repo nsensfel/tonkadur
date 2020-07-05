@@ -11,14 +11,14 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
-public class Event extends DeclaredEntity
+public class TextEffect extends Event
 {
-   protected static final Event ANY;
+   protected static final TextEffect ANY;
 
    static
    {
       ANY =
-         new Event
+         new TextEffect
          (
             new Origin(new Context(""), Location.BASE_LANGUAGE),
             new ArrayList<Type>(),
@@ -26,11 +26,11 @@ public class Event extends DeclaredEntity
              * Use of a space necessary to avoid conflicting with a user created
              * type.
              */
-            "undetermined event"
+            "undetermined text_effect"
          );
    }
 
-   public static Event value_on_missing ()
+   public static TextEffect value_on_missing ()
    {
       return ANY;
    }
@@ -38,50 +38,41 @@ public class Event extends DeclaredEntity
    @Override
    public /* static */ String get_type_name ()
    {
-      return "Event";
+      return "TextEffect";
    }
 
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Type> signature;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-
    /**** Constructors *********************************************************/
-   public Event
+   public TextEffect
    (
       final Origin origin,
       final List<Type> signature,
       final String name
    )
    {
-      super(origin, name);
-
-      this.signature = signature;
+      super(origin, signature, name);
    }
 
    /**** Accessors ************************************************************/
-   public List<Type> get_signature ()
-   {
-      return signature;
-   }
-
    @Override
    public DeclaredEntity generate_comparable_to (final DeclaredEntity de)
    {
       final List<Type> new_signature;
-      final Event e;
+      final TextEffect e;
 
-      if (!(de instanceof Event))
+      if (!(de instanceof TextEffect))
       {
          return ANY;
       }
 
-      e = (Event) de;
+      e = (TextEffect) de;
 
       if (signature.size() != e.signature.size())
       {
@@ -98,18 +89,18 @@ public class Event extends DeclaredEntity
             }
          }.merge(signature, e.signature);
 
-      return new Event(origin, new_signature, name);
+      return new TextEffect(origin, new_signature, name);
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public boolean is_incompatible_with_declaration (final DeclaredEntity de)
    {
-      if (de instanceof Event)
+      if (de instanceof TextEffect)
       {
-         final Event e;
+         final TextEffect e;
 
-         e = (Event) de;
+         e = (TextEffect) de;
 
          if (signature.size() == e.signature.size())
          {
@@ -137,43 +128,5 @@ public class Event extends DeclaredEntity
       }
 
       return true;
-   }
-
-   @Override
-   public String toString ()
-   {
-      final StringBuilder sb = new StringBuilder();
-
-      sb.append("(");
-      sb.append(get_type_name());
-      sb.append(" ");
-      sb.append(name);
-
-      if (!signature.isEmpty())
-      {
-         boolean first_argument;
-
-         sb.append(": ");
-
-         first_argument = true;
-
-         for (final Type type: signature)
-         {
-            if (first_argument)
-            {
-               first_argument = false;
-            }
-            else
-            {
-               sb.append(" -> ");
-            }
-
-            sb.append(type.get_name());
-         }
-      }
-
-      sb.append(")");
-
-      return sb.toString();
    }
 }

@@ -1,8 +1,8 @@
 package tonkadur.fate.v1.lang;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
@@ -15,11 +15,12 @@ public class World
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Collection<String> loaded_files;
+   protected final Set<String> loaded_files;
+   protected final Set<String> required_extensions;
    protected final DeclarationCollection<Event> event_collection;
 //   protected final DeclarationCollection<Macro> macros;
 //   protected final DeclarationCollection<Sequence> sequences;
-//   protected final DeclarationCollection<TextEffect> text_effects;
+   protected final DeclarationCollection<TextEffect> text_effect_collection;
    protected final DeclarationCollection<Type> type_collection;
    protected final DeclarationCollection<Variable> variable_collection;
 
@@ -31,12 +32,14 @@ public class World
    public World ()
    {
       loaded_files = new HashSet<String>();
+      required_extensions = new HashSet<String>();
 
       event_collection =
          new DeclarationCollection<Event>(Event.value_on_missing());
       //macros = new DeclarationCollection<Macro>();
       //sequences = new DeclarationCollection<Sequence>();
-      //text_effects = new DeclarationCollection<TextEffect>();
+      text_effect_collection =
+         new DeclarationCollection<TextEffect>(TextEffect.value_on_missing());
       type_collection =
          new DeclarationCollection<Type>(Type.value_on_missing());
       variable_collection =
@@ -47,7 +50,7 @@ public class World
 
    /**** Accessors ************************************************************/
    /**** Loaded Files ****/
-   public Collection<String> get_loaded_files ()
+   public Set<String> get_loaded_files ()
    {
       return loaded_files;
    }
@@ -62,14 +65,36 @@ public class World
       loaded_files.add(name);
    }
 
-   public DeclarationCollection<Type> types ()
+   /**** Required Extensions ****/
+   public Set<String> get_required_extensions ()
    {
-      return type_collection;
+      return required_extensions;
    }
 
+   public boolean requires_extension (final String name)
+   {
+      return required_extensions.contains(name);
+   }
+
+   public void add_required_extension (final String name)
+   {
+      required_extensions.add(name);
+   }
+
+   /**** Collections ****/
    public DeclarationCollection<Event> events ()
    {
       return event_collection;
+   }
+
+   public DeclarationCollection<TextEffect> text_effects ()
+   {
+      return text_effect_collection;
+   }
+
+   public DeclarationCollection<Type> types ()
+   {
+      return type_collection;
    }
 
    public DeclarationCollection<Variable> variables ()
@@ -97,9 +122,26 @@ public class World
       }
 
       sb.append(System.lineSeparator());
+      sb.append("Required Extensions: ");
+      sb.append(System.lineSeparator());
+
+      for (final String filename: required_extensions)
+      {
+         sb.append("- ");
+         sb.append(filename);
+         sb.append(System.lineSeparator());
+      }
+
+      sb.append(System.lineSeparator());
       sb.append("Events: ");
       sb.append(System.lineSeparator());
       sb.append(event_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("Text Effects: ");
+      sb.append(System.lineSeparator());
+      sb.append(text_effect_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 

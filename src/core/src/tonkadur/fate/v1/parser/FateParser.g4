@@ -71,10 +71,9 @@ first_level_fate_instr:
    */
    }
 
-   | DECLARE_VARIABLE_KW scope=WORD WS+ type=WORD WS+ name=WORD R_PAREN
+   | DECLARE_VARIABLE_KW scope=WORD WS+ type WS+ name=WORD R_PAREN
    {
       final Origin start_origin, scope_origin, type_origin;
-      final Type variable_type;
       final Variable new_variable;
       VariableScope variable_scope;
 
@@ -92,13 +91,6 @@ first_level_fate_instr:
             ($scope.getCharPositionInLine())
          );
 
-      type_origin =
-         CONTEXT.get_origin_at
-         (
-            ($type.getLine()),
-            ($type.getCharPositionInLine())
-         );
-
       variable_scope = VariableScope.value_of(($scope.text));
 
       if (variable_scope == null)
@@ -111,31 +103,44 @@ first_level_fate_instr:
          variable_scope = VariableScope.ANY;
       }
 
-      variable_type = WORLD.types().get(type_origin, ($type.text));
       new_variable =
          new Variable
          (
             start_origin,
             variable_scope,
-            variable_type,
+            ($type.result),
             ($name.text)
          );
 
       WORLD.variables().add(new_variable);
    }
 
-   | DECLARE_TEXT_EFFECT_KW params=word_list name=WORD R_PAREN
+   | DECLARE_TEXT_EFFECT_KW params=type_list name=WORD R_PAREN
    {
+      final Origin start_origin;
+      final TextEffect new_text_effect;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_TEXT_EFFECT_KW.getLine()),
+            ($DECLARE_TEXT_EFFECT_KW.getCharPositionInLine())
+         );
+
+      new_text_effect =
+         new TextEffect(start_origin, ($type_list.result), ($name.text));
+
+      WORLD.text_effects().add(new_text_effect);
    }
 
    | REQUIRE_EXTENSION_KW name=WORD R_PAREN
    {
+      WORLD.add_required_extension(($name.text));
    }
 
-   | DECLARE_ALIAS_TYPE_KW parent=WORD WS+ name=WORD R_PAREN
+   | DECLARE_ALIAS_TYPE_KW parent=type WS+ name=WORD R_PAREN
    {
-      final Origin start_origin, parent_origin;
-      final Type parent_type;
+      final Origin start_origin;
       final Type new_type;
 
       start_origin =
@@ -145,15 +150,7 @@ first_level_fate_instr:
             ($DECLARE_ALIAS_TYPE_KW.getCharPositionInLine())
          );
 
-      parent_origin =
-         CONTEXT.get_origin_at
-         (
-            ($parent.getLine()),
-            ($parent.getCharPositionInLine())
-         );
-
-      parent_type = WORLD.types().get(parent_origin, ($parent.text));
-      new_type = new Type(start_origin, parent_type, ($name.text));
+      new_type = new Type(start_origin, ($parent.result), ($name.text));
 
       WORLD.types().add(new_type);
    }
@@ -174,8 +171,21 @@ first_level_fate_instr:
    {
    }
 
-   | DECLARE_EVENT_TYPE_KW name=WORD WS+ word_list R_PAREN
+   | DECLARE_EVENT_TYPE_KW name=WORD WS+ type_list R_PAREN
    {
+      final Origin start_origin;
+      final Event new_event;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_EVENT_TYPE_KW.getLine()),
+            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_event = new Event(start_origin, ($type_list.result), ($name.text));
+
+      WORLD.events().add(new_event);
    }
 
    | REQUIRE_KW WORD R_PAREN
@@ -321,21 +331,57 @@ sentence
    }
 ;
 
-word_list:
-   WORD?
+type
+returns [Type result]
+:
+   WORD
    {
+      $result =
+         WORLD.types().get
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
    }
+;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
-   | WORD (WS+ WORD)*
+type_list
+returns [List<Type> result]
+@init
+{
+   final List<Type> result = new ArrayList<Type>();
+}
+:
+   (
+      type
+      {
+         result.add(($type.result));
+      }
+   )?
+   (WS+
+      type
+      {
+         result.add(($type.result));
+      }
+   )*
    {
    }
 ;
 
 typed_param_list:
-   (L_PAREN WORD WS+ WORD R_PAREN)*
+   (L_PAREN WORD WS+ type R_PAREN)*
    {
    }
 ;
+
 /******************************************************************************/
 /**** VALUES ******************************************************************/
 /******************************************************************************/
