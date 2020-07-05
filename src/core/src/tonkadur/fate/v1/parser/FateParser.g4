@@ -654,10 +654,20 @@ returns [ValueNode result]
 non_text_value
 returns [ValueNode result]
 :
-   IF_ELSE_KW value WS+ value WS+ value R_PAREN
+   IF_ELSE_KW cond=value WS+ if_true=value WS+ if_false=value R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         IfElseValue.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IF_ELSE_KW.getLine()),
+               ($IF_ELSE_KW.getCharPositionInLine())
+            ),
+            ($cond.result),
+            ($if_true.result),
+            ($if_false.result)
+         );
    }
 
    | COND_KW value_cond_list R_PAREN
