@@ -40,7 +40,7 @@ fate_file [Context context, World world]
       WORLD = world;
    }
    :
-   WS* FATE_VERSION_KW WORD R_PAREN WS*
+   WS* FATE_VERSION_KW WS+ WORD WS* R_PAREN WS*
    (
       (first_level_fate_instr|general_fate_instr)
       {
@@ -60,9 +60,11 @@ general_fate_sequence:
 
 first_level_fate_instr:
    DEFINE_SEQUENCE_KW
+      WS+
       new_reference_name
       WS+
       first_node=general_fate_sequence
+      WS*
    R_PAREN
    {
    /*
@@ -79,7 +81,15 @@ first_level_fate_instr:
    */
    }
 
-   | DECLARE_VARIABLE_KW scope=WORD WS+ type WS+ name=new_reference_name R_PAREN
+   | DECLARE_VARIABLE_KW
+      WS+
+      scope=WORD
+      WS+
+      type
+      WS+
+      name=new_reference_name
+      WS*
+   R_PAREN
    {
       final Origin start_origin, scope_origin, type_origin;
       final Variable new_variable;
@@ -123,7 +133,13 @@ first_level_fate_instr:
       WORLD.variables().add(new_variable);
    }
 
-   | DECLARE_TEXT_EFFECT_KW params=type_list new_reference_name R_PAREN
+   | DECLARE_TEXT_EFFECT_KW
+      WS+
+      params=type_list
+      WS*
+      new_reference_name
+      WS*
+   R_PAREN
    {
       final Origin start_origin;
       final TextEffect new_text_effect;
@@ -146,12 +162,12 @@ first_level_fate_instr:
       WORLD.text_effects().add(new_text_effect);
    }
 
-   | REQUIRE_EXTENSION_KW WORD R_PAREN
+   | REQUIRE_EXTENSION_KW WS+ WORD WS* R_PAREN
    {
       WORLD.add_required_extension(($WORD.text));
    }
 
-   | DECLARE_ALIAS_TYPE_KW parent=type WS+ new_reference_name R_PAREN
+   | DECLARE_ALIAS_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
    {
       final Origin start_origin;
       final Type new_type;
@@ -174,7 +190,13 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_DICT_TYPE_KW new_reference_name WS* typed_entry_list R_PAREN
+   | DECLARE_DICT_TYPE_KW
+      WS+
+      new_reference_name
+      WS*
+      typed_entry_list
+      WS*
+   R_PAREN
    {
       final Origin start_origin;
       final Type new_type;
@@ -209,19 +231,19 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | ADD_KW value WS+ value_reference R_PAREN
+   | ADD_KW WS+ value WS+ value_reference WS* R_PAREN
    {
    }
 
-   | REMOVE_ONE_KW value WS+ value_reference R_PAREN
+   | REMOVE_ONE_KW WS+ value WS+ value_reference WS* R_PAREN
    {
    }
 
-   | REMOVE_ALL_KW value WS+ value_reference R_PAREN
+   | REMOVE_ALL_KW WS+ value WS+ value_reference WS* R_PAREN
    {
    }
 
-   | DECLARE_EVENT_TYPE_KW new_reference_name WS+ type_list R_PAREN
+   | DECLARE_EVENT_TYPE_KW WS+ new_reference_name WS+ type_list WS* R_PAREN
    {
       final Origin start_origin;
       final Event new_event;
@@ -244,14 +266,18 @@ first_level_fate_instr:
       WORLD.events().add(new_event);
    }
 
-   | REQUIRE_KW WORD R_PAREN
+   | REQUIRE_KW WS+ WORD WS* R_PAREN
    {
    }
 
    | DEFINE_MACRO_KW
-         new_reference_name WS*
-         L_PAREN WS+ typed_entry_list R_PAREN
+         WS+
+         new_reference_name
+         WS*
+         L_PAREN WS+ typed_entry_list WS* R_PAREN
+         WS*
          general_fate_sequence
+         WS*
       R_PAREN
    {
    }
@@ -262,57 +288,67 @@ catch [final Throwable e]
 }
 
 general_fate_instr:
-   L_PAREN WS+ general_fate_sequence R_PAREN
+   L_PAREN WS+ general_fate_sequence WS* R_PAREN
    {
    }
 
-   | CLEAR_KW value_reference R_PAREN
+   | CLEAR_KW WS+ value_reference WS* R_PAREN
    {
    }
 
-   | SET_KW value WS+ value_reference R_PAREN
+   | SET_KW WS+ value WS+ value_reference WS* R_PAREN
    {
    }
 
-   | SET_FIELD_KW WORD WS+ value WS+ value_reference R_PAREN
+   | SET_FIELD_KW WS+ WORD WS+ value WS+ value_reference WS* R_PAREN
    {
    }
 
-   | SET_EXPRESSION_KW value WS+ value_reference R_PAREN
+   | SET_EXPRESSION_KW WS+ value WS+ value_reference WS* R_PAREN
    {
       /* that one isn't resolved until the value is referenced */
    }
 
-   | EVENT_KW WORD WS+ value_list R_PAREN
+   | EVENT_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
    }
 
-   | MACRO_KW WORD WS+ value_list R_PAREN
+   | MACRO_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
    }
 
-   | SEQUENCE_KW WORD R_PAREN
+   | SEQUENCE_KW WS+ WORD WS* R_PAREN
    {
    }
 
-   | ASSERT_KW value R_PAREN
+   | ASSERT_KW WS+ value WS* R_PAREN
    {
    }
 
-   | IF_KW value WS+ general_fate_instr R_PAREN
+   | IF_KW WS+ value WS* general_fate_instr WS* R_PAREN
    {
    }
 
-   | IF_ELSE_KW value WS+ general_fate_instr WS+ general_fate_instr R_PAREN
+   | IF_ELSE_KW
+         WS+ value
+         WS+ general_fate_instr
+         WS+ general_fate_instr
+      WS* R_PAREN
    {
    }
 
-   | COND_KW instr_cond_list R_PAREN
+   | COND_KW WS+ instr_cond_list WS* R_PAREN
    {
    }
 
-   | PLAYER_CHOICE_KW player_choice* R_PAREN
+   | PLAYER_CHOICE_KW WS+ player_choice+ WS* R_PAREN
    {
+   }
+
+   | EXTENSION_INSTRUCTION_KW WORD WS+ general_fate_sequence WS* R_PAREN
+   {
+      /* Extension stuff */
+      System.out.println("Using extension instruction " + ($WORD.text));
    }
 
    | text+
@@ -321,31 +357,31 @@ general_fate_instr:
 ;
 
 instr_cond_list:
-   (L_PAREN value WS+ general_fate_instr R_PAREN)+
+   (L_PAREN WS* value WS+ general_fate_instr WS* R_PAREN)+
    {
    }
 ;
 
 player_choice:
-   L_PAREN L_PAREN text+ R_PAREN WS+ general_fate_instr R_PAREN
+   L_PAREN WS* L_PAREN text+ R_PAREN WS+ general_fate_sequence WS* R_PAREN
    {
    }
 
-   | IF_KW value WS+ player_choice R_PAREN
+   | IF_KW WS+ value WS+ player_choice WS* R_PAREN
    {
    }
 
-   | IF_ELSE_KW value WS+ player_choice WS+ player_choice R_PAREN
+   | IF_ELSE_KW WS+ value WS+ player_choice WS+ player_choice WS* R_PAREN
    {
    }
 
-   | COND_KW player_choice_cond_list R_PAREN
+   | COND_KW WS+ player_choice_cond_list WS* R_PAREN
    {
    }
 ;
 
 player_choice_cond_list:
-   (L_PAREN value WS+ player_choice R_PAREN)+
+   (L_PAREN WS* value WS+ player_choice WS* R_PAREN)+
    {
    }
 ;
@@ -355,7 +391,7 @@ text:
    {
    }
 
-   | ENABLE_TEXT_PARAMETER_KW WORD WS+ text+ R_PAREN
+   | ENABLE_TEXT_PARAMETER_KW WS+ WORD WS+ text+ WS* R_PAREN
    {
    }
 
@@ -377,12 +413,12 @@ sentence
 
    first_word=WORD
    (
-      WS next_word=WORD
+      WS+ next_word=WORD
       {
          string_builder.append(" ");
          string_builder.append(($next_word.text));
       }
-   )+
+   )*
    {
       string_builder.insert(0, ($first_word.text));
    }
@@ -441,7 +477,7 @@ returns [TypedEntryList result]
 }
 :
    (
-      L_PAREN type WS+ new_reference_name R_PAREN
+      L_PAREN WS* type WS+ new_reference_name WS* R_PAREN
       {
          $result.add
          (
@@ -525,7 +561,7 @@ returns [ValueNode result]:
          );
    }
 
-   | AND_KW value_list R_PAREN
+   | AND_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -540,7 +576,7 @@ returns [ValueNode result]:
          );
    }
 
-   | OR_KW value_list R_PAREN
+   | OR_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -555,7 +591,7 @@ returns [ValueNode result]:
          );
    }
 
-   | ONE_IN_KW value_list R_PAREN
+   | ONE_IN_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -570,7 +606,7 @@ returns [ValueNode result]:
          );
    }
 
-   | NOT_KW value_list R_PAREN
+   | NOT_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -585,7 +621,7 @@ returns [ValueNode result]:
          );
    }
 
-   | IMPLIES_KW value_list R_PAREN
+   | IMPLIES_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -600,7 +636,7 @@ returns [ValueNode result]:
          );
    }
 
-   | LOWER_THAN_KW value_list R_PAREN
+   | LOWER_THAN_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -615,7 +651,7 @@ returns [ValueNode result]:
          );
    }
 
-   | LOWER_EQUAL_THAN_KW value_list R_PAREN
+   | LOWER_EQUAL_THAN_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -630,7 +666,7 @@ returns [ValueNode result]:
          );
    }
 
-   | EQUALS_KW value_list R_PAREN
+   | EQUALS_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -645,7 +681,7 @@ returns [ValueNode result]:
          );
    }
 
-   | GREATER_EQUAL_THAN_KW value_list R_PAREN
+   | GREATER_EQUAL_THAN_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -660,7 +696,7 @@ returns [ValueNode result]:
          );
    }
 
-   | GREATER_THAN_KW value_list R_PAREN
+   | GREATER_THAN_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -675,7 +711,7 @@ returns [ValueNode result]:
          );
    }
 
-   | IS_MEMBER_KW value WS+ value_reference R_PAREN
+   | IS_MEMBER_KW WS+ value WS+ value_reference WS* R_PAREN
    {
       /* TODO */
       $result = null;
@@ -688,7 +724,7 @@ catch [final Throwable e]
 
 math_expression
 returns [ValueNode result]:
-   PLUS_KW value_list R_PAREN
+   PLUS_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -703,7 +739,7 @@ returns [ValueNode result]:
          );
    }
 
-   | MINUS_KW value_list R_PAREN
+   | MINUS_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -718,7 +754,7 @@ returns [ValueNode result]:
          );
    }
 
-   | TIMES_KW value_list R_PAREN
+   | TIMES_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -733,7 +769,7 @@ returns [ValueNode result]:
          );
    }
 
-   | DIVIDE_KW value_list R_PAREN
+   | DIVIDE_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -748,7 +784,7 @@ returns [ValueNode result]:
          );
    }
 
-   | POWER_KW value_list R_PAREN
+   | POWER_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -763,7 +799,7 @@ returns [ValueNode result]:
          );
    }
 
-   | RANDOM_KW value_list R_PAREN
+   | RANDOM_KW WS+ value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -778,7 +814,7 @@ returns [ValueNode result]:
          );
    }
 
-   | COUNT_KW value WS+ value_reference R_PAREN
+   | COUNT_KW WS+ value WS+ value_reference WS* R_PAREN
    {
       /* TODO */
       $result= null;
@@ -806,7 +842,7 @@ returns [ValueNode result]
          );
    }
 
-   | L_PAREN WS+ sentence R_PAREN
+   | L_PAREN WS+ sentence WS* R_PAREN
    {
       /* TODO */
       $result = null;
@@ -821,7 +857,7 @@ returns [ValueNode result]
 non_text_value
 returns [ValueNode result]
 :
-   IF_ELSE_KW cond=value WS+ if_true=value WS+ if_false=value R_PAREN
+   IF_ELSE_KW WS+ cond=value WS+ if_true=value WS+ if_false=value WS* R_PAREN
    {
       $result =
          IfElseValue.build
@@ -837,7 +873,7 @@ returns [ValueNode result]
          );
    }
 
-   | COND_KW value_cond_list R_PAREN
+   | COND_KW WS+ value_cond_list WS* R_PAREN
    {
       /* TODO */
       $result = null;
@@ -853,7 +889,7 @@ returns [ValueNode result]
       $result = ($math_expression.result);
    }
 
-   | CAST_KW WORD value R_PAREN
+   | CAST_KW WS+ WORD WS+ value WS* R_PAREN
    {
       final Origin target_type_origin;
       final Type target_type;
@@ -880,6 +916,13 @@ returns [ValueNode result]
          );
    }
 
+   | EXTENSION_VALUE_KW WORD WS+ general_fate_sequence WS* R_PAREN
+   {
+      /* TODO: no param alternative. */
+      /* Extension stuff */
+      System.out.println("Using extension value " + ($WORD.text));
+   }
+
    | value_reference
    {
       /* TODO */
@@ -892,21 +935,21 @@ catch [final Throwable e]
 }
 
 value_reference:
-   VARIABLE_KW WORD R_PAREN
+   VARIABLE_KW WS+ WORD WS* R_PAREN
    {
    }
 
-   | PARAMETER_KW WORD R_PAREN
+   | PARAMETER_KW WS+ WORD WS* R_PAREN
    {
    }
 
-   | GET_KW value_reference R_PAREN
+   | GET_KW WS+ value_reference WS* R_PAREN
    {
    }
 ;
 
 value_cond_list:
-   (L_PAREN value WS+ value R_PAREN)+
+   (L_PAREN WS* value WS+ value WS* R_PAREN)+
    {
    }
 ;
@@ -933,5 +976,3 @@ returns [List<ValueNode> result]
    {
    }
 ;
-
-
