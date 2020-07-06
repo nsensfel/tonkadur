@@ -281,6 +281,13 @@ first_level_fate_instr:
       R_PAREN
    {
    }
+
+   | EXTENSION_FIRST_LEVEL_KW WORD WS+ general_fate_sequence WS* R_PAREN
+   {
+      /* TODO: no param alternative. */
+      /* Extension stuff */
+      System.out.println("Using extension FLI " + ($WORD.text));
+   }
 ;
 catch [final Throwable e]
 {
