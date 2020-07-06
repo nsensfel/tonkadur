@@ -9,6 +9,7 @@ options
 {
    package tonkadur.fate.v1.parser;
 
+   import java.util.Arrays;
    import java.util.Map;
    import java.util.HashMap;
 
@@ -184,6 +185,54 @@ first_level_fate_instr:
          (
             start_origin,
             ($parent.result),
+            ($new_reference_name.result)
+         );
+
+      WORLD.types().add(new_type);
+   }
+
+   | DECLARE_SET_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
+   {
+      final Origin start_origin;
+      final Type new_type;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_SET_TYPE_KW.getLine()),
+            ($DECLARE_SET_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_type =
+         CollectionType.build
+         (
+            start_origin,
+            ($parent.result),
+            true,
+            ($new_reference_name.result)
+         );
+
+      WORLD.types().add(new_type);
+   }
+
+   | DECLARE_LIST_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
+   {
+      final Origin start_origin;
+      final Type new_type;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_LIST_TYPE_KW.getLine()),
+            ($DECLARE_LIST_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_type =
+         CollectionType.build
+         (
+            start_origin,
+            ($parent.result),
+            false,
             ($new_reference_name.result)
          );
 
@@ -484,6 +533,7 @@ returns [TypedEntryList result]
 }
 :
    (
+      WS*
       L_PAREN WS* type WS+ new_reference_name WS* R_PAREN
       {
          $result.add
@@ -915,8 +965,8 @@ returns [ValueNode result]
          (
             CONTEXT.get_origin_at
             (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
+               ($CAST_KW.getLine()),
+               ($CAST_KW.getCharPositionInLine())
             ),
             target_type,
             ($value.result)
@@ -941,19 +991,70 @@ catch [final Throwable e]
    throw new ParseCancellationException(e);
 }
 
-value_reference:
+value_reference
+returns [VariableReference result]
+:
    VARIABLE_KW WS+ WORD WS* R_PAREN
    {
+      final Origin target_var_origin;
+      final Variable target_var;
+      final String[] subrefs;
+
+      subrefs = ($WORD.text).split("\\.");
+
+      target_var_origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
+
+      if (subrefs.length == 1)
+      {
+         $result =
+            new VariableReference
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($VARIABLE_KW.getLine()),
+                  ($VARIABLE_KW.getCharPositionInLine())
+               ),
+               target_var
+            );
+      }
+      else
+      {
+         final List<String> subrefs_list;
+
+         subrefs_list = new ArrayList(Arrays.asList(subrefs));
+
+         subrefs_list.remove(0);
+
+         $result =
+            VariableFieldReference.build
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($VARIABLE_KW.getLine()),
+                  ($VARIABLE_KW.getCharPositionInLine())
+               ),
+               target_var,
+               subrefs_list
+            );
+      }
    }
 
    | PARAMETER_KW WS+ WORD WS* R_PAREN
    {
-   }
-
-   | GET_KW WS+ value_reference WS* R_PAREN
-   {
+      $result = null;
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 value_cond_list:
    (L_PAREN WS* value WS+ value WS* R_PAREN)+
