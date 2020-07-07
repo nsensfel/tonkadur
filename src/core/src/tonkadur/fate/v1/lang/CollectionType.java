@@ -32,9 +32,9 @@ public class CollectionType extends Type
    {
       if
       (
-         !Type.COLLECTION_COMPATIBLE_TYPES.contains
+         !Type.SIMPLE_BASE_TYPES.contains
          (
-            content_type.get_true_type()
+            content_type.get_base_type()
          )
       )
       {
@@ -44,7 +44,7 @@ public class CollectionType extends Type
             (
                origin,
                content_type,
-               Type.COLLECTION_COMPATIBLE_TYPES
+               Type.SIMPLE_BASE_TYPES
             )
          );
       }

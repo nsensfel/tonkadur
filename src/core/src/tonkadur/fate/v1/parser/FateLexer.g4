@@ -63,7 +63,7 @@ REQUIRE_EXTENSION_KW: L_PAREN 'require_extension';
 REQUIRE_KW: L_PAREN 'require';
 SEQUENCE_KW: L_PAREN 'sequence';
 SET_EXPRESSION_KW: L_PAREN 'set_expression';
-SET_FIELD_KW: L_PAREN 'set_field';
+SET_FIELDS_KW: L_PAREN 'set_fields';
 SET_KW: L_PAREN 'set';
 TIMES_KW: L_PAREN ('times'|'*');
 TRUE_KW: L_PAREN 'true)';

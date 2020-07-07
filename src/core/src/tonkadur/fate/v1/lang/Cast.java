@@ -67,7 +67,7 @@ public class Cast extends ValueNode
       allowed_type_changes.put
       (
          Type.STRING,
-         Type.COLLECTION_COMPATIBLE_TYPES
+         Type.SIMPLE_BASE_TYPES
       );
    }
    /***************************************************************************/
@@ -116,7 +116,7 @@ public class Cast extends ValueNode
             (
                allowed_type_changes.get(to).contains
                (
-                  value.get_type().get_true_type()
+                  value.get_type().get_base_type()
                )
             )
          )

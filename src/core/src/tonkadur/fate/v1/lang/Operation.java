@@ -88,7 +88,7 @@ public class Operation extends ValueNode
 
          operand_type = operand.get_type();
 
-         if (!allowed_base_types.contains(operand_type.get_true_type()))
+         if (!allowed_base_types.contains(operand_type.get_base_type()))
          {
             ErrorManager.handle
             (

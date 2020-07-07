@@ -73,7 +73,7 @@ public class Operator
             "equals",
             2,
             0,
-            Type.COLLECTION_COMPATIBLE_TYPES,
+            Type.SIMPLE_BASE_TYPES,
             Type.BOOLEAN
          );
 

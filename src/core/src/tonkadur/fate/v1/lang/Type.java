@@ -7,9 +7,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
@@ -25,7 +29,7 @@ public class Type extends DeclaredEntity
    public static final Type STRING;
 
    public static final Set<Type> NUMBER_TYPES;
-   public static final Set<Type> COLLECTION_COMPATIBLE_TYPES;
+   public static final Set<Type> SIMPLE_BASE_TYPES;
 
    static
    {
@@ -50,12 +54,12 @@ public class Type extends DeclaredEntity
       NUMBER_TYPES.add(FLOAT);
       NUMBER_TYPES.add(INT);
 
-      COLLECTION_COMPATIBLE_TYPES = new HashSet<Type>();
+      SIMPLE_BASE_TYPES = new HashSet<Type>();
 
-      COLLECTION_COMPATIBLE_TYPES.add(FLOAT);
-      COLLECTION_COMPATIBLE_TYPES.add(INT);
-      COLLECTION_COMPATIBLE_TYPES.add(STRING);
-      COLLECTION_COMPATIBLE_TYPES.add(BOOLEAN);
+      SIMPLE_BASE_TYPES.add(FLOAT);
+      SIMPLE_BASE_TYPES.add(INT);
+      SIMPLE_BASE_TYPES.add(STRING);
+      SIMPLE_BASE_TYPES.add(BOOLEAN);
    }
 
    public static Type value_on_missing ()
@@ -81,29 +85,27 @@ public class Type extends DeclaredEntity
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   public Type
+   public static Type build
    (
       final Origin origin,
       final Type parent,
       final String name
    )
+   throws InvalidTypeException
    {
-      super(origin, name);
-
-      if (parent == null)
+      if (!SIMPLE_BASE_TYPES.contains(parent.get_base_type()))
       {
-         true_type = this;
-      }
-      else
-      {
-         true_type = parent.true_type;
+         ErrorManager.handle
+         (
+            new InvalidTypeException(origin, parent, SIMPLE_BASE_TYPES)
+         );
       }
 
-      this.parent = parent;
+      return new Type(origin, parent, name);
    }
 
    /**** Accessors ************************************************************/
-   public Type get_true_type ()
+   public Type get_base_type ()
    {
       return true_type;
    }
@@ -201,6 +203,27 @@ public class Type extends DeclaredEntity
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
+   protected Type
+   (
+      final Origin origin,
+      final Type parent,
+      final String name
+   )
+   {
+      super(origin, name);
+
+      if (parent == null)
+      {
+         true_type = this;
+      }
+      else
+      {
+         true_type = parent.true_type;
+      }
+
+      this.parent = parent;
+   }
+
    protected boolean this_or_parent_equals (final Type t)
    {
       if (equals(t))

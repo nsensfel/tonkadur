@@ -167,7 +167,6 @@ public class World
    /***************************************************************************/
    protected void add_base_types ()
    {
-
       try
       {
          type_collection.add(Type.BOOLEAN);

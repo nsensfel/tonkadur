@@ -15,6 +15,8 @@ options
 
    import tonkadur.error.ErrorManager;
 
+   import tonkadur.functional.Cons;
+
    import tonkadur.parser.Context;
    import tonkadur.parser.Origin;
 
@@ -181,7 +183,7 @@ first_level_fate_instr:
          );
 
       new_type =
-         new Type
+         Type.build
          (
             start_origin,
             ($parent.result),
@@ -343,46 +345,58 @@ catch [final Throwable e]
    throw new ParseCancellationException(e);
 }
 
-general_fate_instr:
+general_fate_instr
+returns [InstructionNode result]
+:
    L_PAREN WS+ general_fate_sequence WS* R_PAREN
    {
+      $result = null;
    }
 
    | CLEAR_KW WS+ value_reference WS* R_PAREN
    {
+      $result = null;
    }
 
    | SET_KW WS+ value WS+ value_reference WS* R_PAREN
    {
+      $result = null;
    }
 
-   | SET_FIELD_KW WS+ WORD WS+ value WS+ value_reference WS* R_PAREN
+   | SET_FIELDS_KW WS+ field_value_list WS* value_reference WS* R_PAREN
    {
+      $result = null;
    }
 
    | SET_EXPRESSION_KW WS+ value WS+ value_reference WS* R_PAREN
    {
       /* that one isn't resolved until the value is referenced */
+      $result = null;
    }
 
    | EVENT_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
+      $result = null;
    }
 
    | MACRO_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
+      $result = null;
    }
 
    | SEQUENCE_KW WS+ WORD WS* R_PAREN
    {
+      $result = null;
    }
 
    | ASSERT_KW WS+ value WS* R_PAREN
    {
+      $result = null;
    }
 
    | IF_KW WS+ value WS* general_fate_instr WS* R_PAREN
    {
+      $result = null;
    }
 
    | IF_ELSE_KW
@@ -391,29 +405,45 @@ general_fate_instr:
          WS+ general_fate_instr
       WS* R_PAREN
    {
+      $result = null;
    }
 
    | COND_KW WS+ instr_cond_list WS* R_PAREN
    {
+      $result = null;
    }
 
    | PLAYER_CHOICE_KW WS+ player_choice+ WS* R_PAREN
    {
+      $result = null;
    }
 
    | EXTENSION_INSTRUCTION_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
       /* Extension stuff */
       System.out.println("Using extension instruction " + ($WORD.text));
+      $result = null;
    }
 
    | text+
    {
+      $result = null;
    }
 ;
 
-instr_cond_list:
-   (L_PAREN WS* value WS+ general_fate_instr WS* R_PAREN)+
+instr_cond_list
+returns [List<Cons<ValueNode,InstructionNode>> result]
+@init
+{
+   $result = new ArrayList<Cons<ValueNode,InstructionNode>>();
+}
+:
+   (
+      L_PAREN WS* value WS+ general_fate_instr WS* R_PAREN
+      {
+         $result.add(new Cons(($value.result), ($general_fate_instr.result)));
+      }
+   )+
    {
    }
 ;
@@ -555,6 +585,39 @@ catch [final Throwable e]
 {
    throw new ParseCancellationException(e);
 }
+
+field_value_list
+returns [List<Cons<Origin, Cons<String, ValueNode>>> result]
+@init
+{
+   $result = new ArrayList<Cons<Origin, Cons<String, ValueNode>>>();
+}
+:
+   (
+      WS*
+      L_PAREN WS* WORD WS+ value WS* R_PAREN
+      {
+         $result.add
+         (
+            new Cons
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($L_PAREN.getLine()),
+                  ($L_PAREN.getCharPositionInLine())
+               ),
+               new Cons
+               (
+                  ($WORD.text),
+                  ($value.result)
+               )
+            )
+         );
+      }
+   )*
+   {
+   }
+;
 
 new_reference_name
 returns [String result]
@@ -1056,8 +1119,19 @@ catch [final Throwable e]
    throw new ParseCancellationException(e);
 }
 
-value_cond_list:
-   (L_PAREN WS* value WS+ value WS* R_PAREN)+
+value_cond_list
+returns [List<Cons<ValueNode, ValueNode>> result]
+@init
+{
+   $result = new ArrayList<Cons<ValueNode, ValueNode>>();
+}
+:
+   (
+      L_PAREN WS* c=value WS+ v=value WS* R_PAREN
+      {
+         $result.add(new Cons(($c.result), ($v.result)));
+      }
+   )+
    {
    }
 ;
