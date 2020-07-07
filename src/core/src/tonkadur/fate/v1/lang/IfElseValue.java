@@ -1,8 +1,5 @@
 package tonkadur.fate.v1.lang;
 
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collections;
 
 import tonkadur.error.ErrorManager;
@@ -70,7 +67,7 @@ public class IfElseValue extends ValueNode
          (
             new InvalidTypeException
             (
-               origin,
+               condition.get_origin(),
                condition.get_type(),
                Collections.singleton(Type.BOOLEAN)
             )
@@ -88,7 +85,12 @@ public class IfElseValue extends ValueNode
 
       ErrorManager.handle
       (
-         new ConflictingTypeException(origin, if_false_type, if_true_type)
+         new ConflictingTypeException
+         (
+            if_false.get_origin(),
+            if_false_type,
+            if_true_type
+         )
       );
 
       hint =
@@ -98,7 +100,12 @@ public class IfElseValue extends ValueNode
       {
          ErrorManager.handle
          (
-            new IncomparableTypeException(origin, if_false_type, if_true_type)
+            new IncomparableTypeException
+            (
+               if_false.get_origin(),
+               if_false_type,
+               if_true_type
+            )
          );
       }
 

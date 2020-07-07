@@ -38,6 +38,11 @@ public class Context
       source.pop();
    }
 
+   public String get_current_file ()
+   {
+      return current_file;
+   }
+
    /**** Utils ****************************************************************/
    public Origin get_origin_at (final int line, final int column)
    {

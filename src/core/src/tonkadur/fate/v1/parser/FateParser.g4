@@ -13,12 +13,16 @@ options
    import java.util.Map;
    import java.util.HashMap;
 
+
    import tonkadur.error.ErrorManager;
 
    import tonkadur.functional.Cons;
 
    import tonkadur.parser.Context;
+   import tonkadur.parser.Location;
    import tonkadur.parser.Origin;
+
+   import tonkadur.fate.v1.Utils;
 
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
    import tonkadur.fate.v1.error.UnknownVariableScopeException;
@@ -47,6 +51,7 @@ fate_file [Context context, World world]
    (
       (first_level_fate_instr|general_fate_instr)
       {
+         /* TODO */
       }
       WS*
    )*
@@ -58,6 +63,7 @@ fate_file [Context context, World world]
 general_fate_sequence:
    (WS* general_fate_instr WS*)*
    {
+      /* TODO */
    }
 ;
 
@@ -168,6 +174,8 @@ first_level_fate_instr:
    | REQUIRE_EXTENSION_KW WS+ WORD WS* R_PAREN
    {
       WORLD.add_required_extension(($WORD.text));
+
+      /* TODO: error report if extension not explicitly enabled. */
    }
 
    | DECLARE_ALIAS_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
@@ -284,14 +292,17 @@ first_level_fate_instr:
 
    | ADD_KW WS+ value WS+ value_reference WS* R_PAREN
    {
+      /* TODO */
    }
 
    | REMOVE_ONE_KW WS+ value WS+ value_reference WS* R_PAREN
    {
+      /* TODO */
    }
 
    | REMOVE_ALL_KW WS+ value WS+ value_reference WS* R_PAREN
    {
+      /* TODO */
    }
 
    | DECLARE_EVENT_TYPE_KW WS+ new_reference_name WS+ type_list WS* R_PAREN
@@ -319,6 +330,41 @@ first_level_fate_instr:
 
    | REQUIRE_KW WS+ WORD WS* R_PAREN
    {
+      if (!WORLD.has_loaded_file(($WORD.text)))
+      {
+         CONTEXT.push
+         (
+            new Location
+            (
+               CONTEXT.get_current_file(),
+               ($REQUIRE_KW.getLine()),
+               ($REQUIRE_KW.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
+
+         Utils.add_file_content(($WORD.text), CONTEXT, WORLD);
+
+         CONTEXT.pop();
+      }
+   }
+
+   | INCLUDE_KW WS+ WORD WS* R_PAREN
+   {
+      CONTEXT.push
+      (
+         new Location
+         (
+            CONTEXT.get_current_file(),
+            ($INCLUDE_KW.getLine()),
+            ($INCLUDE_KW.getCharPositionInLine())
+         ),
+         ($WORD.text)
+      );
+
+      Utils.add_file_content(($WORD.text), CONTEXT, WORLD);
+
+      CONTEXT.pop();
    }
 
    | DEFINE_MACRO_KW
@@ -331,10 +377,13 @@ first_level_fate_instr:
          WS*
       R_PAREN
    {
+      /* TODO */
    }
 
    | EXTENSION_FIRST_LEVEL_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
+      /* TODO */
+
       /* TODO: no param alternative. */
       /* Extension stuff */
       System.out.println("Using extension FLI " + ($WORD.text));
@@ -350,52 +399,72 @@ returns [InstructionNode result]
 :
    L_PAREN WS+ general_fate_sequence WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | CLEAR_KW WS+ value_reference WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | SET_KW WS+ value WS+ value_reference WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | SET_FIELDS_KW WS+ field_value_list WS* value_reference WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | SET_EXPRESSION_KW WS+ value WS+ value_reference WS* R_PAREN
    {
+      /* TODO */
+
       /* that one isn't resolved until the value is referenced */
       $result = null;
    }
 
    | EVENT_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | MACRO_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | SEQUENCE_KW WS+ WORD WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | ASSERT_KW WS+ value WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | IF_KW WS+ value WS* general_fate_instr WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
@@ -405,21 +474,29 @@ returns [InstructionNode result]
          WS+ general_fate_instr
       WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | COND_KW WS+ instr_cond_list WS* R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
-   | PLAYER_CHOICE_KW WS+ player_choice+ WS* R_PAREN
+   | PLAYER_CHOICE_KW WS+ (player_choice WS*)+ R_PAREN
    {
+      /* TODO */
+
       $result = null;
    }
 
    | EXTENSION_INSTRUCTION_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
+      /* TODO */
+
       /* Extension stuff */
       System.out.println("Using extension instruction " + ($WORD.text));
       $result = null;
@@ -427,6 +504,8 @@ returns [InstructionNode result]
 
    | text+
    {
+      /* TODO */
+
       $result = null;
    }
 ;
@@ -443,50 +522,63 @@ returns [List<Cons<ValueNode,InstructionNode>> result]
       {
          $result.add(new Cons(($value.result), ($general_fate_instr.result)));
       }
+      WS*
    )+
    {
    }
 ;
 
 player_choice:
-   L_PAREN WS* L_PAREN text+ R_PAREN WS+ general_fate_sequence WS* R_PAREN
+   L_PAREN WS*
+      L_PAREN WS* text+ WS* R_PAREN WS+
+      general_fate_sequence WS*
+   R_PAREN
    {
+      /* TODO */
    }
 
    | IF_KW WS+ value WS+ player_choice WS* R_PAREN
    {
+      /* TODO */
    }
 
    | IF_ELSE_KW WS+ value WS+ player_choice WS+ player_choice WS* R_PAREN
    {
+      /* TODO */
    }
 
    | COND_KW WS+ player_choice_cond_list WS* R_PAREN
    {
+      /* TODO */
    }
 ;
 
 player_choice_cond_list:
-   (L_PAREN WS* value WS+ player_choice WS* R_PAREN)+
+   (L_PAREN WS* value WS+ player_choice WS* R_PAREN WS*)+
    {
+      /* TODO */
    }
 ;
 
 text:
    sentence
    {
+      /* TODO */
    }
 
-   | ENABLE_TEXT_PARAMETER_KW WS+ WORD WS+ text+ WS* R_PAREN
+   | WS* ENABLE_TEXT_PARAMETER_KW WS+ WORD WS+ text+ WS* R_PAREN WS*
    {
+      /* TODO */
    }
 
-   | NEWLINE_KW
+   | WS* NEWLINE_KW WS*
    {
+      /* TODO */
    }
 
-   | non_text_value
+   | WS* non_text_value WS*
    {
+      /* TODO */
    }
 ;
 
@@ -995,8 +1087,16 @@ returns [ValueNode result]
 
    | COND_KW WS+ value_cond_list WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         CondValue.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($COND_KW.getLine()),
+               ($COND_KW.getCharPositionInLine())
+            ),
+            ($value_cond_list.result)
+         );
    }
 
    | boolean_expression
@@ -1045,8 +1145,7 @@ returns [ValueNode result]
 
    | value_reference
    {
-      /* TODO */
-      $result = null;
+      $result = ($value_reference.result);
    }
 ;
 catch [final Throwable e]
@@ -1127,7 +1226,7 @@ returns [List<Cons<ValueNode, ValueNode>> result]
 }
 :
    (
-      L_PAREN WS* c=value WS+ v=value WS* R_PAREN
+      L_PAREN WS* c=value WS+ v=value WS* R_PAREN WS*
       {
          $result.add(new Cons(($c.result), ($v.result)));
       }
