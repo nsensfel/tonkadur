@@ -26,6 +26,7 @@ public class Type extends DeclaredEntity
    public static final Type INT;
    public static final Type LIST;
    public static final Type SET;
+   public static final Type REF;
    public static final Type STRING;
 
    public static final Set<Type> NUMBER_TYPES;
@@ -48,6 +49,7 @@ public class Type extends DeclaredEntity
       INT = new Type(base, null, "int");
       LIST = new Type(base, null, "list");
       SET = new Type(base, null, "set");
+      REF = new Type(base, null, "ref");
       STRING = new Type(base, null, "string");
 
       NUMBER_TYPES = new HashSet<Type>();
@@ -60,6 +62,7 @@ public class Type extends DeclaredEntity
       SIMPLE_BASE_TYPES.add(INT);
       SIMPLE_BASE_TYPES.add(STRING);
       SIMPLE_BASE_TYPES.add(BOOLEAN);
+      SIMPLE_BASE_TYPES.add(REF);
    }
 
    public static Type value_on_missing ()

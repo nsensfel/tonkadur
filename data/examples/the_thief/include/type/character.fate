@@ -1,0 +1,12 @@
+(fate_version 1)
+
+(require include/type/stat.fate)
+(require include/type/location.fate)
+
+(declare_dict_type character
+   (string name)
+   (stat agility)
+   (stat perception)
+   (int money)
+   (location location)
+)

@@ -249,6 +249,30 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
+   | DECLARE_REF_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
+   {
+      final Origin start_origin;
+      final Type new_type;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_LIST_TYPE_KW.getLine()),
+            ($DECLARE_LIST_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_type =
+         new RefType
+         (
+            start_origin,
+            ($parent.result),
+            false,
+            ($new_reference_name.result)
+         );
+
+      WORLD.types().add(new_type);
+   }
+
    | DECLARE_DICT_TYPE_KW
       WS+
       new_reference_name

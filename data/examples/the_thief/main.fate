@@ -1,0 +1,47 @@
+(fate_version 1)
+
+(require include/text_effects.fate)
+(require include/characters.fate)
+(require include/chapters.fate)
+
+(text_effect narrator
+   As the last lights of the day vanish, you bid farewell to a sun you hope
+   will not recognize you next morning, for tonight is the time of your
+   transformation. Tonight, you put an end to the hunger. Tonight, you put an
+   end to the cold. Tonight, surely, you get to claim the luck you were denied
+   all this time.
+   (newline)
+   As you gaze upon the magnificent Tarmock manor, any trace of hesitation
+   disappears. The plan is simple: your forged letter of introduction will get
+   you through the door, and your lifelong skills through their purses.
+)
+
+(sequence standing_before_the_manor)
+
+(cond
+   ((= 3 (variable oscar.money)) ...don't...)
+   ((> 3 (variable carla.agility)) ...might...)
+   ((> 3 (variable carla.perception)) ...surely...)
+)
+
+(= lol
+   (cond
+      ((= 3 (variable oscar.money)) ...don't...)
+      ((> 3 (variable carla.agility)) ...might...)
+      ((> 3 (variable carla.perception)) ...surely...)
+   )
+)
+Tonight's the night... (newline)
+Tonight, we become rich... (newline)
+Tonight, we...
+
+(player_choice
+   (
+      ( ...get in through the window! )
+      (sequence through_the_window)
+   )
+   (
+      ( ...knock at the door! )
+      (sequence knocking_on_door)
+   )
+)

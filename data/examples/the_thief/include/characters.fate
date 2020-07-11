@@ -1,0 +1,61 @@
+(fate_version 1)
+
+(require include/type/character.fate)
+
+(declare_variable local character oscar)
+(declare_variable local character carla)
+(declare_variable local character simon)
+(declare_variable local character julie)
+(declare_variable local character statue)
+
+(require include/locations.fate)
+
+(set_fields
+   (name Oscar)
+   (agility 50)
+   (perception 50)
+   (money 20)
+   (location room0)
+   (variable oscar)
+)
+
+(set_fields
+   (name Carla)
+   (agility 75)
+   (perception 35)
+   (money 7)
+   (location room1)
+   (variable carla)
+)
+
+(set_fields
+   (name Simon)
+   (agility 35)
+   (perception 75)
+   (money 80)
+   (location room1)
+   (variable simon)
+)
+
+(set_fields
+   (name Julie)
+   (agility 60)
+   (perception 60)
+   (money 90)
+   (location room2)
+   (variable julie)
+)
+
+(set_fields
+   (name ( A oddly human shaped statue, with clothes adorned ))
+   (agility 0)
+   (perception 0)
+   (money 30)
+   (location corridor)
+   (variable statue)
+)
+
+;; Alright, but we clearly need to be able to point to variables using a type.
+;; like (pointer (variable carla)) -> pointer to variable of type character
+;; (a string, really) resolves to (variable carla), but allows characters to be
+;; put in a set, for example.
