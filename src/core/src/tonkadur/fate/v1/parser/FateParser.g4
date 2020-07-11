@@ -257,8 +257,8 @@ first_level_fate_instr:
       start_origin =
          CONTEXT.get_origin_at
          (
-            ($DECLARE_LIST_TYPE_KW.getLine()),
-            ($DECLARE_LIST_TYPE_KW.getCharPositionInLine())
+            ($DECLARE_REF_TYPE_KW.getLine()),
+            ($DECLARE_REF_TYPE_KW.getCharPositionInLine())
          );
 
       new_type =
@@ -266,7 +266,6 @@ first_level_fate_instr:
          (
             start_origin,
             ($parent.result),
-            false,
             ($new_reference_name.result)
          );
 

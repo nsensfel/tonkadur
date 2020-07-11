@@ -29,7 +29,7 @@ public class RefType extends Type
    }
 
    /**** Accessors ************************************************************/
-   public referenced_type get_referenced_type ()
+   public Type get_referenced_type ()
    {
       return referenced_type;
    }
@@ -69,7 +69,7 @@ public class RefType extends Type
 
       dt = (RefType) de;
       resulting_referenced_type =
-         (Type) referenced_type.generate_comparable_to(de.referenced_type);
+         (Type) referenced_type.generate_comparable_to(dt.referenced_type);
 
       return new RefType(get_origin(), resulting_referenced_type, name);
    }
@@ -82,7 +82,7 @@ public class RefType extends Type
       final StringBuilder sb = new StringBuilder();
 
       sb.append("(Ref to ");
-      sb.append(resulting_referenced_type.toString())
+      sb.append(referenced_type.toString());
       sb.append(")::");
       sb.append(name);
 
