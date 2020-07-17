@@ -1,56 +1,52 @@
-package tonkadur.fate.v1.lang;
-
-import java.util.Collections;
+package tonkadur.fate.v1.lang.valued_node;
 
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.meta.ValueNode;
-
 import tonkadur.fate.v1.error.ConflictingTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidTypeException;
 
-public class IfElseValue extends ValueNode
+import tonkadur.fate.v1.lang.type.CollectionType;
+import tonkadur.fate.v1.lang.type.Type;
+
+import tonkadur.fate.v1.lang.meta.ValueNode;
+
+public class IsMemberOperator extends ValueNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode condition;
-   protected final ValueNode if_true;
-   protected final ValueNode if_false;
+   protected final ValueNode element;
+   protected final ValueNode collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected IfElseValue
+   protected IsMemberOperator
    (
       final Origin origin,
-      final Type return_type,
-      final ValueNode condition,
-      final ValueNode if_true,
-      final ValueNode if_false
+      final ValueNode element,
+      final ValueNode collection
    )
    {
-      super(origin, return_type);
+      super(origin, Type.BOOLEAN);
 
-      this.condition = condition;
-      this.if_true = if_true;
-      this.if_false = if_false;
+      this.collection = collection;
+      this.element = element;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static IfElseValue build
+   public static IsMemberOperator build
    (
       final Origin origin,
-      final ValueNode condition,
-      final ValueNode if_true,
-      final ValueNode if_false
+      final ValueNode element,
+      final ValueNode collection
    )
    throws
       InvalidTypeException,
@@ -58,43 +54,52 @@ public class IfElseValue extends ValueNode
       IncomparableTypeException
    {
       final Type hint;
-      final Type if_true_type;
-      final Type if_false_type;
+      final Type collection_type;
+      final CollectionType collection_true_type;
+      final Type collection_element_type;
 
-      if (!condition.get_type().can_be_used_as(Type.BOOLEAN))
+      collection_type = collection.get_type();
+
+      if
+      (
+         !Type.COLLECTION_TYPES.contains(collection_type.get_base_type())
+         || !(collection_type instanceof CollectionType)
+      )
       {
          ErrorManager.handle
          (
             new InvalidTypeException
             (
-               condition.get_origin(),
-               condition.get_type(),
-               Collections.singleton(Type.BOOLEAN)
+               collection.get_origin(),
+               collection.get_type(),
+               Type.COLLECTION_TYPES
             )
          );
       }
 
-      if_true_type = if_true.get_type();
-      if_false_type = if_false.get_type();
+      collection_true_type = (CollectionType) collection_type;
+      collection_element_type = collection_true_type.get_content_type();
 
-      if (if_true_type.equals(if_false_type))
+      if (element.get_type().can_be_used_as(collection_element_type))
       {
-         return
-            new IfElseValue(origin, if_true_type, condition, if_true, if_false);
+         return new IsMemberOperator(origin, element, collection);
       }
 
       ErrorManager.handle
       (
          new ConflictingTypeException
          (
-            if_false.get_origin(),
-            if_false_type,
-            if_true_type
+            element.get_origin(),
+            element.get_type(),
+            collection_element_type
          )
       );
 
       hint =
-         (Type) if_false_type.generate_comparable_to(if_true_type);
+         (Type) element.get_type().generate_comparable_to
+         (
+            collection_element_type
+         );
 
       if (hint.equals(Type.ANY))
       {
@@ -102,14 +107,14 @@ public class IfElseValue extends ValueNode
          (
             new IncomparableTypeException
             (
-               if_false.get_origin(),
-               if_false_type,
-               if_true_type
+               element.get_origin(),
+               element.get_type(),
+               collection_element_type
             )
          );
       }
 
-      return new IfElseValue(origin, hint, condition, if_true, if_false);
+      return new IsMemberOperator(origin, element, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -121,25 +126,19 @@ public class IfElseValue extends ValueNode
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(IfElseValue");
+      sb.append("(IsMemberOperator");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("Condition:");
+      sb.append("element:");
       sb.append(System.lineSeparator());
-      sb.append(condition.toString());
+      sb.append(element.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
 
+      sb.append("collection:");
       sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-      sb.append("If true:");
-      sb.append(System.lineSeparator());
-      sb.append(if_true.toString());
-
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-      sb.append("If false:");
-      sb.append(System.lineSeparator());
-      sb.append(if_false.toString());
+      sb.append(collection.toString());
 
       sb.append(")");
 

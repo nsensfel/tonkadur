@@ -11,7 +11,7 @@ import tonkadur.error.ErrorManager;
 
 import tonkadur.fate.v1.error.DuplicateFieldException;
 
-import tonkadur.fate.v1.lang.Type;
+import tonkadur.fate.v1.lang.type.Type;
 
 public class TypedEntryList
 {

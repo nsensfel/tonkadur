@@ -1,77 +1,36 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.valued_node;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.lang.Variable;
+
+import tonkadur.fate.v1.lang.type.RefType;
+
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
-public class Constant extends ValueNode
+public class RefOperator extends ValueNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final String as_string;
+   protected final Variable variable;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected Constant
-   (
-      final Origin origin,
-      final Type result_type,
-      final String as_string
-   )
+   public RefOperator (final Origin origin, final Variable variable)
    {
-      super(origin, result_type);
-
-      this.as_string = as_string;
+      super(origin, new RefType(origin, variable.get_type(), "auto generated"));
+      this.variable = variable;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static Constant build_boolean
-   (
-      final Origin origin,
-      final boolean value
-   )
-   {
-      return new Constant(origin, Type.BOOLEAN, value ? "true" : "false");
-   }
-
-   public static Constant build (final Origin origin, final String as_string)
-   {
-      try
-      {
-         Integer.valueOf(as_string);
-
-         return new Constant(origin, Type.INT, as_string);
-      }
-      catch (final NumberFormatException nfe)
-      {
-         /* That's fine, we're just testing... */
-      }
-
-      try
-      {
-         Float.valueOf(as_string);
-
-         return new Constant(origin, Type.FLOAT, as_string);
-      }
-      catch (final NumberFormatException nfe)
-      {
-         /* That's fine, we're just testing... */
-      }
-
-      return new Constant(origin, Type.STRING, as_string);
-   }
 
    /**** Accessors ************************************************************/
-   public String get_value_as_string ()
-   {
-      return as_string;
-   }
 
    /**** Misc. ****************************************************************/
    @Override
@@ -80,11 +39,9 @@ public class Constant extends ValueNode
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(");
-      sb.append(type.get_name());
-      sb.append(" Constant ");
-      sb.append(as_string);
-      sb.append(")");
+      sb.append("(Ref ");
+      sb.append(variable.get_name());
+      sb.append(") ");
 
       return sb.toString();
    }

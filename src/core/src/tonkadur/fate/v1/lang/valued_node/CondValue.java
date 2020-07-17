@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.valued_node;
 
 import java.util.List;
 import java.util.Collections;
@@ -9,11 +9,13 @@ import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.meta.ValueNode;
-
 import tonkadur.fate.v1.error.ConflictingTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidTypeException;
+
+import tonkadur.fate.v1.lang.type.Type;
+
+import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class CondValue extends ValueNode
 {

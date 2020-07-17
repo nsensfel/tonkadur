@@ -5,7 +5,7 @@ import tonkadur.error.ErrorLevel;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.Type;
+import tonkadur.fate.v1.lang.type.Type;
 
 public class IncomparableTypeException extends ParsingError
 {

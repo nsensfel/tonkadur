@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.valued_node;
 
 import java.util.Arrays;
 import java.util.List;
@@ -7,10 +7,15 @@ import tonkadur.parser.Origin;
 
 import tonkadur.error.ErrorManager;
 
-import tonkadur.fate.v1.lang.meta.ValueNode;
-
 import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
+
+import tonkadur.fate.v1.lang.Variable;
+
+import tonkadur.fate.v1.lang.meta.ValueNode;
+
+import tonkadur.fate.v1.lang.type.DictType;
+import tonkadur.fate.v1.lang.type.Type;
 
 public class VariableFieldReference extends VariableReference
 {

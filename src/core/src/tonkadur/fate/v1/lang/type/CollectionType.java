@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.type;
 
 import tonkadur.error.ErrorManager;
 

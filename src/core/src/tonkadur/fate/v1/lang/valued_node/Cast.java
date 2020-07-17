@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.valued_node;
 
 import java.util.Set;
 import java.util.Map;
@@ -9,10 +9,12 @@ import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.meta.ValueNode;
-
 import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
+
+import tonkadur.fate.v1.lang.type.Type;
+
+import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class Cast extends ValueNode
 {

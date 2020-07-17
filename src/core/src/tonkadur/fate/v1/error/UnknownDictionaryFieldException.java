@@ -7,8 +7,8 @@ import tonkadur.error.ErrorLevel;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.DictType;
-import tonkadur.fate.v1.lang.Type;
+import tonkadur.fate.v1.lang.type.DictType;
+import tonkadur.fate.v1.lang.type.Type;
 
 public class UnknownDictionaryFieldException extends ParsingError
 {

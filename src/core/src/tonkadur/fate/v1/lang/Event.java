@@ -11,6 +11,8 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
+import tonkadur.fate.v1.lang.type.Type;
+
 public class Event extends DeclaredEntity
 {
    protected static final Event ANY;

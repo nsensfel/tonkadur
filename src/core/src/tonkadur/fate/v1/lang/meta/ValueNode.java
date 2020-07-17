@@ -2,7 +2,7 @@ package tonkadur.fate.v1.lang.meta;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.Type;
+import tonkadur.fate.v1.lang.type.Type;
 
 public abstract class ValueNode extends Node
 {

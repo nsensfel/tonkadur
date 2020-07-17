@@ -28,7 +28,10 @@ options
    import tonkadur.fate.v1.error.UnknownVariableScopeException;
 
    import tonkadur.fate.v1.lang.*;
+   import tonkadur.fate.v1.lang.instruction.*;
    import tonkadur.fate.v1.lang.meta.*;
+   import tonkadur.fate.v1.lang.type.*;
+   import tonkadur.fate.v1.lang.valued_node.*;
 }
 
 @members

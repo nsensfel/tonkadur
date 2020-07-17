@@ -1,7 +1,9 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.valued_node;
 
 import java.util.Collections;
 import java.util.Set;
+
+import tonkadur.fate.v1.lang.type.Type;
 
 /*
  * Yes, it *could* have been an enum. In fact, it used to be one. Except that

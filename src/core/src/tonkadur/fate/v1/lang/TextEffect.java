@@ -11,6 +11,8 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
+import tonkadur.fate.v1.lang.type.Type;
+
 public class TextEffect extends Event
 {
    protected static final TextEffect ANY;

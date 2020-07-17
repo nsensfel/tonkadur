@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.valued_node;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,6 +12,8 @@ import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
 import tonkadur.fate.v1.error.InvalidTypeException;
+
+import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ValueNode;
 

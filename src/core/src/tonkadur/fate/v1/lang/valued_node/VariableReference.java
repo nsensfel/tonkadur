@@ -1,8 +1,12 @@
-package tonkadur.fate.v1.lang;
+package tonkadur.fate.v1.lang.valued_node;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.lang.Variable;
+
 import tonkadur.fate.v1.lang.meta.ValueNode;
+
+import tonkadur.fate.v1.lang.type.Type;
 
 public class VariableReference extends ValueNode
 {

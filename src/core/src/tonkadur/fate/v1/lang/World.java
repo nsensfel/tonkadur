@@ -18,6 +18,7 @@ import tonkadur.fate.v1.error.UnknownSequenceException;
 
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
 
+import tonkadur.fate.v1.lang.type.Type;
 
 public class World
 {
