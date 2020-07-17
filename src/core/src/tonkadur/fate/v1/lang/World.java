@@ -1,14 +1,23 @@
 package tonkadur.fate.v1.lang;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.error.UnknownSequenceException;
+
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
+
 
 public class World
 {
@@ -17,9 +26,12 @@ public class World
    /***************************************************************************/
    protected final Set<String> loaded_files;
    protected final Set<String> required_extensions;
+
+   protected final Map<String, List<Origin>> sequence_calls;
+
    protected final DeclarationCollection<Event> event_collection;
 //   protected final DeclarationCollection<Macro> macros;
-//   protected final DeclarationCollection<Sequence> sequences;
+   protected final DeclarationCollection<Sequence> sequence_collection;
    protected final DeclarationCollection<TextEffect> text_effect_collection;
    protected final DeclarationCollection<Type> type_collection;
    protected final DeclarationCollection<Variable> variable_collection;
@@ -33,11 +45,13 @@ public class World
    {
       loaded_files = new HashSet<String>();
       required_extensions = new HashSet<String>();
+      sequence_calls = new HashMap<String, List<Origin>>();
 
       event_collection =
          new DeclarationCollection<Event>(Event.value_on_missing());
       //macros = new DeclarationCollection<Macro>();
-      //sequences = new DeclarationCollection<Sequence>();
+      sequence_collection = new DeclarationCollection<Sequence>(null);
+
       text_effect_collection =
          new DeclarationCollection<TextEffect>(TextEffect.value_on_missing());
       type_collection =
@@ -81,10 +95,32 @@ public class World
       required_extensions.add(name);
    }
 
+   /**** Sequence Calls ****/
+   public void add_sequence_call (final Origin origin, final String sequence)
+   {
+      List<Origin> list_of_calls;
+
+      list_of_calls = sequence_calls.get(sequence);
+
+      if (list_of_calls == null)
+      {
+         list_of_calls = new ArrayList<Origin>();
+
+         sequence_calls.put(sequence, list_of_calls);
+      }
+
+      list_of_calls.add(origin);
+   }
+
    /**** Collections ****/
    public DeclarationCollection<Event> events ()
    {
       return event_collection;
+   }
+
+   public DeclarationCollection<Sequence> sequences ()
+   {
+      return sequence_collection;
    }
 
    public DeclarationCollection<TextEffect> text_effects ()
@@ -103,6 +139,19 @@ public class World
    }
 
    /**** Misc. ****************************************************************/
+
+   public boolean assert_sanity ()
+   throws UnknownSequenceException
+   {
+      boolean is_sane;
+
+      is_sane = true;
+
+      is_sane = assert_sane_sequence_calls() & is_sane;
+
+      return is_sane;
+   }
+
    @Override
    public String toString ()
    {
@@ -182,6 +231,46 @@ public class World
          System.err.println("Unable to add base types:" + t.toString());
          System.exit(-1);
       }
+   }
 
+   protected boolean assert_sane_sequence_calls ()
+   throws UnknownSequenceException
+   {
+      boolean is_sane;
+
+      is_sane = true;
+
+      for
+      (
+         final Map.Entry<String, List<Origin>> entry:
+            sequence_calls.entrySet()
+      )
+      {
+         if (!sequences().has(entry.getKey()))
+         {
+            final List<Origin> occurrences;
+
+            occurrences = entry.getValue();
+
+            if (occurrences.isEmpty())
+            {
+               continue;
+            }
+
+            is_sane = false;
+
+            ErrorManager.handle
+            (
+               new UnknownSequenceException
+               (
+                  occurrences.get(0),
+                  entry.getKey(),
+                  ((occurrences.size() == 1) ? null : occurrences)
+               )
+            );
+         }
+      }
+
+      return is_sane;
    }
 }

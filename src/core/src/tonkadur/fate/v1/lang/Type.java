@@ -31,6 +31,7 @@ public class Type extends DeclaredEntity
 
    public static final Set<Type> NUMBER_TYPES;
    public static final Set<Type> SIMPLE_BASE_TYPES;
+   public static final Set<Type> COLLECTION_TYPES;
 
    static
    {
@@ -63,6 +64,11 @@ public class Type extends DeclaredEntity
       SIMPLE_BASE_TYPES.add(STRING);
       SIMPLE_BASE_TYPES.add(BOOLEAN);
       SIMPLE_BASE_TYPES.add(REF);
+
+      COLLECTION_TYPES = new HashSet<Type>();
+
+      COLLECTION_TYPES.add(SET);
+      COLLECTION_TYPES.add(LIST);
    }
 
    public static Type value_on_missing ()

@@ -60,8 +60,19 @@ fate_file [Context context, World world]
    }
 ;
 
-general_fate_sequence:
-   (WS* general_fate_instr WS*)*
+general_fate_sequence
+returns [List<InstructionNode> result]
+@init
+{
+   $result = new ArrayList<InstructionNode>();
+}
+:
+   (WS*
+      general_fate_instr
+      {
+         $result.add($general_fate_instr.result);
+      }
+   WS*)*
    {
       /* TODO */
    }
@@ -71,23 +82,41 @@ first_level_fate_instr:
    DEFINE_SEQUENCE_KW
       WS+
       new_reference_name
-      WS+
-      first_node=general_fate_sequence
+      pre_sequence_point=WS+
+      general_fate_sequence
       WS*
    R_PAREN
    {
-   /*
-      world.sequences().add
-      (
+      final Origin start_origin, sequence_origin;
+      final Sequence new_sequence;
+
+      start_origin =
          CONTEXT.get_origin_at
          (
             ($DEFINE_SEQUENCE_KW.getLine()),
             ($DEFINE_SEQUENCE_KW.getCharPositionInLine())
-         ),
-         ($new_reference_name.result),
-         //(first_node.result)
-      );
-   */
+         );
+
+      sequence_origin =
+         CONTEXT.get_origin_at
+         (
+            ($pre_sequence_point.getLine()),
+            ($pre_sequence_point.getCharPositionInLine())
+         );
+
+      new_sequence =
+         new Sequence
+         (
+            start_origin,
+            new InstructionList
+            (
+               sequence_origin,
+               ($general_fate_sequence.result)
+            ),
+            ($new_reference_name.result)
+         );
+
+      WORLD.sequences().add(new_sequence);
    }
 
    | DECLARE_VARIABLE_KW
@@ -313,20 +342,6 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | ADD_KW WS+ value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-   }
-
-   | REMOVE_ONE_KW WS+ value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-   }
-
-   | REMOVE_ALL_KW WS+ value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-   }
 
    | DECLARE_EVENT_TYPE_KW WS+ new_reference_name WS+ type_list WS* R_PAREN
    {
@@ -424,7 +439,31 @@ returns [InstructionNode result]
    {
       /* TODO */
 
-      $result = null;
+      $result =
+         new InstructionList
+         (
+            CONTEXT.get_origin_at
+            (
+               ($L_PAREN.getLine()),
+               ($L_PAREN.getCharPositionInLine())
+            ),
+            ($general_fate_sequence.result)
+         );
+   }
+
+   | ADD_KW WS+ value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+   }
+
+   | REMOVE_ONE_KW WS+ value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+   }
+
+   | REMOVE_ALL_KW WS+ value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
    }
 
    | CLEAR_KW WS+ value_reference WS* R_PAREN
@@ -472,9 +511,21 @@ returns [InstructionNode result]
 
    | SEQUENCE_KW WS+ WORD WS* R_PAREN
    {
-      /* TODO */
+      final Origin origin;
+      final String sequence_name;
 
-      $result = null;
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($SEQUENCE_KW.getLine()),
+            ($SEQUENCE_KW.getCharPositionInLine())
+         );
+
+      sequence_name = ($WORD.text);
+
+      WORLD.add_sequence_call(origin, sequence_name);
+
+      $result = new SequenceCall(origin, sequence_name);
    }
 
    | ASSERT_KW WS+ value WS* R_PAREN
@@ -1051,8 +1102,17 @@ returns [ValueNode result]:
 
    | COUNT_KW WS+ value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
-      $result= null;
+      $result =
+         CountOperator.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($COUNT_KW.getLine()),
+               ($COUNT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
    }
 ;
 catch [final Throwable e]
@@ -1161,7 +1221,14 @@ returns [ValueNode result]
 
    | EXTENSION_VALUE_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
-      /* TODO: no param alternative. */
+      /* TODO */
+      /* Extension stuff */
+      System.out.println("Using extension value " + ($WORD.text));
+   }
+
+   | EXTENSION_VALUE_KW WORD WS* R_PAREN
+   {
+      /* TODO */
       /* Extension stuff */
       System.out.println("Using extension value " + ($WORD.text));
    }
