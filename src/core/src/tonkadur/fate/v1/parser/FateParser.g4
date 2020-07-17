@@ -456,24 +456,61 @@ returns [InstructionNode result]
 
    | ADD_KW WS+ value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
+      $result =
+         AddElement.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ADD_KW.getLine()),
+               ($ADD_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
    }
 
    | REMOVE_ONE_KW WS+ value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
+      $result =
+         RemoveElement.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REMOVE_ONE_KW.getLine()),
+               ($REMOVE_ONE_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
    }
 
    | REMOVE_ALL_KW WS+ value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
+      $result =
+         RemoveAllOfElement.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REMOVE_ALL_KW.getLine()),
+               ($REMOVE_ALL_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
    }
 
    | CLEAR_KW WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Clear.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($CLEAR_KW.getLine()),
+               ($CLEAR_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
    }
 
    | SET_KW WS+ value WS+ value_reference WS* R_PAREN
@@ -586,6 +623,10 @@ returns [InstructionNode result]
       $result = null;
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 instr_cond_list
 returns [List<Cons<ValueNode,InstructionNode>> result]
