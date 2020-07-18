@@ -1,5 +1,7 @@
 package tonkadur.parser;
 
+import java.nio.file.Path;
+
 public class Location
 {
    /***************************************************************************/
@@ -9,7 +11,7 @@ public class Location
 
    static
    {
-      BASE_LANGUAGE = new Location(true, "", -1, -1);
+      BASE_LANGUAGE = new Location(true, null, "", -1, -1);
    }
 
    /***************************************************************************/
@@ -17,6 +19,7 @@ public class Location
    /***************************************************************************/
    protected final boolean is_base_language;
    protected final String filename;
+   protected final Path directory;
    protected final int line;
    protected final int column;
 
@@ -26,12 +29,14 @@ public class Location
    protected Location
    (
       final boolean is_base_language,
+      final Path directory,
       final String filename,
       final int line,
       final int column
    )
    {
       this.is_base_language = is_base_language;
+      this.directory = directory;
       this.filename = filename;
       this.line = line;
       this.column = column;
@@ -44,18 +49,25 @@ public class Location
    /**** Constructors *********************************************************/
    public Location
    (
+      final Path directory,
       final String filename,
       final int line,
       final int column
    )
    {
       this.is_base_language = false;
+      this.directory = directory;
       this.filename = filename;
       this.line = line;
       this.column = column;
    }
 
    /**** Accessors ************************************************************/
+   public Path get_directory ()
+   {
+      return directory;
+   }
+
    public String get_filename ()
    {
       return filename;

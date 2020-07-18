@@ -2,6 +2,13 @@ package tonkadur.parser;
 
 public class Origin
 {
+   public static final Origin BASE_LANGUAGE;
+
+   static
+   {
+      BASE_LANGUAGE = new Origin(Context.BASE_LANGUAGE, Location.BASE_LANGUAGE);
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/

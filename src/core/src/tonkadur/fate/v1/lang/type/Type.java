@@ -37,7 +37,7 @@ public class Type extends DeclaredEntity
    {
       final Origin base;
 
-      base = new Origin(new Context(""), Location.BASE_LANGUAGE);
+      base = Origin.BASE_LANGUAGE;
 
       /*
        * Use of a space necessary to avoid conflicting with a user created type.

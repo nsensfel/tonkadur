@@ -13,6 +13,7 @@ options
    import java.util.Map;
    import java.util.HashMap;
 
+   import tonkadur.Files;
 
    import tonkadur.error.ErrorManager;
 
@@ -77,7 +78,6 @@ returns [List<InstructionNode> result]
       }
    WS*)*
    {
-      /* TODO */
    }
 ;
 
@@ -371,20 +371,23 @@ first_level_fate_instr:
 
    | REQUIRE_KW WS+ WORD WS* R_PAREN
    {
-      if (!WORLD.has_loaded_file(($WORD.text)))
+      final String filename;
+
+      filename = Files.resolve_filename(CONTEXT, ($WORD.text));
+
+      if (!WORLD.has_loaded_file(filename))
       {
          CONTEXT.push
          (
-            new Location
+            CONTEXT.get_location_at
             (
-               CONTEXT.get_current_file(),
                ($REQUIRE_KW.getLine()),
                ($REQUIRE_KW.getCharPositionInLine())
             ),
-            ($WORD.text)
+            filename
          );
 
-         Utils.add_file_content(($WORD.text), CONTEXT, WORLD);
+         Utils.add_file_content(filename, CONTEXT, WORLD);
 
          CONTEXT.pop();
       }
@@ -392,18 +395,21 @@ first_level_fate_instr:
 
    | INCLUDE_KW WS+ WORD WS* R_PAREN
    {
+      final String filename;
+
+      filename = Files.resolve_filename(CONTEXT, ($WORD.text));
+
       CONTEXT.push
       (
-         new Location
+         CONTEXT.get_location_at
          (
-            CONTEXT.get_current_file(),
             ($INCLUDE_KW.getLine()),
             ($INCLUDE_KW.getCharPositionInLine())
          ),
-         ($WORD.text)
+         filename
       );
 
-      Utils.add_file_content(($WORD.text), CONTEXT, WORLD);
+      Utils.add_file_content(filename, CONTEXT, WORLD);
 
       CONTEXT.pop();
    }
@@ -440,8 +446,6 @@ returns [InstructionNode result]
 :
    L_PAREN WS+ general_fate_sequence WS* R_PAREN
    {
-      /* TODO */
-
       $result =
          new InstructionList
          (
@@ -1043,8 +1047,17 @@ returns [ValueNode result]:
 
    | IS_MEMBER_KW WS+ value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         IsMemberOperator.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IS_MEMBER_KW.getLine()),
+               ($IS_MEMBER_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
    }
 ;
 catch [final Throwable e]

@@ -1,7 +1,7 @@
 (fate_version 1)
 
-(require include/type/stat.fate)
-(require include/type/location.fate)
+(require stat.fate)
+(require location.fate)
 
 (declare_dict_type character
    (string name)

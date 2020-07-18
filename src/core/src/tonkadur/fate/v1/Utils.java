@@ -39,7 +39,8 @@ public class Utils
 
       if (parser.getNumberOfSyntaxErrors() > 0)
       {
-         throw new IOException("There were syntaxic errors in" + filename);
+         throw new IOException("There were syntaxic errors in " + filename);
       }
    }
+
 }

@@ -22,7 +22,7 @@ public class Event extends DeclaredEntity
       ANY =
          new Event
          (
-            new Origin(new Context(""), Location.BASE_LANGUAGE),
+            Origin.BASE_LANGUAGE,
             new ArrayList<Type>(),
             /*
              * Use of a space necessary to avoid conflicting with a user created

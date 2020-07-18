@@ -1,6 +1,6 @@
 (fate_version 1)
 
-(require include/type/character.fate)
+(require type/character.fate)
 
 (declare_variable local character oscar)
 (declare_variable local character carla)

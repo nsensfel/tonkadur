@@ -20,9 +20,9 @@ public class Main
       final Context context;
 
       world = new World();
-      context = new Context(args[0]);
+      context = Context.build(args[0]);
 
-      Utils.add_file_content(args[0], context, world);
+      Utils.add_file_content(context.get_current_file(), context, world);
 
       System.out.println("Parsing completed.");
       System.out.println(world.toString());

@@ -1,41 +1,64 @@
 package tonkadur.parser;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import java.io.IOException;
+
 import java.util.Stack;
 
 public class Context
 {
+   public static Context BASE_LANGUAGE;
+
+   static
+   {
+      BASE_LANGUAGE = new Context(null, "<Base Language>");
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Stack<Location> source;
+   protected Path current_directory;
    protected String current_file;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-
    /**** Constructors *********************************************************/
-   public Context (final String filename)
+   public static Context build (String filename)
    {
-      source = new Stack<Location>();
-      current_file = filename;
+      Path current_directory;
+
+      current_directory = Paths.get(filename).toAbsolutePath().normalize();
+      filename = current_directory.toString();
+      current_directory = current_directory.getParent();
+
+      return new Context(current_directory, filename);
    }
 
    /**** Accessors ************************************************************/
    public void push (final Location location, final String new_file)
-   throws ContextCycleException
+   throws
+     ContextCycleException
    {
       throw_exception_on_cycle(location, new_file);
 
       current_file = new_file;
+      current_directory = Paths.get(new_file).getParent();
 
       source.push(location);
    }
 
    public void pop ()
    {
-      current_file = source.peek().get_filename();
-      source.pop();
+      final Location previous_location;
+
+      previous_location = source.pop();
+
+      current_file = previous_location.get_filename();
+      current_directory = previous_location.get_directory();
    }
 
    public String get_current_file ()
@@ -43,10 +66,31 @@ public class Context
       return current_file;
    }
 
+   public Path get_current_directory ()
+   {
+      return current_directory;
+   }
+
    /**** Utils ****************************************************************/
    public Origin get_origin_at (final int line, final int column)
    {
-      return new Origin(clone(), new Location(current_file, line, column));
+      return
+         new Origin
+         (
+            clone(),
+            new Location
+            (
+               current_directory,
+               current_file,
+               line,
+               column
+            )
+         );
+   }
+
+   public Location get_location_at (final int line, final int column)
+   {
+      return new Location(current_directory, current_file, line, column);
    }
 
    public Origin get_origin_at (final Location location)
@@ -105,7 +149,7 @@ public class Context
    {
       final Context result;
 
-      result = new Context("");
+      result = new Context(current_directory, current_file);
 
       /*
        * That's in FIFO order, as we want it to be, due to arguable design
@@ -116,14 +160,21 @@ public class Context
          result.source.push(location);
       }
 
-      result.current_file = current_file;
-
       return result;
    }
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
+   /**** Constructors *********************************************************/
+   protected Context (final Path directory, final String filename)
+   {
+      source = new Stack<Location>();
+      current_file = filename;
+      current_directory = directory;
+   }
+
+   /**** Utils ****************************************************************/
    protected void throw_exception_on_cycle
    (
       final Location declared_at,

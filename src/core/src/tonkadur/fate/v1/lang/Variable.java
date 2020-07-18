@@ -22,7 +22,7 @@ public class Variable extends DeclaredEntity
       ANY =
          new Variable
          (
-            new Origin(new Context(""), Location.BASE_LANGUAGE),
+            Origin.BASE_LANGUAGE,
             VariableScope.ANY,
             Type.ANY,
             /*
