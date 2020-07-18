@@ -1,73 +1,89 @@
 package tonkadur.fate.v1.lang.instruction;
 
+import java.util.Collections;
+
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
 
-import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
-public class Clear extends InstructionNode
+public class IfElseInstruction extends InstructionNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode collection;
+   protected final ValueNode condition;
+   protected final InstructionNode if_true;
+   protected final InstructionNode if_false;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected Clear
+   protected IfElseInstruction
    (
       final Origin origin,
-      final ValueNode collection
+      final ValueNode condition,
+      final InstructionNode if_true,
+      final InstructionNode if_false
    )
    {
       super(origin);
 
-      this.collection = collection;
+      this.condition = condition;
+      this.if_true = if_true;
+      this.if_false = if_false;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static Clear build
+   public static IfElseInstruction build
    (
       final Origin origin,
-      final ValueNode collection
+      final ValueNode condition,
+      final InstructionNode if_true,
+      final InstructionNode if_false
    )
    throws InvalidTypeException
    {
-      if
-      (
-         !Type.COLLECTION_TYPES.contains(collection.get_type().get_base_type())
-      )
+      if (condition.get_type().get_base_type().equals(Type.BOOLEAN))
       {
          ErrorManager.handle
          (
             new InvalidTypeException
             (
-               collection.get_origin(),
-               collection.get_type(),
-               Type.COLLECTION_TYPES
+               condition.get_origin(),
+               condition.get_type(),
+               Collections.singleton(Type.BOOLEAN)
             )
          );
       }
 
-      return new Clear(origin, collection);
+      return new IfElseInstruction(origin, condition, if_true, if_false);
    }
 
    /**** Accessors ************************************************************/
-   public ValueNode get_collection ()
+   public ValueNode get_condition ()
    {
-      return collection;
+      return condition;
+   }
+
+   public InstructionNode get_if_true ()
+   {
+      return if_true;
+   }
+
+   public InstructionNode get_if_false ()
+   {
+      return if_false;
    }
 
    /**** Misc. ****************************************************************/
@@ -76,8 +92,17 @@ public class Clear extends InstructionNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Clear ");
-      sb.append(collection.toString());
+      sb.append("(IfElseInstruction");
+      sb.append(System.lineSeparator());
+      sb.append(condition.toString());
+      sb.append(System.lineSeparator());
+      sb.append("If true:");
+      sb.append(System.lineSeparator());
+      sb.append(if_true.toString());
+      sb.append(System.lineSeparator());
+      sb.append("If false:");
+      sb.append(System.lineSeparator());
+      sb.append(if_false.toString());
 
       sb.append(")");
 

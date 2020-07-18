@@ -53,10 +53,16 @@ fate_file [Context context, World world]
    :
    WS* FATE_VERSION_KW WS+ WORD WS* R_PAREN WS*
    (
-      (first_level_fate_instr|general_fate_instr)
-      {
-         /* TODO */
-      }
+      (
+         first_level_fate_instr
+         |
+         (
+            general_fate_instr
+            {
+               WORLD.add_global_instruction(($general_fate_instr.result));
+            }
+         )
+      )
       WS*
    )*
    EOF
@@ -74,7 +80,7 @@ returns [List<InstructionNode> result]
    (WS*
       general_fate_instr
       {
-         $result.add($general_fate_instr.result);
+         $result.add(($general_fate_instr.result));
       }
    WS*)*
    {
@@ -573,41 +579,79 @@ returns [InstructionNode result]
 
    | ASSERT_KW WS+ value WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Assert.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ASSERT_KW.getLine()),
+               ($ASSERT_KW.getCharPositionInLine())
+            ),
+            ($value.result)
+         );
    }
 
    | IF_KW WS+ value WS* general_fate_instr WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         IfInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IF_KW.getLine()),
+               ($IF_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($general_fate_instr.result)
+         );
    }
 
    | IF_ELSE_KW
          WS+ value
-         WS+ general_fate_instr
-         WS+ general_fate_instr
+         WS+ if_true=general_fate_instr
+         WS+ if_false=general_fate_instr
       WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         IfElseInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IF_ELSE_KW.getLine()),
+               ($IF_ELSE_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($if_true.result),
+            ($if_false.result)
+         );
    }
 
    | COND_KW WS+ instr_cond_list WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         CondInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($COND_KW.getLine()),
+               ($COND_KW.getCharPositionInLine())
+            ),
+            ($instr_cond_list.result)
+         );
    }
 
-   | PLAYER_CHOICE_KW WS+ (player_choice WS*)+ R_PAREN
+   | PLAYER_CHOICE_KW WS+ player_choice_list WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         new PlayerChoiceList
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PLAYER_CHOICE_KW.getLine()),
+               ($PLAYER_CHOICE_KW.getCharPositionInLine())
+            ),
+            ($player_choice_list.result)
+         );
    }
 
    | EXTENSION_INSTRUCTION_KW WORD WS+ general_fate_sequence WS* R_PAREN
@@ -621,9 +665,12 @@ returns [InstructionNode result]
 
    | paragraph
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         new Display
+         (
+            ($paragraph.result.get_origin()),
+            ($paragraph.result)
+         );
    }
 ;
 catch [final Throwable e]
@@ -632,10 +679,10 @@ catch [final Throwable e]
 }
 
 instr_cond_list
-returns [List<Cons<ValueNode,InstructionNode>> result]
+returns [List<Cons<ValueNode, InstructionNode>> result]
 @init
 {
-   $result = new ArrayList<Cons<ValueNode,InstructionNode>>();
+   $result = new ArrayList<Cons<ValueNode, InstructionNode>>();
 }
 :
    (
@@ -649,37 +696,119 @@ returns [List<Cons<ValueNode,InstructionNode>> result]
    }
 ;
 
-player_choice:
-   L_PAREN WS*
-      L_PAREN WS* text+ WS* R_PAREN WS+
+player_choice_list
+returns [List<InstructionNode> result]
+@init
+{
+   $result = new ArrayList<InstructionNode>();
+}
+:
+   (WS*
+      player_choice
+      {
+         $result.add(($player_choice.result));
+      }
+   WS*)*
+   {
+   }
+;
+
+player_choice
+returns [InstructionNode result]
+:
+   start_p=L_PAREN WS*
+      L_PAREN WS* paragraph WS* R_PAREN WS+
       general_fate_sequence WS*
    R_PAREN
    {
-      /* TODO */
+      $result =
+         new PlayerChoice
+         (
+            CONTEXT.get_origin_at
+            (
+               ($start_p.getLine()),
+               ($start_p.getCharPositionInLine())
+            ),
+            ($paragraph.result),
+            ($general_fate_sequence.result)
+         );
    }
 
    | IF_KW WS+ value WS+ player_choice WS* R_PAREN
    {
-      /* TODO */
+      $result =
+         IfInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IF_KW.getLine()),
+               ($IF_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($player_choice.result)
+         );
    }
 
-   | IF_ELSE_KW WS+ value WS+ player_choice WS+ player_choice WS* R_PAREN
+   | IF_ELSE_KW WS+
+      value WS+
+      if_true=player_choice WS+
+      if_false=player_choice WS*
+   R_PAREN
    {
-      /* TODO */
+      $result =
+         IfElseInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IF_ELSE_KW.getLine()),
+               ($IF_ELSE_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($if_true.result),
+            ($if_false.result)
+         );
    }
 
    | COND_KW WS+ player_choice_cond_list WS* R_PAREN
    {
-      /* TODO */
+      $result =
+         CondInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($COND_KW.getLine()),
+               ($COND_KW.getCharPositionInLine())
+            ),
+            ($player_choice_cond_list.result)
+         );
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
-player_choice_cond_list:
-   (L_PAREN WS* value WS+ player_choice WS* R_PAREN WS*)+
+player_choice_cond_list
+returns [List<Cons<ValueNode, InstructionNode>> result]
+@init
+{
+   $result = new ArrayList<Cons<ValueNode, InstructionNode>>();
+}
+:
+   (
+      L_PAREN WS* value WS+ player_choice WS* R_PAREN
+      {
+         $result.add(new Cons(($value.result), ($player_choice.result)));
+      }
+      WS*
+   )+
    {
-      /* TODO */
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 paragraph
 returns [TextNode result]
@@ -1323,13 +1452,35 @@ returns [ValueNode result]
 
    | L_PAREN WS+ paragraph WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result = ($paragraph.result);
    }
 
    | ENABLE_TEXT_EFFECT_KW WS+ WORD WS+ paragraph WS* R_PAREN
    {
-      /* TODO */
+      final TextEffect effect;
+
+      effect =
+         WORLD.text_effects().get
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
+
+      $result =
+         new TextWithEffect
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            effect,
+            ($paragraph.result)
+         );
    }
 
    | ENABLE_TEXT_EFFECT_KW WS+
@@ -1340,12 +1491,44 @@ returns [ValueNode result]
       paragraph WS*
       R_PAREN
    {
-      /* TODO */
+      final TextEffect effect;
+
+      effect =
+         WORLD.text_effects().get
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
+
+      $result =
+         TextWithEffect.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ENABLE_TEXT_EFFECT_KW.getLine()),
+               ($ENABLE_TEXT_EFFECT_KW.getCharPositionInLine())
+            ),
+            effect,
+            ($value_list.result),
+            ($paragraph.result)
+         );
    }
 
    | NEWLINE_KW
    {
-      /* TODO */
+      $result =
+         new Newline
+         (
+            CONTEXT.get_origin_at
+            (
+               ($NEWLINE_KW.getLine()),
+               ($NEWLINE_KW.getCharPositionInLine())
+            )
+         );
    }
 
    | non_text_value
@@ -1353,6 +1536,10 @@ returns [ValueNode result]
       $result = ($non_text_value.result);
    }
 ;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
 
 non_text_value
 returns [ValueNode result]

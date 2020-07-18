@@ -1,73 +1,47 @@
 package tonkadur.fate.v1.lang.instruction;
 
+import java.util.Collections;
+
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.TextNode;
 
-public class Clear extends InstructionNode
+public class Display extends InstructionNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode collection;
+   protected final TextNode content;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected Clear
+   public Display
    (
       final Origin origin,
-      final ValueNode collection
+      final TextNode content
    )
    {
       super(origin);
 
-      this.collection = collection;
+      this.content = content;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static Clear build
-   (
-      final Origin origin,
-      final ValueNode collection
-   )
-   throws InvalidTypeException
-   {
-      if
-      (
-         !Type.COLLECTION_TYPES.contains(collection.get_type().get_base_type())
-      )
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection.get_type(),
-               Type.COLLECTION_TYPES
-            )
-         );
-      }
-
-      return new Clear(origin, collection);
-   }
 
    /**** Accessors ************************************************************/
-   public ValueNode get_collection ()
+   public TextNode get_content ()
    {
-      return collection;
+      return content;
    }
 
    /**** Misc. ****************************************************************/
@@ -76,8 +50,9 @@ public class Clear extends InstructionNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Clear ");
-      sb.append(collection.toString());
+      sb.append("(Display");
+      sb.append(System.lineSeparator());
+      sb.append(content.toString());
 
       sb.append(")");
 

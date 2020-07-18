@@ -17,6 +17,7 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.error.UnknownSequenceException;
 
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
+import tonkadur.fate.v1.lang.meta.InstructionNode;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -36,6 +37,8 @@ public class World
    protected final DeclarationCollection<TextEffect> text_effect_collection;
    protected final DeclarationCollection<Type> type_collection;
    protected final DeclarationCollection<Variable> variable_collection;
+
+   protected final List<InstructionNode> global_instructions;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -61,6 +64,8 @@ public class World
          new DeclarationCollection<Variable>(Variable.value_on_missing());
 
       add_base_types();
+
+      global_instructions = new ArrayList<InstructionNode>();
    }
 
    /**** Accessors ************************************************************/
@@ -139,8 +144,17 @@ public class World
       return variable_collection;
    }
 
-   /**** Misc. ****************************************************************/
+   public void add_global_instruction (final InstructionNode instruction)
+   {
+      global_instructions.add(instruction);
+   }
 
+   public List<InstructionNode> get_global_instructions ()
+   {
+      return global_instructions;
+   }
+
+   /**** Misc. ****************************************************************/
    public boolean assert_sanity ()
    throws UnknownSequenceException
    {
