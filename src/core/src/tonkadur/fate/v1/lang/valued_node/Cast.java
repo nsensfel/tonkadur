@@ -1,9 +1,10 @@
 package tonkadur.fate.v1.lang.valued_node;
 
-import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import tonkadur.error.ErrorManager;
 
@@ -72,6 +73,12 @@ public class Cast extends ValueNode
          Type.SIMPLE_BASE_TYPES
       );
    }
+
+   public static Collection<Type> get_allowed_casts_to (final Type t)
+   {
+      return allowed_type_changes.get(t);
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/

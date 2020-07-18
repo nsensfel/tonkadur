@@ -431,7 +431,14 @@ first_level_fate_instr:
    {
       /* TODO */
 
-      /* TODO: no param alternative. */
+      /* Extension stuff */
+      System.out.println("Using extension FLI " + ($WORD.text));
+   }
+
+   | EXTENSION_FIRST_LEVEL_KW WORD WS* R_PAREN
+   {
+      /* TODO */
+
       /* Extension stuff */
       System.out.println("Using extension FLI " + ($WORD.text));
    }
@@ -531,14 +538,6 @@ returns [InstructionNode result]
       $result = null;
    }
 
-   | SET_EXPRESSION_KW WS+ value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-
-      /* that one isn't resolved until the value is referenced */
-      $result = null;
-   }
-
    | EVENT_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
       /* TODO */
@@ -620,7 +619,7 @@ returns [InstructionNode result]
       $result = null;
    }
 
-   | text+
+   | paragraph
    {
       /* TODO */
 
@@ -682,36 +681,155 @@ player_choice_cond_list:
    }
 ;
 
-text:
-   sentence
+paragraph
+returns [TextNode result]
+@init
+{
+   final List<TextNode> content = new ArrayList();
+}
+:
+   first=text
    {
-      /* TODO */
+      content.add(($first.result));
    }
+   (
+      (WS+ next_a=text)
+      {
+         if (!(content.get(content.size() - 1) instanceof Newline))
+         {
+            content.add(new Space(($next_a.result.get_origin())));
+         }
 
-   | WS* ENABLE_TEXT_PARAMETER_KW WS+ WORD WS+ text+ WS* R_PAREN WS*
+         content.add(($next_a.result));
+      }
+      |
+      (next_b=text)
+      {
+         content.add(($next_b.result));
+      }
+   )*
    {
-      /* TODO */
-   }
-
-   | WS* NEWLINE_KW WS*
-   {
-      /* TODO */
-   }
-
-   | WS* non_text_value WS*
-   {
-      /* TODO */
+      if (content.size() == 1)
+      {
+         $result = content.get(0);
+      }
+      else
+      {
+         $result =
+            new Paragraph
+            (
+               ($first.result.get_origin()),
+               content
+            );
+      }
    }
 ;
 
-sentence
-   @init
+text
+returns [TextNode result]:
+   sentence
    {
-      final StringBuilder string_builder = new StringBuilder();
+      $result = ($sentence.result);
    }
-   :
+
+   | ENABLE_TEXT_EFFECT_KW WS+ WORD WS+ paragraph WS* R_PAREN
+   {
+      final TextEffect effect;
+
+      effect =
+         WORLD.text_effects().get
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
+
+      $result =
+         new TextWithEffect
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            effect,
+            ($paragraph.result)
+         );
+   }
+
+   | ENABLE_TEXT_EFFECT_KW WS+
+      L_PAREN
+         WORD WS+
+         value_list
+      R_PAREN WS+
+      paragraph WS*
+      R_PAREN
+   {
+      final TextEffect effect;
+
+      effect =
+         WORLD.text_effects().get
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
+
+      $result =
+         TextWithEffect.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ENABLE_TEXT_EFFECT_KW.getLine()),
+               ($ENABLE_TEXT_EFFECT_KW.getCharPositionInLine())
+            ),
+            effect,
+            ($value_list.result),
+            ($paragraph.result)
+         );
+   }
+
+   | NEWLINE_KW
+   {
+      $result =
+         new Newline
+         (
+            CONTEXT.get_origin_at
+            (
+               ($NEWLINE_KW.getLine()),
+               ($NEWLINE_KW.getCharPositionInLine())
+            )
+         );
+   }
+
+   | non_text_value
+   {
+      $result = ValueToText.build(($non_text_value.result));
+   }
+;
+catch [final Throwable e]
+{
+   throw new ParseCancellationException(e);
+}
+
+sentence
+returns [TextNode result]
+@init
+{
+   final StringBuilder string_builder = new StringBuilder();
+}
+:
 
    first_word=WORD
+   {
+      string_builder.append(($first_word.text));
+   }
    (
       WS+ next_word=WORD
       {
@@ -720,7 +838,16 @@ sentence
       }
    )*
    {
-      string_builder.insert(0, ($first_word.text));
+      $result =
+         new Sentence
+         (
+            CONTEXT.get_origin_at
+            (
+               ($first_word.getLine()),
+               ($first_word.getCharPositionInLine())
+            ),
+            string_builder.toString()
+         );
    }
 ;
 
@@ -1194,10 +1321,31 @@ returns [ValueNode result]
          );
    }
 
-   | L_PAREN WS+ sentence WS* R_PAREN
+   | L_PAREN WS+ paragraph WS* R_PAREN
    {
       /* TODO */
       $result = null;
+   }
+
+   | ENABLE_TEXT_EFFECT_KW WS+ WORD WS+ paragraph WS* R_PAREN
+   {
+      /* TODO */
+   }
+
+   | ENABLE_TEXT_EFFECT_KW WS+
+      L_PAREN
+         WORD WS+
+         value_list
+      R_PAREN WS+
+      paragraph WS*
+      R_PAREN
+   {
+      /* TODO */
+   }
+
+   | NEWLINE_KW
+   {
+      /* TODO */
    }
 
    | non_text_value

@@ -31,7 +31,7 @@ DECLARE_VARIABLE_KW: L_PAREN 'declare_variable';
 DEFINE_MACRO_KW: L_PAREN 'define_macro';
 DEFINE_SEQUENCE_KW: L_PAREN 'define_sequence';
 DIVIDE_KW: L_PAREN ('divide'|'/');
-ENABLE_TEXT_PARAMETER_KW: L_PAREN 'text_effect';
+ENABLE_TEXT_EFFECT_KW: L_PAREN 'text_effect';
 EQUALS_KW: L_PAREN ('equals'|'='|'==');
 EVENT_KW: L_PAREN 'event';
 EXTENSION_FIRST_LEVEL_KW: L_PAREN '@';
