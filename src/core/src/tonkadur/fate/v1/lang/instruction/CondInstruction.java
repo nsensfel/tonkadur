@@ -51,7 +51,7 @@ public class CondInstruction extends InstructionNode
    {
       for (final Cons<ValueNode, InstructionNode> branch: branches)
       {
-         if (branch.get_car().get_type().get_base_type().equals(Type.BOOLEAN))
+         if (!branch.get_car().get_type().get_base_type().equals(Type.BOOLEAN))
          {
             ErrorManager.handle
             (

@@ -1,32 +1,41 @@
 package tonkadur.fate.v1.lang.valued_node;
 
+import java.util.Collections;
+
 import tonkadur.parser.Origin;
+
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
 
 import tonkadur.fate.v1.lang.Variable;
 
 import tonkadur.fate.v1.lang.meta.Reference;
 
+import tonkadur.fate.v1.lang.type.RefType;
 import tonkadur.fate.v1.lang.type.Type;
 
-public class VariableReference extends Reference
+public class AtReference extends Reference
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Variable variable;
+   protected final Reference parent;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-   protected VariableReference
+   protected AtReference
    (
       final Origin origin,
       final Type reported_type,
-      final Variable variable
+      final Reference parent
    )
    {
-      super(origin, reported_type, variable.get_name());
-      this.variable = variable;
+      super(origin, reported_type, ("(At " + parent.get_name() + ")"));
+
+      this.parent = parent;
    }
    /**** Constructors *********************************************************/
 
@@ -34,20 +43,45 @@ public class VariableReference extends Reference
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public VariableReference
+   public static AtReference build
    (
       final Origin origin,
-      final Variable variable
+      final Reference parent
    )
+   throws
+      InvalidTypeException
    {
-      super(origin, variable.get_type(), variable.get_name());
-      this.variable = variable;
+      Type current_type;
+
+      current_type = parent.get_type();
+
+      if (!(current_type instanceof RefType))
+      {
+         ErrorManager.handle
+         (
+            new InvalidTypeException
+            (
+               origin,
+               current_type,
+               Collections.singleton(Type.REF),
+               parent.get_name()
+            )
+         );
+
+         current_type = Type.ANY;
+      }
+      else
+      {
+         current_type = ((RefType) current_type).get_referenced_type();
+      }
+
+      return new AtReference(origin, current_type, parent);
    }
 
    /**** Accessors ************************************************************/
-   public Variable get_variable ()
+   public Reference get_parent ()
    {
-      return variable;
+      return parent;
    }
 
    /**** Misc. ****************************************************************/
@@ -56,11 +90,10 @@ public class VariableReference extends Reference
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
-      sb.append("(VariableReference (");
+      sb.append("(AtReference (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(variable.get_name());
+      sb.append(parent.get_name());
       sb.append(")");
 
       return sb.toString();

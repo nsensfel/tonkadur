@@ -1,53 +1,34 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.meta;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.Variable;
-
-import tonkadur.fate.v1.lang.meta.Reference;
-
 import tonkadur.fate.v1.lang.type.Type;
 
-public class VariableReference extends Reference
+public abstract class Reference extends ValueNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Variable variable;
+   protected final String name;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-   protected VariableReference
-   (
-      final Origin origin,
-      final Type reported_type,
-      final Variable variable
-   )
-   {
-      super(origin, reported_type, variable.get_name());
-      this.variable = variable;
-   }
    /**** Constructors *********************************************************/
+   protected Reference (final Origin origin, final Type type, final String name)
+   {
+      super(origin, type);
+
+      this.name = name;
+   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public VariableReference
-   (
-      final Origin origin,
-      final Variable variable
-   )
-   {
-      super(origin, variable.get_type(), variable.get_name());
-      this.variable = variable;
-   }
-
    /**** Accessors ************************************************************/
-   public Variable get_variable ()
+   public String get_name ()
    {
-      return variable;
+      return name;
    }
 
    /**** Misc. ****************************************************************/
@@ -56,11 +37,10 @@ public class VariableReference extends Reference
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
-      sb.append("(VariableReference (");
+      sb.append("(");
       sb.append(type.get_name());
-      sb.append(") ");
-      sb.append(variable.get_name());
+      sb.append(" Reference ");
+      sb.append(name);
       sb.append(")");
 
       return sb.toString();

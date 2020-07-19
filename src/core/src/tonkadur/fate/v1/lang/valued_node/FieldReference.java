@@ -1,6 +1,6 @@
 package tonkadur.fate.v1.lang.valued_node;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import tonkadur.parser.Origin;
@@ -10,97 +10,118 @@ import tonkadur.error.ErrorManager;
 import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
 
-import tonkadur.fate.v1.lang.Variable;
-
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Reference;
 
 import tonkadur.fate.v1.lang.type.DictType;
 import tonkadur.fate.v1.lang.type.Type;
 
-public class VariableFieldReference extends VariableReference
+public class FieldReference extends Reference
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   final List<String> field_accesses;
+   protected final Reference parent;
+   protected final String field_name;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected VariableFieldReference
+   protected FieldReference
    (
       final Origin origin,
-      final Variable variable,
+      final Reference parent,
       final Type type,
-      final List<String> field_accesses
+      final String field_name
    )
    {
-      super(origin, type, variable);
+      super(origin, type, (parent.get_name() + "." + field_name));
 
-      this.field_accesses = field_accesses;
+      this.parent = parent;
+      this.field_name = field_name;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static VariableFieldReference build
+   public static FieldReference build
    (
       final Origin origin,
-      final Variable variable,
-      final List<String> field_accesses
+      Reference parent,
+      final String field
    )
    throws
       InvalidTypeException,
       UnknownDictionaryFieldException
    {
-      final StringBuilder sb;
       Type current_type;
 
-      sb = new StringBuilder();
+      current_type = parent.get_type();
 
-      current_type = variable.get_type();
-
-      for (final String field_access: field_accesses)
+      if (current_type.get_base_type().equals(Type.REF))
       {
-         sb.append(".");
-         sb.append(field_access);
-
-         if (!(current_type instanceof DictType))
-         {
-            ErrorManager.handle
-            (
-               new InvalidTypeException
-               (
-                  origin,
-                  current_type,
-                  Arrays.asList(new Type[]{Type.DICT}),
-                  (variable.get_name() + "." + sb.toString())
-               )
-            );
-
-            break;
-         }
-
-         current_type =
-            ((DictType) current_type).get_field_type(origin, field_access);
+         parent = AtReference.build(origin, parent);
+         current_type = parent.get_type();
       }
 
-      return
-         new VariableFieldReference
+      if (!(current_type instanceof DictType))
+      {
+         ErrorManager.handle
          (
-            origin,
-            variable,
-            current_type,
-            field_accesses
+            new InvalidTypeException
+            (
+               origin,
+               current_type,
+               Collections.singleton(Type.DICT),
+               parent.get_name()
+            )
          );
+
+         current_type = Type.ANY;
+      }
+      else
+      {
+         current_type = ((DictType) current_type).get_field_type(origin, field);
+      }
+
+      return new FieldReference(origin, parent, current_type, field);
+   }
+
+   public static FieldReference build
+   (
+      final Origin origin,
+      Reference parent,
+      final List<String> field_sequence
+   )
+   throws
+      InvalidTypeException,
+      UnknownDictionaryFieldException
+   {
+      for (final String field: field_sequence)
+      {
+         parent = build(origin, parent, field);
+      }
+
+      if (parent instanceof FieldReference)
+      {
+         return (FieldReference) parent;
+      }
+      else
+      {
+         return null;
+      }
    }
 
    /**** Accessors ************************************************************/
-   public List<String> get_field_accesses ()
+   public String get_field_name ()
    {
-      return field_accesses;
+      return field_name;
+   }
+
+   public Reference get_parent ()
+   {
+      return parent;
    }
 
    /**** Misc. ****************************************************************/
@@ -109,18 +130,10 @@ public class VariableFieldReference extends VariableReference
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
-      sb.append("(VariableFieldReference (");
+      sb.append("(FieldReference (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(variable.get_name());
-
-      for (final String field: field_accesses)
-      {
-         sb.append(".");
-         sb.append(field);
-      }
-
+      sb.append(name);
       sb.append(")");
 
       return sb.toString();

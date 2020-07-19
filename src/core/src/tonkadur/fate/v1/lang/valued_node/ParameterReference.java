@@ -2,52 +2,28 @@ package tonkadur.fate.v1.lang.valued_node;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.Variable;
-
 import tonkadur.fate.v1.lang.meta.Reference;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-public class VariableReference extends Reference
+public class ParameterReference extends Reference
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Variable variable;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   protected VariableReference
-   (
-      final Origin origin,
-      final Type reported_type,
-      final Variable variable
-   )
-   {
-      super(origin, reported_type, variable.get_name());
-      this.variable = variable;
-   }
-   /**** Constructors *********************************************************/
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public VariableReference
+   public ParameterReference
    (
       final Origin origin,
-      final Variable variable
+      final Type reported_type,
+      final String parameter_name
    )
    {
-      super(origin, variable.get_type(), variable.get_name());
-      this.variable = variable;
-   }
-
-   /**** Accessors ************************************************************/
-   public Variable get_variable ()
-   {
-      return variable;
+      super(origin, reported_type, parameter_name);
    }
 
    /**** Misc. ****************************************************************/
@@ -57,10 +33,10 @@ public class VariableReference extends Reference
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(VariableReference (");
+      sb.append("(ParameterReference (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(variable.get_name());
+      sb.append(name);
       sb.append(")");
 
       return sb.toString();

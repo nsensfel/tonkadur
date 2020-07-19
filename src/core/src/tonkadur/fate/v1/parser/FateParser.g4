@@ -26,6 +26,9 @@ options
    import tonkadur.fate.v1.Utils;
 
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
+   import tonkadur.fate.v1.error.NotInAMacroException;
+   import tonkadur.fate.v1.error.UnknownExtensionContentException;
+   import tonkadur.fate.v1.error.UnknownParameterException;
    import tonkadur.fate.v1.error.UnknownVariableScopeException;
 
    import tonkadur.fate.v1.lang.*;
@@ -39,6 +42,7 @@ options
 {
    Context CONTEXT;
    World WORLD;
+   TypedEntryList PARAMETERS;
 }
 
 /******************************************************************************/
@@ -49,6 +53,7 @@ fate_file [Context context, World world]
    {
       CONTEXT = context;
       WORLD = world;
+      PARAMETERS = null;
    }
    :
    WS* FATE_VERSION_KW WS+ WORD WS* R_PAREN WS*
@@ -424,29 +429,70 @@ first_level_fate_instr:
          WS+
          new_reference_name
          WS*
-         L_PAREN WS+ typed_entry_list WS* R_PAREN
+         (
+            L_PAREN WS+ typed_entry_list WS* R_PAREN
+            {
+               PARAMETERS=($typed_entry_list.result);
+            }
+         )
          WS*
          general_fate_sequence
          WS*
       R_PAREN
    {
-      /* TODO */
+      final Origin origin;
+      final Macro new_macro;
+
+      PARAMETERS = null;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($DEFINE_MACRO_KW.getLine()),
+            ($DEFINE_MACRO_KW.getCharPositionInLine())
+         );
+
+      new_macro =
+         new Macro
+         (
+            origin,
+            new InstructionList
+            (
+               origin,
+               ($general_fate_sequence.result)
+            ),
+            ($typed_entry_list.result),
+            ($new_reference_name.result)
+         );
+
+      WORLD.macros().add(new_macro);
    }
 
    | EXTENSION_FIRST_LEVEL_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
-      /* TODO */
+      final Origin origin;
+      final ExtensionInstruction instr;
 
-      /* Extension stuff */
-      System.out.println("Using extension FLI " + ($WORD.text));
-   }
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
 
-   | EXTENSION_FIRST_LEVEL_KW WORD WS* R_PAREN
-   {
-      /* TODO */
+      instr = WORLD.extension_first_level_instructions().get(($WORD.text));
 
-      /* Extension stuff */
-      System.out.println("Using extension FLI " + ($WORD.text));
+      if (instr == null)
+      {
+         ErrorManager.handle
+         (
+            new UnknownExtensionContentException(origin, ($WORD.text))
+         );
+      }
+      else
+      {
+         instr.build(WORLD, CONTEXT, origin, ($general_fate_sequence.result));
+      }
    }
 ;
 catch [final Throwable e]
@@ -532,12 +578,20 @@ returns [InstructionNode result]
 
    | SET_KW WS+ value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         SetValue.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SET_KW.getLine()),
+               ($SET_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
    }
 
-   | SET_FIELDS_KW WS+ field_value_list WS* value_reference WS* R_PAREN
+   | SET_FIELDS_KW WS+ value_reference WS * field_value_list WS* R_PAREN
    {
       /* TODO */
 
@@ -656,11 +710,36 @@ returns [InstructionNode result]
 
    | EXTENSION_INSTRUCTION_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
-      /* TODO */
+      final Origin origin;
+      final ExtensionInstruction instr;
 
-      /* Extension stuff */
-      System.out.println("Using extension instruction " + ($WORD.text));
-      $result = null;
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      instr = WORLD.extension_instructions().get(($WORD.text));
+
+      if (instr == null)
+      {
+         ErrorManager.handle
+         (
+            new UnknownExtensionContentException(origin, ($WORD.text))
+         );
+      }
+      else
+      {
+         $result =
+            instr.build
+            (
+               WORLD,
+               CONTEXT,
+               origin,
+               ($general_fate_sequence.result)
+            );
+      }
    }
 
    | paragraph
@@ -1611,18 +1690,38 @@ returns [ValueNode result]
          );
    }
 
-   | EXTENSION_VALUE_KW WORD WS+ general_fate_sequence WS* R_PAREN
+   | EXTENSION_VALUE_KW WORD WS+ value_list WS* R_PAREN
    {
-      /* TODO */
-      /* Extension stuff */
-      System.out.println("Using extension value " + ($WORD.text));
-   }
+      final Origin origin;
+      final ExtensionValueNode value;
 
-   | EXTENSION_VALUE_KW WORD WS* R_PAREN
-   {
-      /* TODO */
-      /* Extension stuff */
-      System.out.println("Using extension value " + ($WORD.text));
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      value = WORLD.extension_value_nodes().get(($WORD.text));
+
+      if (value == null)
+      {
+         ErrorManager.handle
+         (
+            new UnknownExtensionContentException(origin, ($WORD.text))
+         );
+      }
+      else
+      {
+         $result =
+            value.build
+            (
+               WORLD,
+               CONTEXT,
+               origin,
+               ($value_list.result)
+            );
+      }
    }
 
    | value_reference
@@ -1636,9 +1735,38 @@ catch [final Throwable e]
 }
 
 value_reference
-returns [VariableReference result]
+returns [Reference result]
 :
-   VARIABLE_KW WS+ WORD WS* R_PAREN
+   AT_KW WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         AtReference.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($AT_KW.getLine()),
+               ($AT_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
+   }
+
+   | FIELD_KW WS+ value_reference WORD R_PAREN
+   {
+      $result =
+         FieldReference.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FIELD_KW.getLine()),
+               ($FIELD_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            ($WORD.text)
+         );
+   }
+
+   | VARIABLE_KW WS+ WORD WS* R_PAREN
    {
       final Origin target_var_origin;
       final Variable target_var;
@@ -1655,20 +1783,18 @@ returns [VariableReference result]
 
       target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
 
-      if (subrefs.length == 1)
-      {
-         $result =
-            new VariableReference
+      $result =
+         new VariableReference
+         (
+            CONTEXT.get_origin_at
             (
-               CONTEXT.get_origin_at
-               (
-                  ($VARIABLE_KW.getLine()),
-                  ($VARIABLE_KW.getCharPositionInLine())
-               ),
-               target_var
-            );
-      }
-      else
+               ($VARIABLE_KW.getLine()),
+               ($VARIABLE_KW.getCharPositionInLine())
+            ),
+            target_var
+         );
+
+      if (subrefs.length > 1)
       {
          final List<String> subrefs_list;
 
@@ -1677,14 +1803,10 @@ returns [VariableReference result]
          subrefs_list.remove(0);
 
          $result =
-            VariableFieldReference.build
+            FieldReference.build
             (
-               CONTEXT.get_origin_at
-               (
-                  ($VARIABLE_KW.getLine()),
-                  ($VARIABLE_KW.getCharPositionInLine())
-               ),
-               target_var,
+               target_var_origin,
+               ($result),
                subrefs_list
             );
       }
@@ -1692,7 +1814,68 @@ returns [VariableReference result]
 
    | PARAMETER_KW WS+ WORD WS* R_PAREN
    {
-      $result = null;
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($PARAMETER_KW.getLine()),
+            ($PARAMETER_KW.getCharPositionInLine())
+         );
+
+      if (PARAMETERS == null)
+      {
+         ErrorManager.handle
+         (
+            new NotInAMacroException(origin)
+         );
+      }
+      else
+      {
+         final TypedEntryList.TypedEntry param;
+         final String[] subrefs;
+
+         subrefs = ($WORD.text).split("\\.");
+
+         param = PARAMETERS.as_map().get(subrefs[0]);
+
+         if (param == null)
+         {
+            ErrorManager.handle
+            (
+               new UnknownParameterException(origin, subrefs[0], PARAMETERS)
+            );
+
+            $result = new ParameterReference(origin, Type.ANY, ($WORD.text));
+         }
+         else
+         {
+            $result =
+               new ParameterReference
+               (
+                  origin,
+                  param.get_type(),
+                  ($WORD.text)
+               );
+
+            if (subrefs.length > 1)
+            {
+               final List<String> subrefs_list;
+
+               subrefs_list = new ArrayList(Arrays.asList(subrefs));
+
+               subrefs_list.remove(0);
+
+               $result =
+                  FieldReference.build
+                  (
+                     origin,
+                     ($result),
+                     subrefs_list
+                  );
+            }
+         }
+      }
    }
 ;
 catch [final Throwable e]

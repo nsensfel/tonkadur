@@ -15,13 +15,13 @@ import tonkadur.fate.v1.lang.type.Type;
 
 public class TypedEntryList
 {
-   protected final Map<String, Origin> entry_origins;
-   protected final List<TypedEntry> entries;
+   protected final Map<String, TypedEntry> as_map;
+   protected final List<TypedEntry> as_list;
 
    public TypedEntryList ()
    {
-      entry_origins = new HashMap<String, Origin>();
-      entries = new ArrayList<TypedEntry>();
+      as_map = new HashMap<String, TypedEntry>();
+      as_list = new ArrayList<TypedEntry>();
    }
 
    public void add
@@ -32,25 +32,37 @@ public class TypedEntryList
    )
    throws DuplicateFieldException
    {
-      final Origin previous_origin;
+      TypedEntry previous_entry;
 
-      previous_origin = entry_origins.get(name);
+      previous_entry = as_map.get(name);
 
-      if (previous_origin != null)
+      if (previous_entry != null)
       {
          ErrorManager.handle
          (
-            new DuplicateFieldException(origin, previous_origin, name)
+            new DuplicateFieldException
+            (
+               origin,
+               previous_entry.get_origin(),
+               name
+            )
          );
       }
 
-      entry_origins.put(name, origin);
-      entries.add(new TypedEntry(origin, type, name));
+      previous_entry = new TypedEntry(origin, type, name);
+
+      as_map.put(name, previous_entry);
+      as_list.add(previous_entry);
    }
 
    public List<TypedEntry> get_entries ()
    {
-      return entries;
+      return as_list;
+   }
+
+   public Map<String, TypedEntry> as_map ()
+   {
+      return as_map;
    }
 
    public static class TypedEntry

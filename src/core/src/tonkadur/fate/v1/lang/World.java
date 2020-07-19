@@ -17,6 +17,8 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.error.UnknownSequenceException;
 
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
+import tonkadur.fate.v1.lang.meta.ExtensionInstruction;
+import tonkadur.fate.v1.lang.meta.ExtensionValueNode;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 
 import tonkadur.fate.v1.lang.type.Type;
@@ -30,9 +32,13 @@ public class World
    protected final Set<String> required_extensions;
 
    protected final Map<String, List<Origin>> sequence_calls;
+   protected final Map<String, ExtensionValueNode> extension_value_nodes;
+   protected final Map<String, ExtensionInstruction> extension_instructions;
+   protected final Map<String, ExtensionInstruction>
+      extension_first_level_instructions;
 
    protected final DeclarationCollection<Event> event_collection;
-//   protected final DeclarationCollection<Macro> macros;
+   protected final DeclarationCollection<Macro> macro_collection;
    protected final DeclarationCollection<Sequence> sequence_collection;
    protected final DeclarationCollection<TextEffect> text_effect_collection;
    protected final DeclarationCollection<Type> type_collection;
@@ -49,11 +55,16 @@ public class World
    {
       loaded_files = new HashSet<String>();
       required_extensions = new HashSet<String>();
+
       sequence_calls = new HashMap<String, List<Origin>>();
+      extension_value_nodes = new HashMap<String, ExtensionValueNode>();
+      extension_instructions = new HashMap<String, ExtensionInstruction>();
+      extension_first_level_instructions =
+         new HashMap<String, ExtensionInstruction>();
 
       event_collection =
          new DeclarationCollection<Event>(Event.value_on_missing());
-      //macros = new DeclarationCollection<Macro>();
+      macro_collection = new DeclarationCollection<Macro>(null);
       sequence_collection = new DeclarationCollection<Sequence>(null);
 
       text_effect_collection =
@@ -118,10 +129,35 @@ public class World
       list_of_calls.add(origin);
    }
 
+   /**** Extension Stuff ****/
+   public Map<String, ExtensionInstruction> extension_instructions ()
+   {
+      return extension_instructions;
+   }
+
+   public Map<String, ExtensionInstruction> extension_first_level_instructions
+   (
+   )
+   {
+      return extension_first_level_instructions;
+   }
+
+   public Map<String, ExtensionValueNode> extension_value_nodes
+   (
+   )
+   {
+      return extension_value_nodes;
+   }
+
    /**** Collections ****/
    public DeclarationCollection<Event> events ()
    {
       return event_collection;
+   }
+
+   public DeclarationCollection<Macro> macros ()
+   {
+      return macro_collection;
    }
 
    public DeclarationCollection<Sequence> sequences ()

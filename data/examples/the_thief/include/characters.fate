@@ -11,48 +11,53 @@
 (require include/locations.fate)
 
 (set_fields
+   (variable oscar)
+
    (name Oscar)
    (agility 50)
    (perception 50)
    (money 20)
    (location room0)
-   (variable oscar)
 )
 
 (set_fields
+   (variable carla)
+
    (name Carla)
    (agility 75)
    (perception 35)
    (money 7)
    (location room1)
-   (variable carla)
 )
 
 (set_fields
+   (variable simon)
+
    (name Simon)
    (agility 35)
    (perception 75)
    (money 80)
    (location room1)
-   (variable simon)
 )
 
 (set_fields
+   (variable julie)
+
    (name Julie)
    (agility 60)
    (perception 60)
    (money 90)
    (location room2)
-   (variable julie)
 )
 
 (set_fields
+   (variable statue)
+
    (name ( A oddly human shaped statue, with clothes adorned ))
    (agility 0)
    (perception 0)
    (money 30)
    (location corridor)
-   (variable statue)
 )
 
 ;; Alright, but we clearly need to be able to point to variables using a type.
