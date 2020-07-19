@@ -591,25 +591,89 @@ returns [InstructionNode result]
          );
    }
 
-   | SET_FIELDS_KW WS+ value_reference WS * field_value_list WS* R_PAREN
+   | SET_FIELDS_KW WS+ value_reference WS* field_value_list WS* R_PAREN
    {
-      /* TODO */
+      final Origin origin;
+      final List<InstructionNode> operations;
 
-      $result = null;
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($SET_FIELDS_KW.getLine()),
+            ($SET_FIELDS_KW.getCharPositionInLine())
+         );
+
+      operations = new ArrayList<InstructionNode>();
+
+      for
+      (
+         final Cons<Origin, Cons<String, ValueNode>> entry:
+            ($field_value_list.result)
+      )
+      {
+         operations.add
+         (
+            SetValue.build
+            (
+               entry.get_car(),
+               entry.get_cdr().get_cdr(),
+               FieldReference.build
+               (
+                  entry.get_car(),
+                  ($value_reference.result),
+                  entry.get_cdr().get_car()
+               )
+            )
+         );
+      }
+
+      $result = new InstructionList(origin, operations);
    }
 
    | EVENT_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
-      /* TODO */
+      final Origin origin;
+      final Event event;
 
-      $result = null;
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($EVENT_KW.getLine()),
+            ($EVENT_KW.getCharPositionInLine())
+         );
+
+      event = WORLD.events().get(origin, ($WORD.text));
+
+      $result =
+         EventCall.build
+         (
+            origin,
+            event,
+            ($value_list.result)
+         );
    }
 
    | MACRO_KW WS+ WORD WS+ value_list WS* R_PAREN
    {
-      /* TODO */
+      final Origin origin;
+      final Macro macro;
 
-      $result = null;
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($MACRO_KW.getLine()),
+            ($MACRO_KW.getCharPositionInLine())
+         );
+
+      macro = WORLD.macros().get(origin, ($WORD.text));
+
+      $result =
+         MacroCall.build
+         (
+            origin,
+            macro,
+            ($value_list.result)
+         );
    }
 
    | SEQUENCE_KW WS+ WORD WS* R_PAREN
@@ -956,7 +1020,7 @@ returns [TextNode result]:
          );
 
       $result =
-         new TextWithEffect
+         TextWithEffect.build
          (
             CONTEXT.get_origin_at
             (
@@ -964,6 +1028,7 @@ returns [TextNode result]:
                ($WORD.getCharPositionInLine())
             ),
             effect,
+            new ArrayList<ValueNode>(),
             ($paragraph.result)
          );
    }
@@ -1550,7 +1615,7 @@ returns [ValueNode result]
          );
 
       $result =
-         new TextWithEffect
+         TextWithEffect.build
          (
             CONTEXT.get_origin_at
             (
@@ -1558,6 +1623,7 @@ returns [ValueNode result]
                ($WORD.getCharPositionInLine())
             ),
             effect,
+            new ArrayList<ValueNode>(),
             ($paragraph.result)
          );
    }
@@ -1663,6 +1729,20 @@ returns [ValueNode result]
       $result = ($math_expression.result);
    }
 
+   | REF_KW WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         new RefOperator
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REF_KW.getLine()),
+               ($REF_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
+   }
+
    | CAST_KW WS+ WORD WS+ value WS* R_PAREN
    {
       final Origin target_type_origin;
@@ -1686,7 +1766,8 @@ returns [ValueNode result]
                ($CAST_KW.getCharPositionInLine())
             ),
             target_type,
-            ($value.result)
+            ($value.result),
+            false
          );
    }
 
@@ -1722,6 +1803,29 @@ returns [ValueNode result]
                ($value_list.result)
             );
       }
+   }
+
+   | MACRO_KW WS+ WORD WS+ value_list WS* R_PAREN
+   {
+      final Origin origin;
+      final Macro macro;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($MACRO_KW.getLine()),
+            ($MACRO_KW.getCharPositionInLine())
+         );
+
+      macro = WORLD.macros().get(origin, ($WORD.text));
+
+      $result =
+         MacroValueCall.build
+         (
+            origin,
+            macro,
+            ($value_list.result)
+         );
    }
 
    | value_reference
@@ -1875,6 +1979,52 @@ returns [Reference result]
                   );
             }
          }
+      }
+   }
+
+   | WORD
+   {
+      final Origin target_var_origin;
+      final Variable target_var;
+      final String[] subrefs;
+
+      subrefs = ($WORD.text).split("\\.");
+
+      target_var_origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
+
+      $result =
+         new VariableReference
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            target_var
+         );
+
+      if (subrefs.length > 1)
+      {
+         final List<String> subrefs_list;
+
+         subrefs_list = new ArrayList(Arrays.asList(subrefs));
+
+         subrefs_list.remove(0);
+
+         $result =
+            FieldReference.build
+            (
+               target_var_origin,
+               ($result),
+               subrefs_list
+            );
       }
    }
 ;

@@ -59,7 +59,7 @@ public class IfElseValue extends ValueNode
       ConflictingTypeException,
       IncomparableTypeException
    {
-      final Type hint;
+      Type hint;
       final Type if_true_type;
       final Type if_false_type;
 
@@ -83,6 +83,13 @@ public class IfElseValue extends ValueNode
       {
          return
             new IfElseValue(origin, if_true_type, condition, if_true, if_false);
+      }
+
+      hint = if_true_type.try_merging_with(if_false_type);
+
+      if (hint != null)
+      {
+         return new IfElseValue(origin, hint, condition, if_true, if_false);
       }
 
       ErrorManager.handle

@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.instruction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,57 +14,54 @@ import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
 
-import tonkadur.fate.v1.lang.TextEffect;
+import tonkadur.fate.v1.lang.Macro;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.InstructionNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
-public class TextWithEffect extends TextNode
+public class MacroCall extends InstructionNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final TextEffect effect;
+   protected final Macro macro;
    protected final List<ValueNode> parameters;
-   protected final TextNode text;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected TextWithEffect
+   protected MacroCall
    (
       final Origin origin,
-      final TextEffect effect,
-      final List<ValueNode> parameters,
-      final TextNode text
+      final Macro macro,
+      final List<ValueNode> parameters
    )
    {
       super(origin);
 
-      this.effect = effect;
+      this.macro = macro;
       this.parameters = parameters;
-      this.text = text;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static TextWithEffect build
+   public static MacroCall build
    (
       final Origin origin,
-      final TextEffect effect,
-      final List<ValueNode> parameters,
-      final TextNode text
+      final Macro macro,
+      final List<ValueNode> parameters
    )
    throws Throwable
    {
+      final List<Boolean> type_checks;
       final List<Type> signature;
 
-      signature = effect.get_signature();
+      signature = macro.get_signature();
 
       if (parameters.size() != signature.size())
       {
@@ -80,7 +77,7 @@ public class TextWithEffect extends TextNode
          );
       }
 
-      (new Merge<Type,ValueNode,Boolean>()
+      (new Merge<Type, ValueNode, Boolean>()
       {
          @Override
          public Boolean risky_lambda (final Type t, final ValueNode p)
@@ -134,23 +131,18 @@ public class TextWithEffect extends TextNode
          }
       }).risky_merge(signature, parameters);
 
-      return new TextWithEffect(origin, effect, parameters, text);
+      return new MacroCall(origin, macro, parameters);
    }
 
    /**** Accessors ************************************************************/
-   public TextEffect get_effect ()
+   public Macro get_macro ()
    {
-      return effect;
+      return macro;
    }
 
    public List<ValueNode> get_parameters ()
    {
       return parameters;
-   }
-
-   public TextNode get_text ()
-   {
-      return text;
    }
 
    /**** Misc. ****************************************************************/
@@ -159,8 +151,8 @@ public class TextWithEffect extends TextNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(TextWithEffect (");
-      sb.append(effect.get_name());
+      sb.append("(MacroCall (");
+      sb.append(macro.get_name());
 
       for (final ValueNode param: parameters)
       {
@@ -168,9 +160,7 @@ public class TextWithEffect extends TextNode
          sb.append(param.toString());
       }
 
-      sb.append(") ");
-      sb.append(text.toString());
-      sb.append(")");
+      sb.append("))");
 
       return sb.toString();
    }

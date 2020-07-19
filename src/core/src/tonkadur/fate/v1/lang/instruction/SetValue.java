@@ -58,10 +58,16 @@ public class SetValue extends InstructionNode
 
       value_reference_type = value_reference.get_type();
 
-      if (element.get_type().can_be_used_as(value_reference_type))
+      if
+      (
+         element.get_type().can_be_used_as(value_reference_type)
+         ||
+         (element.get_type().try_merging_with(value_reference_type) != null)
+      )
       {
          return new SetValue(origin, element, value_reference);
       }
+
 
       ErrorManager.handle
       (

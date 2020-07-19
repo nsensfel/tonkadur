@@ -1,3 +1,15 @@
 (fate_version 1)
 
-(declare_set_type string location)
+(require character.fate)
+
+(declare_set_type character_ptr occupants)
+(declare_subtype int luminosity)
+
+(declare_dict_type location
+   (string name)
+   (string description)
+   (luminosity luminosity)
+   (occupants occupants)
+)
+
+(declare_ref_type location location_ptr)

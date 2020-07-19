@@ -5,35 +5,26 @@ import tonkadur.error.ErrorLevel;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.type.Type;
-
-public class ConflictingTypeException extends ParsingError
+public class NotAValueMacroException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type given_type;
-   protected final Type expected_type;
+   protected final String macro_name;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public ConflictingTypeException
-   (
-      final Origin call_origin,
-      final Type given_type,
-      final Type expected_type
-   )
+   public NotAValueMacroException (final Origin origin, final String macro_name)
    {
       super
       (
          ErrorLevel.ERROR,
-         ErrorCategory.CONFLICTING,
-         call_origin
+         ErrorCategory.INVALID_USE,
+         origin
       );
 
-      this.given_type = given_type;
-      this.expected_type = expected_type;
+      this.macro_name = macro_name;
    }
 
    @Override
@@ -46,12 +37,16 @@ public class ConflictingTypeException extends ParsingError
       sb.append(error_category.toString());
       sb.append(System.lineSeparator());
 
-      sb.append("Resulting type '");
-      sb.append(given_type.toString());
-      sb.append("' ");
-      sb.append(" conflicts with the expected one ('");
-      sb.append(expected_type.toString());
-      sb.append("').");
+      sb.append("Macro '");
+      sb.append(macro_name);
+      sb.append
+      (
+         "' is not defined as a single value and thus cannot be used as one."
+      );
+      sb.append(System.lineSeparator());
+      sb.append("Does it contain instructions?");
+      sb.append(System.lineSeparator());
+      sb.append("Is it a sequence of multiple values?");
 
       return sb.toString();
    }

@@ -2,10 +2,9 @@ package tonkadur.fate.v1.lang.valued_node;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.Variable;
-
 import tonkadur.fate.v1.lang.type.RefType;
 
+import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class RefOperator extends ValueNode
@@ -13,16 +12,16 @@ public class RefOperator extends ValueNode
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Variable variable;
+   protected final Reference referred;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public RefOperator (final Origin origin, final Variable variable)
+   public RefOperator (final Origin origin, final Reference referred)
    {
-      super(origin, new RefType(origin, variable.get_type(), "auto generated"));
-      this.variable = variable;
+      super(origin, new RefType(origin, referred.get_type(), "auto generated"));
+      this.referred = referred;
    }
 
    /***************************************************************************/
@@ -40,7 +39,7 @@ public class RefOperator extends ValueNode
 
       sb.append(origin.toString());
       sb.append("(Ref ");
-      sb.append(variable.get_name());
+      sb.append(referred.get_name());
       sb.append(") ");
 
       return sb.toString();

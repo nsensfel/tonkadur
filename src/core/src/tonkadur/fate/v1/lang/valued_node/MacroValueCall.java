@@ -13,58 +13,68 @@ import tonkadur.error.ErrorManager;
 import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
+import tonkadur.fate.v1.error.NotAValueMacroException;
 
-import tonkadur.fate.v1.lang.TextEffect;
+import tonkadur.fate.v1.lang.Macro;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.TextNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
-public class TextWithEffect extends TextNode
+public class MacroValueCall extends ValueNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final TextEffect effect;
+   protected final Macro macro;
+   protected final ValueNode act_as;
    protected final List<ValueNode> parameters;
-   protected final TextNode text;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected TextWithEffect
+   protected MacroValueCall
    (
       final Origin origin,
-      final TextEffect effect,
+      final Macro macro,
       final List<ValueNode> parameters,
-      final TextNode text
+      final ValueNode act_as
    )
    {
-      super(origin);
+      super(origin, act_as.get_type());
 
-      this.effect = effect;
+      this.macro = macro;
       this.parameters = parameters;
-      this.text = text;
+      this.act_as = act_as;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static TextWithEffect build
+   public static MacroValueCall build
    (
       final Origin origin,
-      final TextEffect effect,
-      final List<ValueNode> parameters,
-      final TextNode text
+      final Macro macro,
+      final List<ValueNode> parameters
    )
    throws Throwable
    {
+      ValueNode act_as;
       final List<Type> signature;
 
-      signature = effect.get_signature();
+      act_as = macro.get_value_node_representation();
+
+      if (act_as == null)
+      {
+         ErrorManager.handle
+         (
+            new NotAValueMacroException(origin, macro.get_name())
+         );
+      }
+
+      signature = macro.get_signature();
 
       if (parameters.size() != signature.size())
       {
@@ -80,7 +90,7 @@ public class TextWithEffect extends TextNode
          );
       }
 
-      (new Merge<Type,ValueNode,Boolean>()
+      (new Merge<Type, ValueNode, Boolean>()
       {
          @Override
          public Boolean risky_lambda (final Type t, final ValueNode p)
@@ -134,23 +144,23 @@ public class TextWithEffect extends TextNode
          }
       }).risky_merge(signature, parameters);
 
-      return new TextWithEffect(origin, effect, parameters, text);
+      return new MacroValueCall(origin, macro, parameters, act_as);
    }
 
    /**** Accessors ************************************************************/
-   public TextEffect get_effect ()
+   public Macro get_macro ()
    {
-      return effect;
+      return macro;
+   }
+
+   public ValueNode get_actual_value_node ()
+   {
+      return act_as;
    }
 
    public List<ValueNode> get_parameters ()
    {
       return parameters;
-   }
-
-   public TextNode get_text ()
-   {
-      return text;
    }
 
    /**** Misc. ****************************************************************/
@@ -159,8 +169,8 @@ public class TextWithEffect extends TextNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(TextWithEffect (");
-      sb.append(effect.get_name());
+      sb.append("(MacroValueCall (");
+      sb.append(macro.get_name());
 
       for (final ValueNode param: parameters)
       {
@@ -168,9 +178,7 @@ public class TextWithEffect extends TextNode
          sb.append(param.toString());
       }
 
-      sb.append(") ");
-      sb.append(text.toString());
-      sb.append(")");
+      sb.append("))");
 
       return sb.toString();
    }

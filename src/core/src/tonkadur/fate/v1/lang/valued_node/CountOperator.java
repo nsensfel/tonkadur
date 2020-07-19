@@ -80,7 +80,12 @@ public class CountOperator extends ValueNode
       collection_true_type = (CollectionType) collection_type;
       collection_element_type = collection_true_type.get_content_type();
 
-      if (element.get_type().can_be_used_as(collection_element_type))
+      if
+      (
+         element.get_type().can_be_used_as(collection_element_type)
+         ||
+         (element.get_type().try_merging_with(collection_element_type) != null)
+      )
       {
          return new CountOperator(origin, element, collection);
       }

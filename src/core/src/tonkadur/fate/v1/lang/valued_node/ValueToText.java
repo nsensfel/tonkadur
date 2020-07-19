@@ -49,11 +49,12 @@ public class ValueToText extends TextNode
       return
          new ValueToText
          (
-            new Cast
+            Cast.build
             (
                value.get_origin(),
                Type.STRING,
-               value
+               value,
+               true
             )
          );
    }

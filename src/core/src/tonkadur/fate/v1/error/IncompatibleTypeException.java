@@ -79,7 +79,7 @@ public class IncompatibleTypeException extends ParsingError
       {
          sb.append(System.lineSeparator());
          sb.append("Recommended compatible type: ");
-         sb.append(hint.get_name());
+         sb.append(hint.toString());
       }
 
       return sb.toString();

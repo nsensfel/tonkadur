@@ -124,6 +124,26 @@ public class Type extends DeclaredEntity
       return (parent == null);
    }
 
+   public Type try_merging_with (final Type t)
+   {
+      if (t.get_base_type() != get_base_type())
+      {
+         return null;
+      }
+
+      if (t.is_base_type())
+      {
+         return this;
+      }
+
+      if (is_base_type())
+      {
+         return t;
+      }
+
+      return null;
+   }
+
    /**** Compatibility ********************************************************/
    public boolean can_be_used_as (final Type t)
    {

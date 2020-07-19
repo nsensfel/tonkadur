@@ -127,19 +127,26 @@ public class Operation extends ValueNode
             continue;
          }
 
+         previous_computed_type = computed_type;
+         computed_type = computed_type.try_merging_with(operand_type);
+
+         if (computed_type != null)
+         {
+            continue;
+         }
+
          ErrorManager.handle
          (
             new IncompatibleTypeException
             (
                operand.get_origin(),
                operand_type,
-               computed_type
+               previous_computed_type
             )
          );
 
-         previous_computed_type = computed_type;
          computed_type =
-            (Type) computed_type.generate_comparable_to(operand_type);
+            (Type) previous_computed_type.generate_comparable_to(operand_type);
 
          if (computed_type.equals(Type.ANY))
          {

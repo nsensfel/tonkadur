@@ -55,7 +55,7 @@ public class CondValue extends ValueNode
       IncomparableTypeException
    {
       final Type first_type;
-      Type hint;
+      Type candidate_hint, hint;
 
       first_type = branches.get(0).get_cdr().get_type();
       hint = first_type;
@@ -77,6 +77,15 @@ public class CondValue extends ValueNode
 
          if (entry.get_cdr().get_type().equals(hint))
          {
+            continue;
+         }
+
+         candidate_hint = entry.get_cdr().get_type().try_merging_with(hint);
+
+         if (candidate_hint != null)
+         {
+            hint = candidate_hint;
+
             continue;
          }
 

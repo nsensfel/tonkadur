@@ -10,57 +10,48 @@
 
 (require include/locations.fate)
 
-(set_fields
-   (variable oscar)
+(set_fields oscar
 
    (name Oscar)
    (agility 50)
    (perception 50)
    (money 20)
-   (location room0)
 )
+(add (ref oscar) room0.occupants)
 
-(set_fields
-   (variable carla)
+(set_fields carla
 
    (name Carla)
    (agility 75)
    (perception 35)
    (money 7)
-   (location room1)
 )
+(add (ref carla) room1.occupants)
 
-(set_fields
-   (variable simon)
+(set_fields simon
 
    (name Simon)
    (agility 35)
    (perception 75)
    (money 80)
-   (location room1)
 )
+(add (ref simon) room2.occupants)
 
-(set_fields
-   (variable julie)
+(set_fields julie
 
    (name Julie)
    (agility 60)
    (perception 60)
    (money 90)
-   (location room2)
 )
+(add (ref julie) corridor.occupants)
 
-(set_fields
-   (variable statue)
+
+(set_fields statue
 
    (name ( A oddly human shaped statue, with clothes adorned ))
    (agility 0)
    (perception 0)
    (money 30)
-   (location corridor)
 )
-
-;; Alright, but we clearly need to be able to point to variables using a type.
-;; like (pointer (variable carla)) -> pointer to variable of type character
-;; (a string, really) resolves to (variable carla), but allows characters to be
-;; put in a set, for example.
+(add (ref statue) corridor.occupants)

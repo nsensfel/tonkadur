@@ -14,7 +14,6 @@ public class Main
    private Main () {};
 
    public static void main (final String[] args)
-   throws IOException
    {
       final World world;
       final Context context;
@@ -22,9 +21,18 @@ public class Main
       world = new World();
       context = Context.build(args[0]);
 
-      Utils.add_file_content(context.get_current_file(), context, world);
+      try
+      {
+         Utils.add_file_content(context.get_current_file(), context, world);
 
-      System.out.println("Parsing completed.");
-      System.out.println(world.toString());
+         System.out.println("Parsing completed.");
+         System.out.println(world.toString());
+      }
+      catch (final Exception e)
+      {
+         System.err.println("Parsing failed.");
+         System.err.println(world.toString());
+         e.printStackTrace();
+      }
    }
 }

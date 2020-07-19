@@ -1,2 +1,41 @@
 (fate_version 1)
 
+(require type/location.fate)
+
+(declare_variable local location room0)
+(declare_variable local location room1)
+(declare_variable local location room2)
+(declare_variable local location corridor)
+
+(set_fields room0
+   (name ( Room 0 ))
+   (description
+      ( An luxurious bedroom, well lit. )
+   )
+   (luminosity 80)
+)
+
+(set_fields room1
+   (name ( Room 1 ))
+   (description
+      ( An overly large kitchen, unevenly lit. )
+   )
+   (luminosity 35)
+)
+
+(set_fields room2
+   (name ( Room 2 ))
+   (description
+      ( An tiny and messy study, unlit. )
+   )
+   (luminosity 0)
+)
+
+(set_fields corridor
+   (name Corridor)
+   (description
+      ( A long corridor, with many decorations, and many hiding places. )
+   )
+   (luminosity 50)
+)
+
