@@ -3,9 +3,9 @@
 (require type/character.fate)
 
 (declare_variable local character oscar)
-(declare_variable local character carla)
+(declare_variable character carla)
 (declare_variable local character simon)
-(declare_variable local character julie)
+(declare_variable character julie)
 (declare_variable local character statue)
 
 (require include/locations.fate)

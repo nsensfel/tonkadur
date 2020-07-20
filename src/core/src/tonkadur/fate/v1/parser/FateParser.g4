@@ -135,6 +135,36 @@ first_level_fate_instr:
 
    | DECLARE_VARIABLE_KW
       WS+
+      type
+      WS+
+      name=new_reference_name
+      WS*
+   R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_VARIABLE_KW.getLine()),
+            ($DECLARE_VARIABLE_KW.getCharPositionInLine())
+         );
+
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            VariableScope.LOCAL,
+            ($type.result),
+            ($name.result)
+         );
+
+      WORLD.variables().add(new_variable);
+   }
+
+   | DECLARE_VARIABLE_KW
+      WS+
       scope=WORD
       WS+
       type
