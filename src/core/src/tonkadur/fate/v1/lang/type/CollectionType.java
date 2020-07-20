@@ -56,7 +56,7 @@ public class CollectionType extends Type
    /**** Accessors ************************************************************/
    public Type get_content_type ()
    {
-      return true_type;
+      return content_type;
    }
 
    /**** Compatibility ********************************************************/
