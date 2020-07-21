@@ -46,7 +46,7 @@ public class Assert extends InstructionNode
    )
    throws InvalidTypeException
    {
-      if (condition.get_type().get_base_type().equals(Type.BOOLEAN))
+      if (!condition.get_type().get_base_type().equals(Type.BOOLEAN))
       {
          ErrorManager.handle
          (

@@ -1,0 +1,11 @@
+(fate_version 1)
+
+(require element.fate)
+
+(declare_dict_type attack
+   (string name)
+   (element_ptr element)
+   (int power)
+)
+
+(declare_ref_type attack attack_ptr)

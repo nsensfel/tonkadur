@@ -1,0 +1,30 @@
+(fate_version 1)
+
+(require types/creature.fate)
+
+(declare_variable creature monster_0)
+(declare_variable creature monster_1)
+(declare_variable creature monster_2)
+(declare_variable creature monster_3)
+(declare_variable creature monster_4)
+(declare_variable creature monster_5)
+
+(declare_variable int i)
+
+(define_macro generate_random_creature
+   (
+      (creature creature)
+   )
+
+   (set i (rand 0 5))
+   (set (param creature)
+      (cond
+         ((= (var i) 0) (var monster_0))
+         ((= (var i) 1) (var monster_1))
+         ((= (var i) 2) (var monster_2))
+         ((= (var i) 3) (var monster_3))
+         ((= (var i) 4) (var monster_4))
+         ((= (var i) 5) (var monster_5))
+      )
+   )
+)

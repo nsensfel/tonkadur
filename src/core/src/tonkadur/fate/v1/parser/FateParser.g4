@@ -56,7 +56,7 @@ fate_file [Context context, World world]
       PARAMETERS = null;
    }
    :
-   WS* FATE_VERSION_KW WS+ WORD WS* R_PAREN WS*
+   WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
    (
       (
          first_level_fate_instr
@@ -94,7 +94,6 @@ returns [List<InstructionNode> result]
 
 first_level_fate_instr:
    DEFINE_SEQUENCE_KW
-      WS+
       new_reference_name
       pre_sequence_point=WS+
       general_fate_sequence
@@ -134,7 +133,6 @@ first_level_fate_instr:
    }
 
    | DECLARE_VARIABLE_KW
-      WS+
       type
       WS+
       name=new_reference_name
@@ -164,7 +162,6 @@ first_level_fate_instr:
    }
 
    | DECLARE_VARIABLE_KW
-      WS+
       scope=WORD
       WS+
       type
@@ -216,7 +213,6 @@ first_level_fate_instr:
    }
 
    | DECLARE_TEXT_EFFECT_KW
-      WS+
       params=type_list
       WS*
       new_reference_name
@@ -244,14 +240,14 @@ first_level_fate_instr:
       WORLD.text_effects().add(new_text_effect);
    }
 
-   | REQUIRE_EXTENSION_KW WS+ WORD WS* R_PAREN
+   | REQUIRE_EXTENSION_KW WORD WS* R_PAREN
    {
       WORLD.add_required_extension(($WORD.text));
 
       /* TODO: error report if extension not explicitly enabled. */
    }
 
-   | DECLARE_ALIAS_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
+   | DECLARE_ALIAS_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
    {
       final Origin start_origin;
       final Type new_type;
@@ -274,7 +270,7 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_SET_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
+   | DECLARE_SET_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
    {
       final Origin start_origin;
       final Type new_type;
@@ -298,7 +294,7 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_LIST_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
+   | DECLARE_LIST_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
    {
       final Origin start_origin;
       final Type new_type;
@@ -322,7 +318,7 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_REF_TYPE_KW WS+ parent=type WS+ new_reference_name WS* R_PAREN
+   | DECLARE_REF_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
    {
       final Origin start_origin;
       final Type new_type;
@@ -346,7 +342,6 @@ first_level_fate_instr:
    }
 
    | DECLARE_DICT_TYPE_KW
-      WS+
       new_reference_name
       WS*
       typed_entry_list
@@ -386,8 +381,30 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
+   | DECLARE_EVENT_TYPE_KW new_reference_name WS* R_PAREN
+   {
+      final Origin start_origin;
+      final Event new_event;
 
-   | DECLARE_EVENT_TYPE_KW WS+ new_reference_name WS+ type_list WS* R_PAREN
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_EVENT_TYPE_KW.getLine()),
+            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_event =
+         new Event
+         (
+            start_origin,
+            new ArrayList<Type>(),
+            ($new_reference_name.result)
+         );
+
+      WORLD.events().add(new_event);
+   }
+
+   | DECLARE_EVENT_TYPE_KW new_reference_name WS+ type_list WS* R_PAREN
    {
       final Origin start_origin;
       final Event new_event;
@@ -410,7 +427,8 @@ first_level_fate_instr:
       WORLD.events().add(new_event);
    }
 
-   | REQUIRE_KW WS+ WORD WS* R_PAREN
+
+   | REQUIRE_KW WORD WS* R_PAREN
    {
       final String filename;
 
@@ -434,7 +452,7 @@ first_level_fate_instr:
       }
    }
 
-   | INCLUDE_KW WS+ WORD WS* R_PAREN
+   | INCLUDE_KW WORD WS* R_PAREN
    {
       final String filename;
 
@@ -456,7 +474,6 @@ first_level_fate_instr:
    }
 
    | DEFINE_MACRO_KW
-         WS+
          new_reference_name
          WS*
          (
@@ -527,10 +544,45 @@ first_level_fate_instr:
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
+/* Trying to get rule priorities right */
 general_fate_instr
+returns [InstructionNode result]
+:
+
+   just_a_paragraph
+   {
+      $result = ($just_a_paragraph.result);
+   }
+
+   | actual_general_fate_instr
+   {
+      $result = ($actual_general_fate_instr.result);
+   }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
+
+
+actual_general_fate_instr
 returns [InstructionNode result]
 :
    L_PAREN WS+ general_fate_sequence WS* R_PAREN
@@ -547,7 +599,7 @@ returns [InstructionNode result]
          );
    }
 
-   | ADD_KW WS+ value WS+ value_reference WS* R_PAREN
+   | ADD_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          AddElement.build
@@ -562,7 +614,7 @@ returns [InstructionNode result]
          );
    }
 
-   | REMOVE_ONE_KW WS+ value WS+ value_reference WS* R_PAREN
+   | REMOVE_ONE_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          RemoveElement.build
@@ -577,7 +629,7 @@ returns [InstructionNode result]
          );
    }
 
-   | REMOVE_ALL_KW WS+ value WS+ value_reference WS* R_PAREN
+   | REMOVE_ALL_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          RemoveAllOfElement.build
@@ -592,7 +644,7 @@ returns [InstructionNode result]
          );
    }
 
-   | CLEAR_KW WS+ value_reference WS* R_PAREN
+   | CLEAR_KW value_reference WS* R_PAREN
    {
       $result =
          Clear.build
@@ -606,7 +658,7 @@ returns [InstructionNode result]
          );
    }
 
-   | SET_KW WS+ value WS+ value_reference WS* R_PAREN
+   | SET_KW value_reference WS+ value WS* R_PAREN
    {
       $result =
          SetValue.build
@@ -621,7 +673,7 @@ returns [InstructionNode result]
          );
    }
 
-   | SET_FIELDS_KW WS+ value_reference WS* field_value_list WS* R_PAREN
+   | SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
    {
       final Origin origin;
       final List<InstructionNode> operations;
@@ -660,7 +712,7 @@ returns [InstructionNode result]
       $result = new InstructionList(origin, operations);
    }
 
-   | EVENT_KW WS+ WORD WS+ value_list WS* R_PAREN
+   | EVENT_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
       final Event event;
@@ -683,7 +735,30 @@ returns [InstructionNode result]
          );
    }
 
-   | MACRO_KW WS+ WORD WS+ value_list WS* R_PAREN
+   | EVENT_KW WORD WS* R_PAREN
+   {
+      final Origin origin;
+      final Event event;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($EVENT_KW.getLine()),
+            ($EVENT_KW.getCharPositionInLine())
+         );
+
+      event = WORLD.events().get(origin, ($WORD.text));
+
+      $result =
+         EventCall.build
+         (
+            origin,
+            event,
+            new ArrayList<ValueNode>()
+         );
+   }
+
+   | MACRO_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
       final Macro macro;
@@ -706,7 +781,7 @@ returns [InstructionNode result]
          );
    }
 
-   | SEQUENCE_KW WS+ WORD WS* R_PAREN
+   | SEQUENCE_KW WORD WS* R_PAREN
    {
       final Origin origin;
       final String sequence_name;
@@ -725,7 +800,7 @@ returns [InstructionNode result]
       $result = new SequenceCall(origin, sequence_name);
    }
 
-   | ASSERT_KW WS+ value WS* R_PAREN
+   | ASSERT_KW value WS* R_PAREN
    {
       $result =
          Assert.build
@@ -739,7 +814,7 @@ returns [InstructionNode result]
          );
    }
 
-   | IF_KW WS+ value WS* general_fate_instr WS* R_PAREN
+   | IF_KW value WS* general_fate_instr WS* R_PAREN
    {
       $result =
          IfInstruction.build
@@ -755,7 +830,7 @@ returns [InstructionNode result]
    }
 
    | IF_ELSE_KW
-         WS+ value
+         value
          WS+ if_true=general_fate_instr
          WS+ if_false=general_fate_instr
       WS* R_PAREN
@@ -774,7 +849,7 @@ returns [InstructionNode result]
          );
    }
 
-   | COND_KW WS+ instr_cond_list WS* R_PAREN
+   | COND_KW instr_cond_list WS* R_PAREN
    {
       $result =
          CondInstruction.build
@@ -788,7 +863,7 @@ returns [InstructionNode result]
          );
    }
 
-   | PLAYER_CHOICE_KW WS+ player_choice_list WS* R_PAREN
+   | PLAYER_CHOICE_KW player_choice_list WS* R_PAREN
    {
       $result =
          new PlayerChoiceList
@@ -835,20 +910,17 @@ returns [InstructionNode result]
             );
       }
    }
-
-   | paragraph
-   {
-      $result =
-         new Display
-         (
-            ($paragraph.result.get_origin()),
-            ($paragraph.result)
-         );
-   }
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 instr_cond_list
@@ -907,7 +979,7 @@ returns [InstructionNode result]
          );
    }
 
-   | IF_KW WS+ value WS+ player_choice WS* R_PAREN
+   | IF_KW value WS+ player_choice WS* R_PAREN
    {
       $result =
          IfInstruction.build
@@ -922,7 +994,7 @@ returns [InstructionNode result]
          );
    }
 
-   | IF_ELSE_KW WS+
+   | IF_ELSE_KW
       value WS+
       if_true=player_choice WS+
       if_false=player_choice WS*
@@ -942,7 +1014,7 @@ returns [InstructionNode result]
          );
    }
 
-   | COND_KW WS+ player_choice_cond_list WS* R_PAREN
+   | COND_KW player_choice_cond_list WS* R_PAREN
    {
       $result =
          CondInstruction.build
@@ -958,7 +1030,14 @@ returns [InstructionNode result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 player_choice_cond_list
@@ -980,7 +1059,14 @@ returns [List<Cons<ValueNode, InstructionNode>> result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 paragraph
@@ -1034,7 +1120,7 @@ returns [TextNode result]:
       $result = ($sentence.result);
    }
 
-   | ENABLE_TEXT_EFFECT_KW WS+ WORD WS+ paragraph WS* R_PAREN
+   | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
    {
       final TextEffect effect;
 
@@ -1063,7 +1149,7 @@ returns [TextNode result]:
          );
    }
 
-   | ENABLE_TEXT_EFFECT_KW WS+
+   | ENABLE_TEXT_EFFECT_KW
       L_PAREN
          WORD WS+
          value_list
@@ -1118,7 +1204,14 @@ returns [TextNode result]:
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 sentence
@@ -1173,7 +1266,14 @@ returns [Type result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 type_list
@@ -1227,7 +1327,14 @@ returns [TypedEntryList result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 field_value_list
@@ -1289,7 +1396,14 @@ returns [String result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 /******************************************************************************/
@@ -1325,7 +1439,7 @@ returns [ValueNode result]:
          );
    }
 
-   | AND_KW WS+ value_list WS* R_PAREN
+   | AND_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1340,7 +1454,7 @@ returns [ValueNode result]:
          );
    }
 
-   | OR_KW WS+ value_list WS* R_PAREN
+   | OR_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1355,7 +1469,7 @@ returns [ValueNode result]:
          );
    }
 
-   | ONE_IN_KW WS+ value_list WS* R_PAREN
+   | ONE_IN_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1370,7 +1484,7 @@ returns [ValueNode result]:
          );
    }
 
-   | NOT_KW WS+ value_list WS* R_PAREN
+   | NOT_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1385,7 +1499,7 @@ returns [ValueNode result]:
          );
    }
 
-   | IMPLIES_KW WS+ value_list WS* R_PAREN
+   | IMPLIES_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1400,7 +1514,7 @@ returns [ValueNode result]:
          );
    }
 
-   | LOWER_THAN_KW WS+ value_list WS* R_PAREN
+   | LOWER_THAN_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1415,7 +1529,7 @@ returns [ValueNode result]:
          );
    }
 
-   | LOWER_EQUAL_THAN_KW WS+ value_list WS* R_PAREN
+   | LOWER_EQUAL_THAN_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1430,7 +1544,7 @@ returns [ValueNode result]:
          );
    }
 
-   | EQUALS_KW WS+ value_list WS* R_PAREN
+   | EQUALS_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1445,7 +1559,7 @@ returns [ValueNode result]:
          );
    }
 
-   | GREATER_EQUAL_THAN_KW WS+ value_list WS* R_PAREN
+   | GREATER_EQUAL_THAN_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1460,7 +1574,7 @@ returns [ValueNode result]:
          );
    }
 
-   | GREATER_THAN_KW WS+ value_list WS* R_PAREN
+   | GREATER_THAN_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1475,7 +1589,7 @@ returns [ValueNode result]:
          );
    }
 
-   | IS_MEMBER_KW WS+ value WS+ value_reference WS* R_PAREN
+   | IS_MEMBER_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          IsMemberOperator.build
@@ -1492,12 +1606,19 @@ returns [ValueNode result]:
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 math_expression
 returns [ValueNode result]:
-   PLUS_KW WS+ value_list WS* R_PAREN
+   PLUS_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1512,7 +1633,7 @@ returns [ValueNode result]:
          );
    }
 
-   | MINUS_KW WS+ value_list WS* R_PAREN
+   | MINUS_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1527,7 +1648,7 @@ returns [ValueNode result]:
          );
    }
 
-   | TIMES_KW WS+ value_list WS* R_PAREN
+   | TIMES_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1542,7 +1663,7 @@ returns [ValueNode result]:
          );
    }
 
-   | DIVIDE_KW WS+ value_list WS* R_PAREN
+   | DIVIDE_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1557,7 +1678,7 @@ returns [ValueNode result]:
          );
    }
 
-   | POWER_KW WS+ value_list WS* R_PAREN
+   | POWER_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1572,7 +1693,7 @@ returns [ValueNode result]:
          );
    }
 
-   | RANDOM_KW WS+ value_list WS* R_PAREN
+   | RANDOM_KW value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -1587,7 +1708,7 @@ returns [ValueNode result]:
          );
    }
 
-   | COUNT_KW WS+ value WS+ value_reference WS* R_PAREN
+   | COUNT_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          CountOperator.build
@@ -1604,7 +1725,14 @@ returns [ValueNode result]:
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 value
@@ -1629,7 +1757,7 @@ returns [ValueNode result]
       $result = ($paragraph.result);
    }
 
-   | ENABLE_TEXT_EFFECT_KW WS+ WORD WS+ paragraph WS* R_PAREN
+   | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
    {
       final TextEffect effect;
 
@@ -1658,7 +1786,7 @@ returns [ValueNode result]
          );
    }
 
-   | ENABLE_TEXT_EFFECT_KW WS+
+   | ENABLE_TEXT_EFFECT_KW
       L_PAREN
          WORD WS+
          value_list
@@ -1713,13 +1841,20 @@ returns [ValueNode result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 non_text_value
 returns [ValueNode result]
 :
-   IF_ELSE_KW WS+ cond=value WS+ if_true=value WS+ if_false=value WS* R_PAREN
+   IF_ELSE_KW cond=value WS+ if_true=value WS+ if_false=value WS* R_PAREN
    {
       $result =
          IfElseValue.build
@@ -1735,7 +1870,7 @@ returns [ValueNode result]
          );
    }
 
-   | COND_KW WS+ value_cond_list WS* R_PAREN
+   | COND_KW value_cond_list WS* R_PAREN
    {
       $result =
          CondValue.build
@@ -1759,7 +1894,7 @@ returns [ValueNode result]
       $result = ($math_expression.result);
    }
 
-   | REF_KW WS+ value_reference WS* R_PAREN
+   | REF_KW value_reference WS* R_PAREN
    {
       $result =
          new RefOperator
@@ -1773,7 +1908,7 @@ returns [ValueNode result]
          );
    }
 
-   | CAST_KW WS+ WORD WS+ value WS* R_PAREN
+   | CAST_KW WORD WS+ value WS* R_PAREN
    {
       final Origin target_type_origin;
       final Type target_type;
@@ -1835,7 +1970,7 @@ returns [ValueNode result]
       }
    }
 
-   | MACRO_KW WS+ WORD WS+ value_list WS* R_PAREN
+   | MACRO_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
       final Macro macro;
@@ -1865,13 +2000,20 @@ returns [ValueNode result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 value_reference
 returns [Reference result]
 :
-   AT_KW WS+ value_reference WS* R_PAREN
+   AT_KW value_reference WS* R_PAREN
    {
       $result =
          AtReference.build
@@ -1885,7 +2027,7 @@ returns [Reference result]
          );
    }
 
-   | FIELD_KW WS+ value_reference WORD R_PAREN
+   | FIELD_KW value_reference WORD R_PAREN
    {
       $result =
          FieldReference.build
@@ -1900,7 +2042,7 @@ returns [Reference result]
          );
    }
 
-   | VARIABLE_KW WS+ WORD WS* R_PAREN
+   | VARIABLE_KW WORD WS* R_PAREN
    {
       final Origin target_var_origin;
       final Variable target_var;
@@ -1946,7 +2088,7 @@ returns [Reference result]
       }
    }
 
-   | PARAMETER_KW WS+ WORD WS* R_PAREN
+   | PARAMETER_KW WORD WS* R_PAREN
    {
       final Origin origin;
 
@@ -2060,7 +2202,14 @@ returns [Reference result]
 ;
 catch [final Throwable e]
 {
-   throw new ParseCancellationException(e);
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
 }
 
 value_cond_list
@@ -2102,3 +2251,28 @@ returns [List<ValueNode> result]
    {
    }
 ;
+
+just_a_paragraph
+returns [InstructionNode result]
+:
+   paragraph
+   {
+      $result =
+         new Display
+         (
+            ($paragraph.result.get_origin()),
+            ($paragraph.result)
+         );
+   }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}

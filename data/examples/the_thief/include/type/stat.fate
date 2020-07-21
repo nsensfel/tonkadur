@@ -1,3 +1,0 @@
-(fate_version 1)
-
-(declare_subtype int stat)

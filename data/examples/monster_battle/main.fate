@@ -1,0 +1,25 @@
+(fate_version 1)
+
+(require include/events.fate)
+(require include/text_effects.fate)
+
+(require in_your_room.fate)
+
+(text_effect narrator
+   After failing to sleep because of the anticipation, you overslept.
+   Today was supposed to be glorious! At long last, you were going on your
+   life-defining adventure with a powerful companion.
+)
+(event pause)
+(text_effect narrator
+   ...
+)
+(event pause)
+(text_effect narrator
+   Maybe you should stop daydreaming and see what can be salvaged at this point.
+)
+(event pause)
+(text_effect narrator
+   You stand in your room, having just dressed.
+)
+(sequence in_your_room)

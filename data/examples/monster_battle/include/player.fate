@@ -1,0 +1,5 @@
+(fate_version 1)
+
+(require types/player.fate)
+
+(define_variable player player)

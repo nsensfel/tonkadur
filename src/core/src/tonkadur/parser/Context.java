@@ -116,6 +116,9 @@ public class Context
          sb.append(System.lineSeparator());
       }
 
+      sb.append(current_file);
+      sb.append(System.lineSeparator());
+
       return sb.toString();
    }
 

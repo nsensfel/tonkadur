@@ -1,0 +1,5 @@
+(fate_version 1)
+
+(require types/tag.fate)
+
+(define_variable tag_collection progress)

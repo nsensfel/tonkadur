@@ -1,0 +1,17 @@
+(fate_version 1)
+
+(require element.fate)
+(require attack.fate)
+
+(declare_dict_type creature
+   (string name)
+   (int current_health)
+   (int max_health)
+   (element_ptr element)
+   (attack_ptr attack_0)
+   (attack_ptr attack_1)
+   (attack_ptr attack_2)
+   (attack_ptr attack_3)
+)
+
+(declare_ref_type creature creature_ptr)

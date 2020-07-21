@@ -1,0 +1,5 @@
+(fate_version 1)
+
+(define_sequence start_battle
+   nothing yet
+)

@@ -1,0 +1,92 @@
+(fate_version 1)
+
+(require include/creatures.fate)
+(require include/events.fate)
+(require include/items.fate)
+(require include/player.fate)
+(require include/progress.fate)
+(require include/text_effects.fate)
+
+(require battle.fate)
+
+(define_sequence in_your_room
+   (ifelse
+      (is_member visited_your_room progress)
+      (text_effect narrator
+         You room is still a mess. You don't have time to clean things up,
+         though.
+      )
+      (text_effect narrator
+         You room is a mess. You recall having been through every drawer while
+         preparing your bag yesterday. While still unclear on how you are
+         supposed to pack all the necessary things for what promises to be at
+         least a year-long journey inside a small backpack, you cannot avoid
+         but wasting more time contemplating the piles of items that didn't
+         make the cut.
+      )
+   )
+   (add visited_your_room progress)
+   (player_choice
+      (
+         ( Look for healing items )
+         (sequence look_for_healing_items)
+      )
+      (
+         ( No time! Let's go adventuring! )
+         (sequence leave_your_room)
+      )
+   )
+)
+
+(define_sequence look_for_healing_items
+   (text_effect narrator
+      You anxiously alternate between looking at the clock and looking at piles
+      of mess for healing items.
+      (newline)
+   )
+   (ifelse
+      (=< (rand 0 99) 25)
+      (
+         (text_effect surprise
+            (text_effect narrator
+               Oh! You found something!
+            )
+         )
+         (macro get_item (ref (var potion)))
+      )
+      (text_effect narrator
+         No, you don't find anything.
+      )
+   )
+   (sequence in_your_room)
+)
+
+(define_sequence leave_your_room
+   (text_effect narrator
+      As you rush through the door of your room, you fail to notice the obstacle
+      in your path and trip on something that was clearly meant for you.
+   )
+   (event pause)
+   (text_effect narrator
+      It's a monster-holder! There's a note, too.
+   )
+   (macro generate_random_creature (var player.creature))
+   (event pause)
+   (text_effect note_reading
+      Hey sleepyhead. I couldn't wake you up for your big day, but lucky you,
+      someone noticed that you weren't going to make it in time and got this for
+      you.
+      (newline)
+      Looks like it's a (variable player.creature.name). Good for you! My first
+      creature may not have been as powerful, but I wouldn't trade it for
+      anything.
+      (newline)
+      Now go! Aand don't come back until you've achieved your dreams!
+   )
+   (text_effect narrator
+      Teary eyed, you pick up the monster-holder and leave your house. And
+      immediately get challenged by some grinning kid who clearly knew you
+      haven't had time to train and wants to score an easy victory.
+   )
+   (sequence start_battle)
+)

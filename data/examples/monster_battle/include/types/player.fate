@@ -1,0 +1,10 @@
+(fate_version 1)
+
+(require item.fate)
+(require creature.fate)
+
+(define_dict_type player
+   (creature creature)
+   (item_ptr_list inventory)
+   (int money)
+)

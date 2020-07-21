@@ -1,0 +1,5 @@
+(fate_version 1)
+
+(declare_text_effect narrator)
+(declare_text_effect note_reading)
+(declare_text_effect surprise)
