@@ -558,33 +558,6 @@ catch [final Throwable e]
 general_fate_instr
 returns [InstructionNode result]
 :
-
-   just_a_paragraph
-   {
-      $result = ($just_a_paragraph.result);
-   }
-
-   | actual_general_fate_instr
-   {
-      $result = ($actual_general_fate_instr.result);
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
-
-
-actual_general_fate_instr
-returns [InstructionNode result]
-:
    L_PAREN WS+ general_fate_sequence WS* R_PAREN
    {
       $result =
@@ -758,7 +731,7 @@ returns [InstructionNode result]
          );
    }
 
-   | MACRO_KW WORD WS+ value_list WS* R_PAREN
+   | IMACRO_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
       final Macro macro;
@@ -766,8 +739,8 @@ returns [InstructionNode result]
       origin =
          CONTEXT.get_origin_at
          (
-            ($MACRO_KW.getLine()),
-            ($MACRO_KW.getCharPositionInLine())
+            ($IMACRO_KW.getLine()),
+            ($IMACRO_KW.getCharPositionInLine())
          );
 
       macro = WORLD.macros().get(origin, ($WORD.text));
@@ -909,6 +882,16 @@ returns [InstructionNode result]
                ($general_fate_sequence.result)
             );
       }
+   }
+
+   | paragraph
+   {
+      $result =
+         new Display
+         (
+            ($paragraph.result.get_origin()),
+            ($paragraph.result)
+         );
    }
 ;
 catch [final Throwable e]
@@ -1970,7 +1953,7 @@ returns [ValueNode result]
       }
    }
 
-   | MACRO_KW WORD WS+ value_list WS* R_PAREN
+   | VMACRO_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
       final Macro macro;
@@ -1978,8 +1961,8 @@ returns [ValueNode result]
       origin =
          CONTEXT.get_origin_at
          (
-            ($MACRO_KW.getLine()),
-            ($MACRO_KW.getCharPositionInLine())
+            ($VMACRO_KW.getLine()),
+            ($VMACRO_KW.getCharPositionInLine())
          );
 
       macro = WORLD.macros().get(origin, ($WORD.text));
@@ -2251,28 +2234,3 @@ returns [List<ValueNode> result]
    {
    }
 ;
-
-just_a_paragraph
-returns [InstructionNode result]
-:
-   paragraph
-   {
-      $result =
-         new Display
-         (
-            ($paragraph.result.get_origin()),
-            ($paragraph.result)
-         );
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}

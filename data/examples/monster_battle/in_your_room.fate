@@ -52,7 +52,7 @@
                Oh! You found something!
             )
          )
-         (macro get_item (ref (var potion)))
+         (imacro get_item (ref (var potion)))
       )
       (text_effect narrator
          No, you don't find anything.
@@ -70,7 +70,7 @@
    (text_effect narrator
       It's a monster-holder! There's a note, too.
    )
-   (macro generate_random_creature (var player.creature))
+   (imacro generate_random_creature (var player.creature))
    (event pause)
    (text_effect note_reading
       Hey sleepyhead. I couldn't wake you up for your big day, but lucky you,
