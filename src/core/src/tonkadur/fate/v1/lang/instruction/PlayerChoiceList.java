@@ -4,6 +4,7 @@ import java.util.List;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 
 public class PlayerChoiceList extends InstructionNode
@@ -29,6 +30,13 @@ public class PlayerChoiceList extends InstructionNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_player_choice_list(this);
+   }
+
    public List<InstructionNode> get_choices ()
    {
       return choices;

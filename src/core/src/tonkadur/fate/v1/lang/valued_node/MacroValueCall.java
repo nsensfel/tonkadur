@@ -19,6 +19,7 @@ import tonkadur.fate.v1.lang.Macro;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class MacroValueCall extends ValueNode
@@ -148,6 +149,13 @@ public class MacroValueCall extends ValueNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_macro_value_call(this);
+   }
+
    public Macro get_macro ()
    {
       return macro;

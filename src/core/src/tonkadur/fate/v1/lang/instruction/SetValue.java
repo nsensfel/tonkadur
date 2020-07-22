@@ -10,6 +10,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
@@ -99,6 +100,14 @@ public class SetValue extends InstructionNode
       }
 
       return new SetValue(origin, element, value_reference);
+   }
+
+   /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_set_value(this);
    }
 
    /**** Misc. ****************************************************************/

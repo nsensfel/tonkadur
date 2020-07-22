@@ -18,6 +18,7 @@ import tonkadur.fate.v1.lang.Event;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
@@ -135,6 +136,13 @@ public class EventCall extends InstructionNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_event_call(this);
+   }
+
    public Event get_event ()
    {
       return event;

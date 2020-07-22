@@ -4,6 +4,7 @@ import java.util.List;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.TextNode;
 
 public class Paragraph extends TextNode
@@ -34,6 +35,13 @@ public class Paragraph extends TextNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_paragraph(this);
+   }
+
    public List<TextNode> get_content ()
    {
       return content;

@@ -15,6 +15,7 @@ import tonkadur.fate.v1.error.IncomparableTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class Cast extends ValueNode
@@ -164,6 +165,12 @@ public class Cast extends ValueNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_cast(this);
+   }
 
    public ValueNode get_parent ()
    {

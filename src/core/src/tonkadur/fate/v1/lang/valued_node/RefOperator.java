@@ -4,6 +4,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.RefType;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
@@ -30,6 +31,12 @@ public class RefOperator extends ValueNode
    /**** Constructors *********************************************************/
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_ref_operator(this);
+   }
 
    /**** Misc. ****************************************************************/
    @Override

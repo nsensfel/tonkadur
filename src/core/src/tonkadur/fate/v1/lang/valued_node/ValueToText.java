@@ -7,6 +7,7 @@ import tonkadur.fate.v1.error.IncomparableTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.TextNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
@@ -60,6 +61,13 @@ public class ValueToText extends TextNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_value_to_text(this);
+   }
+
    public ValueNode get_value ()
    {
       return value;

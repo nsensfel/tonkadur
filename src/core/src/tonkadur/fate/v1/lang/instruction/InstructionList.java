@@ -4,6 +4,7 @@ import java.util.List;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 
 public class InstructionList extends InstructionNode
@@ -29,6 +30,13 @@ public class InstructionList extends InstructionNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_instruction_list(this);
+   }
+
    public List<InstructionNode> get_instructions ()
    {
       return instructions;

@@ -8,6 +8,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 import tonkadur.fate.v1.lang.meta.TextNode;
 
@@ -39,6 +40,13 @@ public class Display extends InstructionNode
    /**** Constructors *********************************************************/
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_display(this);
+   }
+
    public TextNode get_content ()
    {
       return content;

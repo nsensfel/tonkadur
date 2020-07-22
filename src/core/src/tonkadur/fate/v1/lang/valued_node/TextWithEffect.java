@@ -18,6 +18,7 @@ import tonkadur.fate.v1.lang.TextEffect;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.TextNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
@@ -138,6 +139,13 @@ public class TextWithEffect extends TextNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_text_with_effect(this);
+   }
+
    public TextEffect get_effect ()
    {
       return effect;

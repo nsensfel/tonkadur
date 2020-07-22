@@ -6,6 +6,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 import tonkadur.fate.v1.lang.meta.TextNode;
 
@@ -36,6 +37,13 @@ public class PlayerChoice extends InstructionNode
 
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_player_choice(this);
+   }
+
    public TextNode get_text ()
    {
       return text;

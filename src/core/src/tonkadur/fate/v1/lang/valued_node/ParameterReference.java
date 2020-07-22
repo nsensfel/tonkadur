@@ -2,6 +2,7 @@ package tonkadur.fate.v1.lang.valued_node;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 
 import tonkadur.fate.v1.lang.type.Type;
@@ -24,6 +25,14 @@ public class ParameterReference extends Reference
    )
    {
       super(origin, reported_type, parameter_name);
+   }
+
+   /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_parameter_reference(this);
    }
 
    /**** Misc. ****************************************************************/

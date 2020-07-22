@@ -11,6 +11,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
@@ -124,6 +125,12 @@ public class RemoveElement extends InstructionNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_remove_element(this);
+   }
 
    /**** Misc. ****************************************************************/
    @Override

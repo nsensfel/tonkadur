@@ -4,6 +4,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class Constant extends ValueNode
@@ -70,6 +71,13 @@ public class Constant extends ValueNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_constant(this);
+   }
+
    public String get_value_as_string ()
    {
       return as_string;

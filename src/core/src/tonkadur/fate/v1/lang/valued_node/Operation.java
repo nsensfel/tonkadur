@@ -15,6 +15,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class Operation extends ValueNode
@@ -165,5 +166,13 @@ public class Operation extends ValueNode
       computed_type = operator.transform_type(computed_type);
 
       return new Operation(origin, computed_type, operator, operands);
+   }
+
+   /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_operation(this);
    }
 }

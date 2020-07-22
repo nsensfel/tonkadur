@@ -12,6 +12,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
 public class IfElseValue extends ValueNode
@@ -122,6 +123,12 @@ public class IfElseValue extends ValueNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_if_else_value(this);
+   }
 
    /**** Misc. ****************************************************************/
    @Override

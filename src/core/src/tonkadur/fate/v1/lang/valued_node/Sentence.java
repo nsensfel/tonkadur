@@ -4,6 +4,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.TextNode;
 
 public class Sentence extends TextNode
@@ -34,6 +35,13 @@ public class Sentence extends TextNode
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
+   {
+      nv.visit_sentence(this);
+   }
+
    public String get_text ()
    {
       return text;
