@@ -5,14 +5,14 @@ import java.util.List;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
-public class PlayerChoiceList extends InstructionNode
+public class PlayerChoiceList extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<InstructionNode> choices;
+   protected final List<Instruction> choices;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -21,7 +21,7 @@ public class PlayerChoiceList extends InstructionNode
    public PlayerChoiceList
    (
       final Origin origin,
-      final List<InstructionNode> choices
+      final List<Instruction> choices
    )
    {
       super(origin);
@@ -37,7 +37,7 @@ public class PlayerChoiceList extends InstructionNode
       nv.visit_player_choice_list(this);
    }
 
-   public List<InstructionNode> get_choices ()
+   public List<Instruction> get_choices ()
    {
       return choices;
    }
@@ -52,7 +52,7 @@ public class PlayerChoiceList extends InstructionNode
 
       sb.append(System.lineSeparator());
 
-      for (final InstructionNode choice: choices)
+      for (final Instruction choice: choices)
       {
          sb.append(choice.toString());
          sb.append(System.lineSeparator());

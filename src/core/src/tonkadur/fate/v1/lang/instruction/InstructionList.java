@@ -5,14 +5,14 @@ import java.util.List;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
-public class InstructionList extends InstructionNode
+public class InstructionList extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<InstructionNode> instructions;
+   protected final List<Instruction> instructions;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -21,7 +21,7 @@ public class InstructionList extends InstructionNode
    public InstructionList
    (
       final Origin origin,
-      final List<InstructionNode> instructions
+      final List<Instruction> instructions
    )
    {
       super(origin);
@@ -37,7 +37,7 @@ public class InstructionList extends InstructionNode
       nv.visit_instruction_list(this);
    }
 
-   public List<InstructionNode> get_instructions ()
+   public List<Instruction> get_instructions ()
    {
       return instructions;
    }
@@ -52,7 +52,7 @@ public class InstructionList extends InstructionNode
 
       sb.append(System.lineSeparator());
 
-      for (final InstructionNode instruction: instructions)
+      for (final Instruction instruction: instructions)
       {
          sb.append(instruction.toString());
          sb.append(System.lineSeparator());

@@ -12,16 +12,16 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class RemoveAllOfElement extends InstructionNode
+public class RemoveAllOfElement extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode element;
-   protected final ValueNode collection;
+   protected final Computation element;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -30,8 +30,8 @@ public class RemoveAllOfElement extends InstructionNode
    protected RemoveAllOfElement
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode collection
+      final Computation element,
+      final Computation collection
    )
    {
       super(origin);
@@ -47,8 +47,8 @@ public class RemoveAllOfElement extends InstructionNode
    public static RemoveAllOfElement build
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode collection
+      final Computation element,
+      final Computation collection
    )
    throws
       InvalidTypeException,

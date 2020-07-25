@@ -18,8 +18,8 @@ import tonkadur.fate.v1.error.UnknownSequenceException;
 
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
 import tonkadur.fate.v1.lang.meta.ExtensionInstruction;
-import tonkadur.fate.v1.lang.meta.ExtensionValueNode;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.ExtensionComputation;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -32,7 +32,7 @@ public class World
    protected final Set<String> required_extensions;
 
    protected final Map<String, List<Origin>> sequence_calls;
-   protected final Map<String, ExtensionValueNode> extension_value_nodes;
+   protected final Map<String, ExtensionComputation> extension_value_nodes;
    protected final Map<String, ExtensionInstruction> extension_instructions;
    protected final Map<String, ExtensionInstruction>
       extension_first_level_instructions;
@@ -44,7 +44,7 @@ public class World
    protected final DeclarationCollection<Type> type_collection;
    protected final DeclarationCollection<Variable> variable_collection;
 
-   protected final List<InstructionNode> global_instructions;
+   protected final List<Instruction> global_instructions;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -57,7 +57,7 @@ public class World
       required_extensions = new HashSet<String>();
 
       sequence_calls = new HashMap<String, List<Origin>>();
-      extension_value_nodes = new HashMap<String, ExtensionValueNode>();
+      extension_value_nodes = new HashMap<String, ExtensionComputation>();
       extension_instructions = new HashMap<String, ExtensionInstruction>();
       extension_first_level_instructions =
          new HashMap<String, ExtensionInstruction>();
@@ -76,7 +76,7 @@ public class World
 
       add_base_types();
 
-      global_instructions = new ArrayList<InstructionNode>();
+      global_instructions = new ArrayList<Instruction>();
    }
 
    /**** Accessors ************************************************************/
@@ -142,7 +142,7 @@ public class World
       return extension_first_level_instructions;
    }
 
-   public Map<String, ExtensionValueNode> extension_value_nodes
+   public Map<String, ExtensionComputation> extension_value_nodes
    (
    )
    {
@@ -180,12 +180,12 @@ public class World
       return variable_collection;
    }
 
-   public void add_global_instruction (final InstructionNode instruction)
+   public void add_global_instruction (final Instruction instruction)
    {
       global_instructions.add(instruction);
    }
 
-   public List<InstructionNode> get_global_instructions ()
+   public List<Instruction> get_global_instructions ()
    {
       return global_instructions;
    }

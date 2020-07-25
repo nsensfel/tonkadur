@@ -11,15 +11,15 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Assert extends InstructionNode
+public class Assert extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode condition;
+   protected final Computation condition;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -28,7 +28,7 @@ public class Assert extends InstructionNode
    protected Assert
    (
       final Origin origin,
-      final ValueNode condition
+      final Computation condition
    )
    {
       super(origin);
@@ -43,7 +43,7 @@ public class Assert extends InstructionNode
    public static Assert build
    (
       final Origin origin,
-      final ValueNode condition
+      final Computation condition
    )
    throws InvalidTypeException
    {
@@ -71,7 +71,7 @@ public class Assert extends InstructionNode
       nv.visit_assert(this);
    }
 
-   public ValueNode get_condition ()
+   public Computation get_condition ()
    {
       return condition;
    }

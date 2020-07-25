@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,19 +16,19 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Operation extends ValueNode
+public class Operation extends Computation
 {
    protected final Operator operator;
-   protected final List<ValueNode> operands;
+   protected final List<Computation> operands;
 
    protected Operation
    (
       final Origin origin,
       final Type result_type,
       final Operator operator,
-      final List<ValueNode> operands
+      final List<Computation> operands
    )
    {
       super(origin, result_type);
@@ -41,7 +41,7 @@ public class Operation extends ValueNode
    (
       final Origin origin,
       final Operator operator,
-      final List<ValueNode> operands
+      final List<Computation> operands
    )
    throws
       //ConflictingTypeException,
@@ -85,7 +85,7 @@ public class Operation extends ValueNode
 
       computed_type = operands.get(0).get_type();
 
-      for (final ValueNode operand: operands)
+      for (final Computation operand: operands)
       {
          final Type operand_type;
 

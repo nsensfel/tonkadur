@@ -1,41 +1,38 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.type.RefType;
-
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
-import tonkadur.fate.v1.lang.meta.ValueNode;
 
-public class RefOperator extends ValueNode
+import tonkadur.fate.v1.lang.type.Type;
+
+public class ParameterReference extends Reference
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference referred;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public RefOperator (final Origin origin, final Reference referred)
-   {
-      super(origin, new RefType(origin, referred.get_type(), "auto generated"));
-      this.referred = referred;
-   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
+   public ParameterReference
+   (
+      final Origin origin,
+      final Type reported_type,
+      final String parameter_name
+   )
+   {
+      super(origin, reported_type, parameter_name);
+   }
 
    /**** Accessors ************************************************************/
    @Override
    public void visit (final NodeVisitor nv)
    throws Throwable
    {
-      nv.visit_ref_operator(this);
+      nv.visit_parameter_reference(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -45,9 +42,11 @@ public class RefOperator extends ValueNode
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(Ref ");
-      sb.append(referred.get_name());
+      sb.append("(ParameterReference (");
+      sb.append(type.get_name());
       sb.append(") ");
+      sb.append(name);
+      sb.append(")");
 
       return sb.toString();
    }

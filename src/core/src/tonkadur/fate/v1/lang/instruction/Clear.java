@@ -10,15 +10,15 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Clear extends InstructionNode
+public class Clear extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode collection;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -27,7 +27,7 @@ public class Clear extends InstructionNode
    protected Clear
    (
       final Origin origin,
-      final ValueNode collection
+      final Computation collection
    )
    {
       super(origin);
@@ -42,7 +42,7 @@ public class Clear extends InstructionNode
    public static Clear build
    (
       final Origin origin,
-      final ValueNode collection
+      final Computation collection
    )
    throws InvalidTypeException
    {
@@ -73,7 +73,7 @@ public class Clear extends InstructionNode
       nv.visit_clear(this);
    }
 
-   public ValueNode get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }

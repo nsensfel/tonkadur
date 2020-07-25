@@ -29,4 +29,14 @@ public class Variable
    {
       return type;
    }
+
+   public Ref get_ref ()
+   {
+      return
+         new Ref
+         (
+            Collections.singletonList(new Constant(Type.STRING, name)),
+            type
+         );
+   }
 }

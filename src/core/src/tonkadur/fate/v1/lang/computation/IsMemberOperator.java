@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.error.ErrorManager;
 
@@ -12,28 +12,28 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class CountOperator extends ValueNode
+public class IsMemberOperator extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode element;
-   protected final ValueNode collection;
+   protected final Computation element;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected CountOperator
+   protected IsMemberOperator
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode collection
+      final Computation element,
+      final Computation collection
    )
    {
-      super(origin, Type.INT);
+      super(origin, Type.BOOLEAN);
 
       this.collection = collection;
       this.element = element;
@@ -43,11 +43,11 @@ public class CountOperator extends ValueNode
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static CountOperator build
+   public static IsMemberOperator build
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode collection
+      final Computation element,
+      final Computation collection
    )
    throws
       InvalidTypeException,
@@ -88,7 +88,7 @@ public class CountOperator extends ValueNode
          (element.get_type().try_merging_with(collection_element_type) != null)
       )
       {
-         return new CountOperator(origin, element, collection);
+         return new IsMemberOperator(origin, element, collection);
       }
 
       ErrorManager.handle
@@ -120,7 +120,7 @@ public class CountOperator extends ValueNode
          );
       }
 
-      return new CountOperator(origin, element, collection);
+      return new IsMemberOperator(origin, element, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -128,7 +128,7 @@ public class CountOperator extends ValueNode
    public void visit (final NodeVisitor nv)
    throws Throwable
    {
-      nv.visit_count_operator(this);
+      nv.visit_is_member_operator(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -138,7 +138,7 @@ public class CountOperator extends ValueNode
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(CountOperator");
+      sb.append("(IsMemberOperator");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 

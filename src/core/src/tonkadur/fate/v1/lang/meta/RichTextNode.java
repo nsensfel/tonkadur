@@ -5,7 +5,7 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.lang.type.Type;
 
 
-public abstract class RichTextNode extends ValueNode
+public abstract class RichTextNode extends Computation
 {
    /***************************************************************************/
    /**** PROTECTED ************************************************************/

@@ -4,7 +4,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-public abstract class Reference extends ValueNode
+public abstract class Reference extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/

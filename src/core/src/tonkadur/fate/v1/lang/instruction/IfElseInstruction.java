@@ -11,17 +11,17 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class IfElseInstruction extends InstructionNode
+public class IfElseInstruction extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode condition;
-   protected final InstructionNode if_true;
-   protected final InstructionNode if_false;
+   protected final Computation condition;
+   protected final Instruction if_true;
+   protected final Instruction if_false;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -30,9 +30,9 @@ public class IfElseInstruction extends InstructionNode
    protected IfElseInstruction
    (
       final Origin origin,
-      final ValueNode condition,
-      final InstructionNode if_true,
-      final InstructionNode if_false
+      final Computation condition,
+      final Instruction if_true,
+      final Instruction if_false
    )
    {
       super(origin);
@@ -49,9 +49,9 @@ public class IfElseInstruction extends InstructionNode
    public static IfElseInstruction build
    (
       final Origin origin,
-      final ValueNode condition,
-      final InstructionNode if_true,
-      final InstructionNode if_false
+      final Computation condition,
+      final Instruction if_true,
+      final Instruction if_false
    )
    throws InvalidTypeException
    {
@@ -79,17 +79,17 @@ public class IfElseInstruction extends InstructionNode
       nv.visit_if_else_instruction(this);
    }
 
-   public ValueNode get_condition ()
+   public Computation get_condition ()
    {
       return condition;
    }
 
-   public InstructionNode get_if_true ()
+   public Instruction get_if_true ()
    {
       return if_true;
    }
 
-   public InstructionNode get_if_false ()
+   public Instruction get_if_false ()
    {
       return if_false;
    }

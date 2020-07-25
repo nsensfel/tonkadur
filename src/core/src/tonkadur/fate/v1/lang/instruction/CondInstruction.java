@@ -14,15 +14,15 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class CondInstruction extends InstructionNode
+public class CondInstruction extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Cons<ValueNode, InstructionNode>> branches;
+   protected final List<Cons<Computation, Instruction>> branches;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -31,7 +31,7 @@ public class CondInstruction extends InstructionNode
    protected CondInstruction
    (
       final Origin origin,
-      final List<Cons<ValueNode, InstructionNode>> branches
+      final List<Cons<Computation, Instruction>> branches
    )
    {
       super(origin);
@@ -46,11 +46,11 @@ public class CondInstruction extends InstructionNode
    public static CondInstruction build
    (
       final Origin origin,
-      final List<Cons<ValueNode, InstructionNode>> branches
+      final List<Cons<Computation, Instruction>> branches
    )
    throws InvalidTypeException
    {
-      for (final Cons<ValueNode, InstructionNode> branch: branches)
+      for (final Cons<Computation, Instruction> branch: branches)
       {
          if (!branch.get_car().get_type().get_base_type().equals(Type.BOOLEAN))
          {
@@ -77,7 +77,7 @@ public class CondInstruction extends InstructionNode
       nv.visit_cond_instruction(this);
    }
 
-   public List<Cons<ValueNode, InstructionNode>> get_branches ()
+   public List<Cons<Computation, Instruction>> get_branches ()
    {
       return branches;
    }
@@ -91,7 +91,7 @@ public class CondInstruction extends InstructionNode
       sb.append("(CondInstruction");
       sb.append(System.lineSeparator());
 
-      for (final Cons<ValueNode, InstructionNode> branch: branches)
+      for (final Cons<Computation, Instruction> branch: branches)
       {
          sb.append(System.lineSeparator());
          sb.append("if:");

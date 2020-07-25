@@ -3,9 +3,9 @@ package tonkadur.fate.v1.lang.instruction;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
-public class SequenceCall extends InstructionNode
+public class SequenceCall extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/

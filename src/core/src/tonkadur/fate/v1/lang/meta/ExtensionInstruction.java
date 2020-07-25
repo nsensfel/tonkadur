@@ -9,9 +9,9 @@ import tonkadur.fate.v1.lang.World;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
-public class ExtensionInstruction extends InstructionNode
+public class ExtensionInstruction extends Instruction
 {
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -27,7 +27,7 @@ public class ExtensionInstruction extends InstructionNode
       final World world,
       final Context context,
       final Origin origin,
-      final List<InstructionNode> parameters
+      final List<Instruction> parameters
    )
    {
       return new ExtensionInstruction(Origin.BASE_LANGUAGE);

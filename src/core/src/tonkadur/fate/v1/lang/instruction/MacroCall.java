@@ -19,16 +19,16 @@ import tonkadur.fate.v1.lang.Macro;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class MacroCall extends InstructionNode
+public class MacroCall extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Macro macro;
-   protected final List<ValueNode> parameters;
+   protected final List<Computation> parameters;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -38,7 +38,7 @@ public class MacroCall extends InstructionNode
    (
       final Origin origin,
       final Macro macro,
-      final List<ValueNode> parameters
+      final List<Computation> parameters
    )
    {
       super(origin);
@@ -55,7 +55,7 @@ public class MacroCall extends InstructionNode
    (
       final Origin origin,
       final Macro macro,
-      final List<ValueNode> parameters
+      final List<Computation> parameters
    )
    throws Throwable
    {
@@ -78,10 +78,10 @@ public class MacroCall extends InstructionNode
          );
       }
 
-      (new Merge<Type, ValueNode, Boolean>()
+      (new Merge<Type, Computation, Boolean>()
       {
          @Override
-         public Boolean risky_lambda (final Type t, final ValueNode p)
+         public Boolean risky_lambda (final Type t, final Computation p)
          throws ParsingError
          {
             if ((t == null) || (p == null))
@@ -148,7 +148,7 @@ public class MacroCall extends InstructionNode
       return macro;
    }
 
-   public List<ValueNode> get_parameters ()
+   public List<Computation> get_parameters ()
    {
       return parameters;
    }
@@ -162,7 +162,7 @@ public class MacroCall extends InstructionNode
       sb.append("(MacroCall (");
       sb.append(macro.get_name());
 
-      for (final ValueNode param: parameters)
+      for (final Computation param: parameters)
       {
          sb.append(" ");
          sb.append(param.toString());

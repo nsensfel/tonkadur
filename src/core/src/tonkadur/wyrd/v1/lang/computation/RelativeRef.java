@@ -6,14 +6,12 @@ import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 
-public class RelativeRef extends Computation
+public class RelativeRef extends Ref
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation parent;
-   protected final List<String> accesses;
-   protected final Type target_type;
+   protected final Ref parent;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -21,31 +19,19 @@ public class RelativeRef extends Computation
    /**** Constructors *********************************************************/
    public RelativeRef
    (
-      final Computation parent,
-      final List<String> accesses,
+      final Ref parent,
+      final List<Computation> accesses,
       final Type target_type
    )
    {
-      super(Type.POINTER);
+      super(accesses, target_type);
 
       this.parent = parent;
-      this.accesses = accesses;
-      this.target_type = target_type;
    }
 
    /**** Accessors ************************************************************/
-   public Computation get_parent ()
+   public Ref get_parent ()
    {
       return parent;
-   }
-
-   public List<String> get_accesses ()
-   {
-      return accesses;
-   }
-
-   public Type get_target_type ()
-   {
-      return target_type;
    }
 }

@@ -1,6 +1,4 @@
-package tonkadur.fate.v1.lang.valued_node;
-
-import java.util.Collections;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.error.ErrorManager;
 
@@ -10,101 +8,104 @@ import tonkadur.fate.v1.error.ConflictingTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidTypeException;
 
+import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class IfElseValue extends ValueNode
+public class CountOperator extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode condition;
-   protected final ValueNode if_true;
-   protected final ValueNode if_false;
+   protected final Computation element;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected IfElseValue
+   protected CountOperator
    (
       final Origin origin,
-      final Type return_type,
-      final ValueNode condition,
-      final ValueNode if_true,
-      final ValueNode if_false
+      final Computation element,
+      final Computation collection
    )
    {
-      super(origin, return_type);
+      super(origin, Type.INT);
 
-      this.condition = condition;
-      this.if_true = if_true;
-      this.if_false = if_false;
+      this.collection = collection;
+      this.element = element;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static IfElseValue build
+   public static CountOperator build
    (
       final Origin origin,
-      final ValueNode condition,
-      final ValueNode if_true,
-      final ValueNode if_false
+      final Computation element,
+      final Computation collection
    )
    throws
       InvalidTypeException,
       ConflictingTypeException,
       IncomparableTypeException
    {
-      Type hint;
-      final Type if_true_type;
-      final Type if_false_type;
+      final Type hint;
+      final Type collection_type;
+      final CollectionType collection_true_type;
+      final Type collection_element_type;
 
-      if (!condition.get_type().can_be_used_as(Type.BOOLEAN))
+      collection_type = collection.get_type();
+
+      if
+      (
+         !Type.COLLECTION_TYPES.contains(collection_type.get_base_type())
+         || !(collection_type instanceof CollectionType)
+      )
       {
          ErrorManager.handle
          (
             new InvalidTypeException
             (
-               condition.get_origin(),
-               condition.get_type(),
-               Collections.singleton(Type.BOOLEAN)
+               collection.get_origin(),
+               collection.get_type(),
+               Type.COLLECTION_TYPES
             )
          );
       }
 
-      if_true_type = if_true.get_type();
-      if_false_type = if_false.get_type();
+      collection_true_type = (CollectionType) collection_type;
+      collection_element_type = collection_true_type.get_content_type();
 
-      if (if_true_type.equals(if_false_type))
+      if
+      (
+         element.get_type().can_be_used_as(collection_element_type)
+         ||
+         (element.get_type().try_merging_with(collection_element_type) != null)
+      )
       {
-         return
-            new IfElseValue(origin, if_true_type, condition, if_true, if_false);
-      }
-
-      hint = if_true_type.try_merging_with(if_false_type);
-
-      if (hint != null)
-      {
-         return new IfElseValue(origin, hint, condition, if_true, if_false);
+         return new CountOperator(origin, element, collection);
       }
 
       ErrorManager.handle
       (
          new ConflictingTypeException
          (
-            if_false.get_origin(),
-            if_false_type,
-            if_true_type
+            element.get_origin(),
+            element.get_type(),
+            collection_element_type
          )
       );
 
       hint =
-         (Type) if_false_type.generate_comparable_to(if_true_type);
+         (Type) element.get_type().generate_comparable_to
+         (
+            collection_element_type
+         );
 
       if (hint.equals(Type.ANY))
       {
@@ -112,14 +113,14 @@ public class IfElseValue extends ValueNode
          (
             new IncomparableTypeException
             (
-               if_false.get_origin(),
-               if_false_type,
-               if_true_type
+               element.get_origin(),
+               element.get_type(),
+               collection_element_type
             )
          );
       }
 
-      return new IfElseValue(origin, hint, condition, if_true, if_false);
+      return new CountOperator(origin, element, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -127,7 +128,7 @@ public class IfElseValue extends ValueNode
    public void visit (final NodeVisitor nv)
    throws Throwable
    {
-      nv.visit_if_else_value(this);
+      nv.visit_count_operator(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -137,25 +138,19 @@ public class IfElseValue extends ValueNode
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(IfElseValue");
+      sb.append("(CountOperator");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("Condition:");
+      sb.append("element:");
       sb.append(System.lineSeparator());
-      sb.append(condition.toString());
+      sb.append(element.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
 
+      sb.append("collection:");
       sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-      sb.append("If true:");
-      sb.append(System.lineSeparator());
-      sb.append(if_true.toString());
-
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-      sb.append("If false:");
-      sb.append(System.lineSeparator());
-      sb.append(if_false.toString());
+      sb.append(collection.toString());
 
       sb.append(")");
 

@@ -1,37 +1,63 @@
-package tonkadur.fate.v1.lang.valued_node;
-
-import java.util.List;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.error.IncompatibleTypeException;
+import tonkadur.fate.v1.error.IncomparableTypeException;
+
+import tonkadur.fate.v1.lang.type.Type;
+
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Paragraph extends RichTextNode
+public class ValueToRichText extends RichTextNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<RichTextNode> content;
+   protected final Computation value;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
+   protected ValueToRichText (final Computation value)
+   {
+      super(value.get_origin());
+
+      this.value = value;
+   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Paragraph
-   (
-      final Origin origin,
-      final List<RichTextNode> content
-   )
+   public static ValueToRichText build (final Computation value)
+   throws
+      IncompatibleTypeException,
+      IncomparableTypeException
    {
-      super(origin);
+      final Type value_base_type;
 
-      this.content = content;
+      value_base_type = value.get_type().get_base_type();
+
+      if (value_base_type.equals(Type.STRING))
+      {
+         return new ValueToRichText(value);
+      }
+
+      return
+         new ValueToRichText
+         (
+            Cast.build
+            (
+               value.get_origin(),
+               Type.STRING,
+               value,
+               true
+            )
+         );
    }
 
    /**** Accessors ************************************************************/
@@ -39,12 +65,12 @@ public class Paragraph extends RichTextNode
    public void visit (final NodeVisitor nv)
    throws Throwable
    {
-      nv.visit_paragraph(this);
+      nv.visit_value_to_rich_text(this);
    }
 
-   public List<RichTextNode> get_content ()
+   public Computation get_value ()
    {
-      return content;
+      return value;
    }
 
    /**** Misc. ****************************************************************/
@@ -53,13 +79,8 @@ public class Paragraph extends RichTextNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Paragraph ");
-
-      for (final RichTextNode text: content)
-      {
-         sb.append(content.toString());
-      }
-
+      sb.append("(ValueToRichText ");
+      sb.append(value.toString());
       sb.append(")");
 
       return sb.toString();

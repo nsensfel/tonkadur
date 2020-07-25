@@ -1,13 +1,13 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Constant extends ValueNode
+public class Constant extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/

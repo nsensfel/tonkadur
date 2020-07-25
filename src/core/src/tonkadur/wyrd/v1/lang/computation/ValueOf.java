@@ -22,6 +22,13 @@ public class ValueOf extends Computation
       this.parent = parent;
    }
 
+   public ValueOf (final Ref parent)
+   {
+      super(parent.get_target_type());
+
+      this.parent = parent;
+   }
+
    /**** Accessors ************************************************************/
    public Computation get_parent ()
    {

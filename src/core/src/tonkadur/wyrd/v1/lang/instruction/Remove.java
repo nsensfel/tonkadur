@@ -1,30 +1,36 @@
 package tonkadur.wyrd.v1.lang.computation;
 
-import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.computation.Ref;
 
+import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.meta.Computation;
 
-public class Size extends Computation
+public class Remove extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Ref collection;
+   protected final Computation index;
+   protected final Ref reference;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Size (final Ref collection)
+   public Remove (final Computation index, final Ref reference)
    {
-      super(Type.INT);
-
-      this.collection = collection;
+      this.index = index;
+      this.reference = reference;
    }
 
    /**** Accessors ************************************************************/
-   public Ref get_collection ()
+   public Computation get_index ()
    {
-      return collection;
+      return index;
+   }
+
+   public Ref get_reference ()
+   {
+      return reference;
    }
 }

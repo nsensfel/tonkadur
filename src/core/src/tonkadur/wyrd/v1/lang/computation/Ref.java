@@ -6,19 +6,19 @@ import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 
-public class AbsoluteRef extends Computation
+public class Ref extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<String> accesses;
+   protected final List<Computation> accesses;
    protected final Type target_type;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public AbsoluteRef (final List<String> accesses, final Type target_type)
+   public Ref (final List<Computation> accesses, final Type target_type)
    {
       super(Type.POINTER);
 
@@ -27,7 +27,7 @@ public class AbsoluteRef extends Computation
    }
 
    /**** Accessors ************************************************************/
-   public List<String> get_accesses ()
+   public List<Computation> get_accesses ()
    {
       return accesses;
    }

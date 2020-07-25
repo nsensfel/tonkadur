@@ -16,7 +16,7 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
 public class Sequence extends DeclaredEntity
 {
@@ -29,7 +29,7 @@ public class Sequence extends DeclaredEntity
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final InstructionNode root;
+   protected final Instruction root;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -39,7 +39,7 @@ public class Sequence extends DeclaredEntity
    public Sequence
    (
       final Origin origin,
-      final InstructionNode root,
+      final Instruction root,
       final String name
    )
    {
@@ -49,7 +49,7 @@ public class Sequence extends DeclaredEntity
    }
 
    /**** Accessors ************************************************************/
-   public InstructionNode get_root ()
+   public Instruction get_root ()
    {
       return root;
    }

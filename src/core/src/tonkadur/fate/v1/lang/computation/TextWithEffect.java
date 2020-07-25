@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,69 +13,59 @@ import tonkadur.error.ErrorManager;
 import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
-import tonkadur.fate.v1.error.NotAValueMacroException;
 
-import tonkadur.fate.v1.lang.Macro;
+import tonkadur.fate.v1.lang.TextEffect;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class MacroValueCall extends ValueNode
+public class TextWithEffect extends RichTextNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Macro macro;
-   protected final ValueNode act_as;
-   protected final List<ValueNode> parameters;
+   protected final TextEffect effect;
+   protected final List<Computation> parameters;
+   protected final RichTextNode text;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected MacroValueCall
+   protected TextWithEffect
    (
       final Origin origin,
-      final Macro macro,
-      final List<ValueNode> parameters,
-      final ValueNode act_as
+      final TextEffect effect,
+      final List<Computation> parameters,
+      final RichTextNode text
    )
    {
-      super(origin, act_as.get_type());
+      super(origin);
 
-      this.macro = macro;
+      this.effect = effect;
       this.parameters = parameters;
-      this.act_as = act_as;
+      this.text = text;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static MacroValueCall build
+   public static TextWithEffect build
    (
       final Origin origin,
-      final Macro macro,
-      final List<ValueNode> parameters
+      final TextEffect effect,
+      final List<Computation> parameters,
+      final RichTextNode text
    )
    throws Throwable
    {
-      ValueNode act_as;
       final List<Type> signature;
 
-      act_as = macro.get_value_node_representation();
-
-      if (act_as == null)
-      {
-         ErrorManager.handle
-         (
-            new NotAValueMacroException(origin, macro.get_name())
-         );
-      }
-
-      signature = macro.get_signature();
+      signature = effect.get_signature();
 
       if (parameters.size() != signature.size())
       {
@@ -91,10 +81,10 @@ public class MacroValueCall extends ValueNode
          );
       }
 
-      (new Merge<Type, ValueNode, Boolean>()
+      (new Merge<Type,Computation,Boolean>()
       {
          @Override
-         public Boolean risky_lambda (final Type t, final ValueNode p)
+         public Boolean risky_lambda (final Type t, final Computation p)
          throws ParsingError
          {
             if ((t == null) || (p == null))
@@ -145,7 +135,7 @@ public class MacroValueCall extends ValueNode
          }
       }).risky_merge(signature, parameters);
 
-      return new MacroValueCall(origin, macro, parameters, act_as);
+      return new TextWithEffect(origin, effect, parameters, text);
    }
 
    /**** Accessors ************************************************************/
@@ -153,22 +143,22 @@ public class MacroValueCall extends ValueNode
    public void visit (final NodeVisitor nv)
    throws Throwable
    {
-      nv.visit_macro_value_call(this);
+      nv.visit_text_with_effect(this);
    }
 
-   public Macro get_macro ()
+   public TextEffect get_effect ()
    {
-      return macro;
+      return effect;
    }
 
-   public ValueNode get_actual_value_node ()
-   {
-      return act_as;
-   }
-
-   public List<ValueNode> get_parameters ()
+   public List<Computation> get_parameters ()
    {
       return parameters;
+   }
+
+   public RichTextNode get_text ()
+   {
+      return text;
    }
 
    /**** Misc. ****************************************************************/
@@ -177,16 +167,18 @@ public class MacroValueCall extends ValueNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(MacroValueCall (");
-      sb.append(macro.get_name());
+      sb.append("(TextWithEffect (");
+      sb.append(effect.get_name());
 
-      for (final ValueNode param: parameters)
+      for (final Computation param: parameters)
       {
          sb.append(" ");
          sb.append(param.toString());
       }
 
-      sb.append("))");
+      sb.append(") ");
+      sb.append(text.toString());
+      sb.append(")");
 
       return sb.toString();
    }

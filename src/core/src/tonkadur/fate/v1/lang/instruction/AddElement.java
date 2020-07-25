@@ -12,16 +12,16 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class AddElement extends InstructionNode
+public class AddElement extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode element;
-   protected final ValueNode collection;
+   protected final Computation element;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -30,8 +30,8 @@ public class AddElement extends InstructionNode
    protected AddElement
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode collection
+      final Computation element,
+      final Computation collection
    )
    {
       super(origin);
@@ -47,8 +47,8 @@ public class AddElement extends InstructionNode
    public static AddElement build
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode collection
+      final Computation element,
+      final Computation collection
    )
    throws
       InvalidTypeException,
@@ -130,6 +130,16 @@ public class AddElement extends InstructionNode
    throws Throwable
    {
       nv.visit_add_element(this);
+   }
+
+   public Computation get_collection ()
+   {
+      return collection;
+   }
+
+   public Computation get_element ()
+   {
+      return element
    }
 
    /**** Misc. ****************************************************************/

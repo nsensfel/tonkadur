@@ -9,15 +9,15 @@ import tonkadur.fate.v1.lang.World;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class ExtensionValueNode extends ValueNode
+public class ExtensionComputation extends Computation
 {
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected ExtensionValueNode
+   protected ExtensionComputation
    (
       final Origin origin,
       final Type result_type
@@ -26,14 +26,14 @@ public class ExtensionValueNode extends ValueNode
       super(origin, result_type);
    }
 
-   public ExtensionValueNode build
+   public ExtensionComputation build
    (
       final World world,
       final Context context,
       final Origin origin,
-      final List<ValueNode> parameters
+      final List<Computation> parameters
    )
    {
-      return new ExtensionValueNode(Origin.BASE_LANGUAGE, Type.ANY);
+      return new ExtensionComputation(Origin.BASE_LANGUAGE, Type.ANY);
    }
 }

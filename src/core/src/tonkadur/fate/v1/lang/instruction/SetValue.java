@@ -11,16 +11,16 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class SetValue extends InstructionNode
+public class SetValue extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode element;
-   protected final ValueNode value_reference;
+   protected final Computation element;
+   protected final Computation value_reference;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -29,8 +29,8 @@ public class SetValue extends InstructionNode
    protected SetValue
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode value_reference
+      final Computation element,
+      final Computation value_reference
    )
    {
       super(origin);
@@ -46,8 +46,8 @@ public class SetValue extends InstructionNode
    public static SetValue build
    (
       final Origin origin,
-      final ValueNode element,
-      final ValueNode value_reference
+      final Computation element,
+      final Computation value_reference
    )
    throws
       InvalidTypeException,

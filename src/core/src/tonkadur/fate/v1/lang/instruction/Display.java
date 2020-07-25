@@ -9,10 +9,10 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
 
-public class Display extends InstructionNode
+public class Display extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/

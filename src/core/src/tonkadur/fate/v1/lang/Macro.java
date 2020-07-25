@@ -6,17 +6,17 @@ import java.util.List;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.TypedEntryList;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.instruction.Display;
 import tonkadur.fate.v1.lang.instruction.InstructionList;
 
-import tonkadur.fate.v1.lang.valued_node.Cast;
-import tonkadur.fate.v1.lang.valued_node.ValueToRichText;
+import tonkadur.fate.v1.lang.computation.Cast;
+import tonkadur.fate.v1.lang.computation.ValueToRichText;
 
 public class Macro extends DeclaredEntity
 {
@@ -29,7 +29,7 @@ public class Macro extends DeclaredEntity
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final InstructionNode root;
+   protected final Instruction root;
    protected final TypedEntryList parameters;
 
    /***************************************************************************/
@@ -40,7 +40,7 @@ public class Macro extends DeclaredEntity
    public Macro
    (
       final Origin origin,
-      final InstructionNode root,
+      final Instruction root,
       final TypedEntryList parameters,
       final String name
    )
@@ -57,7 +57,7 @@ public class Macro extends DeclaredEntity
       return parameters;
    }
 
-   public InstructionNode get_root ()
+   public Instruction get_root ()
    {
       return root;
    }
@@ -76,12 +76,12 @@ public class Macro extends DeclaredEntity
       return result;
    }
 
-   public ValueNode get_value_node_representation ()
+   public Computation get_value_node_representation ()
    {
       final Cast result_cast;
       InstructionList root_as_il;
-      InstructionNode instr;
-      ValueNode result;
+      Instruction instr;
+      Computation result;
 
       if (!(root instanceof InstructionList))
       {

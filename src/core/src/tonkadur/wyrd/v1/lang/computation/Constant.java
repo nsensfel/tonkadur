@@ -6,6 +6,15 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 
 public class Constant extends Computation
 {
+   public static final Constant TRUE;
+   public static final Constant FALSE;
+
+   static
+   {
+      TRUE = new Constant(Type.BOOLEAN, "true");
+      FALSE = new Constant(Type.BOOLEAN, "false");
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/

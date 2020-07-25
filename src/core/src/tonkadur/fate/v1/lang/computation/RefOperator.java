@@ -1,49 +1,41 @@
-package tonkadur.fate.v1.lang.meta;
-
-import java.util.Collection;
-import java.util.HashSet;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
-public abstract class InstructionNode extends Node
+import tonkadur.fate.v1.lang.type.RefType;
+
+import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
+
+public class RefOperator extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Collection<InstructionNode> parents;
-   protected InstructionNode child;
+   protected final Reference referred;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected InstructionNode (final Origin origin)
+   public RefOperator (final Origin origin, final Reference referred)
    {
-      super(origin);
-
-      parents = new HashSet<InstructionNode>();
-      child = null;
+      super(origin, new RefType(origin, referred.get_type(), "auto generated"));
+      this.referred = referred;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
+   /**** Constructors *********************************************************/
+
    /**** Accessors ************************************************************/
-   public void link_parent (final InstructionNode parent)
+   @Override
+   public void visit (final NodeVisitor nv)
+   throws Throwable
    {
-      parent.child = this;
-
-      parents.add(parent);
-   }
-
-   public Collection<InstructionNode> get_parents ()
-   {
-      return parents;
-   }
-
-   public InstructionNode get_child ()
-   {
-      return child;
+      nv.visit_ref_operator(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -53,7 +45,9 @@ public abstract class InstructionNode extends Node
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(Instruction)");
+      sb.append("(Ref ");
+      sb.append(referred.get_name());
+      sb.append(") ");
 
       return sb.toString();
    }

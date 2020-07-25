@@ -1,30 +1,48 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.lang.Variable;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-public class ParameterReference extends Reference
+public class VariableReference extends Reference
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final Variable variable;
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
+   protected VariableReference
+   (
+      final Origin origin,
+      final Type reported_type,
+      final Variable variable
+   )
+   {
+      super(origin, reported_type, variable.get_name());
+      this.variable = variable;
+   }
+   /**** Constructors *********************************************************/
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public ParameterReference
+   public VariableReference
    (
       final Origin origin,
-      final Type reported_type,
-      final String parameter_name
+      final Variable variable
    )
    {
-      super(origin, reported_type, parameter_name);
+      super(origin, variable.get_type(), variable.get_name());
+      this.variable = variable;
    }
 
    /**** Accessors ************************************************************/
@@ -32,7 +50,12 @@ public class ParameterReference extends Reference
    public void visit (final NodeVisitor nv)
    throws Throwable
    {
-      nv.visit_parameter_reference(this);
+      nv.visit_variable_reference(this);
+   }
+
+   public Variable get_variable ()
+   {
+      return variable;
    }
 
    /**** Misc. ****************************************************************/
@@ -42,10 +65,10 @@ public class ParameterReference extends Reference
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(ParameterReference (");
+      sb.append("(VariableReference (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(name);
+      sb.append(variable.get_name());
       sb.append(")");
 
       return sb.toString();

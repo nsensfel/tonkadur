@@ -11,16 +11,16 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class IfInstruction extends InstructionNode
+public class IfInstruction extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ValueNode condition;
-   protected final InstructionNode if_true;
+   protected final Computation condition;
+   protected final Instruction if_true;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -29,8 +29,8 @@ public class IfInstruction extends InstructionNode
    protected IfInstruction
    (
       final Origin origin,
-      final ValueNode condition,
-      final InstructionNode if_true
+      final Computation condition,
+      final Instruction if_true
    )
    {
       super(origin);
@@ -46,8 +46,8 @@ public class IfInstruction extends InstructionNode
    public static IfInstruction build
    (
       final Origin origin,
-      final ValueNode condition,
-      final InstructionNode if_true
+      final Computation condition,
+      final Instruction if_true
    )
    throws InvalidTypeException
    {
@@ -75,12 +75,12 @@ public class IfInstruction extends InstructionNode
       nv.visit_if_instruction(this);
    }
 
-   public ValueNode get_condition ()
+   public Computation get_condition ()
    {
       return condition;
    }
 
-   public InstructionNode get_if_true ()
+   public Instruction get_if_true ()
    {
       return if_true;
    }

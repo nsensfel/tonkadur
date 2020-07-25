@@ -35,7 +35,7 @@ options
    import tonkadur.fate.v1.lang.instruction.*;
    import tonkadur.fate.v1.lang.meta.*;
    import tonkadur.fate.v1.lang.type.*;
-   import tonkadur.fate.v1.lang.valued_node.*;
+   import tonkadur.fate.v1.lang.computation.*;
 }
 
 @members
@@ -76,10 +76,10 @@ fate_file [Context context, World world]
 ;
 
 general_fate_sequence
-returns [List<InstructionNode> result]
+returns [List<Instruction> result]
 @init
 {
-   $result = new ArrayList<InstructionNode>();
+   $result = new ArrayList<Instruction>();
 }
 :
    (WS*
@@ -556,7 +556,7 @@ catch [final Throwable e]
 
 /* Trying to get rule priorities right */
 general_fate_instr
-returns [InstructionNode result]
+returns [Instruction result]
 :
    L_PAREN WS+ general_fate_sequence WS* R_PAREN
    {
@@ -649,7 +649,7 @@ returns [InstructionNode result]
    | SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
    {
       final Origin origin;
-      final List<InstructionNode> operations;
+      final List<Instruction> operations;
 
       origin =
          CONTEXT.get_origin_at
@@ -658,11 +658,11 @@ returns [InstructionNode result]
             ($SET_FIELDS_KW.getCharPositionInLine())
          );
 
-      operations = new ArrayList<InstructionNode>();
+      operations = new ArrayList<Instruction>();
 
       for
       (
-         final Cons<Origin, Cons<String, ValueNode>> entry:
+         final Cons<Origin, Cons<String, Computation>> entry:
             ($field_value_list.result)
       )
       {
@@ -727,7 +727,7 @@ returns [InstructionNode result]
          (
             origin,
             event,
-            new ArrayList<ValueNode>()
+            new ArrayList<Computation>()
          );
    }
 
@@ -907,10 +907,10 @@ catch [final Throwable e]
 }
 
 instr_cond_list
-returns [List<Cons<ValueNode, InstructionNode>> result]
+returns [List<Cons<Computation, Instruction>> result]
 @init
 {
-   $result = new ArrayList<Cons<ValueNode, InstructionNode>>();
+   $result = new ArrayList<Cons<Computation, Instruction>>();
 }
 :
    (
@@ -925,10 +925,10 @@ returns [List<Cons<ValueNode, InstructionNode>> result]
 ;
 
 player_choice_list
-returns [List<InstructionNode> result]
+returns [List<Instruction> result]
 @init
 {
-   $result = new ArrayList<InstructionNode>();
+   $result = new ArrayList<Instruction>();
 }
 :
    (WS*
@@ -942,7 +942,7 @@ returns [List<InstructionNode> result]
 ;
 
 player_choice
-returns [InstructionNode result]
+returns [Instruction result]
 :
    start_p=L_PAREN WS*
       L_PAREN WS* paragraph WS* R_PAREN WS+
@@ -1024,10 +1024,10 @@ catch [final Throwable e]
 }
 
 player_choice_cond_list
-returns [List<Cons<ValueNode, InstructionNode>> result]
+returns [List<Cons<Computation, Instruction>> result]
 @init
 {
-   $result = new ArrayList<Cons<ValueNode, InstructionNode>>();
+   $result = new ArrayList<Cons<Computation, Instruction>>();
 }
 :
    (
@@ -1148,7 +1148,7 @@ returns [RichTextNode result]:
                ($WORD.getCharPositionInLine())
             ),
             effect,
-            new ArrayList<ValueNode>(),
+            new ArrayList<Computation>(),
             ($paragraph.result)
          );
    }
@@ -1356,10 +1356,10 @@ catch [final Throwable e]
 }
 
 field_value_list
-returns [List<Cons<Origin, Cons<String, ValueNode>>> result]
+returns [List<Cons<Origin, Cons<String, Computation>>> result]
 @init
 {
-   $result = new ArrayList<Cons<Origin, Cons<String, ValueNode>>>();
+   $result = new ArrayList<Cons<Origin, Cons<String, Computation>>>();
 }
 :
    (
@@ -1428,7 +1428,7 @@ catch [final Throwable e]
 /**** VALUES ******************************************************************/
 /******************************************************************************/
 boolean_expression
-returns [ValueNode result]:
+returns [Computation result]:
    TRUE_KW
    {
       $result =
@@ -1635,7 +1635,7 @@ catch [final Throwable e]
 }
 
 math_expression
-returns [ValueNode result]:
+returns [Computation result]:
    PLUS_KW value_list WS* R_PAREN
    {
       $result =
@@ -1754,7 +1754,7 @@ catch [final Throwable e]
 }
 
 value
-returns [ValueNode result]
+returns [Computation result]
 :
    WORD
    {
@@ -1799,7 +1799,7 @@ returns [ValueNode result]
                ($WORD.getCharPositionInLine())
             ),
             effect,
-            new ArrayList<ValueNode>(),
+            new ArrayList<Computation>(),
             ($paragraph.result)
          );
    }
@@ -1870,7 +1870,7 @@ catch [final Throwable e]
 }
 
 non_text_value
-returns [ValueNode result]
+returns [Computation result]
 :
    IF_ELSE_KW cond=value WS+ if_true=value WS+ if_false=value WS* R_PAREN
    {
@@ -1957,7 +1957,7 @@ returns [ValueNode result]
    | EXTENSION_VALUE_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
-      final ExtensionValueNode value;
+      final ExtensionComputation value;
 
       origin =
          CONTEXT.get_origin_at
@@ -2231,10 +2231,10 @@ catch [final Throwable e]
 }
 
 value_cond_list
-returns [List<Cons<ValueNode, ValueNode>> result]
+returns [List<Cons<Computation, Computation>> result]
 @init
 {
-   $result = new ArrayList<Cons<ValueNode, ValueNode>>();
+   $result = new ArrayList<Cons<Computation, Computation>>();
 }
 :
    (
@@ -2248,10 +2248,10 @@ returns [List<Cons<ValueNode, ValueNode>> result]
 ;
 
 value_list
-returns [List<ValueNode> result]
+returns [List<Computation> result]
 @init
 {
-   $result = new ArrayList<ValueNode>();
+   $result = new ArrayList<Computation>();
 }
 :
    (

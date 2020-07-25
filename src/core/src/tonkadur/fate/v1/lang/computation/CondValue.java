@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import java.util.List;
 import java.util.Collections;
@@ -16,14 +16,14 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.ValueNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class CondValue extends ValueNode
+public class CondValue extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Cons<ValueNode, ValueNode>> branches;
+   protected final List<Cons<Computation, Computation>> branches;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -33,7 +33,7 @@ public class CondValue extends ValueNode
    (
       final Origin origin,
       final Type return_type,
-      final List<Cons<ValueNode, ValueNode>> branches
+      final List<Cons<Computation, Computation>> branches
    )
    {
       super(origin, return_type);
@@ -48,7 +48,7 @@ public class CondValue extends ValueNode
    public static CondValue build
    (
       final Origin origin,
-      final List<Cons<ValueNode, ValueNode>> branches
+      final List<Cons<Computation, Computation>> branches
    )
    throws
       InvalidTypeException,
@@ -61,7 +61,7 @@ public class CondValue extends ValueNode
       first_type = branches.get(0).get_cdr().get_type();
       hint = first_type;
 
-      for (final Cons<ValueNode, ValueNode> entry: branches)
+      for (final Cons<Computation, Computation> entry: branches)
       {
          if (!entry.get_car().get_type().can_be_used_as(Type.BOOLEAN))
          {
@@ -137,7 +137,7 @@ public class CondValue extends ValueNode
       sb.append("(CondValue");
       sb.append(System.lineSeparator());
 
-      for (final Cons<ValueNode, ValueNode> entry: branches)
+      for (final Cons<Computation, Computation> entry: branches)
       {
          sb.append(System.lineSeparator());
          sb.append("Condition:");

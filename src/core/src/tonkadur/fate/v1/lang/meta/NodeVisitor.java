@@ -3,7 +3,7 @@ package tonkadur.fate.v1.lang.meta;
 import tonkadur.fate.v1.lang.World;
 
 import tonkadur.fate.v1.lang.instruction.*;
-import tonkadur.fate.v1.lang.valued_node.*;
+import tonkadur.fate.v1.lang.computation.*;
 
 public interface NodeVisitor
 {

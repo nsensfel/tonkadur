@@ -1,34 +1,49 @@
 package tonkadur.fate.v1.lang.meta;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.type.Type;
-
-public abstract class ValueNode extends Node
+public abstract class Instruction extends Node
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
+   protected final Collection<Instruction> parents;
+   protected Instruction child;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected ValueNode (final Origin origin, final Type type)
+   protected Instruction (final Origin origin)
    {
       super(origin);
 
-      this.type = type;
+      parents = new HashSet<Instruction>();
+      child = null;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Accessors ************************************************************/
-   public Type get_type ()
+   public void link_parent (final Instruction parent)
    {
-      return type;
+      parent.child = this;
+
+      parents.add(parent);
+   }
+
+   public Collection<Instruction> get_parents ()
+   {
+      return parents;
+   }
+
+   public Instruction get_child ()
+   {
+      return child;
    }
 
    /**** Misc. ****************************************************************/
@@ -38,9 +53,7 @@ public abstract class ValueNode extends Node
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(");
-      sb.append(type.get_name());
-      sb.append(" Value Node)");
+      sb.append("(Instruction)");
 
       return sb.toString();
    }

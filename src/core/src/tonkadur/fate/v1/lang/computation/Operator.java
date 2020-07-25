@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.computation;
 
 import java.util.Collections;
 import java.util.Set;
@@ -70,21 +70,15 @@ public class Operator
          );
 
       EQUALS =
-         new Operator
-         (
-            "equals",
-            2,
-            0,
-            Type.SIMPLE_BASE_TYPES,
-            Type.BOOLEAN
-         );
-
-      LOWER_THAN = new Operator("<", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+         new Operator("equals", 2, 0, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
+      LOWER_THAN =
+         new Operator("<", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
       LOWER_EQUAL_THAN =
-         new Operator("=<", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+         new Operator("=<", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
       GREATER_EQUAL_THAN =
-         new Operator(">=", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
-      GREATER_THAN = new Operator(">", 2, 2, Type.NUMBER_TYPES, Type.BOOLEAN);
+         new Operator(">=", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
+      GREATER_THAN =
+         new Operator(">", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
    }
 
    final protected String name;

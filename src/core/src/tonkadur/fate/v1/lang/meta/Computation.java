@@ -1,61 +1,34 @@
-package tonkadur.fate.v1.lang.valued_node;
+package tonkadur.fate.v1.lang.meta;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.Variable;
-
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.Reference;
-
 import tonkadur.fate.v1.lang.type.Type;
 
-public class VariableReference extends Reference
+public abstract class Computation extends Node
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Variable variable;
+   protected final Type type;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-   protected VariableReference
-   (
-      final Origin origin,
-      final Type reported_type,
-      final Variable variable
-   )
-   {
-      super(origin, reported_type, variable.get_name());
-      this.variable = variable;
-   }
    /**** Constructors *********************************************************/
+   protected Computation (final Origin origin, final Type type)
+   {
+      super(origin);
+
+      this.type = type;
+   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public VariableReference
-   (
-      final Origin origin,
-      final Variable variable
-   )
-   {
-      super(origin, variable.get_type(), variable.get_name());
-      this.variable = variable;
-   }
-
    /**** Accessors ************************************************************/
-   @Override
-   public void visit (final NodeVisitor nv)
-   throws Throwable
+   public Type get_type ()
    {
-      nv.visit_variable_reference(this);
-   }
-
-   public Variable get_variable ()
-   {
-      return variable;
+      return type;
    }
 
    /**** Misc. ****************************************************************/
@@ -65,11 +38,9 @@ public class VariableReference extends Reference
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(VariableReference (");
+      sb.append("(");
       sb.append(type.get_name());
-      sb.append(") ");
-      sb.append(variable.get_name());
-      sb.append(")");
+      sb.append(" Value Node)");
 
       return sb.toString();
    }

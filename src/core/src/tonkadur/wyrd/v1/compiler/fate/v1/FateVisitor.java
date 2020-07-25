@@ -1,4 +1,4 @@
-package tonkadur.wyrd.v1.visitor.fate.v1;
+package tonkadur.wyrd.v1.compiler.fate.v1;
 
 import tonkadur.wyrd.v1.error.UnhandledASTElementException;
 
@@ -6,12 +6,6 @@ import tonkadur.fate.v1.lang.meta.NodeVisitor;
 
 public abstract class FateVisitor implements NodeVisitor
 {
-   public void visit_world (final tonkadur.fate.v1.lang.World w)
-   throws Throwable
-   {
-      throw new UnhandledASTElementException();
-   }
-
    /* Instruction Nodes */
    public void visit_add_element
    (

@@ -7,16 +7,16 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.InstructionNode;
+import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
 
-public class PlayerChoice extends InstructionNode
+public class PlayerChoice extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final RichTextNode text;
-   protected final List<InstructionNode> effects;
+   protected final List<Instruction> effects;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -26,7 +26,7 @@ public class PlayerChoice extends InstructionNode
    (
       final Origin origin,
       final RichTextNode text,
-      final List<InstructionNode> effects
+      final List<Instruction> effects
    )
    {
       super(origin);
@@ -49,7 +49,7 @@ public class PlayerChoice extends InstructionNode
       return text;
    }
 
-   public List<InstructionNode> get_effects ()
+   public List<Instruction> get_effects ()
    {
       return effects;
    }
@@ -64,7 +64,7 @@ public class PlayerChoice extends InstructionNode
       sb.append(System.lineSeparator());
       sb.append(text.toString());
 
-      for (final InstructionNode effect: effects)
+      for (final Instruction effect: effects)
       {
          sb.append(System.lineSeparator());
          sb.append(effect.toString());
