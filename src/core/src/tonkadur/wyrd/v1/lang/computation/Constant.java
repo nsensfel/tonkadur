@@ -1,29 +1,30 @@
-package tonkadur.wyrd.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.computation;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
-public abstract class Computation
+import tonkadur.wyrd.v1.lang.meta.Computation;
+
+public class Constant extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Computation (final Type type)
-   {
-      this.type = type;
-   }
+   protected final String as_string;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Accessors ************************************************************/
-   public Type get_type ()
+   /**** Constructors *********************************************************/
+   public Constant (final Type type, final String as_string)
    {
-      return type;
+      super(type);
+
+      this.as_string = as_string;
+   }
+
+   /**** Accessors ************************************************************/
+   public String get_as_string ()
+   {
+      return as_string;
    }
 }

@@ -102,16 +102,10 @@ public interface NodeVisitor
    public void visit_ref_operator (final RefOperator n)
    throws Throwable;
 
-   public void visit_sentence (final Sentence n)
-   throws Throwable;
-
-   public void visit_space (final Space n)
-   throws Throwable;
-
    public void visit_text_with_effect (final TextWithEffect n)
    throws Throwable;
 
-   public void visit_value_to_text (final ValueToText n)
+   public void visit_value_to_rich_text (final ValueToRichText n)
    throws Throwable;
 
    public void visit_variable_reference (final VariableReference n)

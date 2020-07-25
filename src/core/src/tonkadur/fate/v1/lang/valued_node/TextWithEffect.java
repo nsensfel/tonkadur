@@ -19,17 +19,17 @@ import tonkadur.fate.v1.lang.TextEffect;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
 import tonkadur.fate.v1.lang.meta.ValueNode;
 
-public class TextWithEffect extends TextNode
+public class TextWithEffect extends RichTextNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final TextEffect effect;
    protected final List<ValueNode> parameters;
-   protected final TextNode text;
+   protected final RichTextNode text;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -40,7 +40,7 @@ public class TextWithEffect extends TextNode
       final Origin origin,
       final TextEffect effect,
       final List<ValueNode> parameters,
-      final TextNode text
+      final RichTextNode text
    )
    {
       super(origin);
@@ -59,7 +59,7 @@ public class TextWithEffect extends TextNode
       final Origin origin,
       final TextEffect effect,
       final List<ValueNode> parameters,
-      final TextNode text
+      final RichTextNode text
    )
    throws Throwable
    {
@@ -156,7 +156,7 @@ public class TextWithEffect extends TextNode
       return parameters;
    }
 
-   public TextNode get_text ()
+   public RichTextNode get_text ()
    {
       return text;
    }

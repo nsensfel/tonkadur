@@ -1,29 +1,27 @@
-package tonkadur.wyrd.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
 
-public abstract class Computation
+public class Assert extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Computation (final Type type)
-   {
-      this.type = type;
-   }
+   protected final Computation condition;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Accessors ************************************************************/
-   public Type get_type ()
+   /**** Constructors *********************************************************/
+   public Assert (final Computation condition)
    {
-      return type;
+      this.condition = condition;
+   }
+
+   /**** Accessors ************************************************************/
+   public Computation get_condition ()
+   {
+      return condition;
    }
 }

@@ -1,29 +1,30 @@
-package tonkadur.wyrd.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.computation;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
-public abstract class Computation
+import tonkadur.wyrd.v1.lang.meta.Computation;
+
+public class Cast extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Computation (final Type type)
-   {
-      this.type = type;
-   }
+   protected final Computation parent;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Accessors ************************************************************/
-   public Type get_type ()
+   /**** Constructors *********************************************************/
+   public Cast (final Computation parent, final Type to)
    {
-      return type;
+      super(to);
+
+      this.parent = parent;
+   }
+
+   /**** Accessors ************************************************************/
+   public Computation get_parent ()
+   {
+      return parent;
    }
 }

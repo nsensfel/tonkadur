@@ -2,36 +2,62 @@ package tonkadur.fate.v1.lang.valued_node;
 
 import tonkadur.parser.Origin;
 
+import tonkadur.fate.v1.error.IncompatibleTypeException;
+import tonkadur.fate.v1.error.IncomparableTypeException;
+
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
+import tonkadur.fate.v1.lang.meta.ValueNode;
 
-public class Sentence extends TextNode
+public class ValueToRichText extends RichTextNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final String text;
+   protected final ValueNode value;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
+   protected ValueToRichText (final ValueNode value)
+   {
+      super(value.get_origin());
+
+      this.value = value;
+   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Sentence
-   (
-      final Origin origin,
-      final String text
-   )
+   public static ValueToRichText build (final ValueNode value)
+   throws
+      IncompatibleTypeException,
+      IncomparableTypeException
    {
-      super(origin);
+      final Type value_base_type;
 
-      this.text = text;
+      value_base_type = value.get_type().get_base_type();
+
+      if (value_base_type.equals(Type.STRING))
+      {
+         return new ValueToRichText(value);
+      }
+
+      return
+         new ValueToRichText
+         (
+            Cast.build
+            (
+               value.get_origin(),
+               Type.STRING,
+               value,
+               true
+            )
+         );
    }
 
    /**** Accessors ************************************************************/
@@ -39,12 +65,12 @@ public class Sentence extends TextNode
    public void visit (final NodeVisitor nv)
    throws Throwable
    {
-      nv.visit_sentence(this);
+      nv.visit_value_to_rich_text(this);
    }
 
-   public String get_text ()
+   public ValueNode get_value ()
    {
-      return text;
+      return value;
    }
 
    /**** Misc. ****************************************************************/
@@ -53,8 +79,8 @@ public class Sentence extends TextNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Sentence ");
-      sb.append(text);
+      sb.append("(ValueToRichText ");
+      sb.append(value.toString());
       sb.append(")");
 
       return sb.toString();

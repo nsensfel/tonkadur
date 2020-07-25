@@ -1,29 +1,39 @@
-package tonkadur.wyrd.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.computation;
+
+import java.util.List;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
-public abstract class Computation
+import tonkadur.wyrd.v1.lang.meta.Computation;
+
+public class Operation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Computation (final Type type)
-   {
-      this.type = type;
-   }
+   protected final String operator;
+   protected final List<Computation> parameters;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Accessors ************************************************************/
-   public Type get_type ()
+   /**** Constructors *********************************************************/
+   public Operation
+   (
+      final Type result_type,
+      final String operator,
+      final List<Computation> parameters
+   )
    {
-      return type;
+      super(result_type);
+
+      this.operator = operator;
+      this.parameters = parameters;
+   }
+
+   /**** Accessors ************************************************************/
+   public List<Computation> get_parameters ()
+   {
+      return parameters;
    }
 }

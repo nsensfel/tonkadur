@@ -3,9 +3,9 @@ package tonkadur.fate.v1.lang.valued_node;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
 
-public class Newline extends TextNode
+public class Newline extends RichTextNode
 {
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/

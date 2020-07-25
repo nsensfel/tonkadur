@@ -8,14 +8,14 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
 
 public class PlayerChoice extends InstructionNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final TextNode text;
+   protected final RichTextNode text;
    protected final List<InstructionNode> effects;
 
    /***************************************************************************/
@@ -25,7 +25,7 @@ public class PlayerChoice extends InstructionNode
    public PlayerChoice
    (
       final Origin origin,
-      final TextNode text,
+      final RichTextNode text,
       final List<InstructionNode> effects
    )
    {
@@ -44,7 +44,7 @@ public class PlayerChoice extends InstructionNode
       nv.visit_player_choice(this);
    }
 
-   public TextNode get_text ()
+   public RichTextNode get_text ()
    {
       return text;
    }

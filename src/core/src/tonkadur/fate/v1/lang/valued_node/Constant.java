@@ -43,6 +43,15 @@ public class Constant extends ValueNode
       return new Constant(origin, Type.BOOLEAN, value ? "true" : "false");
    }
 
+   public static Constant build_string
+   (
+      final Origin origin,
+      final String value
+   )
+   {
+      return new Constant(origin, Type.STRING, value);
+   }
+
    public static Constant build (final Origin origin, final String as_string)
    {
       try

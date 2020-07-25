@@ -1,29 +1,39 @@
-package tonkadur.wyrd.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.computation;
+
+import java.util.List;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
-public abstract class Computation
+import tonkadur.wyrd.v1.lang.meta.Computation;
+
+public class AbsoluteRef extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Computation (final Type type)
-   {
-      this.type = type;
-   }
+   protected final List<String> accesses;
+   protected final Type target_type;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Accessors ************************************************************/
-   public Type get_type ()
+   /**** Constructors *********************************************************/
+   public AbsoluteRef (final List<String> accesses, final Type target_type)
    {
-      return type;
+      super(Type.POINTER);
+
+      this.accesses = accesses;
+      this.target_type = target_type;
+   }
+
+   /**** Accessors ************************************************************/
+   public List<String> get_accesses ()
+   {
+      return accesses;
+   }
+
+   public Type get_target_type ()
+   {
+      return target_type;
    }
 }

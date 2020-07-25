@@ -5,14 +5,14 @@ import java.util.List;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
 
-public class Paragraph extends TextNode
+public class Paragraph extends RichTextNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<TextNode> content;
+   protected final List<RichTextNode> content;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -26,7 +26,7 @@ public class Paragraph extends TextNode
    public Paragraph
    (
       final Origin origin,
-      final List<TextNode> content
+      final List<RichTextNode> content
    )
    {
       super(origin);
@@ -42,7 +42,7 @@ public class Paragraph extends TextNode
       nv.visit_paragraph(this);
    }
 
-   public List<TextNode> get_content ()
+   public List<RichTextNode> get_content ()
    {
       return content;
    }
@@ -55,7 +55,7 @@ public class Paragraph extends TextNode
 
       sb.append("(Paragraph ");
 
-      for (final TextNode text: content)
+      for (final RichTextNode text: content)
       {
          sb.append(content.toString());
       }

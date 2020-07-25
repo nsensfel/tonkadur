@@ -1,29 +1,26 @@
-package tonkadur.wyrd.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
 
-public abstract class Computation
+public class SequenceCall extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Computation (final Type type)
-   {
-      this.type = type;
-   }
+   protected final String name;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Accessors ************************************************************/
-   public Type get_type ()
+   /**** Constructors *********************************************************/
+   public SequenceCall (final String name)
    {
-      return type;
+      this.name = name;
+   }
+
+   /**** Accessors ************************************************************/
+   public String get_name ()
+   {
+      return name;
    }
 }

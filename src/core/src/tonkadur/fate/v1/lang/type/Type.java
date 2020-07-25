@@ -25,8 +25,9 @@ public class Type extends DeclaredEntity
    public static final Type FLOAT;
    public static final Type INT;
    public static final Type LIST;
-   public static final Type SET;
    public static final Type REF;
+   public static final Type RICH_TEXT;
+   public static final Type SET;
    public static final Type STRING;
 
    public static final Set<Type> NUMBER_TYPES;
@@ -49,8 +50,9 @@ public class Type extends DeclaredEntity
       FLOAT = new Type(base, null, "float");
       INT = new Type(base, null, "int");
       LIST = new Type(base, null, "list");
-      SET = new Type(base, null, "set");
       REF = new Type(base, null, "ref");
+      RICH_TEXT = new Type(base, null, "rich text");
+      SET = new Type(base, null, "set");
       STRING = new Type(base, null, "string");
 
       NUMBER_TYPES = new HashSet<Type>();

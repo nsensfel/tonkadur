@@ -1,25 +1,33 @@
-package tonkadur.fate.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.computation;
 
-import tonkadur.parser.Origin;
+import tonkadur.wyrd.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.meta.Computation;
 
-
-public abstract class TextNode extends ValueNode
+public class Size extends Computation
 {
    /***************************************************************************/
-   /**** PROTECTED ************************************************************/
+   /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected TextNode (final Origin origin)
-   {
-      super(origin, Type.STRING);
-   }
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
+   public Size
+   (
+      final Computation collection
+   )
+   {
+      super(Type.INT);
+
+      this.collection = collection;
+   }
+
    /**** Accessors ************************************************************/
-   /**** Misc. ****************************************************************/
+   public Computation get_collection ()
+   {
+      return collection;
+   }
 }

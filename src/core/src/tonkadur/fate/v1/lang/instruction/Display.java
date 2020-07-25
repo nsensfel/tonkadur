@@ -10,14 +10,14 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.NodeVisitor;
 import tonkadur.fate.v1.lang.meta.InstructionNode;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
 
 public class Display extends InstructionNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final TextNode content;
+   protected final RichTextNode content;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -26,7 +26,7 @@ public class Display extends InstructionNode
    public Display
    (
       final Origin origin,
-      final TextNode content
+      final RichTextNode content
    )
    {
       super(origin);
@@ -47,7 +47,7 @@ public class Display extends InstructionNode
       nv.visit_display(this);
    }
 
-   public TextNode get_content ()
+   public RichTextNode get_content ()
    {
       return content;
    }

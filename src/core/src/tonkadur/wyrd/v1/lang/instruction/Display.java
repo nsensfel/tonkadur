@@ -1,29 +1,29 @@
-package tonkadur.wyrd.v1.lang.meta;
+package tonkadur.wyrd.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.type.Type;
+import java.util.List;
 
-public abstract class Computation
+import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
+
+public class Display extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type type;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Computation (final Type type)
-   {
-      this.type = type;
-   }
+   protected final List<Computation> content;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Accessors ************************************************************/
-   public Type get_type ()
+   /**** Constructors *********************************************************/
+   public Display (final List<Computation> content)
    {
-      return type;
+      this.content = content;
+   }
+
+   /**** Accessors ************************************************************/
+   public List<Computation> get_content ()
+   {
+      return content;
    }
 }

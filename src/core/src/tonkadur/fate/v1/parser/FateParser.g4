@@ -1053,10 +1053,10 @@ catch [final Throwable e]
 }
 
 paragraph
-returns [TextNode result]
+returns [RichTextNode result]
 @init
 {
-   final List<TextNode> content = new ArrayList();
+   final List<RichTextNode> content = new ArrayList();
 }
 :
    first=text
@@ -1068,7 +1068,17 @@ returns [TextNode result]
       {
          if (!(content.get(content.size() - 1) instanceof Newline))
          {
-            content.add(new Space(($next_a.result.get_origin())));
+            content.add
+            (
+               ValueToRichText.build
+               (
+                  Constant.build_string
+                  (
+                     $next_a.result.get_origin(),
+                     " "
+                  )
+               )
+            );
          }
 
          content.add(($next_a.result));
@@ -1095,9 +1105,20 @@ returns [TextNode result]
       }
    }
 ;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
 
 text
-returns [TextNode result]:
+returns [RichTextNode result]:
    sentence
    {
       $result = ($sentence.result);
@@ -1182,7 +1203,7 @@ returns [TextNode result]:
 
    | non_text_value
    {
-      $result = ValueToText.build(($non_text_value.result));
+      $result = ValueToRichText.build(($non_text_value.result));
    }
 ;
 catch [final Throwable e]
@@ -1198,7 +1219,7 @@ catch [final Throwable e]
 }
 
 sentence
-returns [TextNode result]
+returns [RichTextNode result]
 @init
 {
    final StringBuilder string_builder = new StringBuilder();
@@ -1218,17 +1239,31 @@ returns [TextNode result]
    )*
    {
       $result =
-         new Sentence
+         ValueToRichText.build
          (
-            CONTEXT.get_origin_at
+            Constant.build_string
             (
-               ($first_word.getLine()),
-               ($first_word.getCharPositionInLine())
-            ),
-            string_builder.toString()
+               CONTEXT.get_origin_at
+               (
+                  ($first_word.getLine()),
+                  ($first_word.getCharPositionInLine())
+               ),
+               string_builder.toString()
+            )
          );
    }
 ;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
 
 type
 returns [Type result]
