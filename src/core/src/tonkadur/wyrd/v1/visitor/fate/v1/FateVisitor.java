@@ -275,24 +275,6 @@ public abstract class FateVisitor implements NodeVisitor
       throw new UnhandledASTElementException();
    }
 
-   public void visit_sentence
-   (
-      final tonkadur.fate.v1.lang.valued_node.Sentence n
-   )
-   throws Throwable
-   {
-      throw new UnhandledASTElementException();
-   }
-
-   public void visit_space
-   (
-      final tonkadur.fate.v1.lang.valued_node.Space n
-   )
-   throws Throwable
-   {
-      throw new UnhandledASTElementException();
-   }
-
    public void visit_text_with_effect
    (
       final tonkadur.fate.v1.lang.valued_node.TextWithEffect n
@@ -302,9 +284,9 @@ public abstract class FateVisitor implements NodeVisitor
       throw new UnhandledASTElementException();
    }
 
-   public void visit_value_to_text
+   public void visit_value_to_rich_text
    (
-      final tonkadur.fate.v1.lang.valued_node.ValueToText n
+      final tonkadur.fate.v1.lang.valued_node.ValueToRichText n
    )
    throws Throwable
    {

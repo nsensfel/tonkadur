@@ -16,7 +16,7 @@ import tonkadur.fate.v1.lang.instruction.Display;
 import tonkadur.fate.v1.lang.instruction.InstructionList;
 
 import tonkadur.fate.v1.lang.valued_node.Cast;
-import tonkadur.fate.v1.lang.valued_node.ValueToText;
+import tonkadur.fate.v1.lang.valued_node.ValueToRichText;
 
 public class Macro extends DeclaredEntity
 {
@@ -104,12 +104,12 @@ public class Macro extends DeclaredEntity
 
       result = ((Display) instr).get_content();
 
-      if (!(result instanceof ValueToText))
+      if (!(result instanceof ValueToRichText))
       {
          return result;
       }
 
-      result = ((ValueToText) result).get_value();
+      result = ((ValueToRichText) result).get_value();
 
       if (!(result instanceof Cast))
       {
