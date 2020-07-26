@@ -6,10 +6,14 @@ import java.util.Collections;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
+import tonkadur.wyrd.v1.lang.meta.Instruction;
+
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
 import tonkadur.wyrd.v1.lang.computation.Ref;
+import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Size;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
@@ -64,15 +68,18 @@ public class BinarySearch
    {
       final List<Instruction> result, while_body;
       final Ref top, bot, midval;
+      final Type element_type;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
+      element_type = target.get_type();
+
       top = anonymous_variables.reserve(Type.INT);
       bot = anonymous_variables.reserve(Type.INT);
-      midval = anonymous_variables.reserve(target.get_type());
+      midval = anonymous_variables.reserve(element_type);
 
-      result.add(new SetValue(result_holder, Constant.FALSE));
+      result.add(new SetValue(result_was_found_holder, Constant.FALSE));
       result.add
       (
          new SetValue
@@ -100,7 +107,7 @@ public class BinarySearch
             result_index_holder,
             Operation.plus
             (
-               new ValueOf(bot)
+               new ValueOf(bot),
                new Cast
                (
                   Operation.divide
@@ -109,13 +116,13 @@ public class BinarySearch
                      (
                         Operation.minus
                         (
-                           new ValueOf(top)
+                           new ValueOf(top),
                            new ValueOf(bot)
-                        )
+                        ),
                         Type.FLOAT
                      ),
-                     2
-                  )
+                     new Constant(Type.FLOAT, "2.0")
+                  ),
                   Type.INT
                )
             )
@@ -134,7 +141,8 @@ public class BinarySearch
                   Collections.singletonList
                   (
                      new Cast(new ValueOf(result_index_holder), Type.STRING)
-                  )
+                  ),
+                  element_type
                )
             )
          )
@@ -179,7 +187,7 @@ public class BinarySearch
                   ),
                   Collections.singletonList
                   (
-                     new SetValue(result_holder, Constant.TRUE)
+                     new SetValue(result_was_found_holder, Constant.TRUE)
                   )
                )
             )
@@ -192,7 +200,7 @@ public class BinarySearch
          (
             Operation.and
             (
-               Operation.not(new ValueOf(result_holder)),
+               Operation.not(new ValueOf(result_was_found_holder)),
                Operation.less_equal_than
                (
                   new ValueOf(bot),

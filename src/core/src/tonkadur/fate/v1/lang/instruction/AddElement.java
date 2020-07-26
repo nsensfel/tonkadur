@@ -139,7 +139,7 @@ public class AddElement extends Instruction
 
    public Computation get_element ()
    {
-      return element
+      return element;
    }
 
    /**** Misc. ****************************************************************/

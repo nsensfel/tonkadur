@@ -32,7 +32,7 @@ public class VariableCompiler
          (
             fate_variable.get_name(),
             fate_variable.get_scope().toString(),
-            TypeCompiler.compile(fate_variable.get_type())
+            TypeCompiler.compile(fate_variable.get_type(), wyrd_world)
          );
 
       wyrd_world.add_variable(result);

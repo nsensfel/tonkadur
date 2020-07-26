@@ -1,4 +1,4 @@
-package tonkadur.wyrd.v1.lang.computation;
+package tonkadur.wyrd.v1.lang.instruction;
 
 import java.util.List;
 

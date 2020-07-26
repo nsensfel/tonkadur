@@ -1,8 +1,12 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
+import java.util.List;
+
 import tonkadur.error.Error;
 
 import tonkadur.wyrd.v1.lang.Sequence;
+
+import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.World;
 

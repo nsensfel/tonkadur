@@ -7,8 +7,15 @@ import java.util.ArrayList;
 
 import tonkadur.functional.Cons;
 
-import tonkadur.wyrd.v1.lang.Type;
 import tonkadur.wyrd.v1.lang.Variable;
+
+import tonkadur.wyrd.v1.lang.meta.Computation;
+
+import tonkadur.wyrd.v1.lang.computation.Ref;
+import tonkadur.wyrd.v1.lang.computation.Constant;
+
+import tonkadur.wyrd.v1.lang.type.Type;
+
 
 public class AnonymousVariableManager
 {
@@ -46,7 +53,7 @@ public class AnonymousVariableManager
          {
             result = entry.get_cdr().get_ref();
 
-            entry.set_cdr(Boolean.TRUE);
+            entry.set_car(Boolean.TRUE);
 
             return result;
          }
@@ -67,9 +74,19 @@ public class AnonymousVariableManager
 
    public void release (final Ref r)
    {
+      final Computation c;
       final String name;
 
-      name = r.get_accesses().get(0).get_as_string();
+      c = r.get_accesses().get(0);
+
+      if (!(c instanceof Constant))
+      {
+         /* TODO: error */
+
+         return;
+      }
+
+      name = ((Constant) c).get_as_string();
 
       by_name.get(name).set_car(Boolean.FALSE);
    }

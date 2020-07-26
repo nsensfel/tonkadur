@@ -1,5 +1,8 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import tonkadur.error.Error;
 
 import tonkadur.wyrd.v1.lang.type.*;
@@ -46,27 +49,27 @@ public class TypeCompiler
 
       fate_type = fate_type.get_base_type();
 
-      if (fate_type.equals(tonkadur.fate.v1.lang.type.BOOLEAN))
+      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.BOOLEAN))
       {
          return Type.BOOLEAN;
       }
 
-      if (fate_type.equals(tonkadur.fate.v1.lang.type.FLOAT))
+      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.FLOAT))
       {
          return Type.FLOAT;
       }
 
-      if (fate_type.equals(tonkadur.fate.v1.lang.type.INT))
+      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.INT))
       {
          return Type.INT;
       }
 
-      if (fate_type.equals(tonkadur.fate.v1.lang.type.RICH_TEXT))
+      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.RICH_TEXT))
       {
          return Type.RICH_TEXT;
       }
 
-      if (fate_type.equals(tonkadur.fate.v1.lang.type.STRING))
+      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.STRING))
       {
          return Type.STRING;
       }
@@ -122,22 +125,22 @@ public class TypeCompiler
       fate_content_type =
          fate_collection_type.get_content_type().get_base_type();
 
-      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.BOOLEAN))
+      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.BOOLEAN))
       {
          return MapType.MAP_TO_BOOLEAN;
       }
 
-      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.FLOAT))
+      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.FLOAT))
       {
          return MapType.MAP_TO_FLOAT;
       }
 
-      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.INT))
+      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.INT))
       {
          return MapType.MAP_TO_INT;
       }
 
-      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.STRING))
+      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.STRING))
       {
          return MapType.MAP_TO_STRING;
       }

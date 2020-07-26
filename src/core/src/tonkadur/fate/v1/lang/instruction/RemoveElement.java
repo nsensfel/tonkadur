@@ -132,6 +132,16 @@ public class RemoveElement extends Instruction
       nv.visit_remove_element(this);
    }
 
+   public Computation get_element ()
+   {
+      return element;
+   }
+
+   public Computation get_collection ()
+   {
+      return collection;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

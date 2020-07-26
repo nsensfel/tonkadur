@@ -1,6 +1,11 @@
 package tonkadur.wyrd.v1.lang;
 
+import java.util.Collections;
+
 import tonkadur.wyrd.v1.lang.type.Type;
+
+import tonkadur.wyrd.v1.lang.computation.Constant;
+import tonkadur.wyrd.v1.lang.computation.Ref;
 
 public class Variable
 {

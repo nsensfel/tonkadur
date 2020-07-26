@@ -110,6 +110,16 @@ public class SetValue extends Instruction
       nv.visit_set_value(this);
    }
 
+   public Computation get_value ()
+   {
+      return element;
+   }
+
+   public Computation get_reference ()
+   {
+      return value_reference;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

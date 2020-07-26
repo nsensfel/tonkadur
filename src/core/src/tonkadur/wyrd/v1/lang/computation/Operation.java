@@ -13,7 +13,7 @@ public class Operation extends Computation
    public static final String MINUS = "minus";
    public static final String PLUS = "plus";
    public static final String POWER = "power";
-   public static final String RANDOM = "rand";
+   public static final String RAND = "rand";
    public static final String TIMES = "times";
 
    /* Logic operations ********************************************************/

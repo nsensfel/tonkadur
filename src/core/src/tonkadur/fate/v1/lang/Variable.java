@@ -76,6 +76,11 @@ public class Variable extends DeclaredEntity
       return type;
    }
 
+   public VariableScope get_scope ()
+   {
+      return scope;
+   }
+
    @Override
    public DeclaredEntity generate_comparable_to (final DeclaredEntity de)
    {
