@@ -7,6 +7,7 @@ import java.util.Collections;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Instruction;
+import tonkadur.wyrd.v1.lang.meta.Computation;
 
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
@@ -22,64 +23,82 @@ import tonkadur.wyrd.v1.lang.instruction.While;
 
 public class BinarySearch
 {
+
+   /* Utility Class */
+   private BinarySearch () {}
+
    /*
-      (set .found false)
-      (declare_variable local int .top)
-      (set .top (- (size collection) 1))
-      (declare_variable local int .bot)
-      (set .bot 0)
-      (declare_variable local int .mid)
-      (declare_variable local <element.type> .midval)
-      (while (and (not (var .found)) (<= (variable .bot) (variable .top)))
-         (set .mid
-            (+
-               (variable .bot)
-               (cast float int
-                  (/
-                     (cast int float (- (variable .top) (variable .bot)))
-                     2.0
-                  )
-               )
-            )
-         )
-         (set .midval
-            (value_of
-               (relative_ref collection ( (cast int string .mid) ))
-            )
-         )
-         (ifelse (< (variable .midval) (variable .anon1))
-            (set .bot (+ (var .mid) 1))
-            (ifelse (> (var .midval) (variable .anon1))
-               (set .top (- (var .mid) 1))
-               (set .found true)
-            )
-         )
-      )
-   */
+    * (Computation <E> element)
+    * (declare_variable global <List E> collection)
+    * (Computation int collection_size)
+    * (declare_variable global boolean result_found)
+    * (declare_variable global index result_index)
+    *
+    * (declare_variable int .bot)
+    * (declare_variable int .top)
+    * (declare_variable <E> .midval)
+    *
+    * (set result_found false)
+    * (set .bot 0)
+    * (set .top (- collection_size 1))
+    *
+    * (while (and (not (var result_found)) (<= (var .bot) (var .top)))
+    *    (set result_index
+    *       (+
+    *          (var .bot)
+    *          (cast int
+    *             (/
+    *                (cast float
+    *                   (- (var .top) (var .bot))
+    *                )
+    *                2.0
+    *             )
+    *          )
+    *       )
+    *    )
+    *    (set .midval (var collection[.result_index]))
+    *    (ifelse (< (var .midval) element)
+    *       (set .bot (+ (var result_index) 1))
+    *       (ifelse (> (var .midval) element)
+    *          (set .top (- (var result_index) 1))
+    *          (set result_found true)
+    *       )
+    *    )
+    * )
+    */
    public static List<Instruction> generate
    (
       final AnonymousVariableManager anonymous_variables,
-      final Ref target,
+      final Computation target,
       final Ref collection,
-      final Ref collection_size_or_null,
-      final Ref result_was_found_holder,
-      final Ref result_index_holder
+      final Computation collection_size,
+      final Ref result_was_found,
+      final Ref result_index
    )
    {
       final List<Instruction> result, while_body;
-      final Ref top, bot, midval;
+      final Ref bot, top, midval;
       final Type element_type;
+      final Computation value_of_result_index;
+      final Computation value_of_bot, value_of_top, value_of_midval;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
       element_type = target.get_type();
 
-      top = anonymous_variables.reserve(Type.INT);
       bot = anonymous_variables.reserve(Type.INT);
+      top = anonymous_variables.reserve(Type.INT);
       midval = anonymous_variables.reserve(element_type);
 
-      result.add(new SetValue(result_was_found_holder, Constant.FALSE));
+      value_of_result_index = new ValueOf(result_index);
+
+      value_of_bot = new ValueOf(bot);
+      value_of_top = new ValueOf(top);
+      value_of_midval = new ValueOf(midval);
+
+      result.add(new SetValue(result_was_found, Constant.FALSE));
+      result.add(new SetValue(bot, new Constant(Type.INT, "0")));
       result.add
       (
          new SetValue
@@ -87,38 +106,42 @@ public class BinarySearch
             top,
             Operation.minus
             (
-               (
-                  (collection_size_or_null == null) ?
-                  new Size(collection) : new ValueOf(collection_size_or_null)
-               ),
+               collection_size,
                new Constant(Type.INT, "1")
             )
          )
       );
-      result.add
-      (
-         new SetValue(bot, new Constant(Type.INT, "0"))
-      );
 
+      /*
+       *    (set result_index
+       *       (+
+       *          (var .bot)
+       *          (cast int
+       *             (/
+       *                (cast float
+       *                   (- (var .top) (var .bot))
+       *                )
+       *                2.0
+       *             )
+       *          )
+       *       )
+       *    )
+       */
       while_body.add
       (
          new SetValue
          (
-            result_index_holder,
+            result_index,
             Operation.plus
             (
-               new ValueOf(bot),
+               value_of_bot,
                new Cast
                (
                   Operation.divide
                   (
                      new Cast
                      (
-                        Operation.minus
-                        (
-                           new ValueOf(top),
-                           new ValueOf(bot)
-                        ),
+                        Operation.minus(value_of_top, value_of_bot),
                         Type.FLOAT
                      ),
                      new Constant(Type.FLOAT, "2.0")
@@ -128,6 +151,8 @@ public class BinarySearch
             )
          )
       );
+
+      /* (set .midval (var collection[.result_index])) */
       while_body.add
       (
          new SetValue
@@ -140,18 +165,28 @@ public class BinarySearch
                   collection,
                   Collections.singletonList
                   (
-                     new Cast(new ValueOf(result_index_holder), Type.STRING)
+                     new Cast(value_of_result_index, Type.STRING)
                   ),
                   element_type
                )
             )
          )
       );
+
+      /*
+       *    (ifelse (< (var .midval) element)
+       *       (set .bot (+ (var result_index) 1))
+       *       (ifelse (> (var .midval) element)
+       *          (set .top (- (var result_index) 1))
+       *          (set result_found true)
+       *       )
+       *    )
+       */
       while_body.add
       (
          new IfElseInstruction
          (
-            Operation.less_than(new ValueOf(midval), new ValueOf(target)),
+            Operation.less_than(value_of_midval, target),
             Collections.singletonList
             (
                new SetValue
@@ -159,7 +194,7 @@ public class BinarySearch
                   bot,
                   Operation.plus
                   (
-                     new ValueOf(result_index_holder),
+                     value_of_result_index,
                      new Constant(Type.INT, "1")
                   )
                )
@@ -168,11 +203,7 @@ public class BinarySearch
             (
                new IfElseInstruction
                (
-                  Operation.greater_than
-                  (
-                     new ValueOf(midval),
-                     new ValueOf(target)
-                  ),
+                  Operation.greater_than(value_of_midval, target),
                   Collections.singletonList
                   (
                      new SetValue
@@ -180,14 +211,14 @@ public class BinarySearch
                         top,
                         Operation.minus
                         (
-                           new ValueOf(result_index_holder),
+                           value_of_result_index,
                            new Constant(Type.INT, "1")
                         )
                      )
                   ),
                   Collections.singletonList
                   (
-                     new SetValue(result_was_found_holder, Constant.TRUE)
+                     new SetValue(result_was_found, Constant.TRUE)
                   )
                )
             )
@@ -200,19 +231,15 @@ public class BinarySearch
          (
             Operation.and
             (
-               Operation.not(new ValueOf(result_was_found_holder)),
-               Operation.less_equal_than
-               (
-                  new ValueOf(bot),
-                  new ValueOf(top)
-               )
+               Operation.not(new ValueOf(result_was_found)),
+               Operation.less_equal_than(value_of_bot, value_of_top)
             ),
             while_body
          )
       );
 
-      anonymous_variables.release(top);
       anonymous_variables.release(bot);
+      anonymous_variables.release(top);
       anonymous_variables.release(midval);
 
       return result;

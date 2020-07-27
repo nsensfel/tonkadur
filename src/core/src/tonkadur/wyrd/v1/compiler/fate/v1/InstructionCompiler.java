@@ -132,13 +132,7 @@ public class InstructionCompiler extends FateVisitor
        * <binary_search .anon0 collection .found .index>
        * (ifelse (var .found)
        *    (nop)
-       *    (set .end (size collection))
-       *
-       *    (while (> .index .end)
-       *       (set .next (- (val .end) 1))
-       *       (set collection[.index] collection[.next])
-       *       (set .end (val .next))
-       *    )
+       *    <insert_at ...>
        * )
        */
       final Ref element_as_ref, collection_as_ref, collection_size_as_ref;
@@ -414,6 +408,11 @@ public class InstructionCompiler extends FateVisitor
    public void visit_assert (final tonkadur.fate.v1.lang.instruction.Assert a)
    throws Throwable
    {
+      /*
+       * Fate: (assert Computation)
+       *
+       * Wyrd: (assert Computation)
+       */
       final ComputationCompiler cc;
 
       cc = new_computation_compiler();
@@ -430,6 +429,12 @@ public class InstructionCompiler extends FateVisitor
    public void visit_clear (final tonkadur.fate.v1.lang.instruction.Clear c)
    throws Throwable
    {
+      /*
+       * Fate: (clear collection)
+       *
+       * Wyrd:
+       *    <clear collection>
+       */
       final ComputationCompiler reference_compiler;
       final Ref iterator, collection_ref;
       final List<Instruction> while_body;
@@ -497,6 +502,26 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate:
+       *    (cond
+       *       (c0 i0)
+       *       (... ...)
+       *       (cn in)
+       *    )
+       *
+       * Wyrd:
+       *    (ifelse c0
+       *       i0
+       *       (ifelse ...
+       *          ...
+       *          (ifelse cn
+       *             in
+       *             (nop)
+       *          )
+       *       )
+       *    )
+       */
       InstructionCompiler ic;
       ComputationCompiler cc;
       List<Instruction> previous_else_branch;
@@ -546,6 +571,11 @@ public class InstructionCompiler extends FateVisitor
    public void visit_display (final tonkadur.fate.v1.lang.instruction.Display n)
    throws Throwable
    {
+      /*
+       * Fate: (display Computation)
+       *
+       * Wyrd: (display Computation)
+       */
       final ComputationCompiler cc;
 
       cc = new_computation_compiler();
@@ -565,6 +595,11 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate: (event_call <string> c0 ... cn)
+       *
+       * Wyrd (event_call <string> c0 ... cn)
+       */
       final List<ComputationCompiler> cc_list;
       final List<Computation> parameters;
 
@@ -607,6 +642,11 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate: (ifelse c0 i0 i1)
+       *
+       * Wyrd (ifelse c0 i0 i1)
+       */
       final ComputationCompiler cc;
       final InstructionCompiler if_true_ic;
       final InstructionCompiler if_false_ic;
@@ -640,6 +680,11 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate: (ifelse c0 i0 i1)
+       *
+       * Wyrd (ifelse c0 i0 (nop))
+       */
       final ComputationCompiler cc;
       final InstructionCompiler if_true_ic;
 
@@ -670,6 +715,11 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate: i0 ... in
+       *
+       * Wyrd i0 ... in
+       */
       for
       (
          final tonkadur.fate.v1.lang.meta.Instruction fate_instruction:
@@ -693,6 +743,11 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate: (macro <string> c0 ... cn)
+       *
+       * Wyrd <content of macro with c0 ... cn>
+       */
       final tonkadur.fate.v1.lang.meta.Instruction fate_macro_root;
       final List<ComputationCompiler> cc_list;
       final List<Computation> parameters;
@@ -738,6 +793,11 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate: (player_choice label i0)
+       *
+       * Wyrd (add_choice label i0)
+       */
       final ComputationCompiler cc;
       final InstructionCompiler ic;
 
@@ -769,6 +829,15 @@ public class InstructionCompiler extends FateVisitor
    )
    throws Throwable
    {
+      /*
+       * Fate: (player_choice_list i0 ... in)
+       *
+       * Wyrd:
+       *    i0
+       *    ...
+       *    in
+       *    (resolve_choices)
+       */
       for
       (
          final tonkadur.fate.v1.lang.meta.Instruction fate_instruction:
