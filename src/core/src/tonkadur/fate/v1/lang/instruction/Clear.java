@@ -9,7 +9,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
 
@@ -67,10 +67,10 @@ public class Clear extends Instruction
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      nv.visit_clear(this);
+      iv.visit_clear(this);
    }
 
    public Computation get_collection ()

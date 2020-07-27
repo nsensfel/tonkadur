@@ -22,10 +22,10 @@ import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.lang.instruction.While;
 
-public class RemoveAll
+public class RemoveAllOf
 {
    /* Utility Class */
-   private RemoveAll () {}
+   private RemoveAllOf () {}
 
    /*
     * (Computation <E> element)

@@ -11,9 +11,10 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 
 public class RemoveAllOfElement extends Instruction
 {
@@ -21,7 +22,7 @@ public class RemoveAllOfElement extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation element;
-   protected final Computation collection;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -31,7 +32,7 @@ public class RemoveAllOfElement extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Computation collection
+      final Reference collection
    )
    {
       super(origin);
@@ -48,7 +49,7 @@ public class RemoveAllOfElement extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Computation collection
+      final Reference collection
    )
    throws
       InvalidTypeException,
@@ -126,10 +127,20 @@ public class RemoveAllOfElement extends Instruction
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      nv.visit_remove_all_of_element(this);
+      iv.visit_remove_all_of_element(this);
+   }
+
+   public Computation get_element ()
+   {
+      return element;
+   }
+
+   public Reference get_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/

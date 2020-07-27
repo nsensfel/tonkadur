@@ -10,7 +10,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
 
@@ -69,10 +69,10 @@ public class IfInstruction extends Instruction
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      nv.visit_if_instruction(this);
+      iv.visit_if_instruction(this);
    }
 
    public Computation get_condition ()

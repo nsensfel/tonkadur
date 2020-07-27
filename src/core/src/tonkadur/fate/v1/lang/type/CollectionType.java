@@ -59,6 +59,11 @@ public class CollectionType extends Type
       return content_type;
    }
 
+   public boolean is_set ()
+   {
+      return is_set;
+   }
+
    /**** Compatibility ********************************************************/
    @Override
    public boolean can_be_used_as (final Type t)

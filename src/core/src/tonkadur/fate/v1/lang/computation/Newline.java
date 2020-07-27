@@ -2,7 +2,7 @@ package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
 
 public class Newline extends RichTextNode
@@ -18,10 +18,10 @@ public class Newline extends RichTextNode
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_newline(this);
+      cv.visit_newline(this);
    }
 
    /**** Misc. ****************************************************************/

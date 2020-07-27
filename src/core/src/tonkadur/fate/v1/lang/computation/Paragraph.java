@@ -4,7 +4,7 @@ import java.util.List;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
 
 public class Paragraph extends RichTextNode
@@ -36,10 +36,10 @@ public class Paragraph extends RichTextNode
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_paragraph(this);
+      cv.visit_paragraph(this);
    }
 
    public List<RichTextNode> get_content ()

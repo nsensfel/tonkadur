@@ -10,7 +10,7 @@ import tonkadur.error.ErrorManager;
 import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 
 import tonkadur.fate.v1.lang.type.DictType;
@@ -116,10 +116,10 @@ public class FieldReference extends Reference
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_field_reference(this);
+      cv.visit_field_reference(this);
    }
 
    public String get_field_name ()

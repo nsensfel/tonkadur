@@ -19,7 +19,7 @@ import tonkadur.fate.v1.lang.Macro;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 
 public class MacroValueCall extends Computation
@@ -150,10 +150,10 @@ public class MacroValueCall extends Computation
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_macro_value_call(this);
+      cv.visit_macro_value_call(this);
    }
 
    public Macro get_macro ()

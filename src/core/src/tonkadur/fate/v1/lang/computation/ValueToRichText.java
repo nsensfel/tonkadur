@@ -7,7 +7,7 @@ import tonkadur.fate.v1.error.IncomparableTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 
@@ -62,10 +62,10 @@ public class ValueToRichText extends RichTextNode
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_value_to_rich_text(this);
+      cv.visit_value_to_rich_text(this);
    }
 
    public Computation get_value ()

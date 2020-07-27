@@ -2,7 +2,7 @@ package tonkadur.fate.v1.lang.instruction;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
 public class SequenceCall extends Instruction
@@ -25,10 +25,10 @@ public class SequenceCall extends Instruction
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      nv.visit_sequence_call(this);
+      iv.visit_sequence_call(this);
    }
 
    public String get_sequence_name ()

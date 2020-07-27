@@ -4,7 +4,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.type.RefType;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.Computation;
 
@@ -32,10 +32,10 @@ public class RefOperator extends Computation
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_ref_operator(this);
+      cv.visit_ref_operator(this);
    }
 
    /**** Misc. ****************************************************************/

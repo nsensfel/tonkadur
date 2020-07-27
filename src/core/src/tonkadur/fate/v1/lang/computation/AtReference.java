@@ -11,7 +11,7 @@ import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
 
 import tonkadur.fate.v1.lang.Variable;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 
 import tonkadur.fate.v1.lang.type.RefType;
@@ -81,10 +81,10 @@ public class AtReference extends Reference
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_at_reference(this);
+      cv.visit_at_reference(this);
    }
 
    public Reference get_parent ()

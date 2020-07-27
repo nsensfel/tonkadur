@@ -29,8 +29,8 @@ public class BinarySearch
 
    /*
     * (Computation <E> element)
-    * (declare_variable global <List E> collection)
     * (Computation int collection_size)
+    * (declare_variable global <List E> collection)
     * (declare_variable global boolean result_found)
     * (declare_variable global index result_index)
     *
@@ -70,8 +70,8 @@ public class BinarySearch
    (
       final AnonymousVariableManager anonymous_variables,
       final Computation target,
-      final Ref collection,
       final Computation collection_size,
+      final Ref collection,
       final Ref result_was_found,
       final Ref result_index
    )

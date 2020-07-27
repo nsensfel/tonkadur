@@ -39,6 +39,11 @@ public class World
       global_instructions = new ArrayList<Instruction>();
    }
 
+   public void add_required_extension (final String name)
+   {
+      required_extensions.add(name);
+   }
+
    public DictType get_dict_type (final String name)
    {
       return dict_types.get(name);

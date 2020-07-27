@@ -26,6 +26,12 @@ public abstract class Computation extends Node
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Accessors ************************************************************/
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+
+   }
+
    public Type get_type ()
    {
       return type;

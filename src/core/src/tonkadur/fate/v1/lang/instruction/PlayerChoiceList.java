@@ -4,7 +4,7 @@ import java.util.List;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
 public class PlayerChoiceList extends Instruction
@@ -31,10 +31,10 @@ public class PlayerChoiceList extends Instruction
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      nv.visit_player_choice_list(this);
+      iv.visit_player_choice_list(this);
    }
 
    public List<Instruction> get_choices ()

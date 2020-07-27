@@ -22,12 +22,6 @@ public abstract class Node
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Accessors ************************************************************/
-   public void visit (final NodeVisitor nv)
-   throws Throwable
-   {
-
-   }
-
    public Origin get_origin ()
    {
       return origin;

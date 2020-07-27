@@ -33,13 +33,19 @@ import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
 import tonkadur.wyrd.v1.lang.instruction.NOP;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.ResolveChoices;
+import tonkadur.wyrd.v1.lang.instruction.SequenceCall;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.lang.instruction.While;
 
-import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.AnonymousVariableManager;
+import tonkadur.wyrd.v1.compiler.util.BinarySearch;
+import tonkadur.wyrd.v1.compiler.util.InsertAt;
+import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
+import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
+import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 
-public class InstructionCompiler extends FateVisitor
+public class InstructionCompiler
+implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 {
    protected final AnonymousVariableManager anonymous_variables;
    protected final World wyrd_world;
@@ -78,14 +84,18 @@ public class InstructionCompiler extends FateVisitor
       return result;
    }
 
-   protected ComputationCompiler new_computation_compiler ()
+   protected ComputationCompiler new_computation_compiler
+   (
+      final boolean expect_ref
+   )
    {
       return
          new ComputationCompiler
          (
             macro_manager,
             anonymous_variables,
-            wyrd_world
+            wyrd_world,
+            expect_ref
          );
    }
 
@@ -135,16 +145,16 @@ public class InstructionCompiler extends FateVisitor
        *    <insert_at ...>
        * )
        */
+      /*
       final Ref element_as_ref, collection_as_ref, collection_size_as_ref;
       final Ref element_found, element_index, collection_size, next_index;
       final ComputationCompiler element_compiler, reference_compiler;
       final Type element_type;
       final List<Instruction> while_body, else_branch;
 
-      /**** Getting the Element as a ref ****/
-      element_compiler = new_computation_compiler();
+      element_compiler = new_computation_compiler(false);
 
-      ae.get_element().visit(element_compiler);
+      ae.get_element().get_visited_by(element_compiler);
 
       result.addAll(element_compiler.get_pre_instructions());
 
@@ -157,21 +167,14 @@ public class InstructionCompiler extends FateVisitor
          new SetValue(element_as_ref, element_compiler.get_computation())
       );
 
-      /**** Getting the Collection as a ref ****/
-      reference_compiler = new_computation_compiler();
+      reference_compiler = new_computation_compiler(true);
 
-      ae.get_collection().visit(reference_compiler);
+      ae.get_collection().get_visited_by(reference_compiler);
 
       result.addAll(reference_compiler.get_pre_instructions());
 
-      if (!(reference_compiler.get_computation() instanceof Ref))
-      {
-         /* TODO: error. */
-      }
+      collection_as_ref = reference_compiler.get_ref();
 
-      collection_as_ref = (Ref) reference_compiler.get_computation();
-
-      /**** Finding the element in the collection ****/
       element_found = anonymous_variable.reserve(Type.BOOLEAN);
       element_index = anonymous_variable.reserve(Type.INT);
       collection_size = anonymous_variable.reserve(Type.INT);
@@ -309,6 +312,7 @@ public class InstructionCompiler extends FateVisitor
 
       reference_compiler.free_anonymous_variables();
       element_compiler.free_anonymous_variables();
+      */
    }
 
    protected void add_element_to_list
@@ -330,20 +334,15 @@ public class InstructionCompiler extends FateVisitor
       final Ref collection_as_ref;
       final ComputationCompiler element_compiler, reference_compiler;
 
-      element_compiler = new_computation_compiler();
+      element_compiler = new_computation_compiler(false);
 
-      ae.get_element().visit(element_compiler);
+      ae.get_element().get_visited_by(element_compiler);
 
-      reference_compiler = new_computation_compiler();
+      reference_compiler = new_computation_compiler(true);
 
-      ae.get_collection().visit(reference_compiler);
+      ae.get_collection().get_visited_by(reference_compiler);
 
-      if (!(reference_compiler.get_computation() instanceof Ref))
-      {
-         /* TODO: error. */
-      }
-
-      collection_as_ref = (Ref) reference_compiler.get_computation();
+      collection_as_ref = reference_compiler.get_ref();
 
       result.addAll(reference_compiler.get_pre_instructions());
       result.addAll(element_compiler.get_pre_instructions());
@@ -358,10 +357,11 @@ public class InstructionCompiler extends FateVisitor
                (
                   new Cast
                   (
-                     new Size(reference_compiler.get_computation()),
+                     new Size(collection_as_ref),
                      Type.STRING
                   )
-               )
+               ),
+               element_compiler.get_computation().get_type()
             ),
             element_compiler.get_computation()
          )
@@ -415,9 +415,9 @@ public class InstructionCompiler extends FateVisitor
        */
       final ComputationCompiler cc;
 
-      cc = new_computation_compiler();
+      cc = new_computation_compiler(false);
 
-      a.get_condition().visit(cc);
+      a.get_condition().get_visited_by(cc);
 
       result.addAll(cc.get_pre_instructions());
       result.add(new Assert(cc.get_computation()));
@@ -435,24 +435,20 @@ public class InstructionCompiler extends FateVisitor
        * Wyrd:
        *    <clear collection>
        */
+      /*
       final ComputationCompiler reference_compiler;
       final Ref iterator, collection_ref;
       final List<Instruction> while_body;
 
-      reference_compiler = new_computation_compiler();
+      reference_compiler = new_computation_compiler(true);
 
-      c.get_collection().visit(reference_compiler);
+      c.get_collection().get_visited_by(reference_compiler);
 
       result.addAll(reference_compiler.get_pre_instructions());
 
       iterator = anonymous_variables.reserve(Type.INT);
 
-      if (!(reference_compiler.get_computation() instanceof Ref))
-      {
-         /* TODO: error. */
-      }
-
-      collection_ref = (Ref) reference_compiler.get_computation();
+      collection_ref = reference_compiler.get_ref();
 
       while_body.add
       (
@@ -493,6 +489,7 @@ public class InstructionCompiler extends FateVisitor
 
       anonymous_variables.release(iterator);
       reference_compiler.free_anonymous_variables();
+      */
    }
 
    @Override
@@ -527,7 +524,7 @@ public class InstructionCompiler extends FateVisitor
       List<Instruction> previous_else_branch;
       List<Instruction> current_else_branch;
 
-      previous_else_branch = results;
+      previous_else_branch = result;
 
       for
       (
@@ -544,9 +541,9 @@ public class InstructionCompiler extends FateVisitor
          current_else_branch = new ArrayList<Instruction>();
 
          ic = new_instruction_compiler();
-         cc = new_computation_compiler();
+         cc = new_computation_compiler(false);
 
-         branch.get_car().visit(cc);
+         branch.get_car().get_visited_by(cc);
 
          previous_else_branch.addAll(cc.get_pre_instructions());
          previous_else_branch.add
@@ -564,7 +561,7 @@ public class InstructionCompiler extends FateVisitor
          cc.free_anonymous_variables();
       }
 
-      previous_else_branch.add(Collections.singleton(new NOP()));
+      previous_else_branch.add(new NOP());
    }
 
    @Override
@@ -578,12 +575,12 @@ public class InstructionCompiler extends FateVisitor
        */
       final ComputationCompiler cc;
 
-      cc = new_computation_compiler();
+      cc = new_computation_compiler(false);
 
-      n.get_content.visit(cc);
+      n.get_content().get_visited_by(cc);
 
       result.addAll(cc.get_pre_instructions());
-      result.add(new Display(cc.get_computation()));
+      result.add(new Display(Collections.singletonList(cc.get_computation())));
 
       cc.free_anonymous_variables();
    }
@@ -614,9 +611,9 @@ public class InstructionCompiler extends FateVisitor
       {
          final ComputationCompiler cc;
 
-         cc = new_computation_compiler();
+         cc = new_computation_compiler(false);
 
-         fate_computation.visit(cc);
+         fate_computation.get_visited_by(cc);
 
          result.addAll(cc.get_pre_instructions());
 
@@ -624,10 +621,7 @@ public class InstructionCompiler extends FateVisitor
          parameters.add(cc.get_computation());
       }
 
-      result.add
-      (
-         new EventCall(n.get_event().get_name(), cc.get_computation())
-      );
+      result.add(new EventCall(n.get_event().get_name(), parameters));
 
       for (final ComputationCompiler cc: cc_list)
       {
@@ -651,13 +645,13 @@ public class InstructionCompiler extends FateVisitor
       final InstructionCompiler if_true_ic;
       final InstructionCompiler if_false_ic;
 
-      cc = new_computation_compiler();
+      cc = new_computation_compiler(false);
       if_true_ic = new_instruction_compiler();
       if_false_ic = new_instruction_compiler();
 
-      n.get_condition.visit(cc);
-      n.get_if_true().visit(if_true_ic);
-      n.get_if_false().visit(if_false_ic);
+      n.get_condition().get_visited_by(cc);
+      n.get_if_true().get_visited_by(if_true_ic);
+      n.get_if_false().get_visited_by(if_false_ic);
 
       result.addAll(cc.get_pre_instructions());
       result.add
@@ -688,11 +682,11 @@ public class InstructionCompiler extends FateVisitor
       final ComputationCompiler cc;
       final InstructionCompiler if_true_ic;
 
-      cc = new_computation_compiler();
+      cc = new_computation_compiler(false);
       if_true_ic = new_instruction_compiler();
 
-      n.get_condition.visit(cc);
-      n.get_if_true().visit(if_true_ic);
+      n.get_condition().get_visited_by(cc);
+      n.get_if_true().get_visited_by(if_true_ic);
 
       result.addAll(cc.get_pre_instructions());
       result.add
@@ -723,14 +717,14 @@ public class InstructionCompiler extends FateVisitor
       for
       (
          final tonkadur.fate.v1.lang.meta.Instruction fate_instruction:
-            n.get_content()
+            n.get_instructions()
       )
       {
          final InstructionCompiler ic;
 
          ic = new_instruction_compiler();
 
-         fate_instruction.visit(ic);
+         fate_instruction.get_visited_by(ic);
 
          result.addAll(ic.get_result());
       }
@@ -748,12 +742,11 @@ public class InstructionCompiler extends FateVisitor
        *
        * Wyrd <content of macro with c0 ... cn>
        */
-      final tonkadur.fate.v1.lang.meta.Instruction fate_macro_root;
       final List<ComputationCompiler> cc_list;
-      final List<Computation> parameters;
+      final List<Ref> parameters;
 
       cc_list = new ArrayList<ComputationCompiler>();
-      parameters = new ArrayList<Computation>();
+      parameters = new ArrayList<Ref>();
 
       for
       (
@@ -763,27 +756,24 @@ public class InstructionCompiler extends FateVisitor
       {
          final ComputationCompiler cc;
 
-         cc = new_computation_compiler();
+         cc = new_computation_compiler(true);
 
-         fate_computation.visit(cc);
+         fate_computation.get_visited_by(cc);
 
          result.addAll(cc.get_pre_instructions());
 
          cc_list.add(cc);
-         parameters.add(cc.get_computation());
+         parameters.add(cc.get_ref());
       }
 
-      fate_macro_root =
-         macro_manager.push_context(n.get_name(), cc.get_computation());
-
-      fate_macro_root.visit(this);
+      macro_manager.push(n.get_macro(), parameters);
+      n.get_macro().get_root().get_visited_by(this);
+      macro_manager.pop();
 
       for (final ComputationCompiler cc: cc_list)
       {
          cc.free_anonymous_variables();
       }
-
-      macro_manager.pop_context();
    }
 
    @Override
@@ -801,10 +791,10 @@ public class InstructionCompiler extends FateVisitor
       final ComputationCompiler cc;
       final InstructionCompiler ic;
 
-      cc = new_computation_compiler();
+      cc = new_computation_compiler(false);
       ic = new_instruction_compiler();
 
-      n.get_text().visit(cc);
+      n.get_text().get_visited_by(cc);
 
       result.addAll(cc.get_pre_instructions());
 
@@ -814,7 +804,7 @@ public class InstructionCompiler extends FateVisitor
             n.get_effects()
       )
       {
-         fate_instruction.visit(ic);
+         fate_instruction.get_visited_by(ic);
       }
 
       result.add(new AddChoice(cc.get_computation(), ic.get_result()));
@@ -844,10 +834,10 @@ public class InstructionCompiler extends FateVisitor
             n.get_choices()
       )
       {
-         fate_instruction.visit(this);
+         fate_instruction.get_visited_by(this);
       }
 
-      fate_instruction.add(new ResolveChoices());
+      result.add(new ResolveChoices());
    }
 
    @Override
@@ -862,228 +852,121 @@ public class InstructionCompiler extends FateVisitor
        * (remove_all_of element collection)
        *
        * Wyrd:
-       * (declare_variable int .index)
-       * (declare_variable int .limit)
        * (declare_variable <element_type> .elem)
-       * (declare_variable int .found)
-       * (set .index 0)
-       * (set .limit (- (size collection) 1))
-       * (set .elem element) ;; avoid re-computing element
-       * (set .found 0)
-       * (while (< .index .limit)
-       *    (ifelse (= (var .found) 0)
-       *       (
-       *          (nop)
-       *       )
-       *       (
-       *          (ifelse (= (var .elem) (var collection[.index]))
-       *             (set .found (+ (var .found) 1))
-       *             (nop)
-       *          )
-       *          (set
-       *             collection[.index]
-       *             (var collection[(+ (var .index) (var .found))])
-       *          )
-       *       )
+       * (declare_variable int .collection_size)
+       *
+       * (set .elem element)
+       * (set .collection_size (size collection))
+       *
+       * <if collection is a list:
+       *    <remove_all (var .elem) (var .collection_size) collection>
+       * >
+       * <if collection is a set:
+       *    (declare_variable bool .found)
+       *    (declare_variable int .index)
+       *
+       *    <binary_search
+       *       (var .elem)
+       *       (var .collection_size)
+       *       collection
+       *       .found
+       *       .index
+       *    >
+       *    (ifelse (var .found)
+       *       <remove_at (var .index) (var .collection_size) collection>
+       *       (nop)
        *    )
-       *    (set .index (+ (var .index) 1))
-       * )
-       * (while (> (var .found) 0)
-       *    (set .found (- (var .found) 1))
-       *    (remove collection[(- (var .limit) (var .found))])
-       * )
+       * >
        */
       final ComputationCompiler elem_cc, collection_cc;
-      final Ref index, limit, elem, found;
-      final Ref collection_as_ref;
-      final List<Instruction> while_body, while_body2, if_false_body;
+      final Ref elem, collection_size, collection;
 
-      elem_cc = new_computation_compiler();
-      collection_cc = new_computation_compiler();
+      elem_cc = new_computation_compiler(false);
+      collection_cc = new_computation_compiler(true);
 
-      while_body = new ArrayList<Instruction>();
-      while_body2 = new ArrayList<Instruction>();
-      if_false_body = new ArrayList<Instruction>();
+      elem = anonymous_variables.reserve(elem_cc.get_computation().get_type());
+      collection_size = anonymous_variables.reserve(Type.INT);
 
-      /* Get element with a minimum of anonymous variables */
-      n.get_element().visit(elem_cc);
+      n.get_element().get_visited_by(elem_cc);
+      n.get_collection().get_visited_by(collection_cc);
 
       result.addAll(elem_cc.get_pre_instructions());
+      result.addAll(collection_cc.get_pre_instructions());
 
-      elem = anonymous_variable.reserve(elem_cc.get_computation().get_type());
+      collection = collection_cc.get_ref();
 
       result.add(new SetValue(elem, elem_cc.get_computation()));
+      result.add(new SetValue(collection_size, new Size(collection)));
 
       elem_cc.free_anonymous_variables();
-      /****/
 
-      n.get_collection().visit(collection_cc);
-
-      if (!(collection_cc.get_computation() instanceof Ref))
+      if
+      (
+         (
+            (tonkadur.fate.v1.lang.type.CollectionType)
+            n.get_collection().get_type()
+         ).is_set()
+      )
       {
-         /* TODO: error. */
-      }
+         final Computation value_of_elem, value_of_collection_size;
+         final Ref index, found;
 
-      result.addAll(collection_cc.get_pre_instructions());
+         index = anonymous_variables.reserve(Type.INT);
+         found = anonymous_variables.reserve(Type.BOOLEAN);
 
-      collection_as_ref = (Ref) collection_cc.get_computation();
+         value_of_elem = new ValueOf(elem);
+         value_of_collection_size = new ValueOf(collection_size);
 
-      index = anonymous_variable.reserve(Type.INT);
-      limit = anonymous_variable.reserve(Type.INT);
-      found = anonymous_variable.reserve(Type.INT);
-
-      result.addAll(collection_cc.get_pre_instructions());
-
-      result.add(new SetValue(index, new Constant(Type.INT, "0")));
-      result.add
-      (
-         new SetValue
+         result.addAll
          (
-            limit,
-            Operation.minus
+            BinarySearch.generate
             (
-               new Size(collection_as_ref),
-               new Constant(Type.INT, "1")
+               anonymous_variables,
+               value_of_elem,
+               value_of_collection_size,
+               collection,
+               found,
+               index
             )
-         )
-      );
-      result.add(new SetValue(found, new Constant(Type.INT, "0")));
+         );
 
-      if_false_body.add
-      (
-         new IfElseInstruction
+         result.add
          (
-            Operation.equals
-            (
-               new ValueOf(elem),
-               new ValueOf
-               (
-                  new RelativeRef
-                  (
-                     collection_as_ref,
-                     Collections.singletonList
-                     (
-                        new Cast(new ValueOf(index), Type.STRING)
-                     )
-                  )
-               )
-            ),
-            Collections.singletonList
-            (
-               new SetValue
-               (
-                  found,
-                  Operation.plus
-                  (
-                     new ValueOf(found),
-                     new Constant(Type.INT, "1")
-                  )
-               )
-            ),
-            new NOP()
-         )
-      );
-
-      if_false_body.add
-      (
-         new SetValue
-         (
-            new RelativeRef
-            (
-               collection_as_ref,
-               Collections.singletonList
-               (
-                  new Cast(new ValueOf(index), Type.STRING)
-               )
-            ),
-            new ValueOf
-            (
-               new RelativeRef
-               (
-                  collection_as_ref,
-                  Collections.singletonList
-                  (
-                     new Cast
-                     (
-                        Operation.plus(new ValueOf(index), new ValueOf(found)),
-                        Type.STRING
-                     )
-                  )
-               )
-            )
-         )
-      );
-
-      while_body.add
-      (
-         new IfElseInstruction
-         (
-            Operation.equal(new ValueOf(found), new Constant(Type.INT, "0")),
-            Collections.singletonList(new NOP()),
-            if_false_body
-         )
-      );
-
-      while_body.add
-      (
-         new SetValue
-         (
-            index,
-            Operation.plus(new ValueOf(index), new Constant(Type.INT, "1"))
-         )
-      );
-
-      result.add
-      (
-         new While
-         (
-            Operation.less_than(new ValueOf(index), new ValueOf(limit)),
-            while_body
-         )
-      );
-
-      while_body2.add
-      (
-         new SetValue
-         (
-            found,
-            Operation.minus(new ValueOf(found), new Constant(Type.INT, "1"))
-         )
-      );
-
-      while_body2.add
-      (
-         new Remove
-         (
-            new RelativeRef
-            (
-               collection_as_ref,
-               Collections.singletonList
-               (
-                  new Cast
-                  (
-                     Operation.minus(new ValueOf(limit), new ValueOf(found)),
-                     Type.STRING
-                  )
-               )
-            )
-         )
-      );
-
-      result.add
-      (
-         new While
-         (
-            Operation.greater_than
+            new IfElseInstruction
             (
                new ValueOf(found),
-               new Constant(Type.INT, "0")
-            ),
-            while_body2
-         )
-      );
+               RemoveAt.generate
+               (
+                  anonymous_variables,
+                  index,
+                  value_of_collection_size,
+                  collection
+               ),
+               Collections.singletonList(new NOP())
+            )
+         );
+
+         anonymous_variables.release(index);
+         anonymous_variables.release(found);
+      }
+      else
+      {
+         result.addAll
+         (
+            RemoveAllOf.generate
+            (
+               anonymous_variables,
+               new ValueOf(elem),
+               new ValueOf(collection_size),
+               collection
+            )
+         );
+      }
 
       collection_cc.free_anonymous_variables();
+
+      anonymous_variables.release(elem);
+      anonymous_variables.release(collection_size);
    }
 
    @Override
@@ -1098,242 +981,126 @@ public class InstructionCompiler extends FateVisitor
        * (remove_element element collection)
        *
        * Wyrd:
-       * (declare_variable int .index)
-       * (declare_variable int .limit)
        * (declare_variable <element_type> .elem)
+       * (declare_variable int .collection_size)
        * (declare_variable boolean .found)
-       * (declare_variable int .next)
-       * (set .index 0)
-       * (set .limit (- (size collection) 1))
-       * (set .elem element) ;; avoid re-computing element
-       * (set .found false)
-       * (while (< .index .limit)
-       *    (set .next (+ (var index) 1))
-       *    (ifelse (var .found)
-       *       (
-       *          (set collection[.index] (var collection[.next]))
-       *       )
-       *       (ifelse (= (var .elem) (var collection[.index]))
-       *          (;; if_true_body
-       *             (set .found true)
-       *             (set collection[.index] (var collection[.next]))
-       *          )
-       *          (nop)
-       *       )
-       *    )
-       *    (set .index (var .next))
-       * )
-       * (ifelse (or (var .found) (= (var .elem) (var collection[.index])))
-       *    (remove collection[.limit])
+       * (declare_variable int .index)
+       *
+       * (set .elem element)
+       * (set .collection_size (size collection))
+       *
+       * <if collection is a set:
+       *    <BinarySearch
+       *       (var .elem)
+       *       (var .collection_size)
+       *       collection
+       *       .found
+       *       .index
+       *    >
+       * >
+       * <if collection is a list:
+       *    <IterativeSearch
+       *       (var .elem)
+       *       (var .collection_size)
+       *       collection
+       *       .found
+       *       .index
+       *    >
+       * >
+       *
+       * (if (var .found)
+       *    <remove_at (var index) (var .collection_size) collection>
        *    (nop)
        * )
        */
       final ComputationCompiler elem_cc, collection_cc;
-      final Ref index, limit, elem, found, next;
-      final Ref collection_as_ref;
-      final List<Instruction> while_body, if_true_body;
+      final Ref elem, collection_size, found, index;
+      final Ref collection;
+      final Computation value_of_collection_size;
 
-      elem_cc = new_computation_compiler();
-      collection_cc = new_computation_compiler();
+      elem_cc = new_computation_compiler(false);
+      collection_cc = new_computation_compiler(true);
 
-      while_body = new ArrayList<Instruction>();
-      if_true_body = new ArrayList<Instruction>();
+      elem = anonymous_variables.reserve(elem_cc.get_computation().get_type());
+      collection_size = anonymous_variables.reserve(Type.INT);
+      found = anonymous_variables.reserve(Type.BOOLEAN);
+      index = anonymous_variables.reserve(Type.INT);
 
-      /* Minimize variable usage for element ***********/
-      n.get_element().visit(elem_cc);
+      n.get_element().get_visited_by(elem_cc);
+      n.get_collection().get_visited_by(collection_cc);
 
       result.addAll(elem_cc.get_pre_instructions());
-
-      elem = anonymous_variable.reserve(elem_cc.get_computation().get_type());
-
-      result.add(new SetValue(elem, elem_cc.get_computation()));
-
-      elem_cc.free_anonymous_variables();
-      /***********/
-
-      n.get_collection().visit(collection_cc);
-
       result.addAll(collection_cc.get_pre_instructions());
 
-      if (!(collection_cc.get_computation() instanceof Ref))
+      collection = collection_cc.get_ref();
+
+      value_of_collection_size = new ValueOf(collection_size);
+
+      result.add(new SetValue(elem, elem_cc.get_computation()));
+      result.add(new SetValue(collection_size, new Size(collection)));
+
+      elem_cc.free_anonymous_variables();
+
+      if
+      (
+         (
+            (tonkadur.fate.v1.lang.type.CollectionType)
+            n.get_collection().get_type()
+         ).is_set()
+      )
       {
-         /* TODO: error. */
+         result.addAll
+         (
+            BinarySearch.generate
+            (
+               anonymous_variables,
+               new ValueOf(elem),
+               value_of_collection_size,
+               collection,
+               found,
+               index
+            )
+         );
+      }
+      else
+      {
+         result.addAll
+         (
+            IterativeSearch.generate
+            (
+               anonymous_variables,
+               new ValueOf(elem),
+               value_of_collection_size,
+               collection,
+               found,
+               index
+            )
+         );
       }
 
-      collection_as_ref = (Ref) collection_cc.get_computation();
+      anonymous_variables.release(elem);
 
-      index = anonymous_variable.reserve(Type.INT);
-      limit = anonymous_variable.reserve(Type.INT);
-      found = anonymous_variable.reserve(Type.BOOLEAN);
-      next = anonymous_variable.reserve(Type.INT);
-
-      result.add(new SetValue(index, new Constant(Type.INT, "0")));
       result.add
-      (
-         new SetValue
-         (
-            limit,
-            Operation.minus
-            (
-               new Size(collection_as_ref),
-               new Constant(Type.INT, "1")
-            )
-         )
-      );
-      result.add(new SetValue(found, Constant.FALSE));
-
-      if_true_branch.add(new SetValue(found, Constant.TRUE));
-      if_true_branch.add
-      (
-         new SetValue
-         (
-            /* collection[.index] */
-            new RelativeRef
-            (
-               collection_as_ref,
-               Collections.singletonList
-               (
-                  new Cast(newValueOf(index), Type.STRING)
-               )
-            ),
-            /* (var collection[.next]) */
-            new ValueOf
-            (
-               new RelativeRef
-               (
-                  collection_as_ref,
-                  Collections.singletonList
-                  (
-                     new Cast(new ValueOf(next), Type.STRING)
-                  )
-               )
-            )
-         )
-      );
-
-      while_body.add
-      (
-         new SetValue
-         (
-            next,
-            Operation.plus
-            (
-               new ValueOf(index),
-               new Constant(Type.INT, "1")
-            )
-         )
-      );
-
-      while_body.add
       (
          new IfElseInstruction
          (
             new ValueOf(found),
-            Collections.singletonList
+            RemoveAt.generate
             (
-               new SetValue
-               (
-                  new RelativeRef
-                  (
-                     collection_as_ref,
-                     Collections.singletonList
-                     (
-                        new Cast(newValueOf(index), Type.STRING)
-                     )
-                  ),
-                  new ValueOf
-                  (
-                     new RelativeRef
-                     (
-                        collection_as_ref,
-                        Collections.singletonList
-                        (
-                           new Cast(new ValueOf(next), Type.STRING)
-                        )
-                     )
-                  )
-               )
+               anonymous_variables,
+               index,
+               value_of_collection_size,
+               collection
             ),
-            Collections.singletonList
-            (
-               new IfElseInstruction
-               (
-                  Operation.equals
-                  (
-                     new ValueOf(elem),
-                     new ValueOf
-                     (
-                        new RelativeRef
-                        (
-                           collection_as_ref,
-                           Collections.singletonList
-                           (
-                              new Cast(newValueOf(index), Type.STRING)
-                           )
-                        )
-                     )
-                  ),
-                  if_true_branch,
-                  Collections.singleton(new NOP())
-               )
-            )
+            Collections.singletonList(new NOP())
          )
       );
-
-      result.add
-      (
-         new While
-         (
-            Operation.less_than(new ValueOf(index), new ValueOf(limit)),
-            while_body
-         )
-      );
-
-      result.add
-      (
-         new IfElseInstruction
-         (
-            Operation.or
-            (
-               new ValueOf(found),
-               Operation.equals
-               (
-                  new ValueOf(elem),
-                  new ValueOf
-                  (
-                     new RelativeRef
-                     (
-                        collection_as_ref,
-                        Collections.singletonList
-                        (
-                           new Cast(newValueOf(index), Type.STRING)
-                        )
-                     )
-                  )
-               )
-            ),
-            new Remove
-            (
-               new RelativeRef
-               (
-                  collection_as_ref,
-                  Collections.singletonList
-                  (
-                     new Cast(newValueOf(limit), Type.STRING)
-                  )
-               )
-            ),
-            new NOP()
-         )
-      );
-
-      collection_cc.free_anonymous_variables();
 
       anonymous_variables.release(index);
-      anonymous_variables.release(limit);
-      anonymous_variables.release(elem);
       anonymous_variables.release(found);
-      anonymous_variables.release(next);
+      anonymous_variables.release(collection_size);
+
+      collection_cc.free_anonymous_variables();
    }
 
    @Override
@@ -1363,21 +1130,21 @@ public class InstructionCompiler extends FateVisitor
        */
       final ComputationCompiler value_cc, ref_cc;
 
-      value_cc = new_computation_compiler();
-      ref_cc = new_computation_compiler();
+      value_cc = new_computation_compiler(false);
+      ref_cc = new_computation_compiler(true);
 
-      n.get_value().visit(value_cc);
+      n.get_value().get_visited_by(value_cc);
       result.addAll(value_cc.get_pre_instructions());
 
-      n.get_reference().visit(ref_cc);
+      n.get_reference().get_visited_by(ref_cc);
       result.addAll(ref_cc.get_pre_instructions());
 
       result.add
       (
-         new SetValue(ref_cc.get_computation(), value_cc.get_computation())
+         new SetValue(ref_cc.get_ref(), value_cc.get_computation())
       );
 
-      element_cc.free_anonymous_variables();
+      value_cc.free_anonymous_variables();
       ref_cc.free_anonymous_variables();
    }
 }

@@ -18,7 +18,7 @@ import tonkadur.fate.v1.lang.TextEffect;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 
@@ -140,10 +140,10 @@ public class TextWithEffect extends RichTextNode
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_text_with_effect(this);
+      cv.visit_text_with_effect(this);
    }
 
    public TextEffect get_effect ()

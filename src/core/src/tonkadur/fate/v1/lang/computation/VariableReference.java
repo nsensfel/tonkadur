@@ -4,7 +4,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.Variable;
 
-import tonkadur.fate.v1.lang.meta.NodeVisitor;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 
 import tonkadur.fate.v1.lang.type.Type;
@@ -47,10 +47,10 @@ public class VariableReference extends Reference
 
    /**** Accessors ************************************************************/
    @Override
-   public void visit (final NodeVisitor nv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      nv.visit_variable_reference(this);
+      cv.visit_variable_reference(this);
    }
 
    public Variable get_variable ()

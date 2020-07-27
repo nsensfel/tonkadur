@@ -1,34 +1,49 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import tonkadur.error.Error;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
+
+import tonkadur.wyrd.v1.lang.computation.Ref;
+import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.World;
 
-public class ComputationCompiler extends FateVisitor
+import tonkadur.wyrd.v1.compiler.util.AnonymousVariableManager;
+
+public class ComputationCompiler
+implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 {
    protected final MacroManager macro_manager;
    protected final AnonymousVariableManager anonymous_variables;
    protected final World wyrd_world;
    protected final List<Instruction> pre_computation_instructions;
    protected final List<Ref> allocated_variables;
-   protected Computation result;
+   protected final boolean expect_ref;
+   protected Computation result_as_computation;
+   protected Ref result_as_ref;
 
    public ComputationCompiler
    (
       final MacroManager macro_manager,
       final AnonymousVariableManager anonymous_variables,
-      final World wyrd_world
+      final World wyrd_world,
+      final boolean expect_ref
    )
    {
       this.macro_manager = macro_manager;
       this.anonymous_variables = anonymous_variables;
       this.wyrd_world = wyrd_world;
+      this.expect_ref = expect_ref;
 
       allocated_variables = new ArrayList<Ref>();
       pre_computation_instructions = new ArrayList<Instruction>();
-      result = null;
+      result_as_ref = null;
+      result_as_computation = null;
    }
 
    public List<Instruction> get_pre_instructions ()
@@ -38,7 +53,32 @@ public class ComputationCompiler extends FateVisitor
 
    public Computation get_computation ()
    {
-      return result;
+      if (result_as_computation != null)
+      {
+         return result_as_computation;
+      }
+      else
+      {
+         result_as_computation = new ValueOf(result_as_ref);
+
+         return result_as_computation;
+      }
+   }
+
+   public Ref get_ref ()
+   {
+      return result_as_ref;
+   }
+
+   protected void generate_ref ()
+   {
+      final Ref result;
+
+      result = anonymous_variables.reserve(result_as_computation.get_type());
+
+      allocated_variables.add(result);
+
+      result_as_ref = result;
    }
 
    public void free_anonymous_variables ()
@@ -56,7 +96,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -66,7 +106,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -76,7 +116,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -86,7 +126,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -96,7 +136,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -106,7 +146,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -116,7 +156,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -126,7 +166,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -136,7 +176,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -146,7 +186,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -156,7 +196,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -166,7 +206,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -176,7 +216,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -186,7 +226,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -196,7 +236,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -206,7 +246,7 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 
    @Override
@@ -216,6 +256,6 @@ public class ComputationCompiler extends FateVisitor
    )
    throws Throwable
    {
-      throw new UnhandledASTElementException();
+      /* TODO: implement */
    }
 }
