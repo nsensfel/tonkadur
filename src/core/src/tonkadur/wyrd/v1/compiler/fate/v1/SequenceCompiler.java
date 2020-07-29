@@ -2,10 +2,6 @@ package tonkadur.wyrd.v1.compiler.fate.v1;
 
 import java.util.List;
 
-import tonkadur.error.Error;
-
-import tonkadur.wyrd.v1.lang.Sequence;
-
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.World;
@@ -15,38 +11,62 @@ public class SequenceCompiler
    /* Utility Class */
    private SequenceCompiler () { }
 
-   public static Sequence compile
+   public static void compile
    (
-      tonkadur.fate.v1.lang.Sequence fate_sequence,
-      final World wyrd_world
+      final Compiler compiler,
+      final tonkadur.fate.v1.lang.Sequence fate_sequence
    )
-   throws Error
+   throws Throwable
    {
-      Sequence result;
+      final InstructionCompiler ic;
 
-      result = wyrd_world.get_sequence(fate_sequence.get_name());
+      ic = new InstructionCompiler(compiler);
 
-      if (result != null)
-      {
-         return result;
-      }
+      compiler.assembler().add_fixed_name_label(fate_sequence.get_name());
 
-      /* TODO */
-      result = null;
+      fate_sequence.get_root().get_visited_by(ic);
 
-      wyrd_world.add_sequence(result);
+      compiler.world().add_sequence_label
+      (
+         fate_sequence.get_name(),
+         (compiler.world().get_current_line() + 1)
+      );
 
-      return result;
+      compiler.assembler().handle_adding_instruction
+      (
+         compiler.assembler().mark
+         (
+            fate_sequence.get_name(),
+            ic.get_result()
+         ),
+         compiler.world()
+      );
    }
 
-   public static List<Instruction> compile_main_sequence
+   public static void compile_main_sequence
    (
-      List<tonkadur.fate.v1.lang.meta.Instruction> fate_instruction_list,
-      final World wyrd_world
+      final Compiler compiler,
+      final List<tonkadur.fate.v1.lang.meta.Instruction> fate_instruction_list
    )
-   throws Error
+   throws Throwable
    {
-      /* TODO */
-      return null;
+      final InstructionCompiler ic;
+
+      ic = new InstructionCompiler(compiler);
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Instruction fate_instruction:
+            fate_instruction_list
+      )
+      {
+         fate_instruction.get_visited_by(ic);
+      }
+
+      compiler.assembler().handle_adding_instruction
+      (
+         ic.get_result(),
+         compiler.world()
+      );
    }
 }

@@ -16,9 +16,7 @@ import tonkadur.wyrd.v1.lang.computation.Ref;
 import tonkadur.wyrd.v1.lang.computation.RelativeRef;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
-import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
-import tonkadur.wyrd.v1.lang.instruction.While;
 
 public class InsertAt
 {
@@ -36,17 +34,20 @@ public class InsertAt
     *
     * (set .end collection_size)
     *
-    * (while (> .index .end)
+    * <while
+    *    (> .index .end)
+    *
     *    (set .prev (- (val .collection_size) 1))
     *    (set collection[.end] (val collection[.prev]))
     *    (set .end (val .prev))
-    * )
+    * >
     *
     * (set collection[.index] element)
    */
-   public static List<Instruction> generate
+   public static Instruction generate
    (
       final AnonymousVariableManager anonymous_variables,
+      final InstructionManager assembler,
       final Ref index,
       final Computation element,
       final Computation collection_size,
@@ -124,7 +125,13 @@ public class InsertAt
        */
       result.add
       (
-         new While(Operation.minus(value_of_index, value_of_end), while_body)
+         While.generate
+         (
+            anonymous_variables,
+            assembler,
+            Operation.minus(value_of_index, value_of_end),
+            assembler.merge(while_body)
+         )
       );
 
       /* (set collection[.index] element) */
@@ -148,6 +155,6 @@ public class InsertAt
       anonymous_variables.release(end);
       anonymous_variables.release(prev);
 
-      return result;
+      return assembler.merge(result);
    }
 }

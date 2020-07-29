@@ -17,9 +17,7 @@ import tonkadur.wyrd.v1.lang.computation.Ref;
 import tonkadur.wyrd.v1.lang.computation.RelativeRef;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
-import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
-import tonkadur.wyrd.v1.lang.instruction.While;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
 
 public class RemoveAt
@@ -45,9 +43,10 @@ public class RemoveAt
     *
     * (remove collection[index])
     */
-   public static List<Instruction> generate
+   public static Instruction generate
    (
       final AnonymousVariableManager anonymous_variables,
+      final InstructionManager assembler,
       final Ref index,
       final Computation collection_size,
       final Ref collection
@@ -133,10 +132,12 @@ public class RemoveAt
        */
       result.add
       (
-         new While
+         While.generate
          (
+            anonymous_variables,
+            assembler,
             Operation.less_than(value_of_index, value_of_end),
-            while_body
+            assembler.merge(while_body)
          )
       );
 
@@ -146,6 +147,6 @@ public class RemoveAt
       anonymous_variables.release(end);
       anonymous_variables.release(next);
 
-      return result;
+      return assembler.merge(result);
    }
 }

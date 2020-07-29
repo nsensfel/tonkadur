@@ -16,9 +16,7 @@ import tonkadur.wyrd.v1.lang.computation.Ref;
 import tonkadur.wyrd.v1.lang.computation.RelativeRef;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
-import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
-import tonkadur.wyrd.v1.lang.instruction.While;
 
 public class IterativeSearch
 {
@@ -36,20 +34,25 @@ public class IterativeSearch
     * (set result_found false)
     * (set result_index (- collection_size 1))
     *
-    * (while
+    * <while
     *    (and
     *       (not (var result_found))
     *       (>= (var result_index) 0)
     *    )
-    *    (ifelse (= (var collection[result_index]) target)
+    *
+    *    <ifelse
+    *       (= (var collection[result_index]) target)
+    *
     *       (set result_found true)
+    *
     *       (set result_index (- (var result_index) 1))
-    *    )
-    * )
+    *    >
+    * >
     */
-   public static List<Instruction> generate
+   public static Instruction generate
    (
       final AnonymousVariableManager anonymous_variables,
+      final InstructionManager assembler,
       final Computation target,
       final Computation collection_size,
       final Ref collection,
@@ -79,8 +82,10 @@ public class IterativeSearch
 
       result.add
       (
-         new While
+         While.generate
          (
+            anonymous_variables,
+            assembler,
             Operation.and
             (
                Operation.not(new ValueOf(result_was_found)),
@@ -90,53 +95,49 @@ public class IterativeSearch
                   new Constant(Type.INT, "0")
                )
             ),
-            Collections.singletonList
+            /*
+             * <ifelse
+             *    (= (var collection[result_index]) target)
+             *
+             *    (set result_found true)
+             *
+             *    (set result_index (- (var result_index) 1))
+             * >
+             */
+            IfElse.generate
             (
-               /*
-                * (ifelse (= (var collection[result_index]) target)
-                *    (set result_found true)
-                *    (set result_index (- (var result_index) 1))
-                * )
-                */
-               new IfElseInstruction
+               anonymous_variables,
+               assembler,
+               Operation.equals
                (
-                  Operation.equals
+                  new ValueOf
                   (
-                     new ValueOf
+                     new RelativeRef
                      (
-                        new RelativeRef
+                        collection,
+                        Collections.singletonList
                         (
-                           collection,
-                           Collections.singletonList
-                           (
-                              new Cast(value_of_result_index, Type.STRING)
-                           ),
-                           target_type
-                        )
-                     ),
-                     target
-                  ),
-                  Collections.singletonList
-                  (
-                     new SetValue(result_was_found, Constant.TRUE)
-                  ),
-                  Collections.singletonList
-                  (
-                     new SetValue
-                     (
-                        result_index,
-                        Operation.minus
-                        (
-                           value_of_result_index,
-                           new Constant(Type.INT, "1")
-                        )
+                           new Cast(value_of_result_index, Type.STRING)
+                        ),
+                        target_type
                      )
+                  ),
+                  target
+               ),
+               new SetValue(result_was_found, Constant.TRUE),
+               new SetValue
+               (
+                  result_index,
+                  Operation.minus
+                  (
+                     value_of_result_index,
+                     new Constant(Type.INT, "1")
                   )
                )
             )
          )
       );
 
-      return result;
+      return assembler.merge(result);
    }
 }

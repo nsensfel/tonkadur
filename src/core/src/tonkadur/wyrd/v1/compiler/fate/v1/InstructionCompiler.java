@@ -29,17 +29,20 @@ import tonkadur.wyrd.v1.lang.instruction.AddChoice;
 import tonkadur.wyrd.v1.lang.instruction.Assert;
 import tonkadur.wyrd.v1.lang.instruction.Display;
 import tonkadur.wyrd.v1.lang.instruction.EventCall;
-import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
-import tonkadur.wyrd.v1.lang.instruction.NOP;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.ResolveChoices;
-import tonkadur.wyrd.v1.lang.instruction.SequenceCall;
+import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
-import tonkadur.wyrd.v1.lang.instruction.While;
 
 import tonkadur.wyrd.v1.compiler.util.AnonymousVariableManager;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
+import tonkadur.wyrd.v1.compiler.util.If;
+import tonkadur.wyrd.v1.compiler.util.IfElse;
+import tonkadur.wyrd.v1.compiler.util.InstructionManager;
+import tonkadur.wyrd.v1.compiler.util.NOP;
+import tonkadur.wyrd.v1.compiler.util.While;
+import tonkadur.wyrd.v1.compiler.util.Clear;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
@@ -47,82 +50,28 @@ import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 public class InstructionCompiler
 implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 {
-   protected final AnonymousVariableManager anonymous_variables;
-   protected final World wyrd_world;
-   protected final MacroManager macro_manager;
+   protected final Compiler compiler;
    protected final List<Instruction> result;
 
-   public InstructionCompiler
-   (
-      final MacroManager macro_manager,
-      final AnonymousVariableManager anonymous_variables,
-      final World wyrd_world
-   )
+   public InstructionCompiler (final Compiler compiler)
    {
-      this.macro_manager = macro_manager;
-      this.anonymous_variables = anonymous_variables;
-      this.wyrd_world = wyrd_world;
+      this.compiler = compiler;
       result = new ArrayList<Instruction>();
    }
 
    public InstructionCompiler
    (
-      final MacroManager macro_manager,
-      final AnonymousVariableManager anonymous_variables,
-      final World wyrd_world,
+      final Compiler compiler,
       final List<Instruction> result
    )
    {
-      this.macro_manager = macro_manager;
-      this.anonymous_variables = anonymous_variables;
-      this.wyrd_world = wyrd_world;
+      this.compiler = compiler;
       this.result = result;
    }
 
-   protected List<Instruction> get_result ()
+   protected Instruction get_result ()
    {
-      return result;
-   }
-
-   protected ComputationCompiler new_computation_compiler
-   (
-      final boolean expect_ref
-   )
-   {
-      return
-         new ComputationCompiler
-         (
-            macro_manager,
-            anonymous_variables,
-            wyrd_world,
-            expect_ref
-         );
-   }
-
-   protected InstructionCompiler new_instruction_compiler ()
-   {
-      return
-         new InstructionCompiler
-         (
-            macro_manager,
-            anonymous_variables,
-            wyrd_world
-         );
-   }
-
-   protected InstructionCompiler new_instruction_compiler
-   (
-      final List<Instruction> result
-   )
-   {
-      return
-         new InstructionCompiler
-         (
-            macro_manager,
-            anonymous_variables,
-            wyrd_world,
-            result
-         );
+      return compiler.assembler().merge(result);
    }
 
    protected void add_element_to_set
@@ -145,174 +94,76 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        *    <insert_at ...>
        * )
        */
-      /*
-      final Ref element_as_ref, collection_as_ref, collection_size_as_ref;
-      final Ref element_found, element_index, collection_size, next_index;
       final ComputationCompiler element_compiler, reference_compiler;
+      final Ref element, collection, collection_size;
+      final Ref element_found, element_index;
       final Type element_type;
-      final List<Instruction> while_body, else_branch;
+      final Computation value_of_element, value_of_collection_size;
 
-      element_compiler = new_computation_compiler(false);
-
+      element_compiler = new ComputationCompiler(compiler, false);
       ae.get_element().get_visited_by(element_compiler);
-
-      result.addAll(element_compiler.get_pre_instructions());
-
+      result.add(element_compiler.get_init());
       element_type = element_compiler.get_computation().get_type();
+      element = compiler.anonymous_variables().reserve(element_type);
+      result.add(new SetValue(element, element_compiler.get_computation()));
+      element_compiler.release_variables();
 
-      element_as_ref = anonymous_variable.reserve(element_type);
-
-      result.add
-      (
-         new SetValue(element_as_ref, element_compiler.get_computation())
-      );
-
-      reference_compiler = new_computation_compiler(true);
-
+      reference_compiler = new ComputationCompiler(compiler, true);
       ae.get_collection().get_visited_by(reference_compiler);
+      result.add(reference_compiler.get_init());
+      collection = reference_compiler.get_ref();
 
-      result.addAll(reference_compiler.get_pre_instructions());
+      element_found = compiler.anonymous_variables().reserve(Type.BOOLEAN);
+      element_index = compiler.anonymous_variables().reserve(Type.INT);
+      collection_size = compiler.anonymous_variables().reserve(Type.INT);
 
-      collection_as_ref = reference_compiler.get_ref();
-
-      element_found = anonymous_variable.reserve(Type.BOOLEAN);
-      element_index = anonymous_variable.reserve(Type.INT);
-      collection_size = anonymous_variable.reserve(Type.INT);
-      next_index = anonymous_variable.reserve(Type.INT);
+      value_of_element = new ValueOf(element);
+      value_of_collection_size = new ValueOf(collection_size);
 
       result.add
       (
-         new SetValue(collection_size, new Size(collection_as_ref))
+         new SetValue(collection_size, new Size(collection))
       );
 
-      result.addAll
+      result.add
       (
          BinarySearch.generate
          (
-            anonymous_variables,
-            element_as_ref,
-            collection_as_ref,
-            collection_size,
+            compiler.anonymous_variables(),
+            compiler.assembler(),
+            value_of_element,
+            value_of_collection_size,
+            collection,
             element_found,
             element_index
          )
       );
 
-      while_body = new ArrayList<Instruction>();
-
-      while_body.add
-      (
-         new SetValue
-         (
-            next_index,
-            Operation.minus
-            (
-               new ValueOf(collection_size),
-               new Constant(Type.INT, "1")
-            )
-         )
-      );
-
-      while_body.add
-      (
-         new SetValue
-         (
-            new RelativeRef
-            (
-               collection_as_ref,
-               Collections.singletonList
-               (
-                  new Cast
-                  (
-                     new ValueOf(collection_size),
-                     Type.STRING
-                  )
-               ),
-               element_type
-            ),
-            new ValueOf
-            (
-               new RelativeRef
-               (
-                  collection_as_ref,
-                  Collections.singletonList
-                  (
-                     new Cast
-                     (
-                        new ValueOf(next),
-                        Type.STRING
-                     )
-                  ),
-                  element_type
-               )
-            )
-         )
-      );
-
-      while_body.add
-      (
-         new SetValue
-         (
-            collection_size,
-            new ValueOf(next)
-         )
-      );
-
-      else_branch = new ArrayList<Instruction>();
-
-      else_branch.add
-      (
-         new While
-         (
-            Operation.less_than
-            (
-               new ValueOf(element_index),
-               new ValueOf(collection_size)
-            ),
-            while_body
-         )
-      );
-
-      else_branch.add
-      (
-         new SetValue
-         (
-            new RelativeRef
-            (
-               collection_as_ref,
-               Collections.singletonList
-               (
-                  new Cast
-                  (
-                     new ValueOf(element_index),
-                     Type.STRING
-                  )
-               ),
-               element_type
-            ),
-            new ValueOf(element_as_ref)
-         )
-      );
-
       result.add
       (
-         new IfElseInstruction
+         If.generate
          (
-            new ValueOf(element_found),
-            new NOP(),
-            else_branch
+            compiler.anonymous_variables(),
+            compiler.assembler(),
+            Operation.not(new ValueOf(element_found)),
+            InsertAt.generate
+            (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
+               element_index,
+               value_of_element,
+               value_of_collection_size,
+               collection
+            )
          )
       );
 
-      anonymous_variables.release(element_as_ref);
-      anonymous_variables.release(element_found);
-      anonymous_variables.release(element_index);
-      anonymous_variables.release(collection_size);
-      anonymous_variables.release(next_index);
+      compiler.anonymous_variables().release(element);
+      compiler.anonymous_variables().release(element_found);
+      compiler.anonymous_variables().release(element_index);
+      compiler.anonymous_variables().release(collection_size);
 
-      reference_compiler.free_anonymous_variables();
-      element_compiler.free_anonymous_variables();
-      */
+      reference_compiler.release_variables();
    }
 
    protected void add_element_to_list
@@ -334,18 +185,18 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final Ref collection_as_ref;
       final ComputationCompiler element_compiler, reference_compiler;
 
-      element_compiler = new_computation_compiler(false);
+      element_compiler = new ComputationCompiler(compiler, false);
 
       ae.get_element().get_visited_by(element_compiler);
 
-      reference_compiler = new_computation_compiler(true);
+      reference_compiler = new ComputationCompiler(compiler, true);
 
       ae.get_collection().get_visited_by(reference_compiler);
 
       collection_as_ref = reference_compiler.get_ref();
 
-      result.addAll(reference_compiler.get_pre_instructions());
-      result.addAll(element_compiler.get_pre_instructions());
+      result.add(reference_compiler.get_init());
+      result.add(element_compiler.get_init());
       result.add
       (
          new SetValue
@@ -367,8 +218,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          )
       );
 
-      reference_compiler.free_anonymous_variables();
-      element_compiler.free_anonymous_variables();
+      reference_compiler.release_variables();
+      element_compiler.release_variables();
    }
 
    @Override
@@ -415,14 +266,14 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        */
       final ComputationCompiler cc;
 
-      cc = new_computation_compiler(false);
+      cc = new ComputationCompiler(compiler, false);
 
       a.get_condition().get_visited_by(cc);
 
-      result.addAll(cc.get_pre_instructions());
+      result.add(cc.get_init());
       result.add(new Assert(cc.get_computation()));
 
-      cc.free_anonymous_variables();
+      cc.release_variables();
    }
 
    @Override
@@ -432,64 +283,30 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       /*
        * Fate: (clear collection)
        *
-       * Wyrd:
-       *    <clear collection>
+       * Wyrd: <clear collection>
        */
-      /*
       final ComputationCompiler reference_compiler;
-      final Ref iterator, collection_ref;
-      final List<Instruction> while_body;
+      final Ref collection_ref;
 
-      reference_compiler = new_computation_compiler(true);
+      reference_compiler = new ComputationCompiler(compiler, true);
 
       c.get_collection().get_visited_by(reference_compiler);
 
-      result.addAll(reference_compiler.get_pre_instructions());
-
-      iterator = anonymous_variables.reserve(Type.INT);
-
       collection_ref = reference_compiler.get_ref();
 
-      while_body.add
-      (
-         new Remove
-         (
-            new RelativeRef
-            (
-               collection_ref,
-               Collections.singletonList
-               (
-                  new Cast(new ValueOf(iterator), Type.STRING)
-               )
-            )
-         )
-      );
-
-      while_body.add
-      (
-         new SetValue
-         (
-            iterator,
-            Operation.minus(new ValueOf(iterator), new Constant(Type.INT, "1"))
-         )
-      );
-
+      result.add(reference_compiler.get_init());
       result.add
       (
-         new While
+         Clear.generate
          (
-            Operation.greater_equal_than
-            (
-               new ValueOf(iterator),
-               new Constant(Type.INT, "0")
-            ),
-            while_body
+            compiler.anonymous_variables(),
+            compiler.assembler(),
+            new Size(collection_ref),
+            collection_ref
          )
       );
 
-      anonymous_variables.release(iterator);
-      reference_compiler.free_anonymous_variables();
-      */
+      reference_compiler.release_variables();
    }
 
    @Override
@@ -508,16 +325,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        *    )
        *
        * Wyrd:
-       *    (ifelse c0
+       *    <ifelse c0
        *       i0
-       *       (ifelse ...
+       *       <ifelse ...
        *          ...
-       *          (ifelse cn
+       *          <ifelse cn
        *             in
-       *             (nop)
-       *          )
-       *       )
-       *    )
+       *             <nop>
+       *          >
+       *       >
+       *    >
        */
       InstructionCompiler ic;
       ComputationCompiler cc;
@@ -540,28 +357,37 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          current_else_branch = new ArrayList<Instruction>();
 
-         ic = new_instruction_compiler();
-         cc = new_computation_compiler(false);
+         ic = new InstructionCompiler(compiler);
+         cc = new ComputationCompiler(compiler, false);
 
          branch.get_car().get_visited_by(cc);
 
-         previous_else_branch.addAll(cc.get_pre_instructions());
+         previous_else_branch.add(cc.get_init());
          previous_else_branch.add
          (
-            new IfElseInstruction
+            IfElse.generate
             (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
                cc.get_computation(),
                ic.get_result(),
-               current_else_branch
+               compiler.assembler().merge(current_else_branch)
             )
          );
 
          previous_else_branch = current_else_branch;
 
-         cc.free_anonymous_variables();
+         cc.release_variables();
       }
 
-      previous_else_branch.add(new NOP());
+      previous_else_branch.add
+      (
+         NOP.generate
+         (
+            compiler.anonymous_variables(),
+            compiler.assembler()
+         )
+      );
    }
 
    @Override
@@ -575,14 +401,14 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        */
       final ComputationCompiler cc;
 
-      cc = new_computation_compiler(false);
+      cc = new ComputationCompiler(compiler, false);
 
       n.get_content().get_visited_by(cc);
 
-      result.addAll(cc.get_pre_instructions());
+      result.add(cc.get_init());
       result.add(new Display(Collections.singletonList(cc.get_computation())));
 
-      cc.free_anonymous_variables();
+      cc.release_variables();
    }
 
    @Override
@@ -611,11 +437,11 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          final ComputationCompiler cc;
 
-         cc = new_computation_compiler(false);
+         cc = new ComputationCompiler(compiler, false);
 
          fate_computation.get_visited_by(cc);
 
-         result.addAll(cc.get_pre_instructions());
+         result.add(cc.get_init());
 
          cc_list.add(cc);
          parameters.add(cc.get_computation());
@@ -625,7 +451,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       for (final ComputationCompiler cc: cc_list)
       {
-         cc.free_anonymous_variables();
+         cc.release_variables();
       }
    }
 
@@ -645,26 +471,28 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final InstructionCompiler if_true_ic;
       final InstructionCompiler if_false_ic;
 
-      cc = new_computation_compiler(false);
-      if_true_ic = new_instruction_compiler();
-      if_false_ic = new_instruction_compiler();
+      cc = new ComputationCompiler(compiler, false);
+      if_true_ic = new InstructionCompiler(compiler);
+      if_false_ic = new InstructionCompiler(compiler);
 
       n.get_condition().get_visited_by(cc);
       n.get_if_true().get_visited_by(if_true_ic);
       n.get_if_false().get_visited_by(if_false_ic);
 
-      result.addAll(cc.get_pre_instructions());
+      result.add(cc.get_init());
       result.add
       (
-         new IfElseInstruction
+         IfElse.generate
          (
+            compiler.anonymous_variables(),
+            compiler.assembler(),
             cc.get_computation(),
             if_true_ic.get_result(),
             if_false_ic.get_result()
          )
       );
 
-      cc.free_anonymous_variables();
+      cc.release_variables();
    }
 
    @Override
@@ -682,24 +510,25 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler cc;
       final InstructionCompiler if_true_ic;
 
-      cc = new_computation_compiler(false);
-      if_true_ic = new_instruction_compiler();
+      cc = new ComputationCompiler(compiler, false);
+      if_true_ic = new InstructionCompiler(compiler);
 
       n.get_condition().get_visited_by(cc);
       n.get_if_true().get_visited_by(if_true_ic);
 
-      result.addAll(cc.get_pre_instructions());
+      result.add(cc.get_init());
       result.add
       (
-         new IfElseInstruction
+         If.generate
          (
+            compiler.anonymous_variables(),
+            compiler.assembler(),
             cc.get_computation(),
-            if_true_ic.get_result(),
-            Collections.singletonList(new NOP())
+            if_true_ic.get_result()
          )
       );
 
-      cc.free_anonymous_variables();
+      cc.release_variables();
    }
 
    @Override
@@ -722,11 +551,11 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          final InstructionCompiler ic;
 
-         ic = new_instruction_compiler();
+         ic = new InstructionCompiler(compiler);
 
          fate_instruction.get_visited_by(ic);
 
-         result.addAll(ic.get_result());
+         result.add(ic.get_result());
       }
    }
 
@@ -756,23 +585,23 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          final ComputationCompiler cc;
 
-         cc = new_computation_compiler(true);
+         cc = new ComputationCompiler(compiler, true);
 
          fate_computation.get_visited_by(cc);
 
-         result.addAll(cc.get_pre_instructions());
+         result.add(cc.get_init());
 
          cc_list.add(cc);
          parameters.add(cc.get_ref());
       }
 
-      macro_manager.push(n.get_macro(), parameters);
+      compiler.macros().push(n.get_macro(), parameters);
       n.get_macro().get_root().get_visited_by(this);
-      macro_manager.pop();
+      compiler.macros().pop();
 
       for (final ComputationCompiler cc: cc_list)
       {
-         cc.free_anonymous_variables();
+         cc.release_variables();
       }
    }
 
@@ -791,12 +620,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler cc;
       final InstructionCompiler ic;
 
-      cc = new_computation_compiler(false);
-      ic = new_instruction_compiler();
+      cc = new ComputationCompiler(compiler, false);
+      ic = new InstructionCompiler(compiler);
 
       n.get_text().get_visited_by(cc);
 
-      result.addAll(cc.get_pre_instructions());
+      result.add(cc.get_init());
 
       for
       (
@@ -809,7 +638,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       result.add(new AddChoice(cc.get_computation(), ic.get_result()));
 
-      cc.free_anonymous_variables();
+      cc.release_variables();
    }
 
    @Override
@@ -881,24 +710,29 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler elem_cc, collection_cc;
       final Ref elem, collection_size, collection;
 
-      elem_cc = new_computation_compiler(false);
-      collection_cc = new_computation_compiler(true);
+      elem_cc = new ComputationCompiler(compiler, false);
+      collection_cc = new ComputationCompiler(compiler, true);
 
-      elem = anonymous_variables.reserve(elem_cc.get_computation().get_type());
-      collection_size = anonymous_variables.reserve(Type.INT);
+      elem =
+         compiler.anonymous_variables().reserve
+         (
+            elem_cc.get_computation().get_type()
+         );
+
+      collection_size = compiler.anonymous_variables().reserve(Type.INT);
 
       n.get_element().get_visited_by(elem_cc);
       n.get_collection().get_visited_by(collection_cc);
 
-      result.addAll(elem_cc.get_pre_instructions());
-      result.addAll(collection_cc.get_pre_instructions());
+      result.add(elem_cc.get_init());
+      result.add(collection_cc.get_init());
 
       collection = collection_cc.get_ref();
 
       result.add(new SetValue(elem, elem_cc.get_computation()));
       result.add(new SetValue(collection_size, new Size(collection)));
 
-      elem_cc.free_anonymous_variables();
+      elem_cc.release_variables();
 
       if
       (
@@ -911,17 +745,18 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          final Computation value_of_elem, value_of_collection_size;
          final Ref index, found;
 
-         index = anonymous_variables.reserve(Type.INT);
-         found = anonymous_variables.reserve(Type.BOOLEAN);
+         index = compiler.anonymous_variables().reserve(Type.INT);
+         found = compiler.anonymous_variables().reserve(Type.BOOLEAN);
 
          value_of_elem = new ValueOf(elem);
          value_of_collection_size = new ValueOf(collection_size);
 
-         result.addAll
+         result.add
          (
             BinarySearch.generate
             (
-               anonymous_variables,
+               compiler.anonymous_variables(),
+               compiler.assembler(),
                value_of_elem,
                value_of_collection_size,
                collection,
@@ -932,30 +767,33 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          result.add
          (
-            new IfElseInstruction
+            If.generate
             (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
                new ValueOf(found),
                RemoveAt.generate
                (
-                  anonymous_variables,
+                  compiler.anonymous_variables(),
+                  compiler.assembler(),
                   index,
                   value_of_collection_size,
                   collection
-               ),
-               Collections.singletonList(new NOP())
+               )
             )
          );
 
-         anonymous_variables.release(index);
-         anonymous_variables.release(found);
+         compiler.anonymous_variables().release(index);
+         compiler.anonymous_variables().release(found);
       }
       else
       {
-         result.addAll
+         result.add
          (
             RemoveAllOf.generate
             (
-               anonymous_variables,
+               compiler.anonymous_variables(),
+               compiler.assembler(),
                new ValueOf(elem),
                new ValueOf(collection_size),
                collection
@@ -963,10 +801,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          );
       }
 
-      collection_cc.free_anonymous_variables();
+      collection_cc.release_variables();
 
-      anonymous_variables.release(elem);
-      anonymous_variables.release(collection_size);
+      compiler.anonymous_variables().release(elem);
+      compiler.anonymous_variables().release(collection_size);
    }
 
    @Override
@@ -1018,19 +856,24 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final Ref collection;
       final Computation value_of_collection_size;
 
-      elem_cc = new_computation_compiler(false);
-      collection_cc = new_computation_compiler(true);
+      elem_cc = new ComputationCompiler(compiler, false);
+      collection_cc = new ComputationCompiler(compiler, true);
 
-      elem = anonymous_variables.reserve(elem_cc.get_computation().get_type());
-      collection_size = anonymous_variables.reserve(Type.INT);
-      found = anonymous_variables.reserve(Type.BOOLEAN);
-      index = anonymous_variables.reserve(Type.INT);
+      elem =
+         compiler.anonymous_variables().reserve
+         (
+            elem_cc.get_computation().get_type()
+         );
+
+      collection_size = compiler.anonymous_variables().reserve(Type.INT);
+      found = compiler.anonymous_variables().reserve(Type.BOOLEAN);
+      index = compiler.anonymous_variables().reserve(Type.INT);
 
       n.get_element().get_visited_by(elem_cc);
       n.get_collection().get_visited_by(collection_cc);
 
-      result.addAll(elem_cc.get_pre_instructions());
-      result.addAll(collection_cc.get_pre_instructions());
+      result.add(elem_cc.get_init());
+      result.add(collection_cc.get_init());
 
       collection = collection_cc.get_ref();
 
@@ -1039,7 +882,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       result.add(new SetValue(elem, elem_cc.get_computation()));
       result.add(new SetValue(collection_size, new Size(collection)));
 
-      elem_cc.free_anonymous_variables();
+      elem_cc.release_variables();
 
       if
       (
@@ -1049,11 +892,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          ).is_set()
       )
       {
-         result.addAll
+         result.add
          (
             BinarySearch.generate
             (
-               anonymous_variables,
+               compiler.anonymous_variables(),
+               compiler.assembler(),
                new ValueOf(elem),
                value_of_collection_size,
                collection,
@@ -1064,11 +908,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       }
       else
       {
-         result.addAll
+         result.add
          (
             IterativeSearch.generate
             (
-               anonymous_variables,
+               compiler.anonymous_variables(),
+               compiler.assembler(),
                new ValueOf(elem),
                value_of_collection_size,
                collection,
@@ -1078,29 +923,31 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          );
       }
 
-      anonymous_variables.release(elem);
+      compiler.anonymous_variables().release(elem);
 
       result.add
       (
-         new IfElseInstruction
+         If.generate
          (
+            compiler.anonymous_variables(),
+            compiler.assembler(),
             new ValueOf(found),
             RemoveAt.generate
             (
-               anonymous_variables,
+               compiler.anonymous_variables(),
+               compiler.assembler(),
                index,
                value_of_collection_size,
                collection
-            ),
-            Collections.singletonList(new NOP())
+            )
          )
       );
 
-      anonymous_variables.release(index);
-      anonymous_variables.release(found);
-      anonymous_variables.release(collection_size);
+      compiler.anonymous_variables().release(index);
+      compiler.anonymous_variables().release(found);
+      compiler.anonymous_variables().release(collection_size);
 
-      collection_cc.free_anonymous_variables();
+      collection_cc.release_variables();
    }
 
    @Override
@@ -1111,10 +958,18 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    throws Throwable
    {
       /*
-       * Fate: (sequence_call <string>)
-       * Wyrd: (sequence_call <string>)
+       * Fate: (sequence_call string)
+       * Wyrd: (set_pc <label string>)
        */
-      result.add(new SequenceCall(n.get_sequence_name()));
+      compiler.assembler().add_fixed_name_label(n.get_sequence_name());
+
+      result.add
+      (
+         new SetPC
+         (
+            compiler.assembler().get_label_constant(n.get_sequence_name())
+         )
+      );
    }
 
    @Override
@@ -1130,21 +985,21 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        */
       final ComputationCompiler value_cc, ref_cc;
 
-      value_cc = new_computation_compiler(false);
-      ref_cc = new_computation_compiler(true);
+      value_cc = new ComputationCompiler(compiler, false);
+      ref_cc = new ComputationCompiler(compiler, true);
 
       n.get_value().get_visited_by(value_cc);
-      result.addAll(value_cc.get_pre_instructions());
+      result.add(value_cc.get_init());
 
       n.get_reference().get_visited_by(ref_cc);
-      result.addAll(ref_cc.get_pre_instructions());
+      result.add(ref_cc.get_init());
 
       result.add
       (
          new SetValue(ref_cc.get_ref(), value_cc.get_computation())
       );
 
-      value_cc.free_anonymous_variables();
-      ref_cc.free_anonymous_variables();
+      value_cc.release_variables();
+      ref_cc.release_variables();
    }
 }

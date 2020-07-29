@@ -11,32 +11,21 @@ public class VariableCompiler
    /* Utility Class */
    private VariableCompiler () { }
 
-   public static Variable compile
+   public static void compile
    (
-      tonkadur.fate.v1.lang.Variable fate_variable,
-      final World wyrd_world
+      final Compiler compiler,
+      final tonkadur.fate.v1.lang.Variable fate_variable
    )
    throws Error
    {
-      Variable result;
-
-      result = wyrd_world.get_variable(fate_variable.get_name());
-
-      if (result != null)
-      {
-         return result;
-      }
-
-      result =
+      compiler.world().add_variable
+      (
          new Variable
          (
             fate_variable.get_name(),
             fate_variable.get_scope().toString(),
-            TypeCompiler.compile(fate_variable.get_type(), wyrd_world)
-         );
-
-      wyrd_world.add_variable(result);
-
-      return result;
+            TypeCompiler.compile(compiler, fate_variable.get_type())
+         )
+      );
    }
 }

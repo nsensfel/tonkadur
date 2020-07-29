@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import tonkadur.wyrd.v1.lang.Variable;
-import tonkadur.wyrd.v1.lang.Sequence;
 
 import tonkadur.wyrd.v1.lang.type.DictType;
 
@@ -19,24 +18,24 @@ public class World
    protected final Set<String> required_extensions;
 
    protected final Map<String, Variable> variables;
-   protected final Map<String, Sequence> sequences;
+   protected final Map<String, Integer> sequence_labels;
    protected final Map<String, DictType> dict_types;
 
    /* This solves the issue of using other yet undefined dict types. */
    protected final List<DictType> dict_types_in_order;
 
-   protected final List<Instruction> global_instructions;
+   protected final List<Instruction> code;
 
    public World ()
    {
       required_extensions = new HashSet<String>();
 
       variables = new HashMap<String, Variable>();
-      sequences = new HashMap<String, Sequence>();
+      sequence_labels = new HashMap<String, Integer>();
       dict_types = new HashMap<String, DictType>();
       dict_types_in_order = new ArrayList<DictType>();
 
-      global_instructions = new ArrayList<Instruction>();
+      code = new ArrayList<Instruction>();
    }
 
    public void add_required_extension (final String name)
@@ -65,13 +64,18 @@ public class World
       variables.put(variable.get_name(), variable);
    }
 
-   public Sequence get_sequence (final String name)
+   public void add_sequence_label (final String name, final Integer line)
    {
-      return sequences.get(name);
+      sequence_labels.put(name, line);
    }
 
-   public void add_sequence (final Sequence sequence)
+   public void add_instruction (final Instruction i)
    {
-      sequences.put(sequence.get_name(), sequence);
+      code.add(i);
+   }
+
+   public Integer get_current_line ()
+   {
+      return new Integer(code.size());
    }
 }

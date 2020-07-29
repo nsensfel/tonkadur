@@ -1,34 +1,47 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
-import tonkadur.error.Error;
+import tonkadur.wyrd.v1.compiler.util.AnonymousVariableManager;
+import tonkadur.wyrd.v1.compiler.util.InstructionManager;
 
 import tonkadur.wyrd.v1.lang.World;
 
 public class Compiler
 {
-   /* Utility Class */
-   private Compiler () { }
+   protected final AnonymousVariableManager anonymous_variables;
+   protected final MacroManager macro_manager;
+   protected final InstructionManager assembler;
+   protected final World wyrd_world;
+
 
    public static World compile (final tonkadur.fate.v1.lang.World fate_world)
-   throws Error
+   throws Throwable
    {
-      final World wyrd_world;
+      final Compiler compiler;
 
-      wyrd_world = new World();
+      compiler = new Compiler();
 
-      compile_extensions(fate_world, wyrd_world);
-      compile_types(fate_world, wyrd_world);
-      compile_variables(fate_world, wyrd_world);
-      compile_sequences(fate_world, wyrd_world);
-      compile_main_sequence(fate_world, wyrd_world);
+      compiler.compile_extensions(fate_world);
+      compiler.compile_types(fate_world);
+      compiler.compile_variables(fate_world);
 
-      return wyrd_world;
+      compiler.compile_main_sequence(fate_world);
+
+      compiler.compile_sequences(fate_world);
+
+      return compiler.wyrd_world;
    }
 
-   protected static void compile_extensions
+   protected Compiler ()
+   {
+      macro_manager = new MacroManager();
+      anonymous_variables = new AnonymousVariableManager();
+      assembler = new InstructionManager();
+      wyrd_world = new World();
+   }
+
+   protected void compile_extensions
    (
-      final tonkadur.fate.v1.lang.World fate_world,
-      final World wyrd_world
+      final tonkadur.fate.v1.lang.World fate_world
    )
    {
       for (final String extension: fate_world.get_required_extensions())
@@ -37,12 +50,11 @@ public class Compiler
       }
    }
 
-   protected static void compile_types
+   protected void compile_types
    (
-      final tonkadur.fate.v1.lang.World fate_world,
-      final World wyrd_world
+      final tonkadur.fate.v1.lang.World fate_world
    )
-   throws Error
+   throws Throwable
    {
       for
       (
@@ -50,16 +62,15 @@ public class Compiler
             fate_world.types().get_all()
       )
       {
-         TypeCompiler.compile(type, wyrd_world);
+         TypeCompiler.compile(this, type);
       }
    }
 
-   protected static void compile_variables
+   protected void compile_variables
    (
-      final tonkadur.fate.v1.lang.World fate_world,
-      final World wyrd_world
+      final tonkadur.fate.v1.lang.World fate_world
    )
-   throws Error
+   throws Throwable
    {
       for
       (
@@ -67,16 +78,15 @@ public class Compiler
             fate_world.variables().get_all()
       )
       {
-         VariableCompiler.compile(variable, wyrd_world);
+         VariableCompiler.compile(this, variable);
       }
    }
 
-   protected static void compile_sequences
+   protected void compile_sequences
    (
-      final tonkadur.fate.v1.lang.World fate_world,
-      final World wyrd_world
+      final tonkadur.fate.v1.lang.World fate_world
    )
-   throws Error
+   throws Throwable
    {
       for
       (
@@ -84,21 +94,40 @@ public class Compiler
             fate_world.sequences().get_all()
       )
       {
-         SequenceCompiler.compile(sequence, wyrd_world);
+         SequenceCompiler.compile(this, sequence);
       }
    }
 
-   protected static void compile_main_sequence
+   protected void compile_main_sequence
    (
-      final tonkadur.fate.v1.lang.World fate_world,
-      final World wyrd_world
+      final tonkadur.fate.v1.lang.World fate_world
    )
-   throws Error
+   throws Throwable
    {
       SequenceCompiler.compile_main_sequence
       (
-         fate_world.get_global_instructions(),
-         wyrd_world
+         this,
+         fate_world.get_global_instructions()
       );
+   }
+
+   public World world ()
+   {
+      return wyrd_world;
+   }
+
+   public AnonymousVariableManager anonymous_variables ()
+   {
+      return anonymous_variables;
+   }
+
+   public InstructionManager assembler ()
+   {
+      return assembler;
+   }
+
+   public MacroManager macros ()
+   {
+      return macro_manager;
    }
 }

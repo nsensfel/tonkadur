@@ -1,7 +1,5 @@
 package tonkadur.wyrd.v1.lang.instruction;
 
-import java.util.List;
-
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
@@ -11,13 +9,13 @@ public class AddChoice extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation label;
-   protected final List<Instruction> effect;
+   protected final Instruction effect;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public AddChoice (final Computation label, final List<Instruction> effect)
+   public AddChoice (final Computation label, final Instruction effect)
    {
       this.label = label;
       this.effect = effect;
@@ -29,7 +27,7 @@ public class AddChoice extends Instruction
       return label;
    }
 
-   public List<Instruction> get_effect ()
+   public Instruction get_effect ()
    {
       return effect;
    }

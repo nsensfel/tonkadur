@@ -17,8 +17,8 @@ public class TypeCompiler
 
    public static Type compile
    (
-      tonkadur.fate.v1.lang.type.Type fate_type,
-      final World wyrd_world
+      final Compiler compiler,
+      tonkadur.fate.v1.lang.type.Type fate_type
    )
    throws Error
    {
@@ -27,8 +27,8 @@ public class TypeCompiler
          return
             compile_dict_type
             (
-               (tonkadur.fate.v1.lang.type.DictType) fate_type,
-               wyrd_world
+               compiler,
+               (tonkadur.fate.v1.lang.type.DictType) fate_type
             );
       }
 
@@ -37,8 +37,8 @@ public class TypeCompiler
          return
             compile_collection_type
             (
-               (tonkadur.fate.v1.lang.type.CollectionType) fate_type,
-               wyrd_world
+               compiler,
+               (tonkadur.fate.v1.lang.type.CollectionType) fate_type
             );
       }
 
@@ -80,15 +80,15 @@ public class TypeCompiler
 
    protected static Type compile_dict_type
    (
-      final tonkadur.fate.v1.lang.type.DictType fate_dict_type,
-      final World wyrd_world
+      final Compiler compiler,
+      final tonkadur.fate.v1.lang.type.DictType fate_dict_type
    )
    throws Error
    {
       DictType result;
       final Map<String, Type> fields;
 
-      result = wyrd_world.get_dict_type(fate_dict_type.get_name());
+      result = compiler.world().get_dict_type(fate_dict_type.get_name());
 
       if (result != null)
       {
@@ -103,20 +103,24 @@ public class TypeCompiler
             fate_dict_type.get_fields()
       )
       {
-         fields.put(field.getKey(), compile(field.getValue(), wyrd_world));
+         fields.put
+         (
+            field.getKey(),
+            compile(compiler, field.getValue())
+         );
       }
 
       result = new DictType(fate_dict_type.get_name(), fields);
 
-      wyrd_world.add_dict_type(result);
+      compiler.world().add_dict_type(result);
 
       return result;
    }
 
    protected static Type compile_collection_type
    (
-      final tonkadur.fate.v1.lang.type.CollectionType fate_collection_type,
-      final World wyrd_world
+      final Compiler compiler,
+      final tonkadur.fate.v1.lang.type.CollectionType fate_collection_type
    )
    throws Error
    {

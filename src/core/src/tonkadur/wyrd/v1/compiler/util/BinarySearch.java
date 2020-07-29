@@ -17,9 +17,7 @@ import tonkadur.wyrd.v1.lang.computation.RelativeRef;
 import tonkadur.wyrd.v1.lang.computation.Size;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
-import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
-import tonkadur.wyrd.v1.lang.instruction.While;
 
 public class BinarySearch
 {
@@ -42,7 +40,9 @@ public class BinarySearch
     * (set .bot 0)
     * (set .top (- collection_size 1))
     *
-    * (while (and (not (var result_found)) (<= (var .bot) (var .top)))
+    * <while
+    *    (and (not (var result_found)) (<= (var .bot) (var .top)))
+    *
     *    (set result_index
     *       (+
     *          (var .bot)
@@ -57,18 +57,25 @@ public class BinarySearch
     *       )
     *    )
     *    (set .midval (var collection[.result_index]))
-    *    (ifelse (< (var .midval) element)
+    *    <ifelse
+    *       (< (var .midval) element)
+    *
     *       (set .bot (+ (var result_index) 1))
-    *       (ifelse (> (var .midval) element)
+    *
+    *       <ifelse
+    *          (> (var .midval) element)
+    *
     *          (set .top (- (var result_index) 1))
+    *
     *          (set result_found true)
-    *       )
-    *    )
+    *       >
+    *    >
     * )
     */
-   public static List<Instruction> generate
+   public static Instruction generate
    (
       final AnonymousVariableManager anonymous_variables,
+      final InstructionManager assembler,
       final Computation target,
       final Computation collection_size,
       final Ref collection,
@@ -174,67 +181,67 @@ public class BinarySearch
       );
 
       /*
-       *    (ifelse (< (var .midval) element)
+       *    <ifelse
+       *       (< (var .midval) element)
+       *
        *       (set .bot (+ (var result_index) 1))
-       *       (ifelse (> (var .midval) element)
+       *
+       *       <ifelse
+       *          (> (var .midval) element)
+       *
        *          (set .top (- (var result_index) 1))
+       *
        *          (set result_found true)
-       *       )
-       *    )
+       *       >
+       *    >
        */
       while_body.add
       (
-         new IfElseInstruction
+         IfElse.generate
          (
+            anonymous_variables,
+            assembler,
             Operation.less_than(value_of_midval, target),
-            Collections.singletonList
+            new SetValue
             (
+               bot,
+               Operation.plus
+               (
+                  value_of_result_index,
+                  new Constant(Type.INT, "1")
+               )
+            ),
+            IfElse.generate
+            (
+               anonymous_variables,
+               assembler,
+               Operation.greater_than(value_of_midval, target),
                new SetValue
                (
-                  bot,
-                  Operation.plus
+                  top,
+                  Operation.minus
                   (
                      value_of_result_index,
                      new Constant(Type.INT, "1")
                   )
-               )
-            ),
-            Collections.singletonList
-            (
-               new IfElseInstruction
-               (
-                  Operation.greater_than(value_of_midval, target),
-                  Collections.singletonList
-                  (
-                     new SetValue
-                     (
-                        top,
-                        Operation.minus
-                        (
-                           value_of_result_index,
-                           new Constant(Type.INT, "1")
-                        )
-                     )
-                  ),
-                  Collections.singletonList
-                  (
-                     new SetValue(result_was_found, Constant.TRUE)
-                  )
-               )
+               ),
+               new SetValue(result_was_found, Constant.TRUE)
             )
          )
       );
 
       result.add
       (
-         new While
+         While.generate
          (
+            anonymous_variables,
+            assembler,
             Operation.and
             (
                Operation.not(new ValueOf(result_was_found)),
                Operation.less_equal_than(value_of_bot, value_of_top)
             ),
-            while_body
+            assembler.merge(while_body)
          )
       );
 
@@ -242,6 +249,6 @@ public class BinarySearch
       anonymous_variables.release(top);
       anonymous_variables.release(midval);
 
-      return result;
+      return assembler.merge(result);
    }
 }

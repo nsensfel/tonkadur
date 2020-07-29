@@ -16,11 +16,8 @@ import tonkadur.wyrd.v1.lang.computation.Ref;
 import tonkadur.wyrd.v1.lang.computation.RelativeRef;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
-import tonkadur.wyrd.v1.lang.instruction.IfElseInstruction;
-import tonkadur.wyrd.v1.lang.instruction.NOP;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
-import tonkadur.wyrd.v1.lang.instruction.While;
 
 public class RemoveAllOf
 {
@@ -40,27 +37,19 @@ public class RemoveAllOf
     * (set .found 0)
     * (set .end (- collection_size 1))
     *
-    * (while (< (var .index) (var .end))
+    * <while (< (var .index) (var .end))
     *    ;; while_body0
-    *    (ifelse (= (var .found) 0)
-    *       (
-    *          (nop)
-    *       )
-    *       (
-    *          (ifelse (= element (var collection[.index]))
-    *             (
+    *    <if (> (var .found) 0)
+    *          <if (= element (var collection[.index]))
     *                ;; if_false_true_body
     *                (set .found (+ (var .found) 1))
     *                (set .end (- (var .end) 1))
-    *             )
-    *             (nop)
-    *          )
+    *          >
     *          (set
     *             collection[.index]
     *             (var collection[(+ (var .index) (var .found))])
     *          )
-    *       )
-    *    )
+    *    >
     *    (set index ((val .index) + 1))
     * )
     *
@@ -70,9 +59,10 @@ public class RemoveAllOf
     *    (set .found (- (var .found) 1))
     * )
     */
-   public static List<Instruction> generate
+   public static Instruction generate
    (
       final AnonymousVariableManager anonymous_variables,
+      final InstructionManager assembler,
       final Computation element,
       final Computation collection_size,
       final Ref collection
@@ -81,11 +71,10 @@ public class RemoveAllOf
       final List<Instruction> result;
       final List<Instruction> while_body0, while_body1, if_false_body;
       final List<Instruction> if_false_true_body;
-      final List<Instruction> nop_branch;
       final Type element_type;
       final Ref index, found, end;
       final Computation value_of_index, value_of_found, value_of_end;
-      final Computation const_0, const_1;
+      final Computation const_0, const_1, value_of_found_greater_than_0;
       final Ref collection_at_index;
 
       result = new ArrayList<Instruction>();
@@ -94,8 +83,6 @@ public class RemoveAllOf
       while_body1 = new ArrayList<Instruction>();
       if_false_body = new ArrayList<Instruction>();
       if_false_true_body = new ArrayList<Instruction>();
-
-      nop_branch = Collections.singletonList(new NOP());
 
       element_type = element.get_type();
 
@@ -109,6 +96,9 @@ public class RemoveAllOf
 
       const_0 = new Constant(Type.INT, "0");
       const_1 = new Constant(Type.INT, "1");
+
+      value_of_found_greater_than_0 =
+         Operation.greater_than(value_of_found, const_0);
 
       collection_at_index =
          new RelativeRef
@@ -149,11 +139,12 @@ public class RemoveAllOf
 
       if_false_body.add
       (
-         new IfElseInstruction
+         If.generate
          (
+            anonymous_variables,
+            assembler,
             Operation.equals(element, new ValueOf(collection_at_index)),
-            if_false_true_body,
-            nop_branch
+            assembler.merge(if_false_true_body)
          )
       );
 
@@ -186,11 +177,12 @@ public class RemoveAllOf
 
       while_body0.add
       (
-         new IfElseInstruction
+         If.generate
          (
-            Operation.equals(value_of_found, const_0),
-            nop_branch,
-            if_false_body
+            anonymous_variables,
+            assembler,
+            value_of_found_greater_than_0,
+            assembler.merge(if_false_body)
          )
       );
 
@@ -201,10 +193,12 @@ public class RemoveAllOf
 
       result.add
       (
-         new While
+         While.generate
          (
+            anonymous_variables,
+            assembler,
             Operation.less_than(value_of_index, value_of_end),
-            while_body0
+            assembler.merge(while_body0)
          )
       );
 
@@ -234,10 +228,12 @@ public class RemoveAllOf
 
       result.add
       (
-         new While
+         While.generate
          (
-            Operation.less_than(value_of_found, const_0),
-            while_body1
+            anonymous_variables,
+            assembler,
+            value_of_found_greater_than_0,
+            assembler.merge(while_body1)
          )
       );
 
@@ -245,6 +241,6 @@ public class RemoveAllOf
       anonymous_variables.release(found);
       anonymous_variables.release(end);
 
-      return result;
+      return assembler.merge(result);
    }
 }

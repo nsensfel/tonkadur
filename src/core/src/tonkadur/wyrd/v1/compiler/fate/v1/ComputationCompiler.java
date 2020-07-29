@@ -13,14 +13,10 @@ import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.World;
 
-import tonkadur.wyrd.v1.compiler.util.AnonymousVariableManager;
-
 public class ComputationCompiler
 implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 {
-   protected final MacroManager macro_manager;
-   protected final AnonymousVariableManager anonymous_variables;
-   protected final World wyrd_world;
+   protected final Compiler compiler;
    protected final List<Instruction> pre_computation_instructions;
    protected final List<Ref> allocated_variables;
    protected final boolean expect_ref;
@@ -29,15 +25,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
    public ComputationCompiler
    (
-      final MacroManager macro_manager,
-      final AnonymousVariableManager anonymous_variables,
-      final World wyrd_world,
+      final Compiler compiler,
       final boolean expect_ref
    )
    {
-      this.macro_manager = macro_manager;
-      this.anonymous_variables = anonymous_variables;
-      this.wyrd_world = wyrd_world;
+      this.compiler = compiler;
       this.expect_ref = expect_ref;
 
       allocated_variables = new ArrayList<Ref>();
@@ -46,9 +38,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       result_as_computation = null;
    }
 
-   public List<Instruction> get_pre_instructions ()
+   public Instruction get_init ()
    {
-      return pre_computation_instructions;
+      return compiler.assembler().merge(pre_computation_instructions);
    }
 
    public Computation get_computation ()
@@ -67,6 +59,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
    public Ref get_ref ()
    {
+      if ((result_as_ref == null) && (result_as_computation != null))
+      {
+         generate_ref();
+      }
+
       return result_as_ref;
    }
 
@@ -74,18 +71,22 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    {
       final Ref result;
 
-      result = anonymous_variables.reserve(result_as_computation.get_type());
+      result =
+         compiler.anonymous_variables().reserve
+         (
+            result_as_computation.get_type()
+         );
 
       allocated_variables.add(result);
 
       result_as_ref = result;
    }
 
-   public void free_anonymous_variables ()
+   public void release_variables ()
    {
       for (final Ref ref: allocated_variables)
       {
-         anonymous_variables.release(ref);
+         compiler.anonymous_variables().release(ref);
       }
    }
 

@@ -10,8 +10,6 @@ public abstract class Instruction extends Node
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Collection<Instruction> parents;
-   protected Instruction child;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -20,9 +18,6 @@ public abstract class Instruction extends Node
    protected Instruction (final Origin origin)
    {
       super(origin);
-
-      parents = new HashSet<Instruction>();
-      child = null;
    }
 
    /***************************************************************************/
@@ -33,23 +28,6 @@ public abstract class Instruction extends Node
    throws Throwable
    {
 
-   }
-
-   public void link_parent (final Instruction parent)
-   {
-      parent.child = this;
-
-      parents.add(parent);
-   }
-
-   public Collection<Instruction> get_parents ()
-   {
-      return parents;
-   }
-
-   public Instruction get_child ()
-   {
-      return child;
    }
 
    /**** Misc. ****************************************************************/

@@ -24,7 +24,7 @@ public class MacroManager
 
    public void push
    (
-      tonkadur.fate.v1.lang.Macro macro,
+      final tonkadur.fate.v1.lang.Macro macro,
       final List<Ref> parameter_refs
    )
    {
