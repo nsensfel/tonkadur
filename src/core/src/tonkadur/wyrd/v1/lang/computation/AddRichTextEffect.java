@@ -1,20 +1,18 @@
 package tonkadur.wyrd.v1.lang.computation;
 
 import java.util.List;
-import java.util.Map;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 
-public class AddRichTextEffect extends Computation
+public class AddRichTextEffect extends RichText
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final String effect_name;
    protected final List<Computation> effect_parameters;
-   protected final List<Computation> content;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -27,11 +25,10 @@ public class AddRichTextEffect extends Computation
       final List<Computation> content
    )
    {
-      super(Type.RICH_TEXT);
+      super(content);
 
       this.effect_name = effect_name;
       this.effect_parameters = effect_parameters;
-      this.content = content;
    }
 
    /**** Accessors ************************************************************/
@@ -43,10 +40,5 @@ public class AddRichTextEffect extends Computation
    public List<Computation> get_effect_parameters ()
    {
       return effect_parameters;
-   }
-
-   public List<Computation> get_content ()
-   {
-      return content;
    }
 }

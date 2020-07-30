@@ -175,4 +175,14 @@ public class Operation extends Computation
    {
       cv.visit_operation(this);
    }
+
+   public Operator get_operator ()
+   {
+      return operator;
+   }
+
+   public List<Computation> get_operands ()
+   {
+      return operands;
+   }
 }

@@ -170,10 +170,7 @@ public class BinarySearch
                new RelativeRef
                (
                   collection,
-                  Collections.singletonList
-                  (
-                     new Cast(value_of_result_index, Type.STRING)
-                  ),
+                  new Cast(value_of_result_index, Type.STRING),
                   element_type
                )
             )

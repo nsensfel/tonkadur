@@ -100,17 +100,27 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final Type element_type;
       final Computation value_of_element, value_of_collection_size;
 
-      element_compiler = new ComputationCompiler(compiler, false);
+      element_compiler = new ComputationCompiler(compiler);
       ae.get_element().get_visited_by(element_compiler);
-      result.add(element_compiler.get_init());
+
+      if (element_compiler.has_init())
+      {
+         result.add(element_compiler.get_init());
+      }
+
       element_type = element_compiler.get_computation().get_type();
       element = compiler.anonymous_variables().reserve(element_type);
       result.add(new SetValue(element, element_compiler.get_computation()));
       element_compiler.release_variables();
 
-      reference_compiler = new ComputationCompiler(compiler, true);
+      reference_compiler = new ComputationCompiler(compiler);
       ae.get_collection().get_visited_by(reference_compiler);
-      result.add(reference_compiler.get_init());
+
+      if (reference_compiler.has_init())
+      {
+         result.add(reference_compiler.get_init());
+      }
+
       collection = reference_compiler.get_ref();
 
       element_found = compiler.anonymous_variables().reserve(Type.BOOLEAN);
@@ -185,18 +195,26 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final Ref collection_as_ref;
       final ComputationCompiler element_compiler, reference_compiler;
 
-      element_compiler = new ComputationCompiler(compiler, false);
+      element_compiler = new ComputationCompiler(compiler);
 
       ae.get_element().get_visited_by(element_compiler);
 
-      reference_compiler = new ComputationCompiler(compiler, true);
+      reference_compiler = new ComputationCompiler(compiler);
 
       ae.get_collection().get_visited_by(reference_compiler);
 
       collection_as_ref = reference_compiler.get_ref();
 
-      result.add(reference_compiler.get_init());
-      result.add(element_compiler.get_init());
+      if (reference_compiler.has_init())
+      {
+         result.add(reference_compiler.get_init());
+      }
+
+      if (element_compiler.has_init())
+      {
+         result.add(element_compiler.get_init());
+      }
+
       result.add
       (
          new SetValue
@@ -204,13 +222,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             new RelativeRef
             (
                collection_as_ref,
-               Collections.singletonList
+               new Cast
                (
-                  new Cast
-                  (
-                     new Size(collection_as_ref),
-                     Type.STRING
-                  )
+                  new Size(collection_as_ref),
+                  Type.STRING
                ),
                element_compiler.get_computation().get_type()
             ),
@@ -266,11 +281,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        */
       final ComputationCompiler cc;
 
-      cc = new ComputationCompiler(compiler, false);
+      cc = new ComputationCompiler(compiler);
 
       a.get_condition().get_visited_by(cc);
 
-      result.add(cc.get_init());
+      if (cc.has_init())
+      {
+         result.add(cc.get_init());
+      }
+
       result.add(new Assert(cc.get_computation()));
 
       cc.release_variables();
@@ -288,13 +307,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler reference_compiler;
       final Ref collection_ref;
 
-      reference_compiler = new ComputationCompiler(compiler, true);
+      reference_compiler = new ComputationCompiler(compiler);
 
       c.get_collection().get_visited_by(reference_compiler);
 
       collection_ref = reference_compiler.get_ref();
 
-      result.add(reference_compiler.get_init());
+      if (reference_compiler.has_init())
+      {
+         result.add(reference_compiler.get_init());
+      }
+
       result.add
       (
          Clear.generate
@@ -358,11 +381,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          current_else_branch = new ArrayList<Instruction>();
 
          ic = new InstructionCompiler(compiler);
-         cc = new ComputationCompiler(compiler, false);
+         cc = new ComputationCompiler(compiler);
 
          branch.get_car().get_visited_by(cc);
 
-         previous_else_branch.add(cc.get_init());
+         if (cc.has_init())
+         {
+            previous_else_branch.add(cc.get_init());
+         }
+
          previous_else_branch.add
          (
             IfElse.generate
@@ -401,12 +428,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        */
       final ComputationCompiler cc;
 
-      cc = new ComputationCompiler(compiler, false);
+      cc = new ComputationCompiler(compiler);
 
       n.get_content().get_visited_by(cc);
 
-      result.add(cc.get_init());
-      result.add(new Display(Collections.singletonList(cc.get_computation())));
+      if (cc.has_init())
+      {
+         result.add(cc.get_init());
+      }
+
+      result.add(new Display(cc.get_computation()));
 
       cc.release_variables();
    }
@@ -437,11 +468,14 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          final ComputationCompiler cc;
 
-         cc = new ComputationCompiler(compiler, false);
+         cc = new ComputationCompiler(compiler);
 
          fate_computation.get_visited_by(cc);
 
-         result.add(cc.get_init());
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
 
          cc_list.add(cc);
          parameters.add(cc.get_computation());
@@ -471,7 +505,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final InstructionCompiler if_true_ic;
       final InstructionCompiler if_false_ic;
 
-      cc = new ComputationCompiler(compiler, false);
+      cc = new ComputationCompiler(compiler);
       if_true_ic = new InstructionCompiler(compiler);
       if_false_ic = new InstructionCompiler(compiler);
 
@@ -479,7 +513,11 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       n.get_if_true().get_visited_by(if_true_ic);
       n.get_if_false().get_visited_by(if_false_ic);
 
-      result.add(cc.get_init());
+      if (cc.has_init())
+      {
+         result.add(cc.get_init());
+      }
+
       result.add
       (
          IfElse.generate
@@ -510,13 +548,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler cc;
       final InstructionCompiler if_true_ic;
 
-      cc = new ComputationCompiler(compiler, false);
+      cc = new ComputationCompiler(compiler);
       if_true_ic = new InstructionCompiler(compiler);
 
       n.get_condition().get_visited_by(cc);
       n.get_if_true().get_visited_by(if_true_ic);
 
-      result.add(cc.get_init());
+      if (cc.has_init())
+      {
+         result.add(cc.get_init());
+      }
+
       result.add
       (
          If.generate
@@ -585,11 +627,14 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          final ComputationCompiler cc;
 
-         cc = new ComputationCompiler(compiler, true);
+         cc = new ComputationCompiler(compiler);
 
          fate_computation.get_visited_by(cc);
 
-         result.add(cc.get_init());
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
 
          cc_list.add(cc);
          parameters.add(cc.get_ref());
@@ -620,12 +665,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler cc;
       final InstructionCompiler ic;
 
-      cc = new ComputationCompiler(compiler, false);
+      cc = new ComputationCompiler(compiler);
       ic = new InstructionCompiler(compiler);
 
       n.get_text().get_visited_by(cc);
 
-      result.add(cc.get_init());
+      if (cc.has_init())
+      {
+         result.add(cc.get_init());
+      }
 
       for
       (
@@ -710,8 +758,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler elem_cc, collection_cc;
       final Ref elem, collection_size, collection;
 
-      elem_cc = new ComputationCompiler(compiler, false);
-      collection_cc = new ComputationCompiler(compiler, true);
+      elem_cc = new ComputationCompiler(compiler);
+      collection_cc = new ComputationCompiler(compiler);
 
       elem =
          compiler.anonymous_variables().reserve
@@ -724,8 +772,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       n.get_element().get_visited_by(elem_cc);
       n.get_collection().get_visited_by(collection_cc);
 
-      result.add(elem_cc.get_init());
-      result.add(collection_cc.get_init());
+      if (elem_cc.has_init())
+      {
+         result.add(elem_cc.get_init());
+      }
+
+      if (collection_cc.has_init())
+      {
+         result.add(collection_cc.get_init());
+      }
 
       collection = collection_cc.get_ref();
 
@@ -856,8 +911,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final Ref collection;
       final Computation value_of_collection_size;
 
-      elem_cc = new ComputationCompiler(compiler, false);
-      collection_cc = new ComputationCompiler(compiler, true);
+      elem_cc = new ComputationCompiler(compiler);
+      collection_cc = new ComputationCompiler(compiler);
 
       elem =
          compiler.anonymous_variables().reserve
@@ -872,8 +927,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       n.get_element().get_visited_by(elem_cc);
       n.get_collection().get_visited_by(collection_cc);
 
-      result.add(elem_cc.get_init());
-      result.add(collection_cc.get_init());
+      if (elem_cc.has_init())
+      {
+         result.add(elem_cc.get_init());
+      }
+
+      if (collection_cc.has_init())
+      {
+         result.add(collection_cc.get_init());
+      }
 
       collection = collection_cc.get_ref();
 
@@ -985,14 +1047,22 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        */
       final ComputationCompiler value_cc, ref_cc;
 
-      value_cc = new ComputationCompiler(compiler, false);
-      ref_cc = new ComputationCompiler(compiler, true);
+      value_cc = new ComputationCompiler(compiler);
+      ref_cc = new ComputationCompiler(compiler);
 
       n.get_value().get_visited_by(value_cc);
-      result.add(value_cc.get_init());
+
+      if (value_cc.has_init())
+      {
+         result.add(value_cc.get_init());
+      }
 
       n.get_reference().get_visited_by(ref_cc);
-      result.add(ref_cc.get_init());
+
+      if (ref_cc.has_init())
+      {
+         result.add(ref_cc.get_init());
+      }
 
       result.add
       (
@@ -1002,4 +1072,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       value_cc.release_variables();
       ref_cc.release_variables();
    }
+
+   /*
+    * TODO: Be careful about compiling Fate's loop operators:
+    *    You can't do:
+    *       condition.get_visited_by(ComputationCompiler);
+    *       result.add(ComputationCompiler.get_init();
+    *       result.add(While.generate(...));
+    *
+    *       The whatever is added in result.add(ComputationCompiler.get_init();
+    *       needs to be re-evaluated at every iteration.
+    */
 }

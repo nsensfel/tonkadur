@@ -162,10 +162,14 @@ public class InstructionManager
 
    public Instruction merge (final List<Instruction> instructions)
    {
-      if (instructions.size() == 0)
+      if (instructions.isEmpty())
       {
          /* Important in case of label on InstructionList */
          return NOP.generate(this);
+      }
+      else if (instructions.size() == 1)
+      {
+         return instructions.get(0);
       }
 
       return new InstructionList(instructions);

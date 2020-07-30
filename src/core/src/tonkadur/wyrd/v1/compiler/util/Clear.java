@@ -82,10 +82,7 @@ public class Clear
             new RelativeRef
             (
                collection,
-               Collections.singletonList
-               (
-                  new Cast(value_of_iterator, Type.STRING)
-               ),
+               new Cast(value_of_iterator, Type.STRING),
                element_type
             )
          )

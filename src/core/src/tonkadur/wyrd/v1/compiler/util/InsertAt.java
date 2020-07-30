@@ -92,10 +92,7 @@ public class InsertAt
             new RelativeRef
             (
                collection,
-               Collections.singletonList
-               (
-                  new Cast(value_of_end, Type.STRING)
-               ),
+               new Cast(value_of_end, Type.STRING),
                element_type
             ),
             new ValueOf
@@ -103,10 +100,7 @@ public class InsertAt
                new RelativeRef
                (
                   collection,
-                  Collections.singletonList
-                  (
-                     new Cast(value_of_prev, Type.STRING)
-                  ),
+                  new Cast(value_of_prev, Type.STRING),
                   element_type
                )
             )
@@ -142,10 +136,7 @@ public class InsertAt
             new RelativeRef
             (
                collection,
-               Collections.singletonList
-               (
-                  new Cast(value_of_index, Type.STRING)
-               ),
+               new Cast(value_of_index, Type.STRING),
                element_type
             ),
             element

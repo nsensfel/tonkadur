@@ -123,6 +123,22 @@ public class IfElseValue extends Computation
    }
 
    /**** Accessors ************************************************************/
+
+   public Computation get_condition ()
+   {
+      return condition;
+   }
+
+   public Computation get_if_true ()
+   {
+      return if_true;
+   }
+
+   public Computation get_if_false ()
+   {
+      return if_false;
+   }
+
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable

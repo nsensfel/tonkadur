@@ -1,7 +1,5 @@
 package tonkadur.wyrd.v1.lang.computation;
 
-import java.util.List;
-
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
@@ -20,11 +18,11 @@ public class RelativeRef extends Ref
    public RelativeRef
    (
       final Ref parent,
-      final List<Computation> accesses,
+      final Computation member,
       final Type target_type
    )
    {
-      super(accesses, target_type);
+      super(member, target_type);
 
       this.parent = parent;
    }

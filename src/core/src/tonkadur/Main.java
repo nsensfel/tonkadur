@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import tonkadur.parser.Context;
 
-import tonkadur.fate.v1.lang.World;
-
 import tonkadur.fate.v1.Utils;
 
 public class Main
@@ -15,23 +13,42 @@ public class Main
 
    public static void main (final String[] args)
    {
-      final World world;
+      final tonkadur.fate.v1.lang.World fate_world;
+      final tonkadur.wyrd.v1.lang.World wyrd_world;
       final Context context;
 
-      world = new World();
+      fate_world = new tonkadur.fate.v1.lang.World();
       context = Context.build(args[0]);
 
       try
       {
-         Utils.add_file_content(context.get_current_file(), context, world);
+         Utils.add_file_content
+         (
+            context.get_current_file(),
+            context,
+            fate_world
+         );
 
          System.out.println("Parsing completed.");
-         System.out.println(world.toString());
+         System.out.println(fate_world.toString());
       }
       catch (final Exception e)
       {
          System.err.println("Parsing failed.");
-         System.err.println(world.toString());
+         System.err.println(fate_world.toString());
+         e.printStackTrace();
+      }
+
+      try
+      {
+         wyrd_world =
+            tonkadur.wyrd.v1.compiler.fate.v1.Compiler.compile(fate_world);
+
+         System.out.println("Compilation completed.");
+      }
+      catch (final Throwable e)
+      {
+         System.err.println("Compilation failed.");
          e.printStackTrace();
       }
    }

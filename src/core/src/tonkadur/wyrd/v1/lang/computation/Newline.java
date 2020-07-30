@@ -1,10 +1,8 @@
 package tonkadur.wyrd.v1.lang.computation;
 
-import tonkadur.wyrd.v1.lang.type.Type;
+import java.util.ArrayList;
 
-import tonkadur.wyrd.v1.lang.meta.Computation;
-
-public class Newline extends Computation
+public class Newline extends RichText
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -16,6 +14,6 @@ public class Newline extends Computation
    /**** Constructors *********************************************************/
    public Newline ()
    {
-      super(Type.STRING);
+      super(new ArrayList());
    }
 }

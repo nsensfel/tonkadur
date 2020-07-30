@@ -104,10 +104,7 @@ public class RemoveAllOf
          new RelativeRef
          (
             collection,
-            Collections.singletonList
-            (
-               new Cast(value_of_index, Type.STRING)
-            ),
+            new Cast(value_of_index, Type.STRING),
             element_type
          );
 
@@ -162,13 +159,10 @@ public class RemoveAllOf
             new RelativeRef
             (
                collection,
-               Collections.singletonList
+               new Cast
                (
-                  new Cast
-                  (
-                     Operation.plus(value_of_index, value_of_found),
-                     Type.STRING
-                  )
+                  Operation.plus(value_of_index, value_of_found),
+                  Type.STRING
                ),
                element_type
             )
@@ -209,13 +203,10 @@ public class RemoveAllOf
             new RelativeRef
             (
                collection,
-               Collections.singletonList
+               new Cast
                (
-                  new Cast
-                  (
-                     Operation.plus(value_of_end, value_of_found),
-                     Type.STRING
-                  )
+                  Operation.plus(value_of_end, value_of_found),
+                  Type.STRING
                ),
                element_type
             )

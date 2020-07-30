@@ -80,10 +80,7 @@ public class RemoveAt
          new RelativeRef
          (
             collection,
-            Collections.singletonList
-            (
-               new Cast(value_of_index, Type.STRING)
-            ),
+            new Cast(value_of_index, Type.STRING),
             element_type
          );
 
@@ -110,10 +107,7 @@ public class RemoveAt
                new RelativeRef
                (
                   collection,
-                  Collections.singletonList
-                  (
-                     new Cast(value_of_next, Type.STRING)
-                  ),
+                  new Cast(value_of_next, Type.STRING),
                   element_type
                )
             )

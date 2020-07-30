@@ -1,5 +1,6 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -8,8 +9,14 @@ import tonkadur.error.Error;
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.ValueOf;
+import tonkadur.wyrd.v1.lang.type.Type;
+
+import tonkadur.wyrd.v1.lang.instruction.SetValue;
+
+import tonkadur.wyrd.v1.compiler.util.IfElse;
+
+import tonkadur.wyrd.v1.lang.computation.*;
+
 
 import tonkadur.wyrd.v1.lang.World;
 
@@ -17,30 +24,38 @@ public class ComputationCompiler
 implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 {
    protected final Compiler compiler;
-   protected final List<Instruction> pre_computation_instructions;
-   protected final List<Ref> allocated_variables;
-   protected final boolean expect_ref;
+   protected final List<Instruction> init_instructions;
+   protected final List<Ref> reserved_variables;
+   protected boolean instructions_were_generated;
    protected Computation result_as_computation;
    protected Ref result_as_ref;
 
-   public ComputationCompiler
-   (
-      final Compiler compiler,
-      final boolean expect_ref
-   )
+   public ComputationCompiler (final Compiler compiler)
    {
       this.compiler = compiler;
-      this.expect_ref = expect_ref;
 
-      allocated_variables = new ArrayList<Ref>();
-      pre_computation_instructions = new ArrayList<Instruction>();
+      reserved_variables = new ArrayList<Ref>();
+      init_instructions = new ArrayList<Instruction>();
       result_as_ref = null;
       result_as_computation = null;
+      instructions_were_generated = false;
+   }
+
+   public boolean has_init ()
+   {
+      return !init_instructions.isEmpty();
    }
 
    public Instruction get_init ()
    {
-      return compiler.assembler().merge(pre_computation_instructions);
+      instructions_were_generated = true;
+
+      if (init_instructions.isEmpty())
+      {
+         return null;
+      }
+
+      return compiler.assembler().merge(init_instructions);
    }
 
    public Computation get_computation ()
@@ -59,35 +74,50 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
    public Ref get_ref ()
    {
-      if ((result_as_ref == null) && (result_as_computation != null))
-      {
-         generate_ref();
-      }
-
       return result_as_ref;
    }
 
-   protected void generate_ref ()
+   public void generate_ref ()
    {
-      final Ref result;
+      if ((!instructions_were_generated) && (result_as_ref == null))
+      {
+         final Ref result;
 
-      result =
-         compiler.anonymous_variables().reserve
+         result = reserve(result_as_computation.get_type());
+
+         init_instructions.add
          (
-            result_as_computation.get_type()
+            new SetValue(result, result_as_computation)
          );
 
-      allocated_variables.add(result);
 
-      result_as_ref = result;
+         result_as_ref = result;
+      }
    }
 
    public void release_variables ()
    {
-      for (final Ref ref: allocated_variables)
+      for (final Ref ref: reserved_variables)
       {
          compiler.anonymous_variables().release(ref);
       }
+   }
+
+   protected void assimilate (final ComputationCompiler cc)
+   {
+      init_instructions.addAll(cc.init_instructions);
+      reserved_variables.addAll(cc.reserved_variables);
+   }
+
+   protected Ref reserve (final Type t)
+   {
+      final Ref result;
+
+      result = compiler.anonymous_variables().reserve(t);
+
+      reserved_variables.add(result);
+
+      return result;
    }
 
    @Override
@@ -97,7 +127,27 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler n_cc;
+
+      n_cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(n_cc);
+
+      assimilate(n_cc);
+
+      result_as_ref =
+         new Ref
+         (
+            n_cc.get_computation(),
+            TypeCompiler.compile
+            (
+               compiler,
+               (
+                  (tonkadur.fate.v1.lang.type.RefType)
+                     n.get_parent().get_type()
+               ).get_referenced_type()
+            )
+         );
    }
 
    @Override
@@ -127,7 +177,12 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      result_as_computation =
+         new Constant
+         (
+            TypeCompiler.compile(compiler, n.get_type()),
+            n.get_value_as_string()
+         );
    }
 
    @Override
@@ -147,7 +202,28 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler n_cc;
+
+      n_cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(n_cc);
+
+      assimilate(n_cc);
+
+      result_as_ref =
+         new RelativeRef
+         (
+            n_cc.get_ref(),
+            new Constant(Type.STRING, n.get_field_name()),
+            TypeCompiler.compile
+            (
+               compiler,
+               (
+                  (tonkadur.fate.v1.lang.type.RefType)
+                     n.get_parent().get_type()
+               ).get_referenced_type()
+            )
+         );
    }
 
    @Override
@@ -157,7 +233,97 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler cond_cc, if_true_cc, if_false_cc;
+
+      cond_cc = new ComputationCompiler(compiler);
+      if_true_cc = new ComputationCompiler(compiler);
+      if_false_cc = new ComputationCompiler(compiler);
+
+      n.get_condition().get_visited_by(cond_cc);
+      n.get_if_true().get_visited_by(if_true_cc);
+      n.get_if_false().get_visited_by(if_false_cc);
+
+      if (if_true_cc.has_init() || if_false_cc.has_init())
+      {
+         /*
+          * Unsafe ifelse computation: at least one of the branches needs to
+          * use instructions with values *before* the condition has been
+          * checked. This results in non-lazy evaluation, and is dangerous:
+          * the condition might be a test to ensure that the computations of the
+          * chosen branch are legal. In such cases, performing the potentially
+          * illegal branch's instructions is likely to result in a runtime error
+          * on the interpreter.
+          *
+          * Instead, we just convert the ifelse into an instruction-based
+          * equivalent and store the result in an anonymous variable to be used
+          * here.
+          */
+         final Ref if_else_result;
+         final List<Instruction> if_true_branch;
+         final List<Instruction> if_false_branch;
+
+         if_else_result = reserve(if_true_cc.get_computation().get_type());
+
+         if_true_branch = new ArrayList<Instruction>();
+         if_false_branch = new ArrayList<Instruction>();
+
+         if (if_true_cc.has_init())
+         {
+            if_true_branch.add(if_true_cc.get_init());
+         }
+
+         if (if_false_cc.has_init())
+         {
+            if_false_branch.add(if_false_cc.get_init());
+         }
+
+         if_true_branch.add
+         (
+            new SetValue(if_else_result, if_true_cc.get_computation())
+         );
+
+         if_false_branch.add
+         (
+            new SetValue(if_else_result, if_false_cc.get_computation())
+         );
+
+         if (cond_cc.has_init())
+         {
+            init_instructions.add(cond_cc.get_init());
+         }
+
+         init_instructions.add
+         (
+            IfElse.generate
+            (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
+               cond_cc.get_computation(),
+               compiler.assembler().merge(if_true_branch),
+               compiler.assembler().merge(if_false_branch)
+            )
+         );
+
+         reserved_variables.addAll(cond_cc.reserved_variables);
+         reserved_variables.addAll(if_true_cc.reserved_variables);
+         reserved_variables.addAll(if_false_cc.reserved_variables);
+
+         result_as_computation = new ValueOf(if_else_result);
+      }
+      else
+      {
+         assimilate(cond_cc);
+         assimilate(if_true_cc);
+         assimilate(if_false_cc);
+
+         result_as_computation =
+            new IfElseComputation
+            (
+               cond_cc.get_computation(),
+               if_true_cc.get_computation(),
+               if_false_cc.get_computation()
+            );
+      }
    }
 
    @Override
@@ -187,7 +353,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      result_as_computation = new Newline();
    }
 
    @Override
@@ -197,7 +363,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      /* TODO */
+      result_as_computation = new Constant(Type.INT, "0");
    }
 
    @Override
@@ -207,7 +374,28 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final List<Computation> content;
+
+      content = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation fate_content:
+            n.get_content()
+      )
+      {
+         final ComputationCompiler content_cc;
+
+         content_cc = new ComputationCompiler(compiler);
+
+         fate_content.get_visited_by(content_cc);
+
+         assimilate(content_cc);
+
+         content.add(content_cc.get_computation());
+      }
+
+      result_as_computation = new RichText(content);
    }
 
    @Override
@@ -217,7 +405,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      result_as_ref = compiler.macros().get_parameter_ref(n.get_name());
    }
 
    @Override
@@ -227,7 +415,15 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler n_cc;
+
+      n_cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(n_cc);
+
+      assimilate(n_cc);
+
+      result_as_computation = n_cc.result_as_ref;
    }
 
    @Override
@@ -237,7 +433,40 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler text_cc;
+      final List<Computation> parameters;
+
+      text_cc = new ComputationCompiler(compiler);
+      parameters = new ArrayList<Computation>();
+
+      n.get_text().get_visited_by(text_cc);
+
+      assimilate(text_cc);
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation fate_param:
+            n.get_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         fate_param.get_visited_by(param_cc);
+
+         assimilate(param_cc);
+
+         parameters.add(param_cc.get_computation());
+      }
+
+      result_as_computation =
+         new AddRichTextEffect
+         (
+            n.get_effect().get_name(),
+            parameters,
+            Collections.singletonList(text_cc.get_computation())
+         );
    }
 
    @Override
@@ -247,7 +476,10 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      n.get_value().get_visited_by(this);
+
+      result_as_computation =
+         new RichText(Collections.singletonList(result_as_computation));
    }
 
    @Override
@@ -257,6 +489,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      result_as_ref =
+         compiler.world().get_variable(n.get_variable().get_name()).get_ref();
+
+      result_as_computation = new ValueOf(result_as_ref);
    }
 }

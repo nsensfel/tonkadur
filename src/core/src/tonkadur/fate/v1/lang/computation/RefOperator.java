@@ -28,14 +28,17 @@ public class RefOperator extends Computation
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-
    /**** Accessors ************************************************************/
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
       cv.visit_ref_operator(this);
+   }
+
+   public Reference get_target ()
+   {
+      return referred;
    }
 
    /**** Misc. ****************************************************************/

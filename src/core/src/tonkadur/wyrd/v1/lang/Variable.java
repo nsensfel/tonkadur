@@ -37,11 +37,6 @@ public class Variable
 
    public Ref get_ref ()
    {
-      return
-         new Ref
-         (
-            Collections.singletonList(new Constant(Type.STRING, name)),
-            type
-         );
+      return new Ref(new Constant(Type.STRING, name), type);
    }
 }

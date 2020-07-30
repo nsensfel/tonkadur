@@ -1,37 +1,32 @@
 package tonkadur.wyrd.v1.lang.computation;
 
+import java.util.List;
+
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 
-public class Ref extends Computation
+public class RichText extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation address;
-   protected final Type target_type;
+   protected final List<Computation> content;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Ref (final Computation address, final Type target_type)
+   public RichText (final List<Computation> content)
    {
-      super(Type.POINTER);
+      super(Type.RICH_TEXT);
 
-      this.address = address;
-      this.target_type = target_type;
+      this.content = content;
    }
 
    /**** Accessors ************************************************************/
-   public Computation get_address ()
+   public List<Computation> get_content ()
    {
-      return address;
-   }
-
-   public Type get_target_type ()
-   {
-      return target_type;
+      return content;
    }
 }
