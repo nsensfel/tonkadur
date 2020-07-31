@@ -39,12 +39,27 @@ public class MacroManager
 
       while (pri.hasNext())
       {
-         parameters.put(pre.next().get_name(), pri.next());
+         final String name;
+
+         name = pre.next().get_name();
+
+         parameters.put(name, pri.next());
       }
+
+      context_stack.push(parameters);
    }
 
    public Ref get_parameter_ref (final String parameter)
    {
-      return context_stack.peek().get(parameter);
+      final Ref result;
+
+      result = context_stack.peek().get(parameter);
+
+      if (result == null)
+      {
+         System.err.println("[P] No such parameter '" + parameter + "'.");
+      }
+
+      return result;
    }
 }

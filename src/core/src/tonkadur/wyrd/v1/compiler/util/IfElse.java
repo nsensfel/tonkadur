@@ -63,14 +63,6 @@ public class IfElse
             if_false_label
          )
       );
-      result.add
-      (
-         assembler.mark_after
-         (
-            new SetPC(assembler.get_label_constant(end_label)),
-            if_false_label
-         )
-      );
       result.add(assembler.mark_after(if_false, end_label));
 
       return assembler.merge(result);

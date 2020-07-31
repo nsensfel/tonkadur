@@ -70,7 +70,7 @@ public class Clear
          new SetValue
          (
             iterator,
-            Operation.minus(value_of_iterator, new Constant(Type.INT, "1"))
+            Operation.minus(value_of_iterator, Constant.ONE)
          )
       );
 
@@ -94,11 +94,7 @@ public class Clear
          (
             anonymous_variables,
             assembler,
-            Operation.greater_than
-            (
-               value_of_iterator,
-               new Constant(Type.INT, "0")
-            ),
+            Operation.greater_than(value_of_iterator, Constant.ZERO),
             assembler.merge(while_body)
          )
       );

@@ -76,7 +76,7 @@ public class IterativeSearch
          new SetValue
          (
             result_index,
-            Operation.minus(collection_size, new Constant(Type.INT, "0"))
+            Operation.minus(collection_size, Constant.ONE)
          )
       );
 
@@ -92,7 +92,7 @@ public class IterativeSearch
                Operation.greater_equal_than
                (
                   value_of_result_index,
-                  new Constant(Type.INT, "0")
+                  Constant.ZERO
                )
             ),
             /*
@@ -125,11 +125,7 @@ public class IterativeSearch
                new SetValue
                (
                   result_index,
-                  Operation.minus
-                  (
-                     value_of_result_index,
-                     new Constant(Type.INT, "1")
-                  )
+                  Operation.minus(value_of_result_index, Constant.ONE)
                )
             )
          )

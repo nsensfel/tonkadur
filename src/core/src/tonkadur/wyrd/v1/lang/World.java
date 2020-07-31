@@ -78,4 +78,9 @@ public class World
    {
       return new Integer(code.size());
    }
+
+   public List<Instruction> get_code ()
+   {
+      return code;
+   }
 }

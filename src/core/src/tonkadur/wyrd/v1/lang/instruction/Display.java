@@ -24,4 +24,19 @@ public class Display extends Instruction
    {
       return content;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(Display ");
+      sb.append(content.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

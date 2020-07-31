@@ -17,6 +17,7 @@ public class Operator
    public static final Operator MINUS;
    public static final Operator TIMES;
    public static final Operator DIVIDE;
+   public static final Operator MODULO;
    public static final Operator POWER;
    public static final Operator RANDOM;
 
@@ -41,6 +42,7 @@ public class Operator
       TIMES = new Operator("*", 2, 0, Type.NUMBER_TYPES, null);
       DIVIDE = new Operator("/", 2, 2, Type.NUMBER_TYPES, null);
       POWER = new Operator("^", 2, 2, Type.NUMBER_TYPES, null);
+      MODULO = new Operator("%", 2, 2, Collections.singleton(Type.INT), null);
       RANDOM =
          new Operator("rand", 2, 2, Collections.singleton(Type.INT), null);
 
@@ -109,6 +111,11 @@ public class Operator
       return valid_input_types;
    }
 
+   public String get_name ()
+   {
+      return name;
+   }
+
    public int get_minimum_arity ()
    {
       return min_arity;
@@ -132,6 +139,6 @@ public class Operator
    @Override
    public String toString ()
    {
-      return name;
+      return get_name();
    }
 }

@@ -29,4 +29,19 @@ public class New extends Computation
    {
       return target_type;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(New ");
+      sb.append(target_type.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

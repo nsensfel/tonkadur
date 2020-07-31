@@ -24,4 +24,19 @@ public class Assert extends Instruction
    {
       return condition;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(Assert ");
+      sb.append(condition.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

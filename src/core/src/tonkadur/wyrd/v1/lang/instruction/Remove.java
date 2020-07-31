@@ -25,4 +25,19 @@ public class Remove extends Instruction
    {
       return reference;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(Remove ");
+      sb.append(reference.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

@@ -74,7 +74,7 @@ public class RemoveAllOf
       final Type element_type;
       final Ref index, found, end;
       final Computation value_of_index, value_of_found, value_of_end;
-      final Computation const_0, const_1, value_of_found_greater_than_0;
+      final Computation value_of_found_greater_than_0;
       final Ref collection_at_index;
 
       result = new ArrayList<Instruction>();
@@ -94,11 +94,8 @@ public class RemoveAllOf
       value_of_found = new ValueOf(found);
       value_of_end = new ValueOf(end);
 
-      const_0 = new Constant(Type.INT, "0");
-      const_1 = new Constant(Type.INT, "1");
-
       value_of_found_greater_than_0 =
-         Operation.greater_than(value_of_found, const_0);
+         Operation.greater_than(value_of_found, Constant.ZERO);
 
       collection_at_index =
          new RelativeRef
@@ -109,14 +106,14 @@ public class RemoveAllOf
          );
 
       /* (set .index 0) */
-      result.add(new SetValue(index, const_0));
+      result.add(new SetValue(index, Constant.ZERO));
       /* (set .found 0) */
-      result.add(new SetValue(found, const_0));
+      result.add(new SetValue(found, Constant.ZERO));
 
       /* (set .end (- (collection_size) 1) */
       result.add
       (
-         new SetValue(end, Operation.minus(collection_size, const_1))
+         new SetValue(end, Operation.minus(collection_size, Constant.ONE))
       );
 
       /*
@@ -127,11 +124,11 @@ public class RemoveAllOf
        */
       if_false_true_body.add
       (
-         new SetValue(found, Operation.plus(value_of_found, const_1))
+         new SetValue(found, Operation.plus(value_of_found, Constant.ONE))
       );
       if_false_true_body.add
       (
-         new SetValue(found, Operation.minus(value_of_found, const_1))
+         new SetValue(found, Operation.minus(value_of_found, Constant.ONE))
       );
 
       if_false_body.add
@@ -182,7 +179,7 @@ public class RemoveAllOf
 
       while_body0.add
       (
-         new SetValue(index, Operation.plus(value_of_index, const_1))
+         new SetValue(index, Operation.plus(value_of_index, Constant.ONE))
       );
 
       result.add
@@ -214,7 +211,7 @@ public class RemoveAllOf
       );
       while_body1.add
       (
-         new SetValue(found, Operation.minus(value_of_found, const_1))
+         new SetValue(found, Operation.minus(value_of_found, Constant.ONE))
       );
 
       result.add

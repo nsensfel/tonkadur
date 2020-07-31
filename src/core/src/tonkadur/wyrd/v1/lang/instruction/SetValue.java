@@ -33,4 +33,21 @@ public class SetValue extends Instruction
    {
       return value;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(SetValue ");
+      sb.append(reference.toString());
+      sb.append(" ");
+      sb.append(value.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

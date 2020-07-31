@@ -105,17 +105,13 @@ public class BinarySearch
       value_of_midval = new ValueOf(midval);
 
       result.add(new SetValue(result_was_found, Constant.FALSE));
-      result.add(new SetValue(bot, new Constant(Type.INT, "0")));
+      result.add(new SetValue(bot, Constant.ZERO));
       result.add
       (
          new SetValue
          (
             top,
-            Operation.minus
-            (
-               collection_size,
-               new Constant(Type.INT, "1")
-            )
+            Operation.minus(collection_size, Constant.ONE)
          )
       );
 
@@ -202,11 +198,7 @@ public class BinarySearch
             new SetValue
             (
                bot,
-               Operation.plus
-               (
-                  value_of_result_index,
-                  new Constant(Type.INT, "1")
-               )
+               Operation.plus(value_of_result_index, Constant.ONE)
             ),
             IfElse.generate
             (
@@ -216,11 +208,7 @@ public class BinarySearch
                new SetValue
                (
                   top,
-                  Operation.minus
-                  (
-                     value_of_result_index,
-                     new Constant(Type.INT, "1")
-                  )
+                  Operation.minus(value_of_result_index, Constant.ONE)
                ),
                new SetValue(result_was_found, Constant.TRUE)
             )

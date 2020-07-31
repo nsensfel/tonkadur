@@ -631,6 +631,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          fate_computation.get_visited_by(cc);
 
+         cc.generate_ref();
+
          if (cc.has_init())
          {
             result.add(cc.get_init());

@@ -9,7 +9,7 @@ public class RelativeRef extends Ref
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Ref parent;
+   protected final Computation member;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -22,14 +22,31 @@ public class RelativeRef extends Ref
       final Type target_type
    )
    {
-      super(member, target_type);
+      super(parent, target_type);
 
-      this.parent = parent;
+      this.member = member;
    }
 
    /**** Accessors ************************************************************/
-   public Ref get_parent ()
+   public Computation get_member ()
    {
-      return parent;
+      return member;
+   }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(RelativeRef ");
+      sb.append(address.toString());
+      sb.append(".");
+      sb.append(member.toString());
+      sb.append(")");
+
+      return sb.toString();
    }
 }

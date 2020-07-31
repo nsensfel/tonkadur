@@ -77,11 +77,7 @@ public class InsertAt
       /* (set .prev (- (val .end) 1)) */
       while_body.add
       (
-         new SetValue
-         (
-            prev,
-            Operation.minus(value_of_end, new Constant(Type.INT, "1"))
-         )
+         new SetValue(prev, Operation.minus(value_of_end, Constant.ONE))
       );
 
       /* (set collection[.end] (val collection[.prev])) */
@@ -123,7 +119,7 @@ public class InsertAt
          (
             anonymous_variables,
             assembler,
-            Operation.minus(value_of_index, value_of_end),
+            Operation.greater_than(value_of_index, value_of_end),
             assembler.merge(while_body)
          )
       );

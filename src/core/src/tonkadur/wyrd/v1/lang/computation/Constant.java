@@ -9,10 +9,16 @@ public class Constant extends Computation
    public static final Constant TRUE;
    public static final Constant FALSE;
 
+   public static final Constant ZERO;
+   public static final Constant ONE;
+
    static
    {
       TRUE = new Constant(Type.BOOLEAN, "true");
       FALSE = new Constant(Type.BOOLEAN, "false");
+
+      ZERO = new Constant(Type.INT, "0");
+      ONE = new Constant(Type.INT, "1");
    }
 
    /***************************************************************************/
@@ -35,5 +41,22 @@ public class Constant extends Computation
    public String get_as_string ()
    {
       return as_string;
+   }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(Constant ");
+      sb.append(type.toString());
+      sb.append(" ");
+      sb.append(get_as_string());
+      sb.append(")");
+
+      return sb.toString();
    }
 }

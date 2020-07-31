@@ -15,4 +15,11 @@ public class ResolveChoices extends Instruction
    public ResolveChoices ()
    {
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      return "(ResolveChoices)";
+   }
 }

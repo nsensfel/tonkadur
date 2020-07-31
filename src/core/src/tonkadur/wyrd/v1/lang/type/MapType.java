@@ -30,4 +30,10 @@ public class MapType extends Type
    {
       return member_type;
    }
+
+   @Override
+   public String toString ()
+   {
+      return name;
+   }
 }

@@ -14,7 +14,7 @@ public class Main
    public static void main (final String[] args)
    {
       final tonkadur.fate.v1.lang.World fate_world;
-      final tonkadur.wyrd.v1.lang.World wyrd_world;
+      tonkadur.wyrd.v1.lang.World wyrd_world;
       final Context context;
 
       fate_world = new tonkadur.fate.v1.lang.World();
@@ -39,6 +39,7 @@ public class Main
          e.printStackTrace();
       }
 
+      wyrd_world = null;
       try
       {
          wyrd_world =
@@ -50,6 +51,15 @@ public class Main
       {
          System.err.println("Compilation failed.");
          e.printStackTrace();
+      }
+
+      for
+      (
+         final tonkadur.wyrd.v1.lang.meta.Instruction line:
+            wyrd_world.get_code()
+      )
+      {
+         System.out.println(line.toString());
       }
    }
 }

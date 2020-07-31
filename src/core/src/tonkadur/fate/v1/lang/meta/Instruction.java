@@ -27,7 +27,7 @@ public abstract class Instruction extends Node
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-
+      System.err.println("Unable to visit: " + toString());
    }
 
    /**** Misc. ****************************************************************/

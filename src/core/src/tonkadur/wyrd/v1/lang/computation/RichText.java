@@ -29,4 +29,31 @@ public class RichText extends Computation
    {
       return content;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(RichText ");
+
+      for (final Computation text: content)
+      {
+         if (text == null)
+         {
+            sb.append("<null?!>");
+         }
+         else
+         {
+            sb.append(text.toString());
+         }
+      }
+
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

@@ -33,4 +33,26 @@ public class EventCall extends Instruction
    {
       return parameters;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(EventCall ");
+      sb.append(name);
+
+      for (final Computation param: parameters)
+      {
+         sb.append(" ");
+         sb.append(param.toString());
+      }
+
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

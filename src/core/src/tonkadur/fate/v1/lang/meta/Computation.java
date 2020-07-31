@@ -29,7 +29,7 @@ public abstract class Computation extends Node
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-
+      System.err.println("Unable to visit: " + toString());
    }
 
    public Type get_type ()

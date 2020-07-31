@@ -11,6 +11,7 @@ public class Operation extends Computation
    /* Math operations *********************************************************/
    public static final String DIVIDE = "divide";
    public static final String MINUS = "minus";
+   public static final String MODULO = "modulo";
    public static final String PLUS = "plus";
    public static final String POWER = "power";
    public static final String RAND = "rand";
@@ -18,16 +19,11 @@ public class Operation extends Computation
 
    /* Logic operations ********************************************************/
    public static final String AND = "and";
-   public static final String OR = "or";
    public static final String NOT = "not";
-   public static final String IMPLIES = "implies";
 
    /* Comparison operations ***************************************************/
    public static final String LESS_THAN = "less_than";
-   public static final String LESS_EQUAL_THAN = "less_equal_than";
    public static final String EQUALS = "equals";
-   public static final String GREATER_EQUAL_THAN = "greater_equal_than";
-   public static final String GREATER_THAN = "greather_than";
 
    public static Operation divide
    (
@@ -45,6 +41,15 @@ public class Operation extends Computation
    )
    {
       return new Operation(MINUS, param_a.get_type(), param_a, param_b);
+   }
+
+   public static Operation modulo
+   (
+      final Computation param_a,
+      final Computation param_b
+   )
+   {
+      return new Operation(MODULO, param_a.get_type(), param_a, param_b);
    }
 
    public static Operation plus
@@ -86,79 +91,79 @@ public class Operation extends Computation
    /* Logic operations ********************************************************/
    public static Operation and
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(AND, Type.BOOLEAN, param_a, param_b);
+      return new Operation(AND, Type.BOOLEAN, a, b);
    }
 
    public static Operation or
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(OR, Type.BOOLEAN, param_a, param_b);
+      return not(and(not(a), not(b)));
    }
 
-   public static Operation not (final Computation param_a)
+   public static Operation not (final Computation a)
    {
-      return new Operation(NOT, Type.BOOLEAN, param_a, null);
+      return new Operation(NOT, Type.BOOLEAN, a, null);
    }
 
    public static Operation implies
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(IMPLIES, Type.BOOLEAN, param_a, param_b);
+      return not(and(a, not(b)));
    }
 
    /* Comparison operations ***************************************************/
    public static Operation less_than
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(LESS_THAN, Type.BOOLEAN, param_a, param_b);
+      return new Operation(LESS_THAN, Type.BOOLEAN, a, b);
    }
 
    public static Operation less_equal_than
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(LESS_EQUAL_THAN, Type.BOOLEAN, param_a, param_b);
+      return or(less_than(a, b), equals(a, b));
    }
    public static Operation equals
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(EQUALS, Type.BOOLEAN, param_a, param_b);
+      return new Operation(EQUALS, Type.BOOLEAN, a, b);
    }
 
    public static Operation greater_than
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(GREATER_THAN, Type.BOOLEAN, param_a, param_b);
+      return less_than(b, a);
    }
 
    public static Operation greater_equal_than
    (
-      final Computation param_a,
-      final Computation param_b
+      final Computation a,
+      final Computation b
    )
    {
-      return new Operation(GREATER_EQUAL_THAN, Type.BOOLEAN, param_a, param_b);
+      return or(greater_than(a, b), Operation.equals(a, b));
    }
 
    /***************************************************************************/
@@ -196,5 +201,29 @@ public class Operation extends Computation
    public Computation get_secomd_parameter ()
    {
       return param_b;
+   }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(");
+      sb.append(operator);
+      sb.append(" ");
+      sb.append(param_a.toString());
+
+      if (param_b != null)
+      {
+         sb.append(" ");
+         sb.append(param_b.toString());
+      }
+
+      sb.append(")");
+
+      return sb.toString();
    }
 }

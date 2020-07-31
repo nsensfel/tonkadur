@@ -24,4 +24,19 @@ public class SetPC extends Instruction
    {
       return value;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(SetPC ");
+      sb.append(value.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

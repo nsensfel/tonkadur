@@ -177,6 +177,11 @@ public class InstructionManager
 
    protected void register_label (final String name, final Integer location)
    {
+      if (label_locations.containsKey(name))
+      {
+         System.err.println("[P] Multiple locations for label '" + name + "'");
+      }
+
       label_locations.put(name, location);
 
       for (final Label label: unresolved_labels.get(name))

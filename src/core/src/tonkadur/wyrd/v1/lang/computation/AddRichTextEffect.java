@@ -41,4 +41,34 @@ public class AddRichTextEffect extends RichText
    {
       return effect_parameters;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(AddRichTextEffect (");
+      sb.append(effect_name);
+
+      for (final Computation param: effect_parameters)
+      {
+         sb.append(" ");
+         sb.append(param.toString());
+      }
+
+      sb.append(")");
+
+      for (final Computation text: content)
+      {
+         sb.append(" ");
+         sb.append(text.toString());
+      }
+
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

@@ -131,6 +131,16 @@ public class IsMemberOperator extends Computation
       cv.visit_is_member_operator(this);
    }
 
+   public Computation get_collection ()
+   {
+      return collection;
+   }
+
+   public Computation get_element ()
+   {
+      return element;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

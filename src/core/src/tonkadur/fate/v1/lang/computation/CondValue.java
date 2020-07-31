@@ -127,6 +127,11 @@ public class CondValue extends Computation
       cv.visit_cond_value(this);
    }
 
+   public List<Cons<Computation, Computation>> get_branches ()
+   {
+      return branches;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

@@ -57,7 +57,6 @@ public class RemoveAt
       final Ref next, end;
       final Computation value_of_index;
       final Computation value_of_next, value_of_end;
-      final Computation const_1;
       final Ref collection_at_index;
 
       result = new ArrayList<Instruction>();
@@ -74,8 +73,6 @@ public class RemoveAt
       value_of_next = new ValueOf(next);
       value_of_end = new ValueOf(end);
 
-      const_1 = new Constant(Type.INT, "1");
-
       collection_at_index =
          new RelativeRef
          (
@@ -87,13 +84,13 @@ public class RemoveAt
       /* (set .end (- (collection_size) 1) */
       result.add
       (
-         new SetValue(end, Operation.minus(collection_size, const_1))
+         new SetValue(end, Operation.minus(collection_size, Constant.ONE))
       );
 
       /* (set .next (+ (val index) 1)) */
       while_body.add
       (
-         new SetValue(next, Operation.plus(value_of_end, const_1))
+         new SetValue(next, Operation.plus(value_of_end, Constant.ONE))
       );
 
       /* (set collection[index] (val collection[.next])) */

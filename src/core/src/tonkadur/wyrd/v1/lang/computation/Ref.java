@@ -34,4 +34,19 @@ public class Ref extends Computation
    {
       return target_type;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(Ref ");
+      sb.append(address.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

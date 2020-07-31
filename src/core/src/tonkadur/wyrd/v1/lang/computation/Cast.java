@@ -27,4 +27,21 @@ public class Cast extends Computation
    {
       return parent;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(Cast ");
+      sb.append(parent.toString());
+      sb.append(" ");
+      sb.append(type.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

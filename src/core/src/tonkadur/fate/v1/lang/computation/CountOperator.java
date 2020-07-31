@@ -124,6 +124,16 @@ public class CountOperator extends Computation
    }
 
    /**** Accessors ************************************************************/
+   public Computation get_collection ()
+   {
+      return collection;
+   }
+
+   public Computation get_element ()
+   {
+      return element;
+   }
+
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable

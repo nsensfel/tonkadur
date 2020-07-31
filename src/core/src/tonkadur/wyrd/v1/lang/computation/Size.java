@@ -27,4 +27,19 @@ public class Size extends Computation
    {
       return collection;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(Size ");
+      sb.append(collection.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

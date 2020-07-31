@@ -2,9 +2,12 @@ package tonkadur.wyrd.v1.compiler.fate.v1;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Iterator;
 import java.util.ArrayList;
 
 import tonkadur.error.Error;
+
+import tonkadur.functional.Cons;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
@@ -13,7 +16,11 @@ import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
+import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
+import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
+import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
+
 
 import tonkadur.wyrd.v1.lang.computation.*;
 
@@ -74,6 +81,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
    public Ref get_ref ()
    {
+      if (result_as_ref == null)
+      {
+         System.err.println("[P] Missing generate_ref()!");
+      }
+
       return result_as_ref;
    }
 
@@ -157,7 +169,23 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler cc;
+      final Type target_type;
+
+      cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(cc);
+
+      target_type = TypeCompiler.compile(compiler, n.get_type());
+
+      if (target_type.equals(cc.get_computation().get_type()))
+      {
+         result_as_computation = cc.get_computation();
+      }
+      else
+      {
+         result_as_computation = new Cast(cc.get_computation(), target_type);
+      }
    }
 
    @Override
@@ -167,7 +195,130 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final List<Cons<ComputationCompiler, ComputationCompiler>> cc_list;
+      boolean is_safe;
+
+      cc_list = new ArrayList<Cons<ComputationCompiler, ComputationCompiler>>();
+      is_safe = true;
+
+      for
+      (
+         final Cons
+         <
+            tonkadur.fate.v1.lang.meta.Computation,
+            tonkadur.fate.v1.lang.meta.Computation
+         >
+         branch:
+            n.get_branches()
+      )
+      {
+         final ComputationCompiler cond_cc, val_cc;
+
+         cond_cc = new ComputationCompiler(compiler);
+         val_cc = new ComputationCompiler(compiler);
+
+         branch.get_car().get_visited_by(cond_cc);
+         branch.get_cdr().get_visited_by(val_cc);
+
+         is_safe = is_safe && !cond_cc.has_init() && !val_cc.has_init();
+
+         reserved_variables.addAll(cond_cc.reserved_variables);
+         reserved_variables.addAll(val_cc.reserved_variables);
+
+         cc_list.add(new Cons(cond_cc, val_cc));
+      }
+
+      Collections.reverse(cc_list);
+
+      if (is_safe)
+      {
+         final Iterator<Cons<ComputationCompiler, ComputationCompiler>> it;
+
+         it = cc_list.iterator();
+
+         result_as_computation = it.next().get_cdr().get_computation();
+
+         while (it.hasNext())
+         {
+            final Cons<ComputationCompiler, ComputationCompiler> next;
+
+            next = it.next();
+
+            result_as_computation =
+               new IfElseComputation
+               (
+                  next.get_car().get_computation(),
+                  next.get_cdr().get_computation(),
+                  result_as_computation
+               );
+         }
+      }
+      else
+      {
+         final Iterator<Cons<ComputationCompiler, ComputationCompiler>> it;
+         final Ref result;
+         Cons<ComputationCompiler, ComputationCompiler> next;
+         List<Instruction> new_value, new_cond;
+         Instruction prev_branch;
+
+
+         it = cc_list.iterator();
+         next = it.next();
+
+         result = reserve(next.get_cdr().get_computation().get_type());
+
+         new_value = new ArrayList<Instruction>();
+
+         if (next.get_cdr().has_init())
+         {
+            new_value.add(next.get_cdr().get_init());
+         }
+
+         new_value.add(new SetValue(result, next.get_cdr().get_computation()));
+
+         prev_branch = compiler.assembler().merge(new_value);
+
+         while (it.hasNext())
+         {
+            next = it.next();
+
+            new_value = new ArrayList<Instruction>();
+            new_cond = new ArrayList<Instruction>();
+
+            if (next.get_car().has_init())
+            {
+               new_cond.add(next.get_car().get_init());
+            }
+
+            if (next.get_cdr().has_init())
+            {
+               new_value.add(next.get_cdr().get_init());
+            }
+
+            new_value.add
+            (
+               new SetValue(result, next.get_cdr().get_computation())
+            );
+
+            new_cond.add
+            (
+               IfElse.generate
+               (
+                  compiler.anonymous_variables(),
+                  compiler.assembler(),
+                  next.get_car().get_computation(),
+                  compiler.assembler().merge(new_value),
+                  prev_branch
+               )
+            );
+
+            prev_branch = compiler.assembler().merge(new_cond);
+         }
+
+         init_instructions.add(prev_branch);
+
+         result_as_computation = new ValueOf(result);
+      }
    }
 
    @Override
@@ -192,7 +343,85 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler collection_compiler, element_compiler;
+
+      collection_compiler = new ComputationCompiler(compiler);
+      element_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(collection_compiler);
+      n.get_element().get_visited_by(element_compiler);
+
+      collection_compiler.generate_ref();
+
+      assimilate(collection_compiler);
+      assimilate(element_compiler);
+
+      if
+      (
+         (
+            (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+         ).is_set()
+      )
+      {
+         final Ref was_found, index, element;
+
+         was_found = reserve(Type.BOOLEAN);
+         index = reserve(Type.INT);
+         element = reserve(element_compiler.get_computation().get_type());
+
+         init_instructions.add
+         (
+            new SetValue(element, element_compiler.get_computation())
+         );
+         init_instructions.add
+         (
+            BinarySearch.generate
+            (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
+               new ValueOf(element),
+               new Size(collection_compiler.get_ref()),
+               collection_compiler.get_ref(),
+               was_found,
+               index
+            )
+         );
+
+         result_as_computation =
+            new IfElseComputation
+            (
+               new ValueOf(was_found),
+               Constant.ONE,
+               Constant.ZERO
+            );
+      }
+      else
+      {
+         final Ref element;
+
+         result_as_ref = reserve(Type.INT);
+
+         element = reserve(element_compiler.get_computation().get_type());
+
+         init_instructions.add
+         (
+            new SetValue(element, element_compiler.get_computation())
+         );
+         init_instructions.add
+         (
+            CountOccurrences.generate
+            (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
+               new ValueOf(element),
+               new Size(collection_compiler.get_ref()),
+               collection_compiler.get_ref(),
+               result_as_ref
+            )
+         );
+         result_as_computation = new ValueOf(result_as_ref);
+      }
    }
 
    @Override
@@ -219,9 +448,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                compiler,
                (
-                  (tonkadur.fate.v1.lang.type.RefType)
+                  (tonkadur.fate.v1.lang.type.DictType)
                      n.get_parent().get_type()
-               ).get_referenced_type()
+               ).get_field_type(null, n.get_field_name())
             )
          );
    }
@@ -333,7 +562,83 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final ComputationCompiler collection_compiler, element_compiler;
+
+      collection_compiler = new ComputationCompiler(compiler);
+      element_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(collection_compiler);
+      n.get_element().get_visited_by(element_compiler);
+
+      collection_compiler.generate_ref();
+
+      assimilate(collection_compiler);
+      assimilate(element_compiler);
+
+      result_as_ref = reserve(Type.BOOLEAN);
+
+      if
+      (
+         (
+            (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+         ).is_set()
+      )
+      {
+         final Ref index, element;
+
+         index = reserve(Type.INT);
+         element = reserve(element_compiler.get_computation().get_type());
+
+         init_instructions.add
+         (
+            new SetValue(element, element_compiler.get_computation())
+         );
+         init_instructions.add
+         (
+            BinarySearch.generate
+            (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
+               new ValueOf(element),
+               new Size(collection_compiler.get_ref()),
+               collection_compiler.get_ref(),
+               result_as_ref,
+               index
+            )
+         );
+
+         result_as_computation = new ValueOf(result_as_ref);
+      }
+      else
+      {
+         final Ref index, element;
+
+         index = reserve(Type.INT);
+         element = reserve(element_compiler.get_computation().get_type());
+
+         result_as_ref = reserve(Type.BOOLEAN);
+
+         init_instructions.add
+         (
+            new SetValue(element, element_compiler.get_computation())
+         );
+         init_instructions.add
+         (
+            IterativeSearch.generate
+            (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
+               new ValueOf(element),
+               new Size(collection_compiler.get_ref()),
+               collection_compiler.get_ref(),
+               result_as_ref,
+               index
+            )
+         );
+
+         result_as_computation = new ValueOf(result_as_ref);
+      }
    }
 
    @Override
@@ -343,7 +648,32 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO: implement */
+      final List<Ref> parameters;
+
+      parameters = new ArrayList<Ref>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation fate_computation:
+            n.get_parameters()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         fate_computation.get_visited_by(cc);
+
+         cc.generate_ref();
+
+         assimilate(cc);
+
+         parameters.add(cc.get_ref());
+      }
+
+      compiler.macros().push(n.get_macro(), parameters);
+      n.get_actual_value_node().get_visited_by(this);
+      compiler.macros().pop();
    }
 
    @Override
@@ -363,8 +693,270 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
-      result_as_computation = new Constant(Type.INT, "0");
+      final String fate_op_name;
+      final List<Computation> operands;
+
+      operands = new ArrayList<Computation>();
+
+      for (final tonkadur.fate.v1.lang.meta.Computation x: n.get_operands())
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         x.get_visited_by(cc);
+
+         assimilate(cc);
+
+         operands.add(cc.get_computation());
+      }
+
+      fate_op_name = n.get_operator().get_name();
+
+      if
+      (
+         fate_op_name.equals(tonkadur.fate.v1.lang.computation.Operator.PLUS.get_name())
+      )
+      {
+         final Iterator<Computation> operands_it;
+
+         operands_it = operands.iterator();
+
+         result_as_computation = operands_it.next();
+
+         while (operands_it.hasNext())
+         {
+            result_as_computation =
+               Operation.plus(operands_it.next(), result_as_computation);
+         }
+      }
+      else if
+      (
+         fate_op_name.equals(tonkadur.fate.v1.lang.computation.Operator.MINUS.get_name())
+      )
+      {
+         final Iterator<Computation> operands_it;
+         Computation sum;
+
+         operands_it = operands.iterator();
+
+         result_as_computation = operands_it.next();
+         sum = operands_it.next();
+
+         while (operands_it.hasNext())
+         {
+            sum = Operation.plus(operands_it.next(), sum);
+         }
+
+         result_as_computation = Operation.minus(result_as_computation, sum);
+      }
+      else if
+      (
+         fate_op_name.equals(tonkadur.fate.v1.lang.computation.Operator.TIMES.get_name())
+      )
+      {
+         final Iterator<Computation> operands_it;
+
+         operands_it = operands.iterator();
+
+         result_as_computation = operands_it.next();
+
+         while (operands_it.hasNext())
+         {
+            result_as_computation =
+               Operation.times(operands_it.next(), result_as_computation);
+         }
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.DIVIDE.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.divide(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.MODULO.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.modulo(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals(tonkadur.fate.v1.lang.computation.Operator.POWER.get_name())
+      )
+      {
+         result_as_computation =
+            Operation.power(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.RANDOM.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.rand(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals(tonkadur.fate.v1.lang.computation.Operator.AND.get_name())
+      )
+      {
+         final Iterator<Computation> operands_it;
+
+         operands_it = operands.iterator();
+
+         result_as_computation = operands_it.next();
+
+         while (operands_it.hasNext())
+         {
+            result_as_computation =
+               Operation.and(operands_it.next(), result_as_computation);
+         }
+      }
+      else if
+      (
+         fate_op_name.equals(tonkadur.fate.v1.lang.computation.Operator.OR.get_name())
+      )
+      {
+         final Iterator<Computation> operands_it;
+
+         operands_it = operands.iterator();
+
+         result_as_computation = operands_it.next();
+
+         while (operands_it.hasNext())
+         {
+            result_as_computation =
+               Operation.or(operands_it.next(), result_as_computation);
+         }
+      }
+      else if
+      (
+         fate_op_name.equals(tonkadur.fate.v1.lang.computation.Operator.NOT.get_name())
+      )
+      {
+         result_as_computation = Operation.not(operands.get(0));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.IMPLIES.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.implies(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.ONE_IN.get_name()
+         )
+      )
+      {
+         final Iterator<Computation> operand_it;
+
+         operand_it = operands.iterator();
+
+         result_as_computation =
+            new IfElseComputation
+            (
+               operand_it.next(),
+               Constant.ONE,
+               Constant.ZERO
+            );
+
+         while (operand_it.hasNext())
+         {
+            result_as_computation =
+               Operation.plus
+               (
+                  new IfElseComputation
+                  (
+                     operand_it.next(),
+                     Constant.ONE,
+                     Constant.ZERO
+                  ),
+                  result_as_computation
+               );
+         }
+
+         result_as_computation =
+            Operation.equals(result_as_computation, Constant.ONE);
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.EQUALS.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.equals(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.LOWER_THAN.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.less_than(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.LOWER_EQUAL_THAN.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.less_equal_than(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.GREATER_EQUAL_THAN.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.greater_equal_than(operands.get(0), operands.get(1));
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.GREATER_THAN.get_name()
+         )
+      )
+      {
+         result_as_computation =
+            Operation.greater_than(operands.get(0), operands.get(1));
+      }
+      else
+      {
+         System.err.println("[P] Unknown Fate operator '" + fate_op_name+ "'.");
+      }
    }
 
    @Override
@@ -479,7 +1071,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       n.get_value().get_visited_by(this);
 
       result_as_computation =
-         new RichText(Collections.singletonList(result_as_computation));
+         new RichText(Collections.singletonList(get_computation()));
    }
 
    @Override

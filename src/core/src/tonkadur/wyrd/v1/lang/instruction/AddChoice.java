@@ -31,4 +31,21 @@ public class AddChoice extends Instruction
    {
       return effect;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(AddChoice ");
+      sb.append(label.toString());
+      sb.append(" ");
+      sb.append(effect.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

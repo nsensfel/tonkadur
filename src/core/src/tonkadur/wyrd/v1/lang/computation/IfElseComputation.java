@@ -46,4 +46,23 @@ public class IfElseComputation extends Computation
    {
       return if_false;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(IfElse ");
+      sb.append(condition.toString());
+      sb.append(" ");
+      sb.append(if_true.toString());
+      sb.append(" ");
+      sb.append(if_false.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

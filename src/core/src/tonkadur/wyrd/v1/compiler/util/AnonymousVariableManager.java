@@ -34,8 +34,10 @@ public class AnonymousVariableManager
 
    public Ref reserve (final Type t)
    {
+      final String name;
       final Ref result;
       final Variable new_variable;
+      final Cons<Boolean, Variable> status;
       List<Cons<Boolean, Variable>> list;
 
       list = by_type.get(t);
@@ -59,15 +61,13 @@ public class AnonymousVariableManager
          }
       }
 
-      new_variable =
-         new Variable
-         (
-            (name_prefix + Integer.toString(generated_variables)),
-            "local",
-            t
-         );
+      name = (name_prefix + Integer.toString(generated_variables++));
+      new_variable = new Variable(name, "local", t);
+      status = new Cons(Boolean.TRUE, new_variable);
 
-      list.add(new Cons(Boolean.TRUE, new_variable));
+      list.add(status);
+
+      by_name.put(name, status);
 
       return new_variable.get_ref();
    }
@@ -77,10 +77,16 @@ public class AnonymousVariableManager
       final Computation c;
       final String name;
 
-      c = r.get_accesses().get(0);
+      c = r.get_address();
 
       if (!(c instanceof Constant))
       {
+         System.err.println
+         (
+            "[P] Anonymous Variable '"
+            + r.toString()
+            + "' is not at constant address."
+         );
          /* TODO: error */
 
          return;

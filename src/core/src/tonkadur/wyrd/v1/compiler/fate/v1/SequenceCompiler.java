@@ -24,6 +24,13 @@ public class SequenceCompiler
 
       compiler.assembler().add_fixed_name_label(fate_sequence.get_name());
 
+      System.out.println
+      (
+         "[D] Compiling sequence '"
+         + fate_sequence.get_name()
+         + "'..."
+      );
+
       fate_sequence.get_root().get_visited_by(ic);
 
       compiler.world().add_sequence_label
@@ -53,6 +60,8 @@ public class SequenceCompiler
       final InstructionCompiler ic;
 
       ic = new InstructionCompiler(compiler);
+
+      System.out.println("[D] Compiling main sequence...");
 
       for
       (

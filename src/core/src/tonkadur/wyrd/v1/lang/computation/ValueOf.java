@@ -34,4 +34,19 @@ public class ValueOf extends Computation
    {
       return parent;
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      final StringBuilder sb;
+
+      sb = new StringBuilder();
+
+      sb.append("(ValueOf ");
+      sb.append(parent.toString());
+      sb.append(")");
+
+      return sb.toString();
+   }
 }

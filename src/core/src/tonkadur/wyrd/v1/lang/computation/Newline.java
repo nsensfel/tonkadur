@@ -16,4 +16,11 @@ public class Newline extends RichText
    {
       super(new ArrayList());
    }
+
+   /**** Misc. ****************************************************************/
+   @Override
+   public String toString ()
+   {
+      return "(Newline)";
+   }
 }
