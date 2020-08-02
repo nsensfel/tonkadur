@@ -31,6 +31,7 @@ public class Type extends DeclaredEntity
    public static final Type STRING;
 
    public static final Set<Type> NUMBER_TYPES;
+   public static final Set<Type> ALL_TYPES;
    public static final Set<Type> SIMPLE_BASE_TYPES;
    public static final Set<Type> COLLECTION_TYPES;
 
@@ -54,6 +55,19 @@ public class Type extends DeclaredEntity
       RICH_TEXT = new Type(base, null, "rich text");
       SET = new Type(base, null, "set");
       STRING = new Type(base, null, "string");
+
+      ALL_TYPES = new HashSet<Type>();
+      ALL_TYPES.add(ANY);
+      ALL_TYPES.add(BOOLEAN);
+      ALL_TYPES.add(DICT);
+      ALL_TYPES.add(FLOAT);
+      ALL_TYPES.add(INT);
+      ALL_TYPES.add(LIST);
+      ALL_TYPES.add(REF);
+      ALL_TYPES.add(RICH_TEXT);
+      ALL_TYPES.add(SET);
+      ALL_TYPES.add(STRING);
+
 
       NUMBER_TYPES = new HashSet<Type>();
       NUMBER_TYPES.add(FLOAT);

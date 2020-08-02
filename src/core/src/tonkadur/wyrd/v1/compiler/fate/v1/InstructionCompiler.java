@@ -333,6 +333,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
+   public void visit_switch_instruction
+   (
+      final tonkadur.fate.v1.lang.instruction.SwitchInstruction ci
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
    public void visit_cond_instruction
    (
       final tonkadur.fate.v1.lang.instruction.CondInstruction ci

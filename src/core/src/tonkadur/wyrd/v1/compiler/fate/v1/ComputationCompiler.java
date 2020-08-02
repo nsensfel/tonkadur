@@ -960,6 +960,46 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_index_of_operator
+   (
+      final tonkadur.fate.v1.lang.computation.IndexOfOperator n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_new
+   (
+      final tonkadur.fate.v1.lang.computation.New n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_access
+   (
+      final tonkadur.fate.v1.lang.computation.Access n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_switch_value
+   (
+      final tonkadur.fate.v1.lang.computation.SwitchValue n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
    public void visit_paragraph
    (
       final tonkadur.fate.v1.lang.computation.Paragraph n

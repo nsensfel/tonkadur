@@ -17,6 +17,9 @@ public interface InstructionVisitor
    public void visit_cond_instruction (final CondInstruction ci)
    throws Throwable;
 
+   public void visit_switch_instruction (final SwitchInstruction ci)
+   throws Throwable;
+
    public void visit_display (final Display n)
    throws Throwable;
 

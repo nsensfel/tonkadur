@@ -602,6 +602,23 @@ returns [Instruction result]
          );
    }
 
+   | REMOVE_AT_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result = null;
+         /*
+         RemoveElementAt.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REMOVE_AT_KW.getLine()),
+               ($REMOVE_AT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+         */
+   }
+
    | REMOVE_ALL_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
@@ -646,6 +663,12 @@ returns [Instruction result]
          );
    }
 
+   | FREE_KW value_reference WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
    | SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
    {
       final Origin origin;
@@ -683,6 +706,30 @@ returns [Instruction result]
       }
 
       $result = new InstructionList(origin, operations);
+   }
+
+   | WHILE_KW value WS* general_fate_sequence WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DO_WHILE_KW value WS* general_fate_sequence WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | FOR_KW general_fate_instr WS * value WS* general_fate_instr WS* general_fate_sequence WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | FOR_EACH_KW value_reference WS+ WORD WS+ general_fate_sequence WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
    }
 
    | EVENT_KW WORD WS+ value_list WS* R_PAREN
@@ -833,6 +880,22 @@ returns [Instruction result]
                ($COND_KW.getCharPositionInLine())
             ),
             ($instr_cond_list.result)
+         );
+   }
+
+   | SWITCH_KW value WS* instr_cond_list WS* general_fate_instr WS *R_PAREN
+   {
+      $result =
+         SwitchInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SWITCH_KW.getLine()),
+               ($SWITCH_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($instr_cond_list.result),
+            ($general_fate_instr.result)
          );
    }
 
@@ -1621,6 +1684,27 @@ returns [Computation result]:
             ($value_reference.result)
          );
    }
+
+   | INDEX_OF_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         IndexOfOperator.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEX_OF_KW.getLine()),
+               ($INDEX_OF_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | NEW_KW WORD WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
 ;
 catch [final Throwable e]
 {
@@ -1662,6 +1746,21 @@ returns [Computation result]:
                ($MINUS_KW.getCharPositionInLine())
             ),
             Operator.MINUS,
+            ($value_list.result)
+         );
+   }
+
+   | MODULO_KW value_list WS* R_PAREN
+   {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MODULO_KW.getLine()),
+               ($MODULO_KW.getCharPositionInLine())
+            ),
+            Operator.MODULO,
             ($value_list.result)
          );
    }
@@ -1902,6 +2001,22 @@ returns [Computation result]
          );
    }
 
+   | SWITCH_KW target=value WS* value_cond_list WS* default_val=value WS* R_PAREN
+   {
+      $result =
+         SwitchValue.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SWITCH_KW.getLine()),
+               ($SWITCH_KW.getCharPositionInLine())
+            ),
+            ($target.result),
+            ($value_cond_list.result),
+            ($default_val.result)
+         );
+   }
+
    | boolean_expression
    {
       $result = ($boolean_expression.result);
@@ -2057,6 +2172,21 @@ returns [Reference result]
             ),
             ($value_reference.result),
             ($WORD.text)
+         );
+   }
+
+   | ACCESS_KW value_reference value R_PAREN
+   {
+      $result =
+         Access.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ACCESS_KW.getLine()),
+               ($ACCESS_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            ($value.result)
          );
    }
 

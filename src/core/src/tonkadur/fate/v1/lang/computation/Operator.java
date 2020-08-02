@@ -72,7 +72,7 @@ public class Operator
          );
 
       EQUALS =
-         new Operator("equals", 2, 0, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
+         new Operator("equals", 2, 0, Type.ALL_TYPES, Type.BOOLEAN);
       LOWER_THAN =
          new Operator("<", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
       LOWER_EQUAL_THAN =

@@ -7,10 +7,19 @@ public interface ComputationVisitor
    public void visit_at_reference (final AtReference n)
    throws Throwable;
 
+   public void visit_access (final Access n)
+   throws Throwable;
+
+   public void visit_new (final New n)
+   throws Throwable;
+
    public void visit_cast (final Cast n)
    throws Throwable;
 
    public void visit_cond_value (final CondValue n)
+   throws Throwable;
+
+   public void visit_switch_value (final SwitchValue n)
    throws Throwable;
 
    public void visit_constant (final Constant n)
@@ -26,6 +35,9 @@ public interface ComputationVisitor
    throws Throwable;
 
    public void visit_is_member_operator (final IsMemberOperator n)
+   throws Throwable;
+
+   public void visit_index_of_operator (final IndexOfOperator n)
    throws Throwable;
 
    public void visit_macro_value_call (final MacroValueCall n)
