@@ -26,6 +26,7 @@ options
    import tonkadur.fate.v1.Utils;
 
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
+   import tonkadur.fate.v1.error.InvalidTypeException;
    import tonkadur.fate.v1.error.NotInAMacroException;
    import tonkadur.fate.v1.error.UnknownExtensionContentException;
    import tonkadur.fate.v1.error.UnknownParameterException;
@@ -43,6 +44,7 @@ options
    Context CONTEXT;
    World WORLD;
    TypedEntryList PARAMETERS;
+   List<Cons<String, Type>> ODD_VARS;
 }
 
 /******************************************************************************/
@@ -54,6 +56,7 @@ fate_file [Context context, World world]
       CONTEXT = context;
       WORLD = world;
       PARAMETERS = null;
+      ODD_VARS = new ArrayList<Cons<String, Type>>();
    }
    :
    WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
@@ -604,8 +607,7 @@ returns [Instruction result]
 
    | REMOVE_AT_KW value WS+ value_reference WS* R_PAREN
    {
-      $result = null;
-         /*
+      $result =
          RemoveElementAt.build
          (
             CONTEXT.get_origin_at
@@ -616,7 +618,6 @@ returns [Instruction result]
             ($value.result),
             ($value_reference.result)
          );
-         */
    }
 
    | REMOVE_ALL_KW value WS+ value_reference WS* R_PAREN
@@ -666,7 +667,16 @@ returns [Instruction result]
    | FREE_KW value_reference WS* R_PAREN
    {
       /* TODO */
-      $result = null;
+      $result =
+         new Free
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FREE_KW.getLine()),
+               ($FREE_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
    }
 
    | SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
@@ -710,26 +720,115 @@ returns [Instruction result]
 
    | WHILE_KW value WS* general_fate_sequence WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         While.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WHILE_KW.getLine()),
+               ($WHILE_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($general_fate_sequence.result)
+         );
    }
 
    | DO_WHILE_KW value WS* general_fate_sequence WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         DoWhile.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($DO_WHILE_KW.getLine()),
+               ($DO_WHILE_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($general_fate_sequence.result)
+         );
    }
 
-   | FOR_KW general_fate_instr WS * value WS* general_fate_instr WS* general_fate_sequence WS* R_PAREN
+   | FOR_KW pre=general_fate_instr WS * value WS* post=general_fate_instr WS* general_fate_sequence WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         For.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOR_KW.getLine()),
+               ($FOR_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($pre.result),
+            ($general_fate_sequence.result),
+            ($post.result)
+         );
    }
 
-   | FOR_EACH_KW value_reference WS+ WORD WS+ general_fate_sequence WS* R_PAREN
+   | FOR_EACH_KW
+      value_reference WS+ new_reference_name
+      {
+         Type collection_type, elem_type;
+         elem_type = Type.ANY;
+
+         if (PARAMETERS == null)
+         {
+            PARAMETERS = new TypedEntryList();
+         }
+
+         collection_type = ($value_reference.result).get_type();
+
+         if (collection_type instanceof CollectionType)
+         {
+            elem_type = ((CollectionType) collection_type).get_content_type();
+         }
+         else
+         {
+            ErrorManager.handle
+            (
+               new InvalidTypeException
+               (
+                  CONTEXT.get_origin_at
+                  (
+                     ($FOR_EACH_KW.getLine()),
+                     ($FOR_EACH_KW.getCharPositionInLine())
+                  ),
+                  elem_type,
+                  Type.COLLECTION_TYPES
+               )
+            );
+
+            elem_type = Type.ANY;
+         }
+
+         PARAMETERS.add
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOR_EACH_KW.getLine()),
+               ($FOR_EACH_KW.getCharPositionInLine())
+            ),
+            elem_type,
+            ($new_reference_name.result)
+         );
+      }
+      WS+ general_fate_sequence WS*
+   R_PAREN
    {
-      /* TODO */
-      $result = null;
+      PARAMETERS.remove(($new_reference_name.result));
+
+      $result =
+         new ForEach
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOR_EACH_KW.getLine()),
+               ($FOR_EACH_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            ($new_reference_name.result),
+            ($general_fate_sequence.result)
+         );
    }
 
    | EVENT_KW WORD WS+ value_list WS* R_PAREN
@@ -1702,8 +1801,21 @@ returns [Computation result]:
 
    | NEW_KW WORD WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      $result =
+         new New
+         (
+            origin,
+            WORLD.types().get(origin, ($WORD.text))
+         );
    }
 ;
 catch [final Throwable e]

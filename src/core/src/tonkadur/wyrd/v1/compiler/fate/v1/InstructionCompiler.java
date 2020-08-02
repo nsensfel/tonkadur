@@ -343,6 +343,48 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
+   public void visit_free (final tonkadur.fate.v1.lang.instruction.Free n)
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_while (final tonkadur.fate.v1.lang.instruction.While n)
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_do_while (final tonkadur.fate.v1.lang.instruction.DoWhile n)
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_for (final tonkadur.fate.v1.lang.instruction.For n)
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_remove_element_at (final tonkadur.fate.v1.lang.instruction.RemoveElementAt n)
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_for_each (final tonkadur.fate.v1.lang.instruction.ForEach n)
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
    public void visit_cond_instruction
    (
       final tonkadur.fate.v1.lang.instruction.CondInstruction ci

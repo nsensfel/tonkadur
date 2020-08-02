@@ -24,6 +24,16 @@ public class TypedEntryList
       as_list = new ArrayList<TypedEntry>();
    }
 
+   public void remove (final String name)
+   {
+      TypedEntry previous_entry;
+
+      previous_entry = as_map.get(name);
+
+      as_list.remove(previous_entry);
+      as_map.remove(name);
+   }
+
    public void add
    (
       final Origin origin,

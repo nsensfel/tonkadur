@@ -11,6 +11,24 @@ public interface InstructionVisitor
    public void visit_assert (final Assert a)
    throws Throwable;
 
+   public void visit_free (final Free n)
+   throws Throwable;
+
+   public void visit_while (final While n)
+   throws Throwable;
+
+   public void visit_do_while (final DoWhile n)
+   throws Throwable;
+
+   public void visit_for (final For n)
+   throws Throwable;
+
+   public void visit_remove_element_at (final RemoveElementAt n)
+   throws Throwable;
+
+   public void visit_for_each (final ForEach n)
+   throws Throwable;
+
    public void visit_clear (final Clear c)
    throws Throwable;
 
