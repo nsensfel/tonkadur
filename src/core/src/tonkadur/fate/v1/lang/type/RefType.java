@@ -23,7 +23,7 @@ public class RefType extends Type
       final String name
    )
    {
-      super(origin, Type.REF, name);
+      super(origin, null, name);
 
       this.referenced_type = referenced_type;
    }
@@ -74,6 +74,11 @@ public class RefType extends Type
       return new RefType(get_origin(), resulting_referenced_type, name);
    }
 
+   @Override
+   public Type get_act_as_type ()
+   {
+      return Type.REF;
+   }
 
    /**** Misc. ****************************************************************/
    @Override

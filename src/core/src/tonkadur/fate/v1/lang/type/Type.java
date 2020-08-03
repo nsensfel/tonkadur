@@ -118,7 +118,7 @@ public class Type extends DeclaredEntity
    )
    throws InvalidTypeException
    {
-      if (!SIMPLE_BASE_TYPES.contains(parent.get_base_type()))
+      if (!SIMPLE_BASE_TYPES.contains(parent.get_act_as_type()))
       {
          ErrorManager.handle
          (
@@ -131,6 +131,11 @@ public class Type extends DeclaredEntity
 
    /**** Accessors ************************************************************/
    public Type get_base_type ()
+   {
+      return true_type;
+   }
+
+   public Type get_act_as_type ()
    {
       return true_type;
    }
@@ -163,7 +168,7 @@ public class Type extends DeclaredEntity
    /**** Compatibility ********************************************************/
    public boolean can_be_used_as (final Type t)
    {
-      if (!true_type.equals(t.true_type))
+      if (!get_act_as_type().equals(t.get_act_as_type()))
       {
          return false;
       }

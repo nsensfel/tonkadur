@@ -61,7 +61,7 @@ public class Access extends Reference
 
       current_type = parent.get_type();
 
-      if (current_type.get_base_type().equals(Type.REF))
+      if (current_type.get_act_as_type().equals(Type.REF))
       {
          parent = AtReference.build(origin, parent);
          current_type = parent.get_type();

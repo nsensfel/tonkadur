@@ -32,7 +32,7 @@ public class DictType extends Type
       final String name
    )
    {
-      super(origin, Type.DICT, name);
+      super(origin, null, name);
 
       this.field_types = field_types;
    }
@@ -151,6 +151,11 @@ public class DictType extends Type
       return new DictType(get_origin(), result_field_types, name);
    }
 
+   @Override
+   public Type get_act_as_type ()
+   {
+      return Type.DICT;
+   }
 
    /**** Misc. ****************************************************************/
    @Override

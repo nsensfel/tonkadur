@@ -976,7 +976,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      result_as_computation =
+         new New(TypeCompiler.compile(compiler, n.get_target_type()));
    }
 
    @Override
@@ -986,7 +987,31 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler i_cc, n_cc;
+
+      n_cc = new ComputationCompiler(compiler);
+      i_cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(n_cc);
+      n.get_index().get_visited_by(i_cc);
+
+      assimilate(n_cc);
+      assimilate(i_cc);
+
+      result_as_ref =
+         new RelativeRef
+         (
+            n_cc.get_ref(),
+            new Cast(i_cc.get_computation(), Type.STRING),
+            TypeCompiler.compile
+            (
+               compiler,
+               (
+                  (tonkadur.fate.v1.lang.type.CollectionType)
+                     n.get_parent().get_type()
+               ).get_content_type()
+            )
+         );
    }
 
    @Override

@@ -1,6 +1,7 @@
 package tonkadur.wyrd.v1.lang.computation;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.PointerType;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 
@@ -18,7 +19,7 @@ public class Ref extends Computation
    /**** Constructors *********************************************************/
    public Ref (final Computation address, final Type target_type)
    {
-      super(Type.POINTER);
+      super(new PointerType(target_type));
 
       this.address = address;
       this.target_type = target_type;

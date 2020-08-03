@@ -45,6 +45,7 @@ options
    World WORLD;
    TypedEntryList PARAMETERS;
    List<Cons<String, Type>> ODD_VARS;
+   int BREAKABLE_LEVELS;
 }
 
 /******************************************************************************/
@@ -57,6 +58,7 @@ fate_file [Context context, World world]
       WORLD = world;
       PARAMETERS = null;
       ODD_VARS = new ArrayList<Cons<String, Type>>();
+      BREAKABLE_LEVELS = 0;
    }
    :
    WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
@@ -162,6 +164,11 @@ first_level_fate_instr:
          );
 
       WORLD.variables().add(new_variable);
+   }
+
+   | IGNORE_ERROR_KW WORD WS+ first_level_fate_instr WS* R_PAREN
+   {
+      /* TODO: temporarily disable an compiler error category */
    }
 
    | DECLARE_VARIABLE_KW
@@ -590,6 +597,12 @@ returns [Instruction result]
          );
    }
 
+   | IGNORE_ERROR_KW WORD WS+ general_fate_instr WS* R_PAREN
+   {
+      /* TODO: temporarily disable an compiler error category */
+      $result = ($general_fate_instr.result);
+   }
+
    | REMOVE_ONE_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
@@ -666,7 +679,6 @@ returns [Instruction result]
 
    | FREE_KW value_reference WS* R_PAREN
    {
-      /* TODO */
       $result =
          new Free
          (
@@ -718,7 +730,10 @@ returns [Instruction result]
       $result = new InstructionList(origin, operations);
    }
 
-   | WHILE_KW value WS* general_fate_sequence WS* R_PAREN
+   | WHILE_KW value WS*
+      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      WS*
+      R_PAREN
    {
       $result =
          While.build
@@ -733,7 +748,10 @@ returns [Instruction result]
          );
    }
 
-   | DO_WHILE_KW value WS* general_fate_sequence WS* R_PAREN
+   | DO_WHILE_KW value WS*
+      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      WS*
+      R_PAREN
    {
       $result =
          DoWhile.build
@@ -748,7 +766,22 @@ returns [Instruction result]
          );
    }
 
-   | FOR_KW pre=general_fate_instr WS * value WS* post=general_fate_instr WS* general_fate_sequence WS* R_PAREN
+   | {BREAKABLE_LEVELS > 0}? BREAK_KW
+   {
+      $result =
+         new Break
+         (
+            CONTEXT.get_origin_at
+            (
+               ($BREAK_KW.getLine()),
+               ($BREAK_KW.getCharPositionInLine())
+            )
+         );
+   }
+
+   | FOR_KW pre=general_fate_instr WS * value WS* post=general_fate_instr WS*
+      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      WS* R_PAREN
    {
       $result =
          For.build
@@ -812,7 +845,9 @@ returns [Instruction result]
             ($new_reference_name.result)
          );
       }
-      WS+ general_fate_sequence WS*
+      WS+
+      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      WS*
    R_PAREN
    {
       PARAMETERS.remove(($new_reference_name.result));
@@ -1979,6 +2014,12 @@ returns [Computation result]
             ),
             ($WORD.text)
          );
+   }
+
+   | IGNORE_ERROR_KW WORD WS+ value WS* R_PAREN
+   {
+      $result = ($value.result);
+      /* TODO: temporarily disable an compiler error category */
    }
 
    | L_PAREN WS+ paragraph WS* R_PAREN

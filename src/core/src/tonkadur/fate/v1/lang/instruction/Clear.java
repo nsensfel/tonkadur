@@ -48,7 +48,10 @@ public class Clear extends Instruction
    {
       if
       (
-         !Type.COLLECTION_TYPES.contains(collection.get_type().get_base_type())
+         !Type.COLLECTION_TYPES.contains
+         (
+            collection.get_type().get_act_as_type()
+         )
       )
       {
          ErrorManager.handle

@@ -58,11 +58,7 @@ public class RemoveElementAt extends Instruction
 
       collection_type = collection.get_type();
 
-      if
-      (
-         !Type.COLLECTION_TYPES.contains(collection_type.get_base_type())
-         || !(collection_type instanceof CollectionType)
-      )
+      if (!(collection_type instanceof CollectionType))
       {
          ErrorManager.handle
          (

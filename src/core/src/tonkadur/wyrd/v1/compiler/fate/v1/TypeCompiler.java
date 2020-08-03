@@ -44,7 +44,18 @@ public class TypeCompiler
 
       if (fate_type instanceof tonkadur.fate.v1.lang.type.RefType)
       {
-         return Type.POINTER;
+         return
+            new PointerType
+            (
+               compile
+               (
+                  compiler,
+                  (
+                     (tonkadur.fate.v1.lang.type.RefType)
+                     fate_type
+                  ).get_referenced_type()
+               )
+            );
       }
 
       fate_type = fate_type.get_base_type();
@@ -74,7 +85,8 @@ public class TypeCompiler
          return Type.STRING;
       }
 
-      /* TODO: throw error. */
+      System.err.println("[P] Unknown basic fate type '" + fate_type + "'.");
+
       return null;
    }
 
@@ -149,7 +161,36 @@ public class TypeCompiler
          return MapType.MAP_TO_STRING;
       }
 
-      /* TODO: error */
+      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.RICH_TEXT))
+      {
+         return MapType.MAP_TO_RICH_TEXT;
+      }
+
+      if (fate_content_type instanceof tonkadur.fate.v1.lang.type.RefType)
+      {
+         return
+            new MapType
+            (
+               new PointerType
+               (
+                  compile
+                  (
+                     compiler,
+                     (
+                        (tonkadur.fate.v1.lang.type.RefType)
+                        fate_content_type
+                     ).get_referenced_type()
+                  )
+               )
+            );
+      }
+
+      System.err.println
+      (
+         "[P] Unknown collection member fate type '"
+         + fate_content_type
+         + "'."
+      );
 
       return null;
    }

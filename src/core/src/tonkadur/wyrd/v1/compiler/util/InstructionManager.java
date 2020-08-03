@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import tonkadur.wyrd.v1.lang.World;
 
@@ -17,6 +18,7 @@ public class InstructionManager
 {
    protected Map<String, Integer> label_locations;
    protected Map<String, List<Label>> unresolved_labels;
+   protected Map<String, Stack<String>> context_labels;
    protected int generated_labels;
 
    public InstructionManager ()
@@ -24,6 +26,7 @@ public class InstructionManager
       label_locations = new HashMap<String, Integer>();
       unresolved_labels = new HashMap<String, List<Label>>();
       generated_labels = 0;
+      context_labels = new HashMap<String, Stack<String>>();
    }
 
    public void add_fixed_name_label (final String name)
@@ -32,6 +35,32 @@ public class InstructionManager
       {
          unresolved_labels.put(name, new ArrayList<Label>());
       }
+   }
+
+   public void push_context_label (final String context, final String name)
+   {
+      Stack<String> stack;
+
+      stack = context_labels.get(context);
+
+      if (stack == null)
+      {
+         stack = new Stack<String>();
+
+         context_labels.put(context, stack);
+      }
+
+      stack.push(name);
+   }
+
+   public void pop_context_label (final String context)
+   {
+      context_labels.get(context).pop();
+   }
+
+   public Constant get_context_label_constant (final String context)
+   {
+      return get_label_constant(context_labels.get(context).peek());
    }
 
    public String generate_label ()

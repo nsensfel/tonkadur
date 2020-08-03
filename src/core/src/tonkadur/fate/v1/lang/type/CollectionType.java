@@ -34,7 +34,7 @@ public class CollectionType extends Type
       (
          !Type.SIMPLE_BASE_TYPES.contains
          (
-            content_type.get_base_type()
+            content_type.get_act_as_type()
          )
       )
       {
@@ -62,6 +62,12 @@ public class CollectionType extends Type
    public boolean is_set ()
    {
       return is_set;
+   }
+
+   @Override
+   public Type get_act_as_type ()
+   {
+      return is_set? Type.SET : Type.LIST;
    }
 
    /**** Compatibility ********************************************************/
@@ -106,7 +112,7 @@ public class CollectionType extends Type
          new CollectionType
          (
             get_origin(),
-            ((Type) content_type.generate_comparable_to (ct.content_type)),
+            ((Type) content_type.generate_comparable_to(ct.content_type)),
             (ct.is_set || is_set),
             name
          );
@@ -148,7 +154,7 @@ public class CollectionType extends Type
       final String name
    )
    {
-      super(origin, (is_set ? Type.SET : Type.LIST), name);
+      super(origin, null, name);
 
       this.is_set = is_set;
       this.content_type = content_type;

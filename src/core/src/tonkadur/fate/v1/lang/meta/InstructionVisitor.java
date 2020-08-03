@@ -11,6 +11,9 @@ public interface InstructionVisitor
    public void visit_assert (final Assert a)
    throws Throwable;
 
+   public void visit_break (final Break n)
+   throws Throwable;
+
    public void visit_free (final Free n)
    throws Throwable;
 

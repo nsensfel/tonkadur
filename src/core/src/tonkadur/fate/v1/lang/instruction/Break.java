@@ -1,48 +1,37 @@
-package tonkadur.wyrd.v1.lang.computation;
+package tonkadur.fate.v1.lang.instruction;
 
-import java.util.List;
+import tonkadur.parser.Origin;
 
-import tonkadur.wyrd.v1.lang.type.Type;
-import tonkadur.wyrd.v1.lang.type.PointerType;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
-import tonkadur.wyrd.v1.lang.meta.Computation;
-
-public class New extends Computation
+public class Break extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type target_type;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public New (final Type target_type)
+   public Break (final Origin origin)
    {
-      super(new PointerType(target_type));
-
-      this.target_type = target_type;
+      super(origin);
    }
 
    /**** Accessors ************************************************************/
-   public Type get_target_type ()
+   @Override
+   public void get_visited_by (final InstructionVisitor iv)
+   throws Throwable
    {
-      return target_type;
+      iv.visit_break(this);
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
    {
-      final StringBuilder sb;
-
-      sb = new StringBuilder();
-
-      sb.append("(New ");
-      sb.append(target_type.toString());
-      sb.append(")");
-
-      return sb.toString();
+      return "(Break)";
    }
 }

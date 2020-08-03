@@ -87,7 +87,6 @@ public class AnonymousVariableManager
             + r.toString()
             + "' is not at constant address."
          );
-         /* TODO: error */
 
          return;
       }

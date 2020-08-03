@@ -91,7 +91,7 @@ public class Operation extends Computation
 
          operand_type = operand.get_type();
 
-         if (!allowed_base_types.contains(operand_type.get_base_type()))
+         if (!allowed_base_types.contains(operand_type.get_act_as_type()))
          {
             ErrorManager.handle
             (

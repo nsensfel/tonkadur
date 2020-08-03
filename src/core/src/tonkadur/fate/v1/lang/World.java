@@ -270,11 +270,11 @@ public class World
       try
       {
          type_collection.add(Type.BOOLEAN);
-         type_collection.add(Type.DICT);
+         //type_collection.add(Type.DICT);
          type_collection.add(Type.FLOAT);
          type_collection.add(Type.INT);
-         type_collection.add(Type.LIST);
-         type_collection.add(Type.SET);
+         //type_collection.add(Type.LIST);
+         //type_collection.add(Type.SET);
          type_collection.add(Type.STRING);
       }
       catch (final Throwable t)

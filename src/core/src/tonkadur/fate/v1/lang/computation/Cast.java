@@ -130,7 +130,7 @@ public class Cast extends Computation
             (
                allowed_type_changes.get(to).contains
                (
-                  value.get_type().get_base_type()
+                  value.get_type().get_act_as_type()
                )
             )
          )
