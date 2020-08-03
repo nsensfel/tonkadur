@@ -2,6 +2,7 @@ package tonkadur.wyrd.v1.lang.instruction;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
+import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
 
 public class Assert extends Instruction
 {
@@ -23,6 +24,13 @@ public class Assert extends Instruction
    public Computation get_condition ()
    {
       return condition;
+   }
+
+   @Override
+   public void get_visited_by (final InstructionVisitor iv)
+   throws Throwable
+   {
+      iv.visit_assert(this);
    }
 
    /**** Misc. ****************************************************************/

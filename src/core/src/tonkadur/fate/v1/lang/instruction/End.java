@@ -1,9 +1,11 @@
-package tonkadur.wyrd.v1.lang.instruction;
+package tonkadur.fate.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.meta.Instruction;
-import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
+import tonkadur.parser.Origin;
 
-public class ResolveChoices extends Instruction
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
+import tonkadur.fate.v1.lang.meta.Instruction;
+
+public class End extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -13,21 +15,23 @@ public class ResolveChoices extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public ResolveChoices ()
+   public End (final Origin origin)
    {
+      super(origin);
    }
 
+   /**** Accessors ************************************************************/
    @Override
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_resolve_choices(this);
+      iv.visit_end(this);
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
    {
-      return "(ResolveChoices)";
+      return "(End)";
    }
 }

@@ -597,6 +597,20 @@ returns [Instruction result]
          );
    }
 
+   | END_KW
+   {
+      /* TODO */
+      $result =
+         new End
+         (
+            CONTEXT.get_origin_at
+            (
+               ($END_KW.getLine()),
+               ($END_KW.getCharPositionInLine())
+            )
+         );
+   }
+
    | IGNORE_ERROR_KW WORD WS+ general_fate_instr WS* R_PAREN
    {
       /* TODO: temporarily disable an compiler error category */

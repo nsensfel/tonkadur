@@ -4,6 +4,7 @@ import java.util.List;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
+import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
 
 public class EventCall extends Instruction
 {
@@ -32,6 +33,13 @@ public class EventCall extends Instruction
    public List<Computation> get_parameters ()
    {
       return parameters;
+   }
+
+   @Override
+   public void get_visited_by (final InstructionVisitor iv)
+   throws Throwable
+   {
+      iv.visit_event_call(this);
    }
 
    /**** Misc. ****************************************************************/

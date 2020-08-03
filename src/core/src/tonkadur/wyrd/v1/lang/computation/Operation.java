@@ -5,6 +5,7 @@ import java.util.List;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class Operation extends Computation
 {
@@ -201,6 +202,14 @@ public class Operation extends Computation
    public Computation get_secomd_parameter ()
    {
       return param_b;
+   }
+
+   /**** Accessors ************************************************************/
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_operation(this);
    }
 
    /**** Misc. ****************************************************************/

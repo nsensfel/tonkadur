@@ -3,6 +3,7 @@ package tonkadur.wyrd.v1.lang.computation;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class RelativeRef extends Ref
 {
@@ -31,6 +32,13 @@ public class RelativeRef extends Ref
    public Computation get_member ()
    {
       return member;
+   }
+
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_relative_ref(this);
    }
 
    /**** Misc. ****************************************************************/

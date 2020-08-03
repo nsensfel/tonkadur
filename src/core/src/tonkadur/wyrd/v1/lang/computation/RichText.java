@@ -5,6 +5,7 @@ import java.util.List;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class RichText extends Computation
 {
@@ -28,6 +29,13 @@ public class RichText extends Computation
    public List<Computation> get_content ()
    {
       return content;
+   }
+
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_rich_text(this);
    }
 
    /**** Misc. ****************************************************************/

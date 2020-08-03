@@ -14,6 +14,9 @@ public interface InstructionVisitor
    public void visit_break (final Break n)
    throws Throwable;
 
+   public void visit_end (final End n)
+   throws Throwable;
+
    public void visit_free (final Free n)
    throws Throwable;
 

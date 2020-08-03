@@ -2,6 +2,7 @@ package tonkadur.wyrd.v1.lang.instruction;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
+import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
 
 public class AddChoice extends Instruction
 {
@@ -30,6 +31,13 @@ public class AddChoice extends Instruction
    public Computation get_address ()
    {
       return address;
+   }
+
+   @Override
+   public void get_visited_by (final InstructionVisitor iv)
+   throws Throwable
+   {
+      iv.visit_add_choice(this);
    }
 
    /**** Misc. ****************************************************************/

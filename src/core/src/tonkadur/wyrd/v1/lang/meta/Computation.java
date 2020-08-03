@@ -26,4 +26,10 @@ public abstract class Computation
    {
       return type;
    }
+
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      throw new Exception("Unhandled Wyrd AST Computation Node.");
+   }
 }

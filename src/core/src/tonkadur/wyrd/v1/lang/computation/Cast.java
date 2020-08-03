@@ -3,6 +3,7 @@ package tonkadur.wyrd.v1.lang.computation;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class Cast extends Computation
 {
@@ -28,6 +29,12 @@ public class Cast extends Computation
       return parent;
    }
 
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_cast(this);
+   }
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

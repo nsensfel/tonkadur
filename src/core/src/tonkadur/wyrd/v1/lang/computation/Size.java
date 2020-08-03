@@ -3,6 +3,7 @@ package tonkadur.wyrd.v1.lang.computation;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class Size extends Computation
 {
@@ -26,6 +27,13 @@ public class Size extends Computation
    public Ref get_collection ()
    {
       return collection;
+   }
+
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_size(this);
    }
 
    /**** Misc. ****************************************************************/

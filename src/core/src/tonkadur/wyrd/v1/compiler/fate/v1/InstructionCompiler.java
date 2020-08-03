@@ -26,6 +26,7 @@ import tonkadur.wyrd.v1.lang.computation.ValueOf;
 import tonkadur.wyrd.v1.lang.instruction.AddChoice;
 import tonkadur.wyrd.v1.lang.instruction.Assert;
 import tonkadur.wyrd.v1.lang.instruction.Display;
+import tonkadur.wyrd.v1.lang.instruction.End;
 import tonkadur.wyrd.v1.lang.instruction.EventCall;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.ResolveChoices;
@@ -1071,6 +1072,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          cc.release_variables();
       }
+   }
+
+   @Override
+   public void visit_end
+   (
+      final tonkadur.fate.v1.lang.instruction.End n
+   )
+   throws Throwable
+   {
+      result.add(new End());
    }
 
    @Override

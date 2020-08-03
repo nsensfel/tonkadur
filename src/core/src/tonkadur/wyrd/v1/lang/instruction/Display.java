@@ -2,6 +2,7 @@ package tonkadur.wyrd.v1.lang.instruction;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
+import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
 
 public class Display extends Instruction
 {
@@ -23,6 +24,13 @@ public class Display extends Instruction
    public Computation get_content ()
    {
       return content;
+   }
+
+   @Override
+   public void get_visited_by (final InstructionVisitor iv)
+   throws Throwable
+   {
+      iv.visit_display(this);
    }
 
    /**** Misc. ****************************************************************/

@@ -1,7 +1,8 @@
 package tonkadur.wyrd.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
+import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
 
 public class SetPC extends Instruction
 {
@@ -23,6 +24,13 @@ public class SetPC extends Instruction
    public Computation get_value ()
    {
       return value;
+   }
+
+   @Override
+   public void get_visited_by (final InstructionVisitor iv)
+   throws Throwable
+   {
+      iv.visit_set_pc(this);
    }
 
    /**** Misc. ****************************************************************/

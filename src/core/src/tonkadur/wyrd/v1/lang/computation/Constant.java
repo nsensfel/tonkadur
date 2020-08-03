@@ -3,6 +3,7 @@ package tonkadur.wyrd.v1.lang.computation;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class Constant extends Computation
 {
@@ -43,6 +44,12 @@ public class Constant extends Computation
       return as_string;
    }
 
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_constant(this);
+   }
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

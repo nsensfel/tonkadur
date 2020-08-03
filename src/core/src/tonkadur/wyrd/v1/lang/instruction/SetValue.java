@@ -2,8 +2,9 @@ package tonkadur.wyrd.v1.lang.instruction;
 
 import tonkadur.wyrd.v1.lang.computation.Ref;
 
-import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
+import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
 
 public class SetValue extends Instruction
 {
@@ -32,6 +33,13 @@ public class SetValue extends Instruction
    public Computation get_value ()
    {
       return value;
+   }
+
+   @Override
+   public void get_visited_by (final InstructionVisitor iv)
+   throws Throwable
+   {
+      iv.visit_set_value(this);
    }
 
    /**** Misc. ****************************************************************/

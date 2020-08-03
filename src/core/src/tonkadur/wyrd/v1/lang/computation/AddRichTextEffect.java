@@ -5,6 +5,7 @@ import java.util.List;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class AddRichTextEffect extends RichText
 {
@@ -40,6 +41,13 @@ public class AddRichTextEffect extends RichText
    public List<Computation> get_effect_parameters ()
    {
       return effect_parameters;
+   }
+
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_add_rich_text_effect(this);
    }
 
    /**** Misc. ****************************************************************/

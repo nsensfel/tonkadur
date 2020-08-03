@@ -3,6 +3,7 @@ package tonkadur.wyrd.v1.lang.computation;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class IfElseComputation extends Computation
 {
@@ -45,6 +46,13 @@ public class IfElseComputation extends Computation
    public Computation get_if_false ()
    {
       return if_false;
+   }
+
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_if_else_computation(this);
    }
 
    /**** Misc. ****************************************************************/

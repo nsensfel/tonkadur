@@ -4,6 +4,7 @@ import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.PointerType;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
 public class Ref extends Computation
 {
@@ -34,6 +35,13 @@ public class Ref extends Computation
    public Type get_target_type ()
    {
       return target_type;
+   }
+
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_ref(this);
    }
 
    /**** Misc. ****************************************************************/
