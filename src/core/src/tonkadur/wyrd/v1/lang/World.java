@@ -43,9 +43,19 @@ public class World
       required_extensions.add(name);
    }
 
+   public Set<String> get_required_extensions ()
+   {
+      return required_extensions;
+   }
+
    public DictType get_dict_type (final String name)
    {
       return dict_types.get(name);
+   }
+
+   public List<DictType> get_ordered_dict_types ()
+   {
+      return dict_types_in_order;
    }
 
    public void add_dict_type (final DictType dict_type)
@@ -59,6 +69,11 @@ public class World
       return variables.get(name);
    }
 
+   public Map<String, Variable> get_variables ()
+   {
+      return variables;
+   }
+
    public void add_variable (final Variable variable)
    {
       variables.put(variable.get_name(), variable);
@@ -67,6 +82,11 @@ public class World
    public void add_sequence_label (final String name, final Integer line)
    {
       sequence_labels.put(name, line);
+   }
+
+   public Map<String, Integer> get_sequence_labels ()
+   {
+      return sequence_labels;
    }
 
    public void add_instruction (final Instruction i)

@@ -199,7 +199,12 @@ public class Operation extends Computation
       return param_a;
    }
 
-   public Computation get_secomd_parameter ()
+   public String get_operator ()
+   {
+      return operator;
+   }
+
+   public Computation get_second_parameter ()
    {
       return param_b;
    }
