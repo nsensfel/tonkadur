@@ -599,7 +599,6 @@ returns [Instruction result]
 
    | END_KW
    {
-      /* TODO */
       $result =
          new End
          (

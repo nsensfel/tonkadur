@@ -19,6 +19,10 @@ public class Operator
    public static final Operator DIVIDE;
    public static final Operator MODULO;
    public static final Operator POWER;
+   public static final Operator MIN;
+   public static final Operator MAX;
+   public static final Operator CLAMP;
+   public static final Operator ABS;
    public static final Operator RANDOM;
 
    public static final Operator AND;
@@ -43,6 +47,11 @@ public class Operator
       DIVIDE = new Operator("/", 2, 2, Type.NUMBER_TYPES, null);
       POWER = new Operator("^", 2, 2, Type.NUMBER_TYPES, null);
       MODULO = new Operator("%", 2, 2, Collections.singleton(Type.INT), null);
+      MIN = new Operator("min", 2, 0, Type.NUMBER_TYPES, null);
+      MAX = new Operator("max", 2, 0, Type.NUMBER_TYPES, null);
+      CLAMP = new Operator("clamp", 3, 3, Type.NUMBER_TYPES, null);
+      ABS = new Operator("abs", 1, 1, Type.NUMBER_TYPES, null);
+
       RANDOM =
          new Operator("rand", 2, 2, Collections.singleton(Type.INT), null);
 

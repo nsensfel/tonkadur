@@ -782,6 +782,150 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       (
          fate_op_name.equals
          (
+            tonkadur.fate.v1.lang.computation.Operator.MIN.get_name()
+         )
+      )
+      {
+         final Ref candidate;
+         final Computation value_of_candidate;
+
+         candidate = reserve(operands.get(0).get_type());
+         value_of_candidate = new ValueOf(candidate);
+
+         init_instructions.add(new SetValue(candidate, operands.get(0)));
+
+         for (final Computation operand: operands)
+         {
+            init_instructions.add
+            (
+               new SetValue
+               (
+                  candidate,
+                  new IfElseComputation
+                  (
+                     Operation.less_than(value_of_candidate, operand),
+                     value_of_candidate,
+                     operand
+                  )
+               )
+            );
+         }
+
+         result_as_computation = value_of_candidate;
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.MAX.get_name()
+         )
+      )
+      {
+         final Ref candidate;
+         final Computation value_of_candidate;
+
+         candidate = reserve(operands.get(0).get_type());
+         value_of_candidate = new ValueOf(candidate);
+
+         init_instructions.add(new SetValue(candidate, operands.get(0)));
+
+         for (final Computation operand: operands)
+         {
+            init_instructions.add
+            (
+               new SetValue
+               (
+                  candidate,
+                  new IfElseComputation
+                  (
+                     Operation.greater_than(value_of_candidate, operand),
+                     value_of_candidate,
+                     operand
+                  )
+               )
+            );
+         }
+
+         result_as_computation = value_of_candidate;
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.ABS.get_name()
+         )
+      )
+      {
+         final Computation zero, minus_one;
+
+         if (operands.get(2).get_type().equals(Type.INT))
+         {
+            zero = Constant.ZERO;
+            minus_one = new Constant(Type.INT, "-1");
+         }
+         else
+         {
+            zero = new Constant(Type.FLOAT, "0.0");
+            minus_one = new Constant(Type.FLOAT, "-1.0");
+         }
+
+         result_as_computation =
+            new IfElseComputation
+            (
+               Operation.greater_than(zero, operands.get(0)),
+               Operation.times(minus_one, operands.get(0)),
+               operands.get(0)
+            );
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
+            tonkadur.fate.v1.lang.computation.Operator.CLAMP.get_name()
+         )
+      )
+      {
+         final Type t;
+         final Ref candidate;
+         final Computation value_of_candidate;
+
+         t = operands.get(2).get_type();
+         candidate = reserve(t);
+         value_of_candidate = new ValueOf(candidate);
+
+         init_instructions.add
+         (
+            new SetValue
+            (
+               candidate,
+               new IfElseComputation
+               (
+                  Operation.greater_than(operands.get(2), operands.get(1)),
+                  operands.get(1),
+                  operands.get(2)
+               )
+            )
+         );
+         init_instructions.add
+         (
+            new SetValue
+            (
+               candidate,
+               new IfElseComputation
+               (
+                  Operation.less_than(value_of_candidate, operands.get(0)),
+                  operands.get(0),
+                  value_of_candidate
+               )
+            )
+         );
+
+         result_as_computation = value_of_candidate;
+      }
+      else if
+      (
+         fate_op_name.equals
+         (
             tonkadur.fate.v1.lang.computation.Operator.MODULO.get_name()
          )
       )

@@ -13,12 +13,16 @@ public class Compiler
    protected final World wyrd_world;
 
 
-   public static World compile (final tonkadur.fate.v1.lang.World fate_world)
+   public static World compile
+   (
+      final tonkadur.fate.v1.lang.World fate_world,
+      final World wyrd_world
+   )
    throws Throwable
    {
       final Compiler compiler;
 
-      compiler = new Compiler();
+      compiler = new Compiler(wyrd_world);
 
       compiler.compile_extensions(fate_world);
       compiler.compile_types(fate_world);
@@ -31,12 +35,13 @@ public class Compiler
       return compiler.wyrd_world;
    }
 
-   protected Compiler ()
+   protected Compiler (final World wyrd_world)
    {
+      this.wyrd_world = wyrd_world;
+
       macro_manager = new MacroManager();
       anonymous_variables = new AnonymousVariableManager();
       assembler = new InstructionManager();
-      wyrd_world = new World();
    }
 
    protected void compile_extensions
