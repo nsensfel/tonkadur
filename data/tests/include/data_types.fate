@@ -1,0 +1,70 @@
+(fate_version 1)
+
+(typedef boolean sub_boolean)
+(typedef boolean alt_boolean)
+(typedef sub_boolean sub_sub_boolean)
+(typedef sub_boolean alt_sub_boolean)
+
+(typedef int sub_int)
+(typedef int alt_int)
+(typedef sub_int sub_sub_int)
+(typedef sub_int alt_sub_int)
+
+(typedef float sub_float)
+(typedef float alt_float)
+(typedef sub_float sub_sub_float)
+(typedef sub_float alt_sub_float)
+
+(typedef string sub_string)
+(typedef string alt_string)
+(typedef sub_string sub_sub_string)
+(typedef sub_string alt_sub_string)
+
+(define_list_type boolean list_boolean)
+(define_list_type sub_boolean list_sub_boolean)
+(define_set_type boolean set_boolean)
+(define_set_type sub_boolean set_sub_boolean)
+(define_ref_type boolean ref_boolean)
+(define_ref_type sub_boolean ref_sub_boolean)
+
+(define_list_type int list_int)
+(define_list_type sub_int list_sub_int)
+(define_set_type int set_int)
+(define_set_type sub_int set_sub_int)
+(define_ref_type int ref_int)
+(define_ref_type sub_int ref_sub_int)
+
+(define_list_type float list_float)
+(define_list_type sub_float list_sub_float)
+(define_set_type float set_float)
+(define_set_type sub_float set_sub_float)
+(define_ref_type float ref_float)
+(define_ref_type sub_float ref_sub_float)
+
+(define_list_type string list_int)
+(define_list_type sub_string list_sub_int)
+(define_set_type string set_int)
+(define_set_type sub_string set_sub_int)
+(define_ref_type string ref_int)
+(define_ref_type sub_string ref_sub_int)
+
+(define_dict_type simple_dict
+   (boolean boolean)
+   (int int)
+   (float float)
+   (string string)
+)
+
+(define_ref_type simple_dict simple_dict_ptr)
+(define_list_type simple_dict_ptr simple_dict_ptr_list)
+(define_set_type simple_dict_ptr simple_dict_ptr_set)
+
+(define_dict_type two_dict
+   (simple_dict dict_a)
+   (simple_dict dict_b)
+   (simple_dict_ptr dict_ptr)
+)
+
+(define_ref_type two_dict two_dict_ptr)
+(define_list_type two_dict_ptr two_dict_ptr_list)
+(define_set_type two_dict_ptr two_dict_ptr_set)

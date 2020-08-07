@@ -38,6 +38,9 @@ public interface InstructionVisitor
    public void visit_clear (final Clear c)
    throws Throwable;
 
+   public void visit_reverse_list (final ReverseList n)
+   throws Throwable;
+
    public void visit_cond_instruction (final CondInstruction ci)
    throws Throwable;
 

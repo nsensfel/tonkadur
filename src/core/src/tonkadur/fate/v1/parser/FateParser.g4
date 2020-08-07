@@ -847,6 +847,7 @@ returns [Instruction result]
             elem_type = Type.ANY;
          }
 
+         /* TODO: error if there is already a parameter with that name */
          PARAMETERS.add
          (
             CONTEXT.get_origin_at
@@ -967,7 +968,7 @@ returns [Instruction result]
       $result = new SequenceCall(origin, sequence_name);
    }
 
-   | ASSERT_KW value WS* R_PAREN
+   | ASSERT_KW value WS+ paragraph WS* R_PAREN
    {
       $result =
          Assert.build
@@ -977,7 +978,8 @@ returns [Instruction result]
                ($ASSERT_KW.getLine()),
                ($ASSERT_KW.getCharPositionInLine())
             ),
-            ($value.result)
+            ($value.result),
+            ($paragraph.result)
          );
    }
 
@@ -1906,6 +1908,66 @@ returns [Computation result]:
                ($MINUS_KW.getCharPositionInLine())
             ),
             Operator.MINUS,
+            ($value_list.result)
+         );
+   }
+
+   | MIN_KW value_list WS* R_PAREN
+   {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MIN_KW.getLine()),
+               ($MIN_KW.getCharPositionInLine())
+            ),
+            Operator.MIN,
+            ($value_list.result)
+         );
+   }
+
+   | MAX_KW value_list WS* R_PAREN
+   {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MAX_KW.getLine()),
+               ($MAX_KW.getCharPositionInLine())
+            ),
+            Operator.MAX,
+            ($value_list.result)
+         );
+   }
+
+   | CLAMP_KW value_list WS* R_PAREN
+   {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($CLAMP_KW.getLine()),
+               ($CLAMP_KW.getCharPositionInLine())
+            ),
+            Operator.CLAMP,
+            ($value_list.result)
+         );
+   }
+
+   | ABS_KW value_list WS* R_PAREN
+   {
+      $result =
+         Operation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ABS_KW.getLine()),
+               ($ABS_KW.getCharPositionInLine())
+            ),
+            Operator.ABS,
             ($value_list.result)
          );
    }

@@ -14,6 +14,7 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.MapType;
 
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
@@ -44,6 +45,7 @@ import tonkadur.wyrd.v1.compiler.util.While;
 import tonkadur.wyrd.v1.compiler.util.Clear;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
+import tonkadur.wyrd.v1.compiler.util.ReverseList;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 
 public class InstructionCompiler
@@ -275,20 +277,31 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        *
        * Wyrd: (assert Computation)
        */
-      final ComputationCompiler cc;
+      final ComputationCompiler cond_cc, msg_cc;
 
-      cc = new ComputationCompiler(compiler);
+      cond_cc = new ComputationCompiler(compiler);
+      msg_cc = new ComputationCompiler(compiler);
 
-      a.get_condition().get_visited_by(cc);
+      a.get_condition().get_visited_by(cond_cc);
+      a.get_message().get_visited_by(msg_cc);
 
-      if (cc.has_init())
+      if (cond_cc.has_init())
       {
-         result.add(cc.get_init());
+         result.add(cond_cc.get_init());
       }
 
-      result.add(new Assert(cc.get_computation()));
+      if (msg_cc.has_init())
+      {
+         result.add(msg_cc.get_init());
+      }
 
-      cc.release_variables();
+      result.add
+      (
+         new Assert(cond_cc.get_computation(), msg_cc.get_computation())
+      );
+
+      cond_cc.release_variables();
+      msg_cc.release_variables();
    }
 
    @Override
@@ -317,6 +330,45 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       result.add
       (
          Clear.generate
+         (
+            compiler.anonymous_variables(),
+            compiler.assembler(),
+            new Size(collection_ref),
+            collection_ref
+         )
+      );
+
+      reference_compiler.release_variables();
+   }
+
+   public void visit_reverse_list
+   (
+      final tonkadur.fate.v1.lang.instruction.ReverseList n
+   )
+   throws Throwable
+   {
+      /*
+       * Fate: (reverse_list collection)
+       *
+       * Wyrd: <reverse_list collection>
+       */
+      final ComputationCompiler reference_compiler;
+      final Ref collection_ref;
+
+      reference_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(reference_compiler);
+
+      collection_ref = reference_compiler.get_ref();
+
+      if (reference_compiler.has_init())
+      {
+         result.add(reference_compiler.get_init());
+      }
+
+      result.add
+      (
+         ReverseList.generate
          (
             compiler.anonymous_variables(),
             compiler.assembler(),
@@ -374,7 +426,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       Computation value_of_anon;
       List<Instruction> current_branch, previous_else_branch;
 
-      branches = new ArrayList(n.get_branches()); // shallow copy.
+      branches = new ArrayList<>(n.get_branches()); // shallow copy.
+
+      Collections.reverse(branches);
 
       previous_else_branch = new ArrayList<Instruction>();
 
@@ -415,6 +469,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc = new ComputationCompiler(compiler);
 
          branch.get_car().get_visited_by(cc);
+         branch.get_cdr().get_visited_by(ic);
 
          if (cc.has_init())
          {
@@ -664,13 +719,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          result.add
          (
-            While.generate
+            compiler.assembler().mark_after
             (
-               compiler.anonymous_variables(),
-               compiler.assembler(),
-               cc.get_init(),
-               cc.get_computation(),
-               compiler.assembler().merge(body)
+               While.generate
+               (
+                  compiler.anonymous_variables(),
+                  compiler.assembler(),
+                  cc.get_init(),
+                  cc.get_computation(),
+                  compiler.assembler().merge(body)
+               ),
+               end_of_loop_label
             )
          );
       }
@@ -678,12 +737,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          result.add
          (
-            While.generate
+            compiler.assembler().mark_after
             (
-               compiler.anonymous_variables(),
-               compiler.assembler(),
-               cc.get_computation(),
-               compiler.assembler().merge(body)
+               While.generate
+               (
+                  compiler.anonymous_variables(),
+                  compiler.assembler(),
+                  cc.get_computation(),
+                  compiler.assembler().merge(body)
+               ),
+               end_of_loop_label
             )
          );
       }
@@ -697,15 +760,107 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    throws Throwable
    {
       final String end_of_loop_label;
+      final ComputationCompiler cc;
+      final List<Instruction> new_body;
+      final Ref index, current_value, collection_size;
+      final Ref collection;
+      final Computation value_of_index;
+      final Type member_type;
 
-      end_of_loop_label =
-         compiler.assembler().generate_label("<AfterFor>");
+      cc = new ComputationCompiler(compiler);
+      new_body = new ArrayList<Instruction>();
+
+      index = compiler.anonymous_variables().reserve(Type.INT);
+      collection_size = compiler.anonymous_variables().reserve(Type.INT);
+
+      result.add(new SetValue(index, Constant.ZERO));
+
+      n.get_collection().get_visited_by(cc);
+
+      if (cc.has_init())
+      {
+         result.add(cc.get_init());
+      }
+
+      collection = cc.get_ref();
+
+      result.add(new SetValue(collection_size, new Size(collection)));
+
+      value_of_index = new ValueOf(index);
+
+      member_type = ((MapType) collection.get_target_type()).get_member_type();
+
+      current_value = compiler.anonymous_variables().reserve(member_type);
+
+      end_of_loop_label = compiler.assembler().generate_label("<AfterForEach>");
 
       compiler.assembler().push_context_label("breakable", end_of_loop_label);
+      compiler.macros().add_wild_parameter
+      (
+         n.get_parameter_name(),
+         current_value
+      );
 
-      /* TODO */
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Instruction fate_instr: n.get_body()
+      )
+      {
+         final InstructionCompiler ic;
 
+         ic = new InstructionCompiler(compiler);
+
+         fate_instr.get_visited_by(ic);
+
+         new_body.add(ic.get_result());
+      }
+
+      new_body.add
+      (
+         new SetValue
+         (
+            current_value,
+            new ValueOf
+            (
+               new RelativeRef
+               (
+                  collection,
+                  new Cast(value_of_index, Type.STRING),
+                  member_type
+               )
+            )
+         )
+      );
+
+      new_body.add
+      (
+         new SetValue(index, Operation.plus(Constant.ONE, value_of_index))
+      );
+
+      result.add
+      (
+         compiler.assembler().mark_after
+         (
+            While.generate
+            (
+               compiler.anonymous_variables(),
+               compiler.assembler(),
+               Operation.less_than
+               (
+                  value_of_index,
+                  new ValueOf(collection_size)
+               ),
+               compiler.assembler.merge(new_body)
+            ),
+            end_of_loop_label
+         )
+      );
+      compiler.macros().remove_wild_parameter(n.get_parameter_name());
       compiler.assembler().pop_context_label("breakable");
+
+      compiler.anonymous_variables().release(index);
+      compiler.anonymous_variables().release(current_value);
+      compiler.anonymous_variables().release(collection_size);
    }
 
    @Override
@@ -1113,11 +1268,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        * Wyrd (add_choice label i0)
        */
       final ComputationCompiler cc;
-      final InstructionCompiler ic;
       final String start_of_effect, end_of_effect;
 
       cc = new ComputationCompiler(compiler);
-      ic = new InstructionCompiler(compiler);
 
       start_of_effect = compiler.assembler().generate_label("<choice#start>");
       end_of_effect = compiler.assembler().generate_label("<choice#end>");
@@ -1155,7 +1308,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             n.get_effects()
       )
       {
-         fate_instruction.get_visited_by(ic);
+         fate_instruction.get_visited_by(this);
       }
 
       result.add

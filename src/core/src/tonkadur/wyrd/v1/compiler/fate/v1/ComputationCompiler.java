@@ -858,7 +858,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       {
          final Computation zero, minus_one;
 
-         if (operands.get(2).get_type().equals(Type.INT))
+         if (operands.get(0).get_type().equals(Type.INT))
          {
             zero = Constant.ZERO;
             minus_one = new Constant(Type.INT, "-1");

@@ -1,0 +1,154 @@
+(fate_version 1)
+
+;; EQUALITY
+(assert (= 1 1) FAILED: int equality)
+(assert (= 1.0 1.0) FAILED: float equality)
+(assert (= test test) FAILED: string equality)
+(assert (= (true) (true)) FAILED: boolean equality)
+
+(assert (= (= 1 2) (false)) FAILED: int inequality)
+(assert (= (= 1.0 2.0) (false)) FAILED: float inequality)
+(assert (= (= one two) (false)) FAILED: string inequality)
+(assert (= (= (true) (false)) (false)) FAILED: boolean inequality)
+
+(assert (= 1 1 1 1 1) FAILED: int n>2 equality)
+(assert (= 1.0 1.0 1.0 1.0 1.0) FAILED: float n>2 equality)
+(assert (= test test test test test) FAILED: string n>2 equality)
+(assert (= (true) (true) (true) (true)) FAILED: boolean n>2 equality)
+
+
+;; ADDITION
+(assert (= (+ 1 1) 2) FAILED: int addition)
+(assert (= (+ 1 1 1 1) 4) FAILED: int n>2 addition)
+(assert (= (+ 1.5 1.5) 3.0) FAILED: float addition)
+(assert (= (+ 1.5 1.0 1.5 1.0) 5.0) FAILED: float n>2 addition)
+
+;; SUBTRACTION
+(assert (= (- 1 1) 0) FAILED: int subtraction)
+(assert (= (- 1 1 1 1) -2) FAILED: int n>2 subtraction)
+(assert (= (- 1.5 1.5) 0.0) FAILED: float subtraction)
+(assert (= (- 1.5 1.0 1.5 1.0) -2.0) FAILED: float n>2 subtraction)
+
+;; MULTIPLICATION
+(assert (= (* 1 3) 3) FAILED: int multiplication)
+(assert (= (* 1 1 3 2) 6) FAILED: int n>2 multiplication)
+(assert (= (* 1.5 2.0) 3.0) FAILED: float multiplication)
+(assert (= (* 1.5 1.0 3.0 1.0) 4.5) FAILED: float n>2 multiplication)
+
+;; DIVISION
+(assert (= (/ 3 3) 1) FAILED: int division)
+(assert (= (/ 4 3) 1) FAILED: int integer division)
+(assert (= (/ 3.0 3.0) 1.0) FAILED: float division A)
+(assert (= (/ 3.0 2.0) 1.5) FAILED: float division B)
+
+;; MODULO
+(assert (= (% 3 3) 0) FAILED: modulo A)
+(assert (= (% 2 3) 2) FAILED: modulo B)
+(assert (= (% 4 3) 1) FAILED: modulo C)
+(assert (= (% 9 3) 0) FAILED: modulo D)
+(assert (= (% 10 3) 1) FAILED: modulo E)
+
+;; MIN
+(assert (= (min 1 3) 1) FAILED: int min)
+(assert (= (min 1 0 -3 9) -3) FAILED: int n>2 min)
+(assert (= (min 1.5 2.0) 1.5) FAILED: float min)
+(assert (= (min 1.5 1.0 3.0 -1.0) -1.0) FAILED: float n>2 min)
+
+;; MAX
+(assert (= (max 3 1) 3) FAILED: int max)
+(assert (= (max 1 0 -3 9) 9) FAILED: int n>2 max)
+(assert (= (max 1.5 2.0) 2.0) FAILED: float max)
+(assert (= (max 1.5 1.0 3.0 -1.0) 3.0) FAILED: float n>2 max)
+
+;; CLAMP
+(assert (= (clamp 1 3 2) 2) FAILED: int clamp A)
+(assert (= (clamp 1 3 4) 3) FAILED: int clamp B)
+(assert (= (clamp 1 3 -1) 1) FAILED: int clamp C)
+(assert (= (clamp 1 3 1) 1) FAILED: int clamp D)
+(assert (= (clamp 1 3 3) 3) FAILED: int clamp E)
+(assert (= (clamp 1.5 3.0 1.7) 1.7) FAILED: float clamp A)
+(assert (= (clamp 1.5 3.0 4.7) 3.0) FAILED: float clamp B)
+(assert (= (clamp 1.5 3.0 -1.7) 1.5) FAILED: float clamp C)
+(assert (= (clamp 1.5 3.0 1.5) 1.5) FAILED: float clamp D)
+(assert (= (clamp 1.5 3.0 3.0) 3.0) FAILED: float clamp E)
+
+;; ABS
+(assert (= (abs 1) 1) FAILED: int abs A)
+(assert (= (abs -1) 1) FAILED: int abs B)
+(assert (= (abs -99) 99) FAILED: int abs C)
+(assert (= (abs 0) 0) FAILED: int abs D)
+(assert (= (abs 1.5) 1.5) FAILED: float abs A)
+(assert (= (abs -1.5) 1.5) FAILED: float abs B)
+(assert (= (abs -99.5) 99.5) FAILED: float abs C)
+(assert (= (abs 0.5) 0.5) FAILED: float abs D)
+
+;; AND
+(assert (= (and (true) (true)) (true)) FAILED: and A)
+(assert (= (and (true) (false)) (false)) FAILED: and B)
+(assert (= (and (false) (true)) (false)) FAILED: and C)
+(assert (= (and (false) (false)) (false)) FAILED: and D)
+(assert (= (and (true) (true) (true) (true) (true)) (true)) FAILED: and E)
+(assert (= (and (false) (false) (false) (false) (false)) (false)) FAILED: and F)
+(assert (= (and (true) (true) (false) (true) (true)) (false)) FAILED: and G)
+
+;; OR
+(assert (= (or (true) (true)) (true)) FAILED: or A)
+(assert (= (or (true) (false)) (true)) FAILED: or B)
+(assert (= (or (false) (true)) (true)) FAILED: or C)
+(assert (= (or (false) (false)) (false)) FAILED: or D)
+(assert (= (or (true) (true) (true) (true) (true)) (true)) FAILED: or E)
+(assert (= (and (false) (false) (false) (false) (false)) (false)) FAILED: or F)
+(assert (= (or (true) (true) (false) (true) (true)) (true)) FAILED: or G)
+
+;; NOT
+(assert (= (not (true)) (false)) FAILED: not A)
+(assert (= (not (false)) (true)) FAILED: not B)
+
+;; IMPLIES
+(assert (= (implies (true) (true)) (true)) FAILED: implies A)
+(assert (= (implies (true) (false)) (false)) FAILED: implies B)
+(assert (= (implies (false) (true)) (true)) FAILED: implies C)
+(assert (= (implies (false) (false)) (true)) FAILED: implies D)
+
+;; ONE IN
+(assert (= (one_in (true) (true)) (false)) FAILED: one_in A)
+(assert (= (one_in (true) (false)) (true)) FAILED: one_in B)
+(assert (= (one_in (false) (true)) (true)) FAILED: one_in C)
+(assert (= (one_in (false) (false)) (false)) FAILED: one_in D)
+(assert (= (one_in (false) (false) (false) (false)) (false)) FAILED: one_in E)
+(assert (= (one_in (false) (true) (false) (false)) (true)) FAILED: one_in F)
+(assert (= (one_in (false) (true) (false) (true)) (false)) FAILED: one_in F)
+
+;; LESS/LOWER THAN
+(assert (= (< 1 3) (true)) FAILED: int LOWER/LESS THAN)
+(assert (= (< 1 0) (false)) FAILED: int LOWER/LESS THAN)
+(assert (= (< 1 1) (false)) FAILED: int LOWER/LESS THAN)
+(assert (= (< 1.5 2.0) (true)) FAILED: float LOWER/LESS THAN)
+(assert (= (< 1.5 1.0) (false)) FAILED: float LOWER/LESS THAN)
+(assert (= (< 1.5 1.5) (false)) FAILED: float LOWER/LESS THAN)
+
+;; LESS/LOWER EQUAL THAN
+(assert (= (=< 1 3) (true)) FAILED: int LOWER/LESS EQUAL THAN)
+(assert (= (=< 1 0) (false)) FAILED: int LOWER/LESS EQUAL THAN)
+(assert (= (=< 1 1) (true)) FAILED: int LOWER/LESS EQUAL THAN)
+(assert (= (=< 1.5 2.0) (true)) FAILED: float LOWER/LESS EQUAL THAN)
+(assert (= (=< 1.5 1.0) (false)) FAILED: float LOWER/LESS EQUAL THAN)
+(assert (= (=< 1.5 1.5) (true)) FAILED: float LOWER/LESS EQUAL THAN)
+
+;; GREATER THAN
+(assert (= (> 1 3) (false)) FAILED: int GREATER THAN)
+(assert (= (> 1 0) (true)) FAILED: int GREATER THAN)
+(assert (= (> 1 1) (false)) FAILED: int GREATER THAN)
+(assert (= (> 1.5 2.0) (false)) FAILED: float GREATER THAN)
+(assert (= (> 1.5 1.0) (true)) FAILED: float GREATER THAN)
+(assert (= (> 1.5 1.5) (false)) FAILED: float GREATER THAN)
+
+;; GREATER EQUAL THAN
+(assert (= (>= 1 3) (false)) FAILED: int GREATER EQUAL THAN)
+(assert (= (>= 1 0) (true)) FAILED: int GREATER EQUAL THAN)
+(assert (= (>= 1 1) (true)) FAILED: int GREATER EQUAL THAN)
+(assert (= (>= 1.5 2.0) (false)) FAILED: float GREATER EQUAL THAN)
+(assert (= (>= 1.5 1.0) (true)) FAILED: float GREATER EQUAL THAN)
+(assert (= (>= 1.5 1.5) (true)) FAILED: float GREATER EQUAL THAN)
+
+(end)

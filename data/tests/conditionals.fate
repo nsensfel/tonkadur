@@ -1,0 +1,222 @@
+(fate_version 1)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; COMPUTATIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; COMPUTATION IF-ELSE
+(assert (ifelse (true) (true) (false)) FAILED: computation if-else A)
+(assert (ifelse (false) (false) (true)) FAILED: computation if-else B)
+(assert (ifelse (false) (false) (ifelse (true) (true) (false))) FAILED: computation if-else C)
+
+;; COMPUTATION COND
+(assert
+   (cond
+      ((true) (true))
+   )
+   FAILED: computation cond A
+)
+(assert
+   (cond
+      ((false) (false))
+      ((true) (true))
+   )
+   FAILED: computation cond D
+)
+(assert
+   (cond
+      ((false) (false))
+      ((true) (true))
+      ((true) (false))
+   )
+   FAILED: computation cond E
+)
+(assert
+   (cond
+      ((false) (false))
+      ((true)
+         (cond
+            ((false) (false))
+            ((true) (true))
+            ((true) (false))
+         )
+      )
+      ((true) (false))
+   )
+   FAILED: computation cond D
+)
+
+;; COMPUTATION SWITCH
+;; TODO: re-enable. Currently not implemented in Wyrd compiler
+;;(assert
+;;   (switch 3
+;;      (0 (false))
+;;      (1 (false))
+;;      (3 (true))
+;;      (2 (false))
+;;      (false)
+;;   )
+;;   FAILED: computation switch A
+;;)
+;;(assert
+;;   (switch 3
+;;      (0 (false))
+;;      (1 (false))
+;;      (2 (false))
+;;      (true)
+;;   )
+;;   FAILED: computation switch B
+;;)
+;;(assert
+;;   (switch 3
+;;      (0 (false))
+;;      (1 (false))
+;;      (2 (false))
+;;      (switch 2
+;;         (0 (false))
+;;         (1 (false))
+;;         (2 (true))
+;;         (false)
+;;      )
+;;   )
+;;   FAILED: computation switch C
+;;)
+;;(assert
+;;   (switch 3
+;;      (0 (false))
+;;      (1 (false))
+;;      (2
+;;         (switch 1
+;;            (0 (false))
+;;            (2 (false))
+;;            (1 (true))
+;;            (false)
+;;         )
+;;      )
+;;      (false)
+;;   )
+;;   FAILED: computation switch D
+;;)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; INSTRUCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(declare_variable boolean test_var)
+(set test_var (true))
+
+(assert (var test_var) FAILED: setting test_var)
+
+;; INSTRUCTION IF
+(if (false)
+   (assert (false) FAILED: instruction if A)
+)
+
+(set test_var (false))
+(if (true)
+   (set test_var (true))
+)
+(assert (var test_var) FAILED: instruction if B)
+
+(if (false)
+   (if (false)
+      (assert (false) FAILED: instruction if C)
+   )
+)
+(if (true)
+   (if (false)
+      (assert (false) FAILED: instruction if D)
+   )
+)
+(if (false)
+   (if (true)
+      (assert (false) FAILED: instruction if E)
+   )
+)
+
+(set test_var (false))
+(if (true)
+   (if (true)
+      (set test_var (true))
+   )
+)
+(assert (var test_var) FAILED: instruction if F)
+
+;; INSTRUCTION IF-ELSE
+(set test_var (false))
+(ifelse (false)
+   (assert (false) FAILED: instruction ifelse A)
+   (set test_var (true))
+)
+(assert (var test_var) FAILED: instruction ifelse B)
+
+(set test_var (false))
+(ifelse (true)
+   (set test_var (true))
+   (assert (false) FAILED: instruction ifelse C)
+)
+(assert (var test_var) FAILED: instruction ifelse D)
+
+(set test_var (false))
+(ifelse (true)
+   (ifelse (false)
+      (assert (false) FAILED: instruction ifelse E)
+      (set test_var (true))
+   )
+   (assert (false) FAILED: instruction ifelse F)
+)
+(assert (var test_var) FAILED: instruction ifelse G)
+
+;; INSTRUCTION COND
+(set test_var (false))
+(cond
+   ((false) (assert (false) FAILED: instruction cond A))
+   ((true) (set test_var (true)))
+)
+(assert (var test_var) FAILED: instruction cond B)
+
+(set test_var (false))
+(cond
+   ((true) (set test_var (true)))
+   ((false) (assert (false) FAILED: instruction cond B))
+)
+(assert (var test_var) FAILED: instruction cond C)
+
+(set test_var (false))
+(cond
+   ((true) (set test_var (true)))
+   ((true) (assert (false) FAILED: instruction cond D))
+   ((false) (assert (false) FAILED: instruction cond E))
+)
+(assert (var test_var) FAILED: instruction cond F)
+
+;; INSTRUCTION SWITCH
+(set test_var (false))
+(switch 3
+   (0 (assert (false) FAILED: instruction switch B))
+   (1 (assert (false) FAILED: instruction switch C))
+   (set test_var (true))
+)
+(assert (var test_var) FAILED: instruction switch D)
+
+(set test_var (false))
+(switch 3
+   (0 (assert (false) FAILED: instruction switch E))
+   (1 (assert (false) FAILED: instruction switch F))
+   (3 (set test_var (true)))
+   (2 (assert (false) FAILED: instruction switch G))
+   (assert (false) FAILED: instruction switch H)
+)
+(assert (var test_var) FAILED: instruction switch I)
+
+(set test_var (false))
+(switch 3
+   (0 (assert (false) FAILED: instruction switch J))
+   (1 (assert (false) FAILED: instruction switch K))
+   (3 (set test_var (true)))
+   (3 (assert (false) FAILED: instruction switch L))
+   (2 (assert (false) FAILED: instruction switch M))
+   (assert (false) FAILED: instruction switch N)
+)
+(assert (var test_var) FAILED: instruction switch O)
+
+(end)

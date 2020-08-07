@@ -14,6 +14,7 @@ L_PAREN: '(';
 R_PAREN: ')';
 
 
+ABS_KW: L_PAREN 'abs'('olute'?) SEP+;
 ACCESS_KW: L_PAREN 'access' SEP+;
 ADD_KW: L_PAREN 'add' SEP+;
 AND_KW: L_PAREN ('and'|'/\\') SEP+;
@@ -63,6 +64,9 @@ IS_MEMBER_KW: L_PAREN ('is'US'member'|'contains'|'has') SEP+;
 LOWER_EQUAL_THAN_KW: L_PAREN ('lower'US'equal'US'than'|'=<'|'<='|'le') SEP+;
 LOWER_THAN_KW: L_PAREN ('lower'US'than'|'<'|'lt') SEP+;
 MINUS_KW: L_PAREN ('minus'|'-') SEP+;
+MIN_KW: L_PAREN ('min'('imum'?)) SEP+;
+MAX_KW: L_PAREN ('max'('imum'?)) SEP+;
+CLAMP_KW: L_PAREN ('clamp') SEP+;
 MODULO_KW: L_PAREN ('modulo'|'%'|'mod') SEP+;
 NEWLINE_KW: L_PAREN 'newline)';
 NEW_KW: L_PAREN ('new'|'reserve'|'create') SEP+;

@@ -46,7 +46,6 @@ public class Main
          );
 
          System.out.println("Parsing completed.");
-         System.out.println(fate_world.toString());
       }
       catch (final Exception e)
       {
@@ -86,15 +85,6 @@ public class Main
       for (final TonkadurPlugin tp: plugins)
       {
          tp.post_wyrd_compile(wyrd_world);
-      }
-
-      for
-      (
-         final tonkadur.wyrd.v1.lang.meta.Instruction line:
-            wyrd_world.get_code()
-      )
-      {
-         System.out.println(line.toString());
       }
 
       for (final TonkadurPlugin tp: plugins)

@@ -10,20 +10,27 @@ public class Assert extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation condition;
+   protected final Computation message;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Assert (final Computation condition)
+   public Assert (final Computation condition, final Computation message)
    {
       this.condition = condition;
+      this.message = message;
    }
 
    /**** Accessors ************************************************************/
    public Computation get_condition ()
    {
       return condition;
+   }
+
+   public Computation get_message ()
+   {
+      return message;
    }
 
    @Override
@@ -43,6 +50,8 @@ public class Assert extends Instruction
 
       sb.append("(Assert ");
       sb.append(condition.toString());
+      sb.append(" ");
+      sb.append(message.toString());
       sb.append(")");
 
       return sb.toString();

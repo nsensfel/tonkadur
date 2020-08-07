@@ -33,16 +33,19 @@ public class InstructionCompiler implements InstructionVisitor
    public void visit_assert (final Assert n)
    throws Throwable
    {
-      final ComputationCompiler cc;
+      final ComputationCompiler cond_cc, msg_cc;
 
-      cc = new ComputationCompiler();
+      cond_cc = new ComputationCompiler();
+      msg_cc = new ComputationCompiler();
 
-      n.get_condition().get_visited_by(cc);
+      n.get_condition().get_visited_by(cond_cc);
+      n.get_message().get_visited_by(msg_cc);
 
       result = new JSONObject();
 
       result.put("category", "assert");
-      result.put("condition", cc.get_result());
+      result.put("condition", cond_cc.get_result());
+      result.put("message", msg_cc.get_result());
    }
 
    public void visit_display (final Display n)

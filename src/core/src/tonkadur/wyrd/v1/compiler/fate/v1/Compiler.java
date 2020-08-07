@@ -3,6 +3,7 @@ package tonkadur.wyrd.v1.compiler.fate.v1;
 import tonkadur.wyrd.v1.compiler.util.AnonymousVariableManager;
 import tonkadur.wyrd.v1.compiler.util.InstructionManager;
 
+import tonkadur.wyrd.v1.lang.Variable;
 import tonkadur.wyrd.v1.lang.World;
 
 public class Compiler
@@ -31,6 +32,8 @@ public class Compiler
       compiler.compile_main_sequence(fate_world);
 
       compiler.compile_sequences(fate_world);
+
+      compiler.add_anonymous_variables();
 
       return compiler.wyrd_world;
    }
@@ -114,6 +117,15 @@ public class Compiler
          this,
          fate_world.get_global_instructions()
       );
+   }
+
+   protected void add_anonymous_variables ()
+   throws Throwable
+   {
+      for (final Variable variable: anonymous_variables.get_all_variables())
+      {
+         wyrd_world.add_variable(variable);
+      }
    }
 
    public World world ()

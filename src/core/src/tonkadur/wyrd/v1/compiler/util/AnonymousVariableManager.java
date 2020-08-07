@@ -2,6 +2,7 @@ package tonkadur.wyrd.v1.compiler.util;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -30,6 +31,20 @@ public class AnonymousVariableManager
       by_name = new HashMap<String, Cons<Boolean, Variable>>();
       by_type = new HashMap<Type, List<Cons<Boolean, Variable>>>();
       generated_variables = 0;
+   }
+
+   public Collection<Variable> get_all_variables ()
+   {
+      final Collection<Variable> result;
+
+      result = new ArrayList<Variable>();
+
+      for (final Cons<Boolean, Variable> variable: by_name.values())
+      {
+         result.add(variable.get_cdr());
+      }
+
+      return result;
    }
 
    public Ref reserve (final Type t)

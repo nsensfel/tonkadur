@@ -90,7 +90,7 @@ public class RemoveAt
       /* (set .next (+ (val index) 1)) */
       while_body.add
       (
-         new SetValue(next, Operation.plus(value_of_end, Constant.ONE))
+         new SetValue(next, Operation.plus(value_of_index, Constant.ONE))
       );
 
       /* (set collection[index] (val collection[.next])) */

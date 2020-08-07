@@ -10,11 +10,28 @@ import tonkadur.wyrd.v1.lang.computation.Ref;
 
 public class MacroManager
 {
+   protected final Map<String, Ref> wild_parameters;
    protected final Stack<Map<String, Ref>> context_stack;
 
    public MacroManager ()
    {
+      wild_parameters = new HashMap<String, Ref>();
       context_stack = new Stack<Map<String, Ref>>();
+   }
+
+   public void add_wild_parameter (final String name, final Ref ref)
+   {
+      if (wild_parameters.containsKey(name))
+      {
+         System.err.println("[P] duplicate wild parameter '" + name + "'.");
+
+         return;
+      }
+   }
+
+   public void remove_wild_parameter (final String name)
+   {
+      wild_parameters.remove(name);
    }
 
    public void pop ()
@@ -51,13 +68,18 @@ public class MacroManager
 
    public Ref get_parameter_ref (final String parameter)
    {
-      final Ref result;
+      Ref result;
 
-      result = context_stack.peek().get(parameter);
+      result = wild_parameters.get(parameter);
 
       if (result == null)
       {
-         System.err.println("[P] No such parameter '" + parameter + "'.");
+         result = context_stack.peek().get(parameter);
+
+         if (result == null)
+         {
+            System.err.println("[P] No such parameter '" + parameter + "'.");
+         }
       }
 
       return result;

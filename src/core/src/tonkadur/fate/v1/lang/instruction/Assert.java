@@ -12,6 +12,7 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.RichTextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 
 public class Assert extends Instruction
@@ -20,6 +21,7 @@ public class Assert extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation condition;
+   protected final RichTextNode message;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -28,12 +30,14 @@ public class Assert extends Instruction
    protected Assert
    (
       final Origin origin,
-      final Computation condition
+      final Computation condition,
+      final RichTextNode message
    )
    {
       super(origin);
 
       this.condition = condition;
+      this.message = message;
    }
 
    /***************************************************************************/
@@ -43,7 +47,8 @@ public class Assert extends Instruction
    public static Assert build
    (
       final Origin origin,
-      final Computation condition
+      final Computation condition,
+      final RichTextNode message
    )
    throws InvalidTypeException
    {
@@ -60,7 +65,7 @@ public class Assert extends Instruction
          );
       }
 
-      return new Assert(origin, condition);
+      return new Assert(origin, condition, message);
    }
 
    /**** Accessors ************************************************************/
@@ -74,6 +79,11 @@ public class Assert extends Instruction
    public Computation get_condition ()
    {
       return condition;
+   }
+
+   public RichTextNode get_message ()
+   {
+      return message;
    }
 
    /**** Misc. ****************************************************************/

@@ -36,9 +36,6 @@ public class Translator
       out = new PrintWriter(output_file);
       out.println(result.toJSONString());
       out.close();
-
-      System.out.println("JSON Result:");
-      System.out.println(result.toJSONString());
    }
 
    public static JSONArray get_compiled_variables (final World wyrd_world)
