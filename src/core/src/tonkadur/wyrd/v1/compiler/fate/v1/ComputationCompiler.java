@@ -1102,6 +1102,23 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          System.err.println("[P] Unknown Fate operator '" + fate_op_name+ "'.");
       }
    }
+   @Override
+   public void visit_size_operator
+   (
+      final tonkadur.fate.v1.lang.computation.SizeOperator n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler cc;
+
+      cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(cc);
+
+      result_as_computation = new Size(cc.get_ref());
+
+      cc.release_variables();
+   }
 
    @Override
    public void visit_index_of_operator

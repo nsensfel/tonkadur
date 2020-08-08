@@ -767,6 +767,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final Computation value_of_index;
       final Type member_type;
 
+      /*
+       * (declare_variable int index)
+       * (declare_variable int collection_size)
+       *
+       * (set index 0)
+       * (set collection_size (size collection))
+       *
+       * (declare_variable <E> current_value)
+       * <add_wild_parameter current_value>
+       * ...
+       */
       cc = new ComputationCompiler(compiler);
       new_body = new ArrayList<Instruction>();
 
@@ -801,20 +812,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          current_value
       );
 
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Instruction fate_instr: n.get_body()
-      )
-      {
-         final InstructionCompiler ic;
-
-         ic = new InstructionCompiler(compiler);
-
-         fate_instr.get_visited_by(ic);
-
-         new_body.add(ic.get_result());
-      }
-
       new_body.add
       (
          new SetValue
@@ -831,6 +828,20 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             )
          )
       );
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Instruction fate_instr: n.get_body()
+      )
+      {
+         final InstructionCompiler ic;
+
+         ic = new InstructionCompiler(compiler);
+
+         fate_instr.get_visited_by(ic);
+
+         new_body.add(ic.get_result());
+      }
 
       new_body.add
       (
@@ -1414,16 +1425,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       elem_cc = new ComputationCompiler(compiler);
       collection_cc = new ComputationCompiler(compiler);
 
+      collection_size = compiler.anonymous_variables().reserve(Type.INT);
+
+      n.get_element().get_visited_by(elem_cc);
+      n.get_collection().get_visited_by(collection_cc);
+
       elem =
          compiler.anonymous_variables().reserve
          (
             elem_cc.get_computation().get_type()
          );
 
-      collection_size = compiler.anonymous_variables().reserve(Type.INT);
-
-      n.get_element().get_visited_by(elem_cc);
-      n.get_collection().get_visited_by(collection_cc);
 
       if (elem_cc.has_init())
       {
@@ -1567,18 +1579,19 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       elem_cc = new ComputationCompiler(compiler);
       collection_cc = new ComputationCompiler(compiler);
 
-      elem =
-         compiler.anonymous_variables().reserve
-         (
-            elem_cc.get_computation().get_type()
-         );
-
       collection_size = compiler.anonymous_variables().reserve(Type.INT);
       found = compiler.anonymous_variables().reserve(Type.BOOLEAN);
       index = compiler.anonymous_variables().reserve(Type.INT);
 
       n.get_element().get_visited_by(elem_cc);
       n.get_collection().get_visited_by(collection_cc);
+
+      elem =
+         compiler.anonymous_variables().reserve
+         (
+            elem_cc.get_computation().get_type()
+         );
+
 
       if (elem_cc.has_init())
       {

@@ -39,18 +39,18 @@ public class RemoveAllOf
     *
     * <while (< (var .index) (var .end))
     *    ;; while_body0
-    *    <if (> (var .found) 0)
-    *          <if (= element (var collection[.index]))
-    *                ;; if_false_true_body
-    *                (set .found (+ (var .found) 1))
-    *                (set .end (- (var .end) 1))
-    *          >
-    *          (set
-    *             collection[.index]
-    *             (var collection[(+ (var .index) (var .found))])
-    *          )
+    *    <if (= element (var collection[.index]))
+    *       ;; if_body
+    *       (set .found (+ (var .found) 1))
+    *       (set .end (- (var .end) 1))
     *    >
-    *    (set index ((val .index) + 1))
+    *    <if (> (var .found) 0)
+    *       (set
+    *          collection[.index]
+    *          (var collection[(+ (var .index) (var .found))])
+    *       )
+    *    >
+    *    (set index (+ (val .index) 1))
     * )
     *
     * (while (> (var .found) 0)
@@ -69,8 +69,7 @@ public class RemoveAllOf
    )
    {
       final List<Instruction> result;
-      final List<Instruction> while_body0, while_body1, if_false_body;
-      final List<Instruction> if_false_true_body;
+      final List<Instruction> while_body0, while_body1, if_body;
       final Type element_type;
       final Ref index, found, end;
       final Computation value_of_index, value_of_found, value_of_end;
@@ -81,8 +80,7 @@ public class RemoveAllOf
 
       while_body0 = new ArrayList<Instruction>();
       while_body1 = new ArrayList<Instruction>();
-      if_false_body = new ArrayList<Instruction>();
-      if_false_true_body = new ArrayList<Instruction>();
+      if_body = new ArrayList<Instruction>();
 
       element_type = element.get_type();
 
@@ -122,50 +120,35 @@ public class RemoveAllOf
        *    (set .end (- (var .end) 1))
        * )
        */
-      if_false_true_body.add
+      if_body.add
       (
          new SetValue(found, Operation.plus(value_of_found, Constant.ONE))
       );
-      if_false_true_body.add
+      if_body.add
       (
-         new SetValue(found, Operation.minus(value_of_found, Constant.ONE))
+         new SetValue(end, Operation.minus(value_of_end, Constant.ONE))
       );
 
-      if_false_body.add
+      while_body0.add
       (
+         /* <if (= element (var collection[.index])) */
          If.generate
          (
             anonymous_variables,
             assembler,
             Operation.equals(element, new ValueOf(collection_at_index)),
-            assembler.merge(if_false_true_body)
+            assembler.merge(if_body)
          )
       );
 
       /*
-       * (set
-       *    collection[.index]
-       *    (var collection[(+ (var .index) (var .found))])
-       * )
+       *    <if (> (var .found) 0)
+       *       (set
+       *          collection[.index]
+       *          (var collection[(+ (var .index) (var .found))])
+       *       )
+       *    >
        */
-      if_false_body.add
-      (
-         new SetValue
-         (
-            collection_at_index,
-            new RelativeRef
-            (
-               collection,
-               new Cast
-               (
-                  Operation.plus(value_of_index, value_of_found),
-                  Type.STRING
-               ),
-               element_type
-            )
-         )
-      );
-
       while_body0.add
       (
          If.generate
@@ -173,10 +156,27 @@ public class RemoveAllOf
             anonymous_variables,
             assembler,
             value_of_found_greater_than_0,
-            assembler.merge(if_false_body)
+            new SetValue
+            (
+               collection_at_index,
+               new ValueOf
+               (
+                  new RelativeRef
+                  (
+                     collection,
+                     new Cast
+                     (
+                        Operation.plus(value_of_index, value_of_found),
+                        Type.STRING
+                     ),
+                     element_type
+                  )
+               )
+            )
          )
       );
 
+      /* (set index (+ (val .index) 1)) */
       while_body0.add
       (
          new SetValue(index, Operation.plus(value_of_index, Constant.ONE))
@@ -188,11 +188,13 @@ public class RemoveAllOf
          (
             anonymous_variables,
             assembler,
+            /* <while (< (var .index) (var .end)) */
             Operation.less_than(value_of_index, value_of_end),
             assembler.merge(while_body0)
          )
       );
 
+      /* (remove collection[(+ (var .end) (var .found))]) */
       while_body1.add
       (
          new Remove
@@ -209,6 +211,7 @@ public class RemoveAllOf
             )
          )
       );
+      /* (set .found (- (var .found) 1)) */
       while_body1.add
       (
          new SetValue(found, Operation.minus(value_of_found, Constant.ONE))
@@ -220,6 +223,7 @@ public class RemoveAllOf
          (
             anonymous_variables,
             assembler,
+            /* (while (> (var .found) 0) */
             value_of_found_greater_than_0,
             assembler.merge(while_body1)
          )

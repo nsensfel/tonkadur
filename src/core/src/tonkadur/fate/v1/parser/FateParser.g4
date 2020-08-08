@@ -675,6 +675,20 @@ returns [Instruction result]
          );
    }
 
+   | REVERSE_KW value_reference WS* R_PAREN
+   {
+      $result =
+         ReverseList.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REVERSE_KW.getLine()),
+               ($REVERSE_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
+   }
+
    | SET_KW value_reference WS+ value WS* R_PAREN
    {
       $result =
@@ -1333,7 +1347,7 @@ text
 returns [RichTextNode result]:
    sentence
    {
-      $result = ($sentence.result);
+      $result = ValueToRichText.build(($sentence.result));
    }
 
    | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
@@ -1431,7 +1445,7 @@ catch [final Throwable e]
 }
 
 sentence
-returns [RichTextNode result]
+returns [Computation result]
 @init
 {
    final StringBuilder string_builder = new StringBuilder();
@@ -1451,17 +1465,14 @@ returns [RichTextNode result]
    )*
    {
       $result =
-         ValueToRichText.build
+         Constant.build_string
          (
-            Constant.build_string
+            CONTEXT.get_origin_at
             (
-               CONTEXT.get_origin_at
-               (
-                  ($first_word.getLine()),
-                  ($first_word.getCharPositionInLine())
-               ),
-               string_builder.toString()
-            )
+               ($first_word.getLine()),
+               ($first_word.getCharPositionInLine())
+            ),
+            string_builder.toString()
          );
    }
 ;
@@ -1491,6 +1502,68 @@ returns [Type result]
                ($WORD.getCharPositionInLine())
             ),
             ($WORD.text)
+         );
+   }
+
+   | REF_KW type WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($REF_KW.getLine()),
+            ($REF_KW.getCharPositionInLine())
+         );
+
+      $result =
+         new RefType
+         (
+            start_origin,
+            ($type.result),
+            ("anonymous (" + ($type.result).get_name() + ") ref type")
+         );
+   }
+
+   | SET_KW type WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($SET_KW.getLine()),
+            ($SET_KW.getCharPositionInLine())
+         );
+
+      $result =
+         CollectionType.build
+         (
+            start_origin,
+            ($type.result),
+            true,
+            ("anonymous (" + ($type.result).get_name() + ") set type")
+         );
+   }
+
+   | LIST_KW type WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($LIST_KW.getLine()),
+            ($LIST_KW.getCharPositionInLine())
+         );
+
+      $result =
+         CollectionType.build
+         (
+            start_origin,
+            ($type.result),
+            false,
+            ("anonymous (" + ($type.result).get_name() + ") list type")
          );
    }
 ;
@@ -1849,6 +1922,20 @@ returns [Computation result]:
          );
    }
 
+   | SIZE_KW value_reference WS* R_PAREN
+   {
+      $result =
+         SizeOperator.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SIZE_KW.getLine()),
+               ($SIZE_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
+   }
+
    | NEW_KW WORD WS* R_PAREN
    {
       final Origin origin;
@@ -2097,7 +2184,12 @@ returns [Computation result]
       /* TODO: temporarily disable an compiler error category */
    }
 
-   | L_PAREN WS+ paragraph WS* R_PAREN
+   | L_PAREN WS+ sentence WS* R_PAREN
+   {
+      $result = ($sentence.result);
+   }
+
+   | RICH_TEXT_KW paragraph WS* R_PAREN
    {
       $result = ($paragraph.result);
    }
@@ -2403,7 +2495,7 @@ returns [Reference result]
          );
    }
 
-   | ACCESS_KW value_reference value R_PAREN
+   | ACCESS_KW value_reference WS+ value R_PAREN
    {
       $result =
          Access.build

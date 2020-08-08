@@ -52,7 +52,7 @@ public class Type extends DeclaredEntity
       INT = new Type(base, null, "int");
       LIST = new Type(base, null, "list");
       REF = new Type(base, null, "ref");
-      RICH_TEXT = new Type(base, null, "rich text");
+      RICH_TEXT = new Type(base, null, "text");
       SET = new Type(base, null, "set");
       STRING = new Type(base, null, "string");
 

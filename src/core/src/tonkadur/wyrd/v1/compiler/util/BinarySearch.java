@@ -37,6 +37,7 @@ public class BinarySearch
     * (declare_variable <E> .midval)
     *
     * (set result_found false)
+    * (set result_index 0)
     * (set .bot 0)
     * (set .top (- collection_size 1))
     *
@@ -104,6 +105,7 @@ public class BinarySearch
       value_of_top = new ValueOf(top);
       value_of_midval = new ValueOf(midval);
 
+      result.add(new SetValue(result_index, Constant.ZERO));
       result.add(new SetValue(result_was_found, Constant.FALSE));
       result.add(new SetValue(bot, Constant.ZERO));
       result.add
@@ -227,6 +229,32 @@ public class BinarySearch
                Operation.less_equal_than(value_of_bot, value_of_top)
             ),
             assembler.merge(while_body)
+         )
+      );
+
+      /* Without this, you'll replace the value and move it to the right,
+       * regardless of where you 'target' stands in relation to it.
+       */
+      result.add
+      (
+         If.generate
+         (
+            anonymous_variables,
+            assembler,
+            Operation.and
+            (
+               Operation.and
+               (
+                  Operation.not(new ValueOf(result_was_found)),
+                  Operation.greater_than(target, value_of_midval)
+               ),
+               Operation.greater_than(collection_size, Constant.ZERO)
+            ),
+            new SetValue
+            (
+               result_index,
+               Operation.plus(value_of_result_index, Constant.ONE)
+            )
          )
       );
 

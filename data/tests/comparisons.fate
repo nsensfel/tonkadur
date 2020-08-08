@@ -1,0 +1,48 @@
+(fate_version 1)
+
+(assert (exactly_one (< a b) (< b a)) FAILED: string comparison A)
+(assert (exactly_one (< a aa) (< aa a)) FAILED: string comparison B)
+
+(assert
+   (exactly_one (< ( a aa ) ( aa a )) (< ( aa a ) ( a aa )))
+   FAILED: string comparison C
+)
+
+(declare_ptr_type int int_ptr)
+
+(def_var int i)
+(def_var int_ptr i_ptr)
+
+(def_var int j)
+(def_var int_ptr j_ptr)
+
+(set i_ptr (ptr i))
+(set j_ptr (ptr j))
+
+(assert (exactly_one
+      (< (var i_ptr) (var j_ptr))
+      (< (var j_ptr) (var i_ptr))
+   )
+   FAILED: string comparison C
+)
+
+(def_dict test_dict_t
+   (int a)
+   (int b)
+)
+
+(def_var test_dict_t td)
+
+(set i_ptr (ptr td.a))
+(set j_ptr (ptr td.b))
+
+
+(assert
+   (exactly_one
+      (< (var i_ptr) (var j_ptr))
+      (< (var j_ptr) (var i_ptr))
+   )
+   FAILED: string comparison D
+)
+
+(end)

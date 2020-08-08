@@ -27,6 +27,8 @@ public class MacroManager
 
          return;
       }
+
+      wild_parameters.put(name, ref);
    }
 
    public void remove_wild_parameter (final String name)
@@ -74,7 +76,10 @@ public class MacroManager
 
       if (result == null)
       {
-         result = context_stack.peek().get(parameter);
+         if (!context_stack.isEmpty())
+         {
+            result = context_stack.peek().get(parameter);
+         }
 
          if (result == null)
          {

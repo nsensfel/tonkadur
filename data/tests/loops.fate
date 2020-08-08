@@ -1,0 +1,149 @@
+(fate_version 1)
+
+(require include/data_types.fate)
+
+(declare_variable int i)
+(declare_variable int test_val)
+(declare_variable int test_val2)
+
+(set test_val 0)
+(set test_val2 0)
+
+(for (set i 0) (< (var i) 10) (set i (+ (var i) 1))
+   (set test_val (+ (var test_val) 1))
+   (set test_val2 (+ (var test_val2) 1))
+)
+
+(assert (= (var test_val) 10) FAILED: for loop A)
+(assert (= (var test_val2) 10) FAILED: for loop B)
+(assert (= (var i) 10) FAILED: for loop C)
+
+(set i 0)
+
+(set test_val 0)
+(set test_val2 0)
+
+(while (< (var i) 10)
+   (set test_val (+ (var test_val) 1))
+   (set test_val2 (+ (var test_val2) 1))
+   (set i (+ (var i) 1))
+)
+
+(assert (= (var test_val) 10) FAILED: while loop A)
+(assert (= (var test_val2) 10) FAILED: while loop B)
+(assert (= (var i) 10) FAILED: while loop C)
+
+(set i 0)
+
+(set test_val 0)
+(set test_val2 0)
+
+(do_while (< (var i) 10)
+   (set test_val (+ (var test_val) 1))
+   (set test_val2 (+ (var test_val2) 1))
+   (set i (+ (var i) 1))
+)
+
+(assert (= (var test_val) 10) FAILED: do while loop A)
+(assert (= (var test_val2) 10) FAILED: do while loop B)
+(assert (= (var i) 10) FAILED: do while loop C)
+
+(set i 0)
+(set test_val 0)
+(set test_val2 0)
+
+(do_while (false)
+   (set test_val (+ (var test_val) 1))
+   (set test_val2 (+ (var test_val2) 1))
+   (set i (+ (var i) 1))
+)
+
+(assert (= (var test_val) 1) FAILED: do while loop D)
+(assert (= (var test_val2) 1) FAILED: do while loop E)
+(assert (= (var i) 1) FAILED: do while loop F)
+
+(declare_variable int_list int_list_a)
+(declare_variable int_list int_list_b)
+
+(for (set i 0) (< (var i) 10) (set i (+ (var i) 1))
+   (add_element 1 int_list_a)
+   (add_element 1 int_list_b)
+)
+
+(set test_val 0)
+(set test_val2 0)
+
+(foreach int_list_a a
+   (set test_val (+ (var test_val) (param a)))
+   (set test_val2 (+ (var test_val2) (param a)))
+)
+(assert (= (var test_val) 10) FAILED: for each loop A)
+(assert (= (var test_val2) 10) FAILED: for each loop B)
+
+
+(set test_val 0)
+(set test_val2 0)
+
+(for (set i 0) (< (var i) 10) (set i (+ (var i) 1))
+   (set test_val (+ (var test_val) 1))
+   (break)
+   (set test_val2 (+ (var test_val2) 1))
+)
+(assert (= (var test_val) 1) FAILED: break loop A)
+(assert (= (var test_val2) 0) FAILED: for each loop B)
+
+(set i 0)
+
+(set test_val 0)
+(set test_val2 0)
+
+(while (< (var i) 10)
+   (set test_val (+ (var test_val) 1))
+   (break)
+   (set test_val2 (+ (var test_val2) 1))
+   (set i (+ (var i) 1))
+)
+(assert (= (var test_val) 1) FAILED: break while loop A)
+(assert (= (var test_val2) 0) FAILED: break while loop B)
+(assert (= (var i) 0) FAILED: break while loop C)
+
+(set i 0)
+
+(set test_val 0)
+(set test_val2 0)
+
+(do_while (< (var i) 10)
+   (set test_val (+ (var test_val) 1))
+   (break)
+   (set test_val2 (+ (var test_val2) 1))
+   (set i (+ (var i) 1))
+)
+(assert (= (var test_val) 1) FAILED: break do while loop A)
+(assert (= (var test_val2) 0) FAILED: break do while loop B)
+(assert (= (var i) 0) FAILED: break do while loop C)
+
+(set test_val 0)
+
+(foreach int_list_a a
+   (set test_val (+ (var test_val) (param a)))
+   (break)
+   (set test_val2 (+ (var test_val2) (param a)))
+)
+(assert (= (var test_val) 1) FAILED: break foreach loop A)
+(assert (= (var test_val2) 0) FAILED: break foreach loop B)
+
+(clear int_list_b)
+
+(foreach int_list_a a
+   (add_element (param a) int_list_b)
+   (for (set i 0) (< (var i) 1) (set i (+ (var i) 1))
+      (add_element (var i) int_list_b)
+   )
+   (do_while (< (var i) 10)
+      (break)
+   )
+)
+
+(assert (= (size int_list_b) (* 2 (size int_list_a))) FAILED: inner break)
+
+(end)

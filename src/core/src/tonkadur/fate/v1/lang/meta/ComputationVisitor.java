@@ -40,6 +40,9 @@ public interface ComputationVisitor
    public void visit_index_of_operator (final IndexOfOperator n)
    throws Throwable;
 
+   public void visit_size_operator (final SizeOperator n)
+   throws Throwable;
+
    public void visit_macro_value_call (final MacroValueCall n)
    throws Throwable;
 

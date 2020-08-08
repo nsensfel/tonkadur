@@ -35,7 +35,7 @@ public class InsertAt
     * (set .end collection_size)
     *
     * <while
-    *    (> .index .end)
+    *    (< .index .end)
     *
     *    (set .prev (- (val .collection_size) 1))
     *    (set collection[.end] (val collection[.prev]))
@@ -107,7 +107,7 @@ public class InsertAt
       while_body.add(new SetValue(end, value_of_prev));
 
       /*
-       * (while (> .index .end)
+       * (while (< .index .end)
        *    (set .prev (- (val .collection_size) 1))
        *    (set collection[.end] (val collection[.prev]))
        *    (set .end (val .prev))
@@ -119,7 +119,7 @@ public class InsertAt
          (
             anonymous_variables,
             assembler,
-            Operation.greater_than(value_of_index, value_of_end),
+            Operation.less_than(value_of_index, value_of_end),
             assembler.merge(while_body)
          )
       );

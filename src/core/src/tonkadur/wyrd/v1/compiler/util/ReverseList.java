@@ -39,8 +39,8 @@ public class ReverseList
     *    (set .buffer collection[.top])
     *    (set collection[.top] collection[.bot])
     *    (set collection[.bot] .buffer)
-    *    (set .bot (+ 1 (var .bot)))
-    *    (set .top (- 1 (var .top)))
+    *    (set .bot (+ (var .bot) 1))
+    *    (set .top (- (var .top) 1))
     * )
     */
    public static Instruction generate
@@ -111,16 +111,16 @@ public class ReverseList
          new SetValue(collection_at_bot, new ValueOf(buffer))
       );
 
-      /* (set .bot (+ 1 (var .bot))) */
+      /* (set .bot (+ (var .bot) 1)) */
       while_body.add
       (
-         new SetValue(bot, Operation.plus(Constant.ONE, value_of_bot))
+         new SetValue(bot, Operation.plus(value_of_bot, Constant.ONE))
       );
 
-      /* (set .top (- 1 (var .top))) */
+      /* (set .top (- (var .top) 1)) */
       while_body.add
       (
-         new SetValue(top, Operation.minus(Constant.ONE, value_of_top))
+         new SetValue(top, Operation.minus(value_of_top, Constant.ONE))
       );
 
       /*
@@ -128,8 +128,8 @@ public class ReverseList
        *    (set .buffer collection[.top])
        *    (set collection[.top] collection[.bot])
        *    (set collection[.bot] .buffer)
-       *    (set .bot (+ 1 (var .bot)))
-       *    (set .top (- 1 (var .top)))
+       *    (set .bot (+ (var .bot) 1))
+       *    (set .top (- (var .top) 1))
        * )
        */
       result.add

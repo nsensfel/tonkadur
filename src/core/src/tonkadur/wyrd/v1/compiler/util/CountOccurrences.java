@@ -70,7 +70,10 @@ public class CountOccurrences
       result.add(new SetValue(count, Constant.ZERO));
       result.add(new SetValue(index, collection_size));
 
-      while_body.add(new SetValue(index, Operation.minus(index, Constant.ONE)));
+      while_body.add
+      (
+         new SetValue(index, Operation.minus(value_of_index, Constant.ONE))
+      );
       while_body.add
       (
          If.generate
@@ -90,7 +93,11 @@ public class CountOccurrences
                ),
                target
             ),
-            new SetValue(count, Operation.plus(count, Constant.ONE))
+            new SetValue
+            (
+               count,
+               Operation.plus(new ValueOf(count), Constant.ONE)
+            )
          )
       );
 
