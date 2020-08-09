@@ -18,6 +18,7 @@ import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
+import tonkadur.wyrd.v1.compiler.util.If;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
 
@@ -1115,9 +1116,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       n.get_collection().get_visited_by(cc);
 
-      result_as_computation = new Size(cc.get_ref());
+      assimilate(cc);
 
-      cc.release_variables();
+      result_as_computation = new Size(cc.get_ref());
    }
 
    @Override
@@ -1127,7 +1128,36 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler elem_cc, collection_cc;
+      final Ref result, result_found;
+
+      result = reserve(Type.INT);
+      result_found = reserve(Type.BOOLEAN);
+
+      elem_cc = new ComputationCompiler(compiler);
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_element().get_visited_by(elem_cc);
+      n.get_collection().get_visited_by(collection_cc);
+
+      assimilate(elem_cc);
+      assimilate(collection_cc);
+
+      init_instructions.add
+      (
+         IterativeSearch.generate
+         (
+            compiler.anonymous_variables(),
+            compiler.assembler(),
+            elem_cc.get_computation(),
+            new Size(collection_cc.get_ref()),
+            collection_cc.get_ref(),
+            result_found,
+            result
+         )
+      );
+
+      result_as_ref = result;
    }
 
    @Override
