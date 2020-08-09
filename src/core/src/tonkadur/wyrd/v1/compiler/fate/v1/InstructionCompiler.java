@@ -194,7 +194,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       ae.get_collection().get_visited_by(reference_compiler);
 
-      collection_as_ref = reference_compiler.get_ref();
 
       if (reference_compiler.has_init())
       {
@@ -205,6 +204,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          result.add(element_compiler.get_init());
       }
+
+      collection_as_ref = reference_compiler.get_ref();
 
       result.add
       (
@@ -320,12 +321,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       c.get_collection().get_visited_by(reference_compiler);
 
-      collection_ref = reference_compiler.get_ref();
-
       if (reference_compiler.has_init())
       {
          result.add(reference_compiler.get_init());
       }
+
+      collection_ref = reference_compiler.get_ref();
 
       result.add
       (
@@ -359,12 +360,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       n.get_collection().get_visited_by(reference_compiler);
 
-      collection_ref = reference_compiler.get_ref();
-
       if (reference_compiler.has_init())
       {
          result.add(reference_compiler.get_init());
       }
+
+      collection_ref = reference_compiler.get_ref();
 
       result.add
       (

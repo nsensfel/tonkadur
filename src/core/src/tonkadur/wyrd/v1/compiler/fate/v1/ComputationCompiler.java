@@ -177,6 +177,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       n.get_parent().get_visited_by(cc);
 
+      assimilate(cc);
+
       target_type = TypeCompiler.compile(compiler, n.get_type());
 
       if (target_type.equals(cc.get_computation().get_type()))
@@ -1324,10 +1326,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      n.get_value().get_visited_by(this);
+      final ComputationCompiler cc;
+
+      cc = new ComputationCompiler(compiler);
+
+      n.get_value().get_visited_by(cc);
+
+      assimilate(cc);
 
       result_as_computation =
-         new RichText(Collections.singletonList(get_computation()));
+         new RichText(Collections.singletonList(cc.get_computation()));
    }
 
    @Override

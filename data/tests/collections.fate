@@ -139,22 +139,15 @@
 
 (assert (= 18 (size (var int_list_a))) FAILED: size list N)
 
-;;(assert (= 2 (access int_list_a 0)) FAILED: size list M_BIS (access int_list_a 0))
-;;(assert (= 5 (access int_list_a 3)) FAILED: size list N_BIS (access int_list_a 3))
-;;(assert (= 2 (count 10 int_list_a)) FAILED: size list O)
-;;(assert (= 0 (count 99 int_list_a)) FAILED: size list P)
+(assert (= 2 (access int_list_a 0)) FAILED: size list M_BIS (access int_list_a 0))
+(assert (= 5 (access int_list_a 3)) FAILED: size list N_BIS (access int_list_a 3))
+(assert (= 2 (count 10 int_list_a)) FAILED: size list O)
+(assert (= 0 (count 99 int_list_a)) FAILED: size list P)
 
-(assert (false) test a)
-(index_of 3 int_list_a)
-(assert (false) test b)
-(index_of 3 int_list_a)
-(assert (false) test c)
-(index_of 3 int_list_a)
-
-;;(assert (= 1 (index_of 3 int_list_a)) FAILED: size list Q (index_of 2 int_list_a))
-;;(assert (= 1 (index_of 3 int_list_a)) FAILED: size list R (index_of 3 int_list_a))
-;;(assert (= -1 (index_of 333 int_list_a)) FAILED: size list S)
-;;(assert (not (is_member 99 int_list_a)) FAILED: size list T)
-;;(assert (is_member 10 int_list_a) FAILED: size list U)
+(assert (= 2 (access int_list_a (index_of 2 int_list_a))) FAILED: size list Q (index_of 2 int_list_a))
+(assert (= 3 (access int_list_a (index_of 3 int_list_a))) FAILED: size list R (index_of 3 int_list_a))
+(assert (= -1 (index_of 333 int_list_a)) FAILED: size list S)
+(assert (not (is_member 99 int_list_a)) FAILED: size list T)
+(assert (is_member 10 int_list_a) FAILED: size list U)
 
 (end)
