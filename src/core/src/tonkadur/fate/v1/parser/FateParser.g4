@@ -152,13 +152,24 @@ first_level_fate_instr:
    | DECLARE_VARIABLE_KW
       type
       WS+
+      name=new_reference_name
+      WS*
+   R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_VARIABLE_KW.getLine()),
+            ($DECLARE_VARIABLE_KW.getCharPositionInLine())
          );
 
       new_variable =
          new Variable
          (
             start_origin,
-            VariableScope.LOCAL,
             ($type.result),
             ($name.result)
          );
@@ -169,57 +180,6 @@ first_level_fate_instr:
    | IGNORE_ERROR_KW WORD WS+ first_level_fate_instr WS* R_PAREN
    {
       /* TODO: temporarily disable an compiler error category */
-   }
-
-   | DECLARE_VARIABLE_KW
-      scope=WORD
-      WS+
-      type
-      WS+
-      name=new_reference_name
-      WS*
-   R_PAREN
-   {
-      final Origin start_origin, scope_origin, type_origin;
-      final Variable new_variable;
-      VariableScope variable_scope;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_VARIABLE_KW.getLine()),
-            ($DECLARE_VARIABLE_KW.getCharPositionInLine())
-         );
-
-      scope_origin =
-         CONTEXT.get_origin_at
-         (
-            ($scope.getLine()),
-            ($scope.getCharPositionInLine())
-         );
-
-      variable_scope = VariableScope.value_of(($scope.text));
-
-      if (variable_scope == null)
-      {
-         ErrorManager.handle
-         (
-            new UnknownVariableScopeException(scope_origin, ($scope.text))
-         );
-
-         variable_scope = VariableScope.ANY;
-      }
-
-      new_variable =
-         new Variable
-         (
-            start_origin,
-            variable_scope,
-            ($type.result),
-            ($name.result)
-         );
-
-      WORLD.variables().add(new_variable);
    }
 
    | DECLARE_TEXT_EFFECT_KW
@@ -280,81 +240,10 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_SET_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-      final Type new_type;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_SET_TYPE_KW.getLine()),
-            ($DECLARE_SET_TYPE_KW.getCharPositionInLine())
-         );
-
-      new_type =
-         CollectionType.build
-         (
-            start_origin,
-            ($parent.result),
-            true,
-            ($new_reference_name.result)
-         );
-
-      WORLD.types().add(new_type);
-   }
-
-   | DECLARE_LIST_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-      final Type new_type;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_LIST_TYPE_KW.getLine()),
-            ($DECLARE_LIST_TYPE_KW.getCharPositionInLine())
-         );
-
-      new_type =
-         CollectionType.build
-         (
-            start_origin,
-            ($parent.result),
-            false,
-            ($new_reference_name.result)
-         );
-
-      WORLD.types().add(new_type);
-   }
-
-   | DECLARE_REF_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-      final Type new_type;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_REF_TYPE_KW.getLine()),
-            ($DECLARE_REF_TYPE_KW.getCharPositionInLine())
-         );
-
-      new_type =
-         new RefType
-         (
-            start_origin,
-            ($parent.result),
-            ($new_reference_name.result)
-         );
-
-      WORLD.types().add(new_type);
-   }
-
    | DECLARE_DICT_TYPE_KW
       new_reference_name
       WS*
-      typed_entry_list
+      variable_list
       WS*
    R_PAREN
    {
@@ -367,7 +256,7 @@ first_level_fate_instr:
       for
       (
          final TypedEntryList.TypedEntry te:
-            ($typed_entry_list.result).get_entries()
+            ($variable_list.result).get_entries()
       )
       {
          field_types.put(te.get_name(), te.get_type());
@@ -483,48 +372,6 @@ first_level_fate_instr:
       CONTEXT.pop();
    }
 
-   | DEFINE_MACRO_KW
-         new_reference_name
-         WS*
-         (
-            L_PAREN WS+ typed_entry_list WS* R_PAREN
-            {
-               PARAMETERS=($typed_entry_list.result);
-            }
-         )
-         WS*
-         general_fate_sequence
-         WS*
-      R_PAREN
-   {
-      final Origin origin;
-      final Macro new_macro;
-
-      PARAMETERS = null;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($DEFINE_MACRO_KW.getLine()),
-            ($DEFINE_MACRO_KW.getCharPositionInLine())
-         );
-
-      new_macro =
-         new Macro
-         (
-            origin,
-            new InstructionList
-            (
-               origin,
-               ($general_fate_sequence.result)
-            ),
-            ($typed_entry_list.result),
-            ($new_reference_name.result)
-         );
-
-      WORLD.macros().add(new_macro);
-   }
-
    | EXTENSION_FIRST_LEVEL_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
       final Origin origin;
@@ -582,6 +429,52 @@ returns [Instruction result]
          );
    }
 
+   | LOCAL_KW
+      type
+      WS+
+      name=new_reference_name
+      WS*
+   R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+      final Map<String, Variable> variable_map;
+
+      start_origin =
+         (
+            ($LOCAL_KW.getLine()),
+            ($LOCAL_KW.getCharPositionInLine())
+         );
+
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            ($type.result),
+            ($name.result)
+         );
+
+      variable_map = LOCAL_VARIABLES.peekFirst();
+
+      if (variable_map.containsKey(($name.result)))
+      {
+         ErrorManager.handle
+         (
+            new DuplicateLocalVariableException
+            (
+               variable_map.get(($name.result)),
+               new_variable
+            )
+         );
+      }
+      else
+      {
+         variable_map.put(($name.result), new_variable);
+      }
+
+      $result = new LocalVariable(new_variable);
+   }
+
    | ADD_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
@@ -606,6 +499,19 @@ returns [Instruction result]
             (
                ($END_KW.getLine()),
                ($END_KW.getCharPositionInLine())
+            )
+         );
+   }
+
+   | DONE_KW
+   {
+      $result =
+         new Done
+         (
+            CONTEXT.get_origin_at
+            (
+               ($DONE_KW.getLine()),
+               ($DONE_KW.getCharPositionInLine())
             )
          );
    }
@@ -828,12 +734,18 @@ returns [Instruction result]
    | FOR_EACH_KW
       value_reference WS+ new_reference_name
       {
-         Type collection_type, elem_type;
+         final Map<String, Variable> variable_map;
+         final Variable new_variable;
+         final Type collection_type;
+         Type elem_type;
+
          elem_type = Type.ANY;
 
-         if (PARAMETERS == null)
+         variable_map = local_variables.peekfirst();
+
+         if (local_variables == null)
          {
-            PARAMETERS = new TypedEntryList();
+            local_variables = new typedentrylist();
          }
 
          collection_type = ($value_reference.result).get_type();
@@ -861,25 +773,40 @@ returns [Instruction result]
             elem_type = Type.ANY;
          }
 
-         /* TODO: error if there is already a parameter with that name */
-         PARAMETERS.add
-         (
-            CONTEXT.get_origin_at
+
+         new_variable =
+            new Variable
             (
-               ($FOR_EACH_KW.getLine()),
-               ($FOR_EACH_KW.getCharPositionInLine())
-            ),
-            elem_type,
-            ($new_reference_name.result)
-         );
+               CONTEXT.get_origin_at
+               (
+                  ($FOR_EACH_KW.getLine()),
+                  ($FOR_EACH_KW.getCharPositionInLine())
+               ),
+               elem_type,
+               ($new_reference_name.result)
+            );
+
+         if (variable_map.containskey(($new_reference_name.result)))
+         {
+            ErrorManager.handle
+            (
+               new DuplicateLocalVariableException
+               (
+                  variable_map.get(($new_reference_name.result)),
+                  new_variable
+               )
+            );
+         }
+         else
+         {
+            variable_map.put(($new_reference_name.result), new_variable);
+         }
       }
       WS+
       {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
       WS*
    R_PAREN
    {
-      PARAMETERS.remove(($new_reference_name.result));
-
       $result =
          new ForEach
          (
@@ -940,30 +867,7 @@ returns [Instruction result]
          );
    }
 
-   | IMACRO_KW WORD WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-      final Macro macro;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($IMACRO_KW.getLine()),
-            ($IMACRO_KW.getCharPositionInLine())
-         );
-
-      macro = WORLD.macros().get(origin, ($WORD.text));
-
-      $result =
-         MacroCall.build
-         (
-            origin,
-            macro,
-            ($value_list.result)
-         );
-   }
-
-   | SEQUENCE_KW WORD WS* R_PAREN
+   | VISIT_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
       final String sequence_name;
@@ -971,15 +875,78 @@ returns [Instruction result]
       origin =
          CONTEXT.get_origin_at
          (
-            ($SEQUENCE_KW.getLine()),
-            ($SEQUENCE_KW.getCharPositionInLine())
+            ($VISIT_KW.getLine()),
+            ($VISIT_KW.getCharPositionInLine())
          );
 
       sequence_name = ($WORD.text);
 
-      WORLD.add_sequence_call(origin, sequence_name);
+      WORLD.add_sequence_use(origin, sequence_name, ($value_list.result));
 
-      $result = new SequenceCall(origin, sequence_name);
+      $result = new SequenceCall(origin, sequence_name, ($value_list.result));
+   }
+
+   | VISIT_KW WORD WS* R_PAREN
+   {
+      final Origin origin;
+      final String sequence_name;
+      final List<Computation> params;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($VISIT_KW.getLine()),
+            ($VISIT_KW.getCharPositionInLine())
+         );
+
+      params = new ArrayList<Computation>();
+
+      sequence_name = ($WORD.text);
+
+      WORLD.add_sequence_use(origin, sequence_name, params);
+
+      $result = new SequenceCall(origin, sequence_name, params);
+   }
+
+   | CONTINUE_AS_KW WORD WS+ value_list WS* R_PAREN
+   {
+      final Origin origin;
+      final String sequence_name;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($CONTINUE_AS_KW.getLine()),
+            ($CONTINUE_AS_KW.getCharPositionInLine())
+         );
+
+      sequence_name = ($WORD.text);
+
+      WORLD.add_sequence_use(origin, sequence_name, ($value_list.result));
+
+      $result = new SequenceJump(origin, sequence_name, ($value_list.result));
+   }
+
+   | CONTINUE_AS_KW WORD WS* R_PAREN
+   {
+      final Origin origin;
+      final String sequence_name;
+      final List<Computation> params;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($CONTINUE_AS_KW.getLine()),
+            ($CONTINUE_AS_KW.getCharPositionInLine())
+         );
+
+      params = new ArrayList<Computation>();
+
+      sequence_name = ($WORD.text);
+
+      WORLD.add_sequence_use(origin, sequence_name, params);
+
+      $result = new SequenceJump(origin, sequence_name, params);
    }
 
    | ASSERT_KW value WS+ paragraph WS* R_PAREN
@@ -1602,11 +1569,11 @@ returns [List<Type> result]
    }
 ;
 
-typed_entry_list
-returns [TypedEntryList result]
+variable_list
+returns [VariableList result]
 @init
 {
-   $result = new TypedEntryList();
+   $result = new VariableList();
 }
 :
    (
@@ -1615,13 +1582,16 @@ returns [TypedEntryList result]
       {
          $result.add
          (
-            CONTEXT.get_origin_at
+            new Variable
             (
-               ($L_PAREN.getLine()),
-               ($L_PAREN.getCharPositionInLine())
-            ),
-            ($type.result),
-            ($new_reference_name.result)
+               CONTEXT.get_origin_at
+               (
+                  ($L_PAREN.getLine()),
+                  ($L_PAREN.getCharPositionInLine())
+               ),
+               ($type.result),
+               ($new_reference_name.result)
+            )
          );
       }
    )*
@@ -2342,6 +2312,37 @@ returns [Computation result]
       $result = ($boolean_expression.result);
    }
 
+   | LAMBDA_KW
+         L_PAREN WS+ variable_list WS* R_PAREN
+         {
+            final Map<String, Variable> variable_map;
+
+            variable_map = new HashMap<String, Variable>();
+
+            variable_map.putAll(($variable_list.result).as_map());
+
+            LOCAL_VARIABLES.push(variable_map);
+         }
+         WS*
+         value
+         WS*
+      R_PAREN
+      {
+         $result =
+            new LambdaExpression
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($LAMBDA_KW.getLine()),
+                  ($LAMBDA_KW.getCharPositionInLine())
+               ),
+               ($variable_list.result),
+               ($value.result)
+            );
+
+         LOCAL_VARIABLES.pop();
+      }
+
    | math_expression
    {
       $result = ($math_expression.result);
@@ -2423,25 +2424,22 @@ returns [Computation result]
       }
    }
 
-   | VMACRO_KW WORD WS+ value_list WS* R_PAREN
+   | EVAL_KW value_reference WS+ value_list WS* R_PAREN
    {
       final Origin origin;
-      final Macro macro;
 
       origin =
          CONTEXT.get_origin_at
          (
-            ($VMACRO_KW.getLine()),
-            ($VMACRO_KW.getCharPositionInLine())
+            ($EVAL_KW.getLine()),
+            ($EVAL_KW.getCharPositionInLine())
          );
 
-      macro = WORLD.macros().get(origin, ($WORD.text));
-
       $result =
-         MacroValueCall.build
+         LambdaEvaluation.build
          (
             origin,
-            macro,
+            ($value_reference.result),
             ($value_list.result)
          );
    }
@@ -2498,6 +2496,8 @@ returns [Reference result]
    | ACCESS_KW value_reference WS+ value R_PAREN
    {
       $result =
+         Access.build
+         (
             CONTEXT.get_origin_at
             (
                ($ACCESS_KW.getLine()),

@@ -30,7 +30,8 @@ DECLARE_ALIAS_TYPE_KW:
 DECLARE_DICT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US('dict'|'struct')(US'type')? SEP+;
 DECLARE_EVENT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US'event'(US'type')? SEP+;
 DECLARE_TEXT_EFFECT_KW: L_PAREN ('declare'|'define'|'def')US'text'US'effect' SEP+;
-DECLARE_VARIABLE_KW: L_PAREN ('declare'|'define'|'def')US'var'('iable')? SEP+;
+DECLARE_VARIABLE_KW: L_PAREN 'global' SEP+;
+LOCAL_KW: L_PAREN 'local' SEP+;
 DEFINE_SEQUENCE_KW: L_PAREN ('declare'|'define'|'def')US'seq'('uence')? SEP+;
 DIVIDE_KW: L_PAREN ('divide'|'/'|'div') SEP+;
 DO_WHILE_KW: L_PAREN ('do'US'while') SEP+;
