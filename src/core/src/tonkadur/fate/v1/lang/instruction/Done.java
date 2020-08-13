@@ -1,61 +1,37 @@
-package tonkadur.wyrd.v1.lang.instruction;
+package tonkadur.fate.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.parser.Origin;
 
-import tonkadur.wyrd.v1.lang.meta.Computation;
-import tonkadur.wyrd.v1.lang.meta.Instruction;
-import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
-public class SetValue extends Instruction
+public class Done extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Address address;
-   protected final Computation value;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public SetValue (final Address address, final Computation value)
+   public Done (final Origin origin)
    {
-      this.address = address;
-      this.value = value;
+      super(origin);
    }
 
    /**** Accessors ************************************************************/
-   public Address get_address ()
-   {
-      return address;
-   }
-
-   public Computation get_value ()
-   {
-      return value;
-   }
-
    @Override
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_set_value(this);
+      iv.visit_done(this);
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
    {
-      final StringBuilder sb;
-
-      sb = new StringBuilder();
-
-      sb.append("(SetValue ");
-      sb.append(address.toString());
-      sb.append(" ");
-      sb.append(value.toString());
-      sb.append(")");
-
-      return sb.toString();
+      return "(Done)";
    }
 }

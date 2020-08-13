@@ -13,12 +13,14 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
+
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
 public class Clear
 {
@@ -40,16 +42,15 @@ public class Clear
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Computation collection_size,
-      final Ref collection
+      final Address collection
    )
    {
       final List<Instruction> result, while_body;
       final Type element_type;
-      final Ref iterator;
-      final Computation value_of_iterator;
+      final Register iterator;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
@@ -57,20 +58,20 @@ public class Clear
       element_type =
          ((MapType) collection.get_target_type()).get_member_type();
 
-      iterator = anonymous_variables.reserve(Type.INT);
+      iterator = registers.reserve(Type.INT);
 
       value_of_iterator = new ValueOf(iterator);
 
       /* (set .iterator collection_size) */
-      result.add(new SetValue(iterator, collection_size));
+      result.add(new SetValue(iterator.get_address(), collection_size));
 
       /* (set .iterator (- (val .iterator) 1)) */
       while_body.add
       (
          new SetValue
          (
-            iterator,
-            Operation.minus(value_of_iterator, Constant.ONE)
+            iterator.get_address(),
+            Operation.minus(iterator.get_value(), Constant.ONE)
          )
       );
 
@@ -79,10 +80,10 @@ public class Clear
       (
          new Remove
          (
-            new RelativeRef
+            new RelativeAddress
             (
                collection,
-               new Cast(value_of_iterator, Type.STRING),
+               new Cast(iterator.get_value(), Type.STRING),
                element_type
             )
          )
@@ -92,14 +93,14 @@ public class Clear
       (
          While.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
-            Operation.greater_than(value_of_iterator, Constant.ZERO),
+            Operation.greater_than(iterator.get_value(), Constant.ZERO),
             assembler.merge(while_body)
          )
       );
 
-      anonymous_variables.release(iterator);
+      registers.release(iterator);
 
       return assembler.merge(result);
    }

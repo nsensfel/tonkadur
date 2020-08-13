@@ -10,6 +10,8 @@ import tonkadur.wyrd.v1.lang.computation.IfElseComputation;
 
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
+
 public class While
 {
    /*
@@ -24,7 +26,7 @@ public class While
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Computation condition,
       final Instruction while_body
@@ -81,7 +83,7 @@ public class While
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Instruction cond_init,
       final Computation condition,

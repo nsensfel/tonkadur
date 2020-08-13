@@ -11,11 +11,13 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
 public class CountOccurrences
 {
@@ -45,49 +47,50 @@ public class CountOccurrences
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Computation target,
       final Computation collection_size,
-      final Ref collection,
-      final Ref count
+      final Address collection,
+      final Address count
    )
    {
       final List<Instruction> result, while_body;
       final Type target_type;
-      final Ref index;
-      final Computation value_of_index;
+      final Register index;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
       target_type = target.get_type();
 
-      index = anonymous_variables.reserve(Type.INT);
-
-      value_of_index = new ValueOf(index);
+      index = registers.reserve(Type.INT);
 
       result.add(new SetValue(count, Constant.ZERO));
-      result.add(new SetValue(index, collection_size));
+      result.add(new SetValue(index.get_address(), collection_size));
 
       while_body.add
       (
-         new SetValue(index, Operation.minus(value_of_index, Constant.ONE))
+         new SetValue
+         (
+            index.get_addresss(),
+            Operation.minus(index.get_value(), Constant.ONE)
+         )
       );
       while_body.add
       (
          If.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
             Operation.equals
             (
                new ValueOf
                (
-                  new RelativeRef
+                  new RelativeAddress
                   (
                      collection,
-                     new Cast(value_of_index, Type.STRING),
+                     new Cast(index.get_value(), Type.STRING),
                      target_type
                   )
                ),
@@ -105,9 +108,9 @@ public class CountOccurrences
       (
          While.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
-            Operation.greater_than(value_of_index, Constant.ZERO),
+            Operation.greater_than(index.get_value(), Constant.ZERO),
             assembler.merge(while_body)
          )
       );

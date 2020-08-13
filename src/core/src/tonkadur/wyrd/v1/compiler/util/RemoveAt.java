@@ -13,12 +13,14 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
+
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
 public class RemoveAt
 {
@@ -45,19 +47,18 @@ public class RemoveAt
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
-      final Ref index,
+      final Address index,
       final Computation collection_size,
-      final Ref collection
+      final Address collection
    )
    {
       final List<Instruction> result, while_body;
       final Type element_type;
-      final Ref next, end;
+      final Register next, end;
       final Computation value_of_index;
-      final Computation value_of_next, value_of_end;
-      final Ref collection_at_index;
+      final Address collection_at_index;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
@@ -65,16 +66,13 @@ public class RemoveAt
       element_type =
          ((MapType) collection.get_target_type()).get_member_type();
 
-      next = anonymous_variables.reserve(Type.INT);
-      end = anonymous_variables.reserve(Type.INT);
+      next = registers.reserve(Type.INT);
+      end = registers.reserve(Type.INT);
 
       value_of_index = new ValueOf(index);
 
-      value_of_next = new ValueOf(next);
-      value_of_end = new ValueOf(end);
-
       collection_at_index =
-         new RelativeRef
+         new RelativeAddress
          (
             collection,
             new Cast(value_of_index, Type.STRING),
@@ -84,13 +82,21 @@ public class RemoveAt
       /* (set .end (- (collection_size) 1) */
       result.add
       (
-         new SetValue(end, Operation.minus(collection_size, Constant.ONE))
+         new SetValue
+         (
+            end.get_address(),
+            Operation.minus(collection_size, Constant.ONE)
+         )
       );
 
       /* (set .next (+ (val index) 1)) */
       while_body.add
       (
-         new SetValue(next, Operation.plus(value_of_index, Constant.ONE))
+         new SetValue
+         (
+            next.get_address(),
+            Operation.plus(value_of_index, Constant.ONE)
+         )
       );
 
       /* (set collection[index] (val collection[.next])) */
@@ -101,10 +107,10 @@ public class RemoveAt
             collection_at_index,
             new ValueOf
             (
-               new RelativeRef
+               new RelativeAddress
                (
                   collection,
-                  new Cast(value_of_next, Type.STRING),
+                  new Cast(next.get_value(), Type.STRING),
                   element_type
                )
             )
@@ -112,7 +118,7 @@ public class RemoveAt
       );
 
       /* (set .end (val .next)) */
-      while_body.add(new SetValue(index, value_of_next));
+      while_body.add(new SetValue(index, next.get_value()));
 
       /*
        * (while (< (var index) (var .end))
@@ -125,9 +131,9 @@ public class RemoveAt
       (
          While.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
-            Operation.less_than(value_of_index, value_of_end),
+            Operation.less_than(value_of_index, end.get_value()),
             assembler.merge(while_body)
          )
       );
@@ -135,8 +141,8 @@ public class RemoveAt
       /* (remove collection[index]) */
       result.add(new Remove(collection_at_index));
 
-      anonymous_variables.release(end);
-      anonymous_variables.release(next);
+      registers.release(end);
+      registers.release(next);
 
       return assembler.merge(result);
    }

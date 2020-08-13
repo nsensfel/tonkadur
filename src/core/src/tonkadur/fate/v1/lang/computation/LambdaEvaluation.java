@@ -1,6 +1,7 @@
 package tonkadur.fate.v1.lang.computation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import tonkadur.parser.Origin;
@@ -13,69 +14,77 @@ import tonkadur.error.ErrorManager;
 import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
-import tonkadur.fate.v1.error.NotAValueMacroException;
-
-import tonkadur.fate.v1.lang.Macro;
+import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.LambdaType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 
-public class MacroValueCall extends Computation
+public class LambdaEvaluation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Macro macro;
-   protected final Computation act_as;
+   protected final Reference lambda_function;
    protected final List<Computation> parameters;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected MacroValueCall
+   protected LambdaEvaluation
    (
       final Origin origin,
-      final Macro macro,
+      final Reference lambda_function,
       final List<Computation> parameters,
-      final Computation act_as
+      final Type act_as
    )
    {
-      super(origin, act_as.get_type());
+      super(origin, act_as);
 
-      this.macro = macro;
+      this.lambda_function = lambda_function;
       this.parameters = parameters;
-      this.act_as = act_as;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static MacroValueCall build
+   public static LambdaEvaluation build
    (
       final Origin origin,
-      final Macro macro,
+      final Reference reference,
       final List<Computation> parameters
    )
    throws Throwable
    {
-      Computation act_as;
+      final Type var_type;
+      final LambdaType lambda_type;
       final List<Type> signature;
 
-      act_as = macro.get_value_node_representation();
+      var_type = reference.get_type();
 
-      if (act_as == null)
+      if (!(var_type instanceof LambdaType))
       {
          ErrorManager.handle
          (
-            new NotAValueMacroException(origin, macro.get_name())
+            new InvalidTypeException
+            (
+               origin,
+               var_type,
+               Collections.singleton(Type.LAMBDA)
+            )
          );
+
+         return null;
       }
 
-      signature = macro.get_signature();
+      lambda_type = (LambdaType) var_type;
+
+      signature = lambda_type.get_signature();
 
       if (parameters.size() != signature.size())
       {
@@ -145,7 +154,14 @@ public class MacroValueCall extends Computation
          }
       }).risky_merge(signature, parameters);
 
-      return new MacroValueCall(origin, macro, parameters, act_as);
+      return
+         new LambdaEvaluation
+         (
+            origin,
+            reference,
+            parameters,
+            lambda_type.get_return_type()
+         );
    }
 
    /**** Accessors ************************************************************/
@@ -153,17 +169,12 @@ public class MacroValueCall extends Computation
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_macro_value_call(this);
+      cv.visit_lambda_evaluation(this);
    }
 
-   public Macro get_macro ()
+   public Reference get_lambda_function_reference ()
    {
-      return macro;
-   }
-
-   public Computation get_actual_value_node ()
-   {
-      return act_as;
+      return lambda_function;
    }
 
    public List<Computation> get_parameters ()
@@ -177,8 +188,8 @@ public class MacroValueCall extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(MacroValueCall (");
-      sb.append(macro.get_name());
+      sb.append("(LambdaEvaluation (");
+      sb.append(lambda_function.toString());
 
       for (final Computation param: parameters)
       {

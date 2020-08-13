@@ -6,7 +6,7 @@ import tonkadur.wyrd.v1.lang.type.PointerType;
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
-public class Ref extends Computation
+public class Address extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -18,7 +18,7 @@ public class Ref extends Computation
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Ref (final Computation address, final Type target_type)
+   public Address (final Computation address, final Type target_type)
    {
       super(new PointerType(target_type));
 
@@ -41,7 +41,7 @@ public class Ref extends Computation
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_ref(this);
+      cv.visit_address(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -52,7 +52,7 @@ public class Ref extends Computation
 
       sb = new StringBuilder();
 
-      sb.append("(Ref ");
+      sb.append("(Address ");
       sb.append(address.toString());
       sb.append(")");
 

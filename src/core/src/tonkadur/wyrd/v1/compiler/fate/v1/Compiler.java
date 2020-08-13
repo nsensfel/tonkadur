@@ -1,15 +1,14 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
-import tonkadur.wyrd.v1.compiler.util.AnonymousVariableManager;
+import tonkadur.wyrd.v1.compiler.util.RegisterManager;
 import tonkadur.wyrd.v1.compiler.util.InstructionManager;
 
-import tonkadur.wyrd.v1.lang.Variable;
+import tonkadur.wyrd.v1.lang.Register;
 import tonkadur.wyrd.v1.lang.World;
 
 public class Compiler
 {
-   protected final AnonymousVariableManager anonymous_variables;
-   protected final MacroManager macro_manager;
+   protected final RegisterManager registers;
    protected final InstructionManager assembler;
    protected final World wyrd_world;
 
@@ -27,13 +26,13 @@ public class Compiler
 
       compiler.compile_extensions(fate_world);
       compiler.compile_types(fate_world);
-      compiler.compile_variables(fate_world);
+      compiler.compile_registers(fate_world);
 
       compiler.compile_main_sequence(fate_world);
 
       compiler.compile_sequences(fate_world);
 
-      compiler.add_anonymous_variables();
+      compiler.add_registers();
 
       return compiler.wyrd_world;
    }
@@ -43,7 +42,7 @@ public class Compiler
       this.wyrd_world = wyrd_world;
 
       macro_manager = new MacroManager();
-      anonymous_variables = new AnonymousVariableManager();
+      registers = new RegisterManager();
       assembler = new InstructionManager();
    }
 
@@ -74,7 +73,7 @@ public class Compiler
       }
    }
 
-   protected void compile_variables
+   protected void compile_registers
    (
       final tonkadur.fate.v1.lang.World fate_world
    )
@@ -82,11 +81,11 @@ public class Compiler
    {
       for
       (
-         final tonkadur.fate.v1.lang.Variable variable:
-            fate_world.variables().get_all()
+         final tonkadur.fate.v1.lang.Register register:
+            fate_world.registers().get_all()
       )
       {
-         VariableCompiler.compile(this, variable);
+         RegisterCompiler.compile(this, register);
       }
    }
 
@@ -119,12 +118,17 @@ public class Compiler
       );
    }
 
-   protected void add_anonymous_variables ()
+   protected void add_registers ()
    throws Throwable
    {
-      for (final Variable variable: anonymous_variables.get_all_variables())
+      for (final DictType type: registers.get_context_structures_types())
       {
-         wyrd_world.add_variable(variable);
+         wyrd_world.add_dict_type(type);
+      }
+
+      for (final Register register: registers.get_base_registers())
+      {
+         wyrd_world.add_register(register);
       }
    }
 
@@ -133,9 +137,9 @@ public class Compiler
       return wyrd_world;
    }
 
-   public AnonymousVariableManager anonymous_variables ()
+   public RegisterManager registers ()
    {
-      return anonymous_variables;
+      return registers;
    }
 
    public InstructionManager assembler ()

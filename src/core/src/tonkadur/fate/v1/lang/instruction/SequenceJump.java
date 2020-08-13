@@ -8,7 +8,7 @@ import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
-public class SequenceCall extends Instruction
+public class SequenceJump extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -20,7 +20,7 @@ public class SequenceCall extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public SequenceCall
+   public SequenceJump
    (
       final Origin origin,
       final String sequence_name,
@@ -38,7 +38,7 @@ public class SequenceCall extends Instruction
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_sequence_call(this);
+      iv.visit_sequence_jump(this);
    }
 
    public String get_sequence_name ()
@@ -57,7 +57,7 @@ public class SequenceCall extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(SequenceCall ");
+      sb.append("(SequenceJump ");
       sb.append(sequence_name);
 
       for (final Computation c: parameters)

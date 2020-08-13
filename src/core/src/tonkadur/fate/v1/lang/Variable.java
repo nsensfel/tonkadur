@@ -23,7 +23,6 @@ public class Variable extends DeclaredEntity
          new Variable
          (
             Origin.BASE_LANGUAGE,
-            VariableScope.ANY,
             Type.ANY,
             /*
              * Use of a space necessary to avoid conflicting with a user created
@@ -48,7 +47,6 @@ public class Variable extends DeclaredEntity
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final VariableScope scope;
    protected final Type type;
 
    /***************************************************************************/
@@ -59,14 +57,12 @@ public class Variable extends DeclaredEntity
    public Variable
    (
       final Origin origin,
-      final VariableScope scope,
       final Type type,
       final String name
    )
    {
       super(origin, name);
 
-      this.scope = scope;
       this.type = type;
    }
 
@@ -76,15 +72,9 @@ public class Variable extends DeclaredEntity
       return type;
    }
 
-   public VariableScope get_scope ()
-   {
-      return scope;
-   }
-
    @Override
    public DeclaredEntity generate_comparable_to (final DeclaredEntity de)
    {
-      final VariableScope new_scope;
       final Type new_type;
       final Variable v;
 
@@ -95,10 +85,9 @@ public class Variable extends DeclaredEntity
 
       v = (Variable) de;
 
-      new_scope = scope.generate_compatible_with(v.scope);
       new_type = (Type) type.generate_comparable_to(v.type);
 
-      return new Variable(origin, new_scope, new_type, name);
+      return new Variable(origin, new_type, name);
    }
 
    /**** Misc. ****************************************************************/
@@ -111,11 +100,7 @@ public class Variable extends DeclaredEntity
 
          v = (Variable) de;
 
-         return
-            (
-               (!scope.equals(v.scope))
-               || !type.can_be_used_as(v.type)
-            );
+         return !type.can_be_used_as(v.type);
       }
 
       return true;
@@ -127,8 +112,6 @@ public class Variable extends DeclaredEntity
       final StringBuilder sb = new StringBuilder();
 
       sb.append("(");
-      sb.append(scope.toString());
-      sb.append(" ");
       sb.append(type.get_name());
       sb.append(" Variable ");
       sb.append(name);

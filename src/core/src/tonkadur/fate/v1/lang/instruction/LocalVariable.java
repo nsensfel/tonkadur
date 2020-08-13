@@ -1,54 +1,44 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import java.util.List;
-
-import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
-public class SequenceCall extends Instruction
+import tonkadur.fate.v1.lang.Variable;
+
+public class LocalVariable extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> parameters;
-   protected final String sequence_name;
+   protected final Variable variable;
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public SequenceCall
-   (
-      final Origin origin,
-      final String sequence_name,
-      final List<Computation> parameters
-   )
+   protected LocalVariable (final Variable variable)
    {
-      super(origin);
+      super(variable.get_origin());
 
-      this.sequence_name = sequence_name;
-      this.parameters = parameters;
+      this.variable = variable;
    }
+
 
    /**** Accessors ************************************************************/
    @Override
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_sequence_call(this);
+      iv.visit_local_variable(this);
    }
 
-   public String get_sequence_name ()
+   public Variable get_variable ()
    {
-      return sequence_name;
-   }
-
-   public List<Computation> get_parameters ()
-   {
-      return parameters;
+      return variable;
    }
 
    /**** Misc. ****************************************************************/
@@ -57,14 +47,8 @@ public class SequenceCall extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(SequenceCall ");
-      sb.append(sequence_name);
-
-      for (final Computation c: parameters)
-      {
-         sb.append(" ");
-         sb.append(c.toString());
-      }
+      sb.append("(LocalVariable ");
+      sb.append(variable.toString());
 
       sb.append(")");
 

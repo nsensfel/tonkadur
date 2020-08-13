@@ -4,6 +4,8 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
+
 public class NOP
 {
    /*
@@ -11,7 +13,7 @@ public class NOP
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler
    )
    {

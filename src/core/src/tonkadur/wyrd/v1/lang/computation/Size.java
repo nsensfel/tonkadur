@@ -10,13 +10,13 @@ public class Size extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Ref collection;
+   protected final Address collection;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Size (final Ref collection)
+   public Size (final Address collection)
    {
       super(Type.INT);
 
@@ -24,7 +24,7 @@ public class Size extends Computation
    }
 
    /**** Accessors ************************************************************/
-   public Ref get_collection ()
+   public Address get_collection ()
    {
       return collection;
    }

@@ -12,11 +12,13 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
 public class IterativeSearch
 {
@@ -51,13 +53,13 @@ public class IterativeSearch
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Computation target,
       final Computation collection_size,
-      final Ref collection,
-      final Ref result_was_found,
-      final Ref result_index
+      final Address collection,
+      final Address result_was_found,
+      final Address result_index
    )
    {
       final List<Instruction> result;
@@ -84,7 +86,7 @@ public class IterativeSearch
       (
          While.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
             Operation.and
             (
@@ -106,13 +108,13 @@ public class IterativeSearch
              */
             IfElse.generate
             (
-               anonymous_variables,
+               registers,
                assembler,
                Operation.equals
                (
                   new ValueOf
                   (
-                     new RelativeRef
+                     new RelativeAddress
                      (
                         collection,
                         new Cast(value_of_result_index, Type.STRING),

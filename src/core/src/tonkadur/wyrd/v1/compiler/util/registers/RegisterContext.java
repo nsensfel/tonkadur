@@ -1,4 +1,4 @@
-package tonkadur.wyrd.v1.compiler.util;
+package tonkadur.wyrd.v1.compiler.util.registers;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -6,92 +6,144 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
-import tonkadur.functional.Cons;
-
-import tonkadur.wyrd.v1.lang.Variable;
-
-import tonkadur.wyrd.v1.lang.meta.Computation;
-
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.Constant;
+import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
-
-public class RegisterManager
+class RegisterContext
 {
    protected static final String name_prefix = ".anon.";
    protected final String name;
    protected final Map<String, Register> register_by_name;
-   protected final Map<Type, Register> register_by_type;
-   protected int generated_variables;
+   protected final Map<String, Register> aliased_registers;
+   protected final Map<Type, Register> anonymous_register_by_type;
+   protected int generated_registers;
 
    public RegisterContext (final String name)
    {
       this.name = name;
 
       register_by_name = new HashMap<String, Register>();
-      register_by_type = new HashMap<Type, Register>();
+      aliased_registers = new HashMap<String, Register>();
+      anonymous_register_by_type = new HashMap<Type, Register>();
 
-      generated_variables = 0;
+      generated_registers = 0;
    }
 
-   public Collection<Variable> get_all_variables ()
+   public Collection<Register> get_all_registers ()
    {
-      final Collection<Variable> result;
-
-      result = new ArrayList<Variable>();
-
-      for (final Cons<Boolean, Variable> variable: by_name.values())
-      {
-         result.add(variable.get_cdr());
-      }
-
-      return result;
+      return register_by_name.values();
    }
 
    public Register reserve (final Type t)
    {
       final String name;
       final Register result;
-      final Variable new_variable;
-      final Cons<Boolean, Variable> status;
-      List<Cons<Boolean, Variable>> list;
+      List<Register> list;
 
-      list = by_type.get(t);
+      list = anonymous_register_by_type.get(t);
 
       if (list == null)
       {
-         list = new ArrayList<Cons<Boolean, Variable>>();
+         list = new ArrayList<Register>();
 
-         by_type.put(t, list);
+         anonymous_register_by_type.put(t, list);
       }
 
-      for (final Cons<Boolean, Variable> entry: list)
+      for (final register r: list)
       {
-         if (!entry.get_car())
+         if (!entry.get_is_in_use())
          {
-            result = entry.get_cdr().get_ref();
+            r.set_is_in_use(true);
 
-            entry.set_car(Boolean.TRUE);
-
-            return result;
+            return r;
          }
       }
 
-      name = (name_prefix + Integer.toString(generated_variables++));
-      new_variable = new Variable(name, "local", t);
-      status = new Cons(Boolean.TRUE, new_variable);
+      name = (name_prefix + Integer.toString(generated_registers++));
 
-      list.add(status);
+      result = create_register(t, "local", name);
 
-      by_name.put(name, status);
+      result.set_is_in_use(true);
 
-      return new_variable.get_ref();
+      list.add(result);
+
+      register_by_name.put(name, result);
+
+      return result;
+   }
+
+   public Register reserve (final Type t, final String scope, final String name)
+   {
+      final Register result;
+
+      result = create_register(t, scope, name);
+
+      if (register_by_name.get(name) != null)
+      {
+         System.err.println
+         (
+            "[P] Register '"
+            + name
+            + "' has multiple declarations within the same context."
+         );
+      }
+
+      register_by_name.put(name, result);
+
+      result.set_is_in_use(true);
+
+      return result;
+   }
+
+   public void bind (final Register reg, final String name)
+   {
+      if (aliased_registers.containsKey(name))
+      {
+         System.err.println
+         (
+            "[P] Duplicate binding for register '"
+            + name
+            + "' in context '"
+            + this.name
+            + "'."
+         );
+      }
+
+      aliased_registers.put(name, reg);
+   }
+
+   public void unbind (final String name)
+   {
+      aliased_registers.remove(name);
+   }
+
+   public Register get_register (final String name)
+   {
+      final Register result;
+
+      result = aliased_registers.get(name);
+
+      if (result != null)
+      {
+         return result;
+      }
+
+      return register_by_name.get(name);
    }
 
    public void release (final Register r)
    {
       r.set_is_in_use(false);
+   }
+
+   protected Register create_register
+   (
+      final Type t,
+      final String scope,
+      final String name
+   )
+   {
+      return new Register(t, scope, name);
    }
 }

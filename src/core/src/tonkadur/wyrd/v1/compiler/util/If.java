@@ -10,6 +10,8 @@ import tonkadur.wyrd.v1.lang.computation.IfElseComputation;
 
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
+
 public class If
 {
    /*
@@ -22,7 +24,7 @@ public class If
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Computation condition,
       final Instruction if_true

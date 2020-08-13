@@ -6,20 +6,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import tonkadur.wyrd.v1.lang.computation.Ref;
+import tonkadur.wyrd.v1.lang.computation.Address;
 
 public class MacroManager
 {
-   protected final Map<String, Ref> wild_parameters;
-   protected final Stack<Map<String, Ref>> context_stack;
+   protected final Map<String, Address> wild_parameters;
+   protected final Stack<Map<String, Address>> context_stack;
 
    public MacroManager ()
    {
-      wild_parameters = new HashMap<String, Ref>();
-      context_stack = new Stack<Map<String, Ref>>();
+      wild_parameters = new HashMap<String, Address>();
+      context_stack = new Stack<Map<String, Address>>();
    }
 
-   public void add_wild_parameter (final String name, final Ref ref)
+   public void add_wild_parameter (final String name, final Address ref)
    {
       if (wild_parameters.containsKey(name))
       {
@@ -44,14 +44,14 @@ public class MacroManager
    public void push
    (
       final tonkadur.fate.v1.lang.Macro macro,
-      final List<Ref> parameter_refs
+      final List<Address> parameter_refs
    )
    {
-      final Iterator<Ref> pri;
+      final Iterator<Address> pri;
       final Iterator<tonkadur.fate.v1.lang.meta.TypedEntryList.TypedEntry> pre;
-      final Map<String, Ref> parameters;
+      final Map<String, Address> parameters;
 
-      parameters = new HashMap<String, Ref>();
+      parameters = new HashMap<String, Address>();
 
       pri = parameter_refs.iterator();
       pre = macro.get_parameters().get_entries().iterator();
@@ -68,9 +68,9 @@ public class MacroManager
       context_stack.push(parameters);
    }
 
-   public Ref get_parameter_ref (final String parameter)
+   public Address get_parameter_ref (final String parameter)
    {
-      Ref result;
+      Address result;
 
       result = wild_parameters.get(parameter);
 

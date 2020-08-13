@@ -23,7 +23,7 @@ public class ValueOf extends Computation
       this.parent = parent;
    }
 
-   public ValueOf (final Ref parent)
+   public ValueOf (final Address parent)
    {
       super(parent.get_target_type());
 

@@ -13,11 +13,13 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
 public class ReverseList
 {
@@ -28,7 +30,7 @@ public class ReverseList
     * (Computation int collection_size)
     * (declare_variable global <List E> collection)
     *
-    * (declare_variable E .buffer
+    * (declare_variable E .buffer)
     * (declare_variable int .top)
     * (declare_variable int .bot)
     *
@@ -45,17 +47,16 @@ public class ReverseList
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Computation collection_size,
-      final Ref collection
+      final Address collection
    )
    {
       final List<Instruction> result, while_body;
       final Type element_type;
-      final Ref buffer, top, bot;
-      final Computation value_of_top, value_of_bot;
-      final Ref collection_at_top, collection_at_bot;
+      final Register buffer, top, bot;
+      final Address collection_at_top, collection_at_bot;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
@@ -63,41 +64,45 @@ public class ReverseList
       element_type =
          ((MapType) collection.get_target_type()).get_member_type();
 
-      buffer = anonymous_variables.reserve(element_type);
-      top = anonymous_variables.reserve(Type.INT);
-      bot = anonymous_variables.reserve(Type.INT);
-
-      value_of_top = new ValueOf(top);
-      value_of_bot = new ValueOf(bot);
+      buffer = registers.reserve(element_type);
+      top = registers.reserve(Type.INT);
+      bot = registers.reserve(Type.INT);
 
       collection_at_top =
-         new RelativeRef
+         new RelativeAddress
          (
             collection,
-            new Cast(value_of_top, Type.STRING),
+            new Cast(top.get_value(), Type.STRING),
             element_type
          );
 
       collection_at_bot =
-         new RelativeRef
+         new RelativeAddress
          (
             collection,
-            new Cast(value_of_bot, Type.STRING),
+            new Cast(bot.get_value(), Type.STRING),
             element_type
          );
 
       /* (set .top (- (collection_size) 1)) */
       result.add
       (
-         new SetValue(top, Operation.minus(collection_size, Constant.ONE))
+         new SetValue
+         (
+            top.get_address(),
+            Operation.minus(collection_size, Constant.ONE)
+         )
       );
 
       /* (set .bot 0) */
-      result.add(new SetValue(bot, Constant.ZERO));
+      result.add(new SetValue(bot.get_address(), Constant.ZERO));
 
 
       /* (set .buffer collection[.top]) */
-      while_body.add(new SetValue(buffer, new ValueOf(collection_at_top)));
+      while_body.add
+      (
+         new SetValue(buffer.get_address(), new ValueOf(collection_at_top))
+      );
 
       /* (set collection[.top] collection[.bot]) */
       while_body.add
@@ -108,19 +113,27 @@ public class ReverseList
       /* (set collection[.bot] .buffer) */
       while_body.add
       (
-         new SetValue(collection_at_bot, new ValueOf(buffer))
+         new SetValue(collection_at_bot, buffer.get_value())
       );
 
       /* (set .bot (+ (var .bot) 1)) */
       while_body.add
       (
-         new SetValue(bot, Operation.plus(value_of_bot, Constant.ONE))
+         new SetValue
+         (
+            bot.get_address(),
+            Operation.plus(bot.get_value(), Constant.ONE)
+         )
       );
 
       /* (set .top (- (var .top) 1)) */
       while_body.add
       (
-         new SetValue(top, Operation.minus(value_of_top, Constant.ONE))
+         new SetValue
+         (
+            top.get_address(),
+            Operation.minus(top.get_value(), Constant.ONE)
+         )
       );
 
       /*
@@ -136,16 +149,16 @@ public class ReverseList
       (
          While.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
-            Operation.less_than(value_of_bot, value_of_top),
+            Operation.less_than(bot.get_value(), top.get_value()),
             assembler.merge(while_body)
          )
       );
 
-      anonymous_variables.release(buffer);
-      anonymous_variables.release(top);
-      anonymous_variables.release(bot);
+      registers.release(buffer);
+      registers.release(top);
+      registers.release(bot);
 
       return assembler.merge(result);
    }

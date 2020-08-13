@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import tonkadur.wyrd.v1.lang.Variable;
+import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.type.DictType;
 
@@ -17,7 +17,7 @@ public class World
 {
    protected final Set<String> required_extensions;
 
-   protected final Map<String, Variable> variables;
+   protected final Collection<Register> registers;
    protected final Map<String, Integer> sequence_labels;
    protected final Map<String, DictType> dict_types;
 
@@ -30,7 +30,7 @@ public class World
    {
       required_extensions = new HashSet<String>();
 
-      variables = new HashMap<String, Variable>();
+      registers = new HashMap<String, Register>();
       sequence_labels = new HashMap<String, Integer>();
       dict_types = new HashMap<String, DictType>();
       dict_types_in_order = new ArrayList<DictType>();
@@ -64,19 +64,14 @@ public class World
       dict_types_in_order.add(dict_type);
    }
 
-   public Variable get_variable (final String name)
+   public Collection<Register> get_registers ()
    {
-      return variables.get(name);
+      return registers;
    }
 
-   public Map<String, Variable> get_variables ()
+   public void add_register (final Register register)
    {
-      return variables;
-   }
-
-   public void add_variable (final Variable variable)
-   {
-      variables.put(variable.get_name(), variable);
+      registers.add(register);
    }
 
    public void add_sequence_label (final String name, final Integer line)

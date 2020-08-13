@@ -12,11 +12,13 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
 public class InsertAt
 {
@@ -46,38 +48,40 @@ public class InsertAt
    */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
-      final Ref index,
+      final Address index,
       final Computation element,
       final Computation collection_size,
-      final Ref collection
+      final Address collection
    )
    {
       final List<Instruction> result, while_body;
       final Type element_type;
-      final Ref prev, end;
-      final Computation value_of_prev, value_of_index, value_of_end;
+      final Register prev, end;
+      final Computation value_of_index;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
       element_type = element.get_type();
 
-      prev = anonymous_variables.reserve(Type.INT);
-      end = anonymous_variables.reserve(Type.INT);
+      prev = registers.reserve(Type.INT);
+      end = registers.reserve(Type.INT);
 
-      value_of_prev = new ValueOf(prev);
       value_of_index = new ValueOf(index);
-      value_of_end = new ValueOf(end);
 
       /* (set .end collection_size) */
-      result.add(new SetValue(end, collection_size));
+      result.add(new SetValue(end.get_address(), collection_size));
 
       /* (set .prev (- (val .end) 1)) */
       while_body.add
       (
-         new SetValue(prev, Operation.minus(value_of_end, Constant.ONE))
+         new SetValue
+         (
+            prev.get_address(),
+            Operation.minus(end.get_value(), Constant.ONE)
+         )
       );
 
       /* (set collection[.end] (val collection[.prev])) */
@@ -85,18 +89,18 @@ public class InsertAt
       (
          new SetValue
          (
-            new RelativeRef
+            new RelativeAddress
             (
                collection,
-               new Cast(value_of_end, Type.STRING),
+               new Cast(end.get_value(), Type.STRING),
                element_type
             ),
             new ValueOf
             (
-               new RelativeRef
+               new RelativeAddress
                (
                   collection,
-                  new Cast(value_of_prev, Type.STRING),
+                  new Cast(prev.get_value(), Type.STRING),
                   element_type
                )
             )
@@ -104,7 +108,7 @@ public class InsertAt
       );
 
       /* (set .end (val .prev)) */
-      while_body.add(new SetValue(end, value_of_prev));
+      while_body.add(new SetValue(end.get_address(), prev.get_value()));
 
       /*
        * (while (< .index .end)
@@ -117,9 +121,9 @@ public class InsertAt
       (
          While.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
-            Operation.less_than(value_of_index, value_of_end),
+            Operation.less_than(value_of_index, end.get_value()),
             assembler.merge(while_body)
          )
       );
@@ -129,7 +133,7 @@ public class InsertAt
       (
          new SetValue
          (
-            new RelativeRef
+            new RelativeAddress
             (
                collection,
                new Cast(value_of_index, Type.STRING),
@@ -139,8 +143,8 @@ public class InsertAt
          )
       );
 
-      anonymous_variables.release(end);
-      anonymous_variables.release(prev);
+      registers.release(end);
+      registers.release(prev);
 
       return assembler.merge(result);
    }

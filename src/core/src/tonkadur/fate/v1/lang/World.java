@@ -31,14 +31,13 @@ public class World
    protected final Set<String> loaded_files;
    protected final Set<String> required_extensions;
 
-   protected final Map<String, List<Origin>> sequence_calls;
+   protected final Map<String, List<Origin>> sequence_uses;
    protected final Map<String, ExtensionComputation> extension_value_nodes;
    protected final Map<String, ExtensionInstruction> extension_instructions;
    protected final Map<String, ExtensionInstruction>
       extension_first_level_instructions;
 
    protected final DeclarationCollection<Event> event_collection;
-   protected final DeclarationCollection<Macro> macro_collection;
    protected final DeclarationCollection<Sequence> sequence_collection;
    protected final DeclarationCollection<TextEffect> text_effect_collection;
    protected final DeclarationCollection<Type> type_collection;
@@ -56,7 +55,7 @@ public class World
       loaded_files = new HashSet<String>();
       required_extensions = new HashSet<String>();
 
-      sequence_calls = new HashMap<String, List<Origin>>();
+      sequence_uses = new HashMap<String, List<Origin>>();
       extension_value_nodes = new HashMap<String, ExtensionComputation>();
       extension_instructions = new HashMap<String, ExtensionInstruction>();
       extension_first_level_instructions =
@@ -64,7 +63,6 @@ public class World
 
       event_collection =
          new DeclarationCollection<Event>(Event.value_on_missing());
-      macro_collection = new DeclarationCollection<Macro>(null);
       sequence_collection = new DeclarationCollection<Sequence>(null);
 
       text_effect_collection =
@@ -115,18 +113,18 @@ public class World
    /**** Sequence Calls ****/
    public void add_sequence_call (final Origin origin, final String sequence)
    {
-      List<Origin> list_of_calls;
+      List<Origin> list_of_uses;
 
-      list_of_calls = sequence_calls.get(sequence);
+      list_of_uses = sequence_uses.get(sequence);
 
-      if (list_of_calls == null)
+      if (list_of_uses == null)
       {
-         list_of_calls = new ArrayList<Origin>();
+         list_of_uses = new ArrayList<Origin>();
 
-         sequence_calls.put(sequence, list_of_calls);
+         sequence_uses.put(sequence, list_of_uses);
       }
 
-      list_of_calls.add(origin);
+      list_of_uses.add(origin);
    }
 
    /**** Extension Stuff ****/
@@ -153,11 +151,6 @@ public class World
    public DeclarationCollection<Event> events ()
    {
       return event_collection;
-   }
-
-   public DeclarationCollection<Macro> macros ()
-   {
-      return macro_collection;
    }
 
    public DeclarationCollection<Sequence> sequences ()
@@ -198,7 +191,7 @@ public class World
 
       is_sane = true;
 
-      is_sane = assert_sane_sequence_calls() & is_sane;
+      is_sane = assert_sane_sequence_uses() & is_sane;
 
       return is_sane;
    }
@@ -284,7 +277,7 @@ public class World
       }
    }
 
-   protected boolean assert_sane_sequence_calls ()
+   protected boolean assert_sane_sequence_uses ()
    throws UnknownSequenceException
    {
       boolean is_sane;
@@ -294,7 +287,7 @@ public class World
       for
       (
          final Map.Entry<String, List<Origin>> entry:
-            sequence_calls.entrySet()
+            sequence_uses.entrySet()
       )
       {
          if (!sequences().has(entry.getKey()))

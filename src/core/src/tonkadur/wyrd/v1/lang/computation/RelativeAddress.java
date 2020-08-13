@@ -5,7 +5,7 @@ import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
-public class RelativeRef extends Ref
+public class RelativeAddress extends Address
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -16,9 +16,9 @@ public class RelativeRef extends Ref
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public RelativeRef
+   public RelativeAddress
    (
-      final Ref parent,
+      final Address parent,
       final Computation member,
       final Type target_type
    )
@@ -38,7 +38,7 @@ public class RelativeRef extends Ref
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_relative_ref(this);
+      cv.visit_relative_address(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -49,7 +49,7 @@ public class RelativeRef extends Ref
 
       sb = new StringBuilder();
 
-      sb.append("(RelativeRef ");
+      sb.append("(RelativeAddress ");
       sb.append(address.toString());
       sb.append(".");
       sb.append(member.toString());

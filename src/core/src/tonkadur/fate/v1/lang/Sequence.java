@@ -30,6 +30,7 @@ public class Sequence extends DeclaredEntity
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Instruction root;
+   protected final List<Variable> signature;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -40,18 +41,25 @@ public class Sequence extends DeclaredEntity
    (
       final Origin origin,
       final Instruction root,
-      final String name
+      final String name,
+      final List<Variable> signature
    )
    {
       super(origin, name);
 
       this.root = root;
+      this.signature = signature;
    }
 
    /**** Accessors ************************************************************/
    public Instruction get_root ()
    {
       return root;
+   }
+
+   public List<Variable> get_signature ()
+   {
+      return signature;
    }
 
    /**** Compatibility ********************************************************/

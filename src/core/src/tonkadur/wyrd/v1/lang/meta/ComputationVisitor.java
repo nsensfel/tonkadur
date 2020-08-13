@@ -25,10 +25,10 @@ public interface ComputationVisitor
    public void visit_operation (final Operation n)
    throws Throwable;
 
-   public void visit_ref (final Ref n)
+   public void visit_address (final Address n)
    throws Throwable;
 
-   public void visit_relative_ref (final RelativeRef n)
+   public void visit_relative_address (final RelativeAddress n)
    throws Throwable;
 
    public void visit_rich_text (final RichText n)

@@ -12,12 +12,14 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
-import tonkadur.wyrd.v1.lang.computation.Ref;
-import tonkadur.wyrd.v1.lang.computation.RelativeRef;
+import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.Size;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
 public class BinarySearch
 {
@@ -75,44 +77,39 @@ public class BinarySearch
     */
    public static Instruction generate
    (
-      final AnonymousVariableManager anonymous_variables,
+      final RegisterManager registers,
       final InstructionManager assembler,
       final Computation target,
       final Computation collection_size,
-      final Ref collection,
-      final Ref result_was_found,
-      final Ref result_index
+      final Address collection,
+      final Address result_was_found,
+      final Address result_index
    )
    {
       final List<Instruction> result, while_body;
-      final Ref bot, top, midval;
+      final Register bot, top, midval;
       final Type element_type;
       final Computation value_of_result_index;
-      final Computation value_of_bot, value_of_top, value_of_midval;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
       element_type = target.get_type();
 
-      bot = anonymous_variables.reserve(Type.INT);
-      top = anonymous_variables.reserve(Type.INT);
-      midval = anonymous_variables.reserve(element_type);
+      bot = registers.reserve(Type.INT);
+      top = registers.reserve(Type.INT);
+      midval = registers.reserve(element_type);
 
       value_of_result_index = new ValueOf(result_index);
 
-      value_of_bot = new ValueOf(bot);
-      value_of_top = new ValueOf(top);
-      value_of_midval = new ValueOf(midval);
-
       result.add(new SetValue(result_index, Constant.ZERO));
       result.add(new SetValue(result_was_found, Constant.FALSE));
-      result.add(new SetValue(bot, Constant.ZERO));
+      result.add(new SetValue(bot.get_address(), Constant.ZERO));
       result.add
       (
          new SetValue
          (
-            top,
+            top.get_address(),
             Operation.minus(collection_size, Constant.ONE)
          )
       );
@@ -139,14 +136,14 @@ public class BinarySearch
             result_index,
             Operation.plus
             (
-               value_of_bot,
+               bot.get_value(),
                new Cast
                (
                   Operation.divide
                   (
                      new Cast
                      (
-                        Operation.minus(value_of_top, value_of_bot),
+                        Operation.minus(top.get_value(), bot.get_value()),
                         Type.FLOAT
                      ),
                      new Constant(Type.FLOAT, "2.0")
@@ -162,10 +159,10 @@ public class BinarySearch
       (
          new SetValue
          (
-            midval,
+            midval.get_address(),
             new ValueOf
             (
-               new RelativeRef
+               new RelativeAddress
                (
                   collection,
                   new Cast(value_of_result_index, Type.STRING),
@@ -194,22 +191,22 @@ public class BinarySearch
       (
          IfElse.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
-            Operation.less_than(value_of_midval, target),
+            Operation.less_than(midval.get_value(), target),
             new SetValue
             (
-               bot,
+               bot.get_address(),
                Operation.plus(value_of_result_index, Constant.ONE)
             ),
             IfElse.generate
             (
-               anonymous_variables,
+               registers,
                assembler,
-               Operation.greater_than(value_of_midval, target),
+               Operation.greater_than(midval.get_value(), target),
                new SetValue
                (
-                  top,
+                  top.get_address(),
                   Operation.minus(value_of_result_index, Constant.ONE)
                ),
                new SetValue(result_was_found, Constant.TRUE)
@@ -221,12 +218,12 @@ public class BinarySearch
       (
          While.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
             Operation.and
             (
                Operation.not(new ValueOf(result_was_found)),
-               Operation.less_equal_than(value_of_bot, value_of_top)
+               Operation.less_equal_than(bot.get_value(), top.get_value())
             ),
             assembler.merge(while_body)
          )
@@ -239,14 +236,14 @@ public class BinarySearch
       (
          If.generate
          (
-            anonymous_variables,
+            registers,
             assembler,
             Operation.and
             (
                Operation.and
                (
                   Operation.not(new ValueOf(result_was_found)),
-                  Operation.greater_than(target, value_of_midval)
+                  Operation.greater_than(target, midval.get_value())
                ),
                Operation.greater_than(collection_size, Constant.ZERO)
             ),
@@ -258,9 +255,9 @@ public class BinarySearch
          )
       );
 
-      anonymous_variables.release(bot);
-      anonymous_variables.release(top);
-      anonymous_variables.release(midval);
+      registers.release(bot);
+      registers.release(top);
+      registers.release(midval);
 
       return assembler.merge(result);
    }

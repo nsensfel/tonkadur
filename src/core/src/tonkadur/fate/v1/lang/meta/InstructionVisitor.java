@@ -17,6 +17,9 @@ public interface InstructionVisitor
    public void visit_end (final End n)
    throws Throwable;
 
+   public void visit_done (final Done n)
+   throws Throwable;
+
    public void visit_free (final Free n)
    throws Throwable;
 
@@ -62,9 +65,6 @@ public interface InstructionVisitor
    public void visit_instruction_list (final InstructionList n)
    throws Throwable;
 
-   public void visit_macro_call (final MacroCall n)
-   throws Throwable;
-
    public void visit_player_choice (final PlayerChoice n)
    throws Throwable;
 
@@ -78,6 +78,12 @@ public interface InstructionVisitor
    throws Throwable;
 
    public void visit_sequence_call (final SequenceCall n)
+   throws Throwable;
+
+   public void visit_sequence_jump (final SequenceJump n)
+   throws Throwable;
+
+   public void visit_local_variable (final LocalVariable n)
    throws Throwable;
 
    public void visit_set_value (final SetValue n)

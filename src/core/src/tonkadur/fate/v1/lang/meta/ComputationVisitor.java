@@ -43,7 +43,10 @@ public interface ComputationVisitor
    public void visit_size_operator (final SizeOperator n)
    throws Throwable;
 
-   public void visit_macro_value_call (final MacroValueCall n)
+   public void visit_lambda_expression (final LambdaExpression n)
+   throws Throwable;
+
+   public void visit_lambda_evaluation (final LambdaEvaluation n)
    throws Throwable;
 
    public void visit_newline (final Newline n)
@@ -53,9 +56,6 @@ public interface ComputationVisitor
    throws Throwable;
 
    public void visit_paragraph (final Paragraph n)
-   throws Throwable;
-
-   public void visit_parameter_reference (final ParameterReference n)
    throws Throwable;
 
    public void visit_ref_operator (final RefOperator n)

@@ -5,26 +5,29 @@ import tonkadur.error.ErrorLevel;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.VariableScope;
+import tonkadur.fate.v1.lang.Variable;
 
-public class UnknownVariableScopeException extends ParsingError
+public class DuplicateLocalVariableException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final String name;
+   protected final Variable original_var;
+   protected final Variable new_var;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public UnknownVariableScopeException
+   public DuplicateLocalVariableException
    (
-      final Origin origin,
-      final String name
+      final Variable original_var,
+      final Variable new_var
    )
    {
-      super(ErrorLevel.ERROR, ErrorCategory.INVALID_USE, origin);
-      this.name = name;
+      super(ErrorLevel.ERROR, ErrorCategory.INVALID_USE, new_var.get_origin());
+
+      this.original_var = original_var;
+      this.new_var = new_var;
    }
 
    @Override
@@ -37,18 +40,11 @@ public class UnknownVariableScopeException extends ParsingError
       sb.append(error_category.toString());
       sb.append(System.lineSeparator());
 
-      sb.append("Unknown variable scope '");
-      sb.append(name);
-      sb.append("'.");
-      sb.append(System.lineSeparator());
-      sb.append("Available fields are:");
-
-      for (final String scope: VariableScope.get_available_scopes())
-      {
-         sb.append(System.lineSeparator());
-         sb.append("- ");
-         sb.append(scope);
-      }
+      sb.append("Local variable name '");
+      sb.append(original_var.get_name());
+      sb.append("' already in use. It was originally reserved  at ");
+      sb.append(original_var.get_origin().get_location().toString());
+      sb.append(".");
 
       return sb.toString();
    }

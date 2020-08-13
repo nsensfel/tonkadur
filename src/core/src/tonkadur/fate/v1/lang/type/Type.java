@@ -24,6 +24,7 @@ public class Type extends DeclaredEntity
    public static final Type DICT;
    public static final Type FLOAT;
    public static final Type INT;
+   public static final Type LAMBDA;
    public static final Type LIST;
    public static final Type REF;
    public static final Type RICH_TEXT;
@@ -50,6 +51,7 @@ public class Type extends DeclaredEntity
       DICT = new Type(base, null, "dict");
       FLOAT = new Type(base, null, "float");
       INT = new Type(base, null, "int");
+      LAMBDA = new Type(base, null, "lambda");
       LIST = new Type(base, null, "list");
       REF = new Type(base, null, "ref");
       RICH_TEXT = new Type(base, null, "text");
@@ -62,6 +64,7 @@ public class Type extends DeclaredEntity
       ALL_TYPES.add(DICT);
       ALL_TYPES.add(FLOAT);
       ALL_TYPES.add(INT);
+      ALL_TYPES.add(LAMBDA);
       ALL_TYPES.add(LIST);
       ALL_TYPES.add(REF);
       ALL_TYPES.add(RICH_TEXT);

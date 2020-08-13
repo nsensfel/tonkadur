@@ -33,18 +33,18 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 {
    protected final Compiler compiler;
    protected final List<Instruction> init_instructions;
-   protected final List<Ref> reserved_variables;
+   protected final Collection<Register> reserved_registers;
    protected boolean instructions_were_generated;
    protected Computation result_as_computation;
-   protected Ref result_as_ref;
+   protected Address result_as_address;
 
    public ComputationCompiler (final Compiler compiler)
    {
       this.compiler = compiler;
 
-      reserved_variables = new ArrayList<Ref>();
+      reserved_registers = new ArrayList<Register>();
       init_instructions = new ArrayList<Instruction>();
-      result_as_ref = null;
+      result_as_address = null;
       result_as_computation = null;
       instructions_were_generated = false;
    }
@@ -74,69 +74,68 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       }
       else
       {
-         result_as_computation = new ValueOf(result_as_ref);
+         result_as_computation = new ValueOf(result_as_address);
 
          return result_as_computation;
       }
    }
 
-   public Ref get_ref ()
+   public Address get_address ()
    {
-      if (result_as_ref == null)
+      if (result_as_address == null)
       {
          System.err.println("[P] Missing generate_ref()!");
       }
 
-      return result_as_ref;
+      return result_as_address;
    }
 
-   public void generate_ref ()
+   public void generate_address ()
    {
-      if ((!instructions_were_generated) && (result_as_ref == null))
+      if ((!instructions_were_generated) && (result_as_address == null))
       {
-         final Ref result;
+         final Address result;
 
-         result = reserve(result_as_computation.get_type());
+         result = reserve(result_as_computation.get_type()).get_address();
 
          init_instructions.add
          (
             new SetValue(result, result_as_computation)
          );
 
-
-         result_as_ref = result;
+         result_as_address = result;
       }
    }
 
-   public void release_variables ()
+   public void release_registers ()
    {
-      for (final Ref ref: reserved_variables)
+      for (final Register reg: reserved_registers)
       {
-         compiler.anonymous_variables().release(ref);
+         compiler.registers().release(reg);
       }
    }
 
    protected void assimilate (final ComputationCompiler cc)
    {
       init_instructions.addAll(cc.init_instructions);
-      reserved_variables.addAll(cc.reserved_variables);
+      reserved_registers.addAll(cc.reserved_registers);
    }
 
-   protected Ref reserve (final Type t)
+   protected Register reserve (final Type t)
    {
-      final Ref result;
+      final Register result;
 
-      result = compiler.anonymous_variables().reserve(t);
+      result = compiler.registers().reserve(t);
 
-      reserved_variables.add(result);
+      reserved_registers.add(result);
 
       return result;
    }
 
    @Override
-   public void visit_at_reference
+   public void visit_at_address
    (
-      final tonkadur.fate.v1.lang.computation.AtReference n
+      final tonkadur.fate.v1.lang.computation.AtAddress n
    )
    throws Throwable
    {
@@ -148,17 +147,17 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       assimilate(n_cc);
 
-      result_as_ref =
-         new Ref
+      result_as_address =
+         new Address
          (
             n_cc.get_computation(),
             TypeCompiler.compile
             (
                compiler,
                (
-                  (tonkadur.fate.v1.lang.type.RefType)
+                  (tonkadur.fate.v1.lang.type.AddressType)
                      n.get_parent().get_type()
-               ).get_referenced_type()
+               ).get_addressd_type()
             )
          );
    }
@@ -225,8 +224,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          is_safe = is_safe && !cond_cc.has_init() && !val_cc.has_init();
 
-         reserved_variables.addAll(cond_cc.reserved_variables);
-         reserved_variables.addAll(val_cc.reserved_variables);
+         reserved_registers.addAll(cond_cc.reserved_registers);
+         reserved_registers.addAll(val_cc.reserved_registers);
 
          cc_list.add(new Cons(cond_cc, val_cc));
       }
@@ -259,7 +258,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       else
       {
          final Iterator<Cons<ComputationCompiler, ComputationCompiler>> it;
-         final Ref result;
+         final Register result_register;
+         final Address result_address;
          Cons<ComputationCompiler, ComputationCompiler> next;
          List<Instruction> new_value, new_cond;
          Instruction prev_branch;
@@ -269,6 +269,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          next = it.next();
 
          result = reserve(next.get_cdr().get_computation().get_type());
+         result_as_address = result.get_address();
 
          new_value = new ArrayList<Instruction>();
 
@@ -277,7 +278,10 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             new_value.add(next.get_cdr().get_init());
          }
 
-         new_value.add(new SetValue(result, next.get_cdr().get_computation()));
+         new_value.add
+         (
+            new SetValue(result_as_address, next.get_cdr().get_computation())
+         );
 
          prev_branch = compiler.assembler().merge(new_value);
 
@@ -300,14 +304,14 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
             new_value.add
             (
-               new SetValue(result, next.get_cdr().get_computation())
+               new SetValue(result_as_address, next.get_cdr().get_computation())
             );
 
             new_cond.add
             (
                IfElse.generate
                (
-                  compiler.anonymous_variables(),
+                  compiler.registers(),
                   compiler.assembler(),
                   next.get_car().get_computation(),
                   compiler.assembler().merge(new_value),
@@ -320,7 +324,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          init_instructions.add(prev_branch);
 
-         result_as_computation = new ValueOf(result);
+         result_as_computation = result.get_value();
       }
    }
 
@@ -354,7 +358,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       n.get_collection().get_visited_by(collection_compiler);
       n.get_element().get_visited_by(element_compiler);
 
-      collection_compiler.generate_ref();
+      collection_compiler.generate_address();
 
       assimilate(collection_compiler);
       assimilate(element_compiler);
@@ -367,7 +371,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          ).is_set()
       )
       {
-         final Ref was_found, index, element;
+         final Register was_found, index, element;
 
          was_found = reserve(Type.BOOLEAN);
          index = reserve(Type.INT);
@@ -375,62 +379,72 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          init_instructions.add
          (
-            new SetValue(element, element_compiler.get_computation())
+            new SetValue
+            (
+               element.get_address(),
+               element_compiler.get_computation()
+            )
          );
          init_instructions.add
          (
             BinarySearch.generate
             (
-               compiler.anonymous_variables(),
+               compiler.registers(),
                compiler.assembler(),
-               new ValueOf(element),
-               new Size(collection_compiler.get_ref()),
-               collection_compiler.get_ref(),
-               was_found,
-               index
+               element.get_value(),
+               new Size(collection_compiler.get_address()),
+               collection_compiler.get_address(),
+               was_found.get_address(),
+               index.get_address()
             )
          );
 
          result_as_computation =
             new IfElseComputation
             (
-               new ValueOf(was_found),
+               was_found.get_value(),
                Constant.ONE,
                Constant.ZERO
             );
       }
       else
       {
-         final Ref element;
+         final Register result, element;
 
-         result_as_ref = reserve(Type.INT);
+         result = reserve(Type.INT);
+
+         result_as_address = result.get_address();
+         result_as_computation = result.get_value();
 
          element = reserve(element_compiler.get_computation().get_type());
 
          init_instructions.add
          (
-            new SetValue(element, element_compiler.get_computation())
+            new SetValue
+            (
+               element.get_address(),
+               element_compiler.get_computation()
+            )
          );
          init_instructions.add
          (
             CountOccurrences.generate
             (
-               compiler.anonymous_variables(),
+               compiler.registers(),
                compiler.assembler(),
-               new ValueOf(element),
-               new Size(collection_compiler.get_ref()),
-               collection_compiler.get_ref(),
-               result_as_ref
+               element.get_value(),
+               new Size(collection_compiler.get_address()),
+               collection_compiler.get_address(),
+               result_as_address
             )
          );
-         result_as_computation = new ValueOf(result_as_ref);
       }
    }
 
    @Override
-   public void visit_field_reference
+   public void visit_field_address
    (
-      final tonkadur.fate.v1.lang.computation.FieldReference n
+      final tonkadur.fate.v1.lang.computation.FieldAddress n
    )
    throws Throwable
    {
@@ -442,10 +456,10 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       assimilate(n_cc);
 
-      result_as_ref =
-         new RelativeRef
+      result_as_address =
+         new RelativeAddress
          (
-            n_cc.get_ref(),
+            n_cc.get_address(),
             new Constant(Type.STRING, n.get_field_name()),
             TypeCompiler.compile
             (
@@ -487,10 +501,10 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
           * on the interpreter.
           *
           * Instead, we just convert the ifelse into an instruction-based
-          * equivalent and store the result in an anonymous variable to be used
+          * equivalent and store the result in an anonymous register to be used
           * here.
           */
-         final Ref if_else_result;
+         final Register if_else_result;
          final List<Instruction> if_true_branch;
          final List<Instruction> if_false_branch;
 
@@ -511,12 +525,20 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          if_true_branch.add
          (
-            new SetValue(if_else_result, if_true_cc.get_computation())
+            new SetValue
+            (
+               if_else_result.get_address(),
+               if_true_cc.get_computation()
+            )
          );
 
          if_false_branch.add
          (
-            new SetValue(if_else_result, if_false_cc.get_computation())
+            new SetValue
+            (
+               if_else_result.get_addresss(),
+               if_false_cc.get_computation()
+            )
          );
 
          if (cond_cc.has_init())
@@ -528,7 +550,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          (
             IfElse.generate
             (
-               compiler.anonymous_variables(),
+               compiler.registers(),
                compiler.assembler(),
                cond_cc.get_computation(),
                compiler.assembler().merge(if_true_branch),
@@ -536,11 +558,12 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             )
          );
 
-         reserved_variables.addAll(cond_cc.reserved_variables);
-         reserved_variables.addAll(if_true_cc.reserved_variables);
-         reserved_variables.addAll(if_false_cc.reserved_variables);
+         reserved_registers.addAll(cond_cc.reserved_registers);
+         reserved_registers.addAll(if_true_cc.reserved_registers);
+         reserved_registers.addAll(if_false_cc.reserved_registers);
 
-         result_as_computation = new ValueOf(if_else_result);
+         result_as_computation = if_else_result.get_value();
+         result_as_address = if_else_result.get_address();
       }
       else
       {
@@ -565,6 +588,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
+      final Register result;
       final ComputationCompiler collection_compiler, element_compiler;
 
       collection_compiler = new ComputationCompiler(compiler);
@@ -578,7 +602,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       assimilate(collection_compiler);
       assimilate(element_compiler);
 
-      result_as_ref = reserve(Type.BOOLEAN);
+      result = reserve(Type.BOOLEAN);
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
 
       if
       (
@@ -588,95 +614,63 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          ).is_set()
       )
       {
-         final Ref index, element;
+         final Register index, element;
 
          index = reserve(Type.INT);
          element = reserve(element_compiler.get_computation().get_type());
 
          init_instructions.add
          (
-            new SetValue(element, element_compiler.get_computation())
+            new SetValue
+            (
+               element.get_address(),
+               element_compiler.get_computation()
+            )
          );
          init_instructions.add
          (
             BinarySearch.generate
             (
-               compiler.anonymous_variables(),
+               compiler.registers(),
                compiler.assembler(),
-               new ValueOf(element),
-               new Size(collection_compiler.get_ref()),
-               collection_compiler.get_ref(),
-               result_as_ref,
-               index
+               element.get_value(),
+               new Size(collection_compiler.get_address()),
+               collection_compiler.get_address(),
+               result_as_address,
+               index.get_address();
             )
          );
 
-         result_as_computation = new ValueOf(result_as_ref);
       }
       else
       {
-         final Ref index, element;
+         final Register index, element;
 
          index = reserve(Type.INT);
          element = reserve(element_compiler.get_computation().get_type());
 
-         result_as_ref = reserve(Type.BOOLEAN);
-
          init_instructions.add
          (
-            new SetValue(element, element_compiler.get_computation())
+            new SetValue
+            (
+               element.get_address(),
+               element_compiler.get_computation()
+            )
          );
          init_instructions.add
          (
             IterativeSearch.generate
             (
-               compiler.anonymous_variables(),
+               compiler.registers(),
                compiler.assembler(),
-               new ValueOf(element),
-               new Size(collection_compiler.get_ref()),
-               collection_compiler.get_ref(),
-               result_as_ref,
-               index
+               element.get_value(),
+               new Size(collection_compiler.get_address()),
+               collection_compiler.get_address(),
+               result_as_address,
+               index.get_address()
             )
          );
-
-         result_as_computation = new ValueOf(result_as_ref);
       }
-   }
-
-   @Override
-   public void visit_macro_value_call
-   (
-      final tonkadur.fate.v1.lang.computation.MacroValueCall n
-   )
-   throws Throwable
-   {
-      final List<Ref> parameters;
-
-      parameters = new ArrayList<Ref>();
-
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation fate_computation:
-            n.get_parameters()
-      )
-      {
-         final ComputationCompiler cc;
-
-         cc = new ComputationCompiler(compiler);
-
-         fate_computation.get_visited_by(cc);
-
-         cc.generate_ref();
-
-         assimilate(cc);
-
-         parameters.add(cc.get_ref());
-      }
-
-      compiler.macros().push(n.get_macro(), parameters);
-      n.get_actual_value_node().get_visited_by(this);
-      compiler.macros().pop();
    }
 
    @Override
@@ -789,13 +783,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       )
       {
-         final Ref candidate;
-         final Computation value_of_candidate;
+         final Register candidate;
 
          candidate = reserve(operands.get(0).get_type());
-         value_of_candidate = new ValueOf(candidate);
+         result_as_address = candidate.get_address();
+         result_as_computation = candidate.get_value();
 
-         init_instructions.add(new SetValue(candidate, operands.get(0)));
+         init_instructions.add
+         (
+            new SetValue(result_as_address, operands.get(0))
+         );
 
          for (final Computation operand: operands)
          {
@@ -803,18 +800,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                new SetValue
                (
-                  candidate,
+                  result_as_address,
                   new IfElseComputation
                   (
-                     Operation.less_than(value_of_candidate, operand),
-                     value_of_candidate,
+                     Operation.less_than(result_as_computation, operand),
+                     result_as_computation,
                      operand
                   )
                )
             );
          }
-
-         result_as_computation = value_of_candidate;
       }
       else if
       (
@@ -824,13 +819,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       )
       {
-         final Ref candidate;
-         final Computation value_of_candidate;
+         final Register candidate;
 
          candidate = reserve(operands.get(0).get_type());
-         value_of_candidate = new ValueOf(candidate);
+         result_as_address = candidate.get_address();
+         result_as_computation = candidate.get_value();
 
-         init_instructions.add(new SetValue(candidate, operands.get(0)));
+         init_instructions.add
+         (
+            new SetValue(result_as_address, operands.get(0))
+         );
 
          for (final Computation operand: operands)
          {
@@ -838,18 +836,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                new SetValue
                (
-                  candidate,
+                  result_as_address,
                   new IfElseComputation
                   (
-                     Operation.greater_than(value_of_candidate, operand),
-                     value_of_candidate,
+                     Operation.greater_than(result_as_computation, operand),
+                     result_as_computation,
                      operand
                   )
                )
             );
          }
-
-         result_as_computation = value_of_candidate;
       }
       else if
       (
@@ -889,18 +885,19 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       )
       {
          final Type t;
-         final Ref candidate;
-         final Computation value_of_candidate;
+         final Register candidate;
+         final Computation result_as_computation;
 
          t = operands.get(2).get_type();
          candidate = reserve(t);
-         value_of_candidate = new ValueOf(candidate);
+         result_as_address = candidate.get_address();
+         result_as_computation = candidate.get_value();
 
          init_instructions.add
          (
             new SetValue
             (
-               candidate,
+               result_as_address,
                new IfElseComputation
                (
                   Operation.greater_than(operands.get(2), operands.get(1)),
@@ -913,17 +910,15 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          (
             new SetValue
             (
-               candidate,
+               result_as_address,
                new IfElseComputation
                (
-                  Operation.less_than(value_of_candidate, operands.get(0)),
+                  Operation.less_than(result_as_computation, operands.get(0)),
                   operands.get(0),
-                  value_of_candidate
+                  result_as_computation
                )
             )
          );
-
-         result_as_computation = value_of_candidate;
       }
       else if
       (
@@ -1105,6 +1100,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          System.err.println("[P] Unknown Fate operator '" + fate_op_name+ "'.");
       }
    }
+
    @Override
    public void visit_size_operator
    (
@@ -1120,7 +1116,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       assimilate(cc);
 
-      result_as_computation = new Size(cc.get_ref());
+      result_as_computation = new Size(cc.get_address());
    }
 
    @Override
@@ -1131,10 +1127,13 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    throws Throwable
    {
       final ComputationCompiler elem_cc, collection_cc;
-      final Ref result, result_found;
+      final Register result, result_found;
 
       result = reserve(Type.INT);
       result_found = reserve(Type.BOOLEAN);
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
 
       elem_cc = new ComputationCompiler(compiler);
       collection_cc = new ComputationCompiler(compiler);
@@ -1149,17 +1148,15 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       (
          IterativeSearch.generate
          (
-            compiler.anonymous_variables(),
+            compiler.registers(),
             compiler.assembler(),
             elem_cc.get_computation(),
-            new Size(collection_cc.get_ref()),
-            collection_cc.get_ref(),
-            result_found,
-            result
+            new Size(collection_cc.get_address()),
+            collection_cc.get_address(),
+            result_found.get_address(),
+            result_as_address
          )
       );
-
-      result_as_ref = result;
    }
 
    @Override
@@ -1180,22 +1177,22 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      final ComputationCompiler i_cc, n_cc;
+      final ComputationCompiler extra_address_cc, base_address_cc;
 
-      n_cc = new ComputationCompiler(compiler);
-      i_cc = new ComputationCompiler(compiler);
+      base_address_cc = new ComputationCompiler(compiler);
+      extra_address_cc = new ComputationCompiler(compiler);
 
-      n.get_parent().get_visited_by(n_cc);
-      n.get_index().get_visited_by(i_cc);
+      n.get_parent().get_visited_by(base_address_cc);
+      n.get_index().get_visited_by(extra_address_cc);
 
-      assimilate(n_cc);
-      assimilate(i_cc);
+      assimilate(base_address_cc);
+      assimilate(extra_address_cc);
 
-      result_as_ref =
-         new RelativeRef
+      result_as_address =
+         new RelativeAddress
          (
-            n_cc.get_ref(),
-            new Cast(i_cc.get_computation(), Type.STRING),
+            base_address_cc.get_address(),
+            new Cast(extra_address_cc.get_computation(), Type.STRING),
             TypeCompiler.compile
             (
                compiler,
@@ -1249,19 +1246,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
-   public void visit_parameter_reference
+   public void visit_address_operator
    (
-      final tonkadur.fate.v1.lang.computation.ParameterReference n
-   )
-   throws Throwable
-   {
-      result_as_ref = compiler.macros().get_parameter_ref(n.get_name());
-   }
-
-   @Override
-   public void visit_ref_operator
-   (
-      final tonkadur.fate.v1.lang.computation.RefOperator n
+      final tonkadur.fate.v1.lang.computation.AddressOperator n
    )
    throws Throwable
    {
@@ -1273,7 +1260,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       assimilate(n_cc);
 
-      result_as_computation = n_cc.result_as_ref;
+      result_as_computation = n_cc.get_address()
    }
 
    @Override
@@ -1339,15 +1326,41 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_lambda_expression
+   (
+      final tonkadur.fate.v1.lang.computation.LambdaExpression n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_lambda_evaluation
+   (
+      final tonkadur.fate.v1.lang.computation.LambdaEvaluation n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
    public void visit_variable_reference
    (
       final tonkadur.fate.v1.lang.computation.VariableReference n
    )
    throws Throwable
    {
-      result_as_ref =
-         compiler.world().get_variable(n.get_variable().get_name()).get_ref();
+      final Register register;
 
-      result_as_computation = new ValueOf(result_as_ref);
+      register =
+         compiler.registers().get_register
+         (
+            n.get_variable().get_name()
+         );
+
+      result_as_address = register.get_address();
+      result_as_computation = register.get_value();
    }
 }

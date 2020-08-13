@@ -27,9 +27,7 @@ options
 
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
    import tonkadur.fate.v1.error.InvalidTypeException;
-   import tonkadur.fate.v1.error.NotInAMacroException;
    import tonkadur.fate.v1.error.UnknownExtensionContentException;
-   import tonkadur.fate.v1.error.UnknownParameterException;
    import tonkadur.fate.v1.error.UnknownVariableScopeException;
 
    import tonkadur.fate.v1.lang.*;
@@ -43,8 +41,7 @@ options
 {
    Context CONTEXT;
    World WORLD;
-   TypedEntryList PARAMETERS;
-   List<Cons<String, Type>> ODD_VARS;
+   Deque<Map<String, Variable>> LOCAL_VARIABLES;
    int BREAKABLE_LEVELS;
 }
 
@@ -56,9 +53,10 @@ fate_file [Context context, World world]
    {
       CONTEXT = context;
       WORLD = world;
-      PARAMETERS = null;
-      ODD_VARS = new ArrayList<Cons<String, Type>>();
+      LOCAL_VARIABLES = new ArrayDeque<HashMap<String, Variable>>();
       BREAKABLE_LEVELS = 0;
+
+      LOCAL_VARIABLES.push(new HashMap<String, Variable>());
    }
    :
    WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
@@ -100,6 +98,18 @@ returns [List<Instruction> result]
 first_level_fate_instr:
    DEFINE_SEQUENCE_KW
       new_reference_name
+      (
+         L_PAREN WS+ variable_list WS* R_PAREN
+         {
+            final Map<String, Variable> variable_map;
+
+            variable_map = new HashMap<String, Variable>();
+
+            variable_map.putAll(($variable_list.result).as_map());
+
+            LOCAL_VARIABLES.push(variable_map);
+         }
+      )
       pre_sequence_point=WS+
       general_fate_sequence
       WS*
@@ -131,27 +141,17 @@ first_level_fate_instr:
                sequence_origin,
                ($general_fate_sequence.result)
             ),
-            ($new_reference_name.result)
+            ($new_reference_name.result),
+            ($variable_list.result)
          );
 
       WORLD.sequences().add(new_sequence);
+      LOCAL_VARIABLES.pop();
    }
 
    | DECLARE_VARIABLE_KW
       type
       WS+
-      name=new_reference_name
-      WS*
-   R_PAREN
-   {
-      final Origin start_origin, type_origin;
-      final Variable new_variable;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_VARIABLE_KW.getLine()),
-            ($DECLARE_VARIABLE_KW.getCharPositionInLine())
          );
 
       new_variable =
@@ -2498,8 +2498,6 @@ returns [Reference result]
    | ACCESS_KW value_reference WS+ value R_PAREN
    {
       $result =
-         Access.build
-         (
             CONTEXT.get_origin_at
             (
                ($ACCESS_KW.getLine()),
@@ -2510,10 +2508,10 @@ returns [Reference result]
          );
    }
 
-   | VARIABLE_KW WORD WS* R_PAREN
+   | (WORD | (VARIABLE_KW WORD WS* R_PAREN))
    {
       final Origin target_var_origin;
-      final Variable target_var;
+      Variable target_var;
       final String[] subrefs;
 
       subrefs = ($WORD.text).split("\\.");
@@ -2525,119 +2523,12 @@ returns [Reference result]
             ($WORD.getCharPositionInLine())
          );
 
-      target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
+      target_var = LOCAL_VARIABLE.peekFirst().get(subrefs[0]);
 
-      $result =
-         new VariableReference
-         (
-            CONTEXT.get_origin_at
-            (
-               ($VARIABLE_KW.getLine()),
-               ($VARIABLE_KW.getCharPositionInLine())
-            ),
-            target_var
-         );
-
-      if (subrefs.length > 1)
+      if (target_var == null)
       {
-         final List<String> subrefs_list;
-
-         subrefs_list = new ArrayList(Arrays.asList(subrefs));
-
-         subrefs_list.remove(0);
-
-         $result =
-            FieldReference.build
-            (
-               target_var_origin,
-               ($result),
-               subrefs_list
-            );
+         target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
       }
-   }
-
-   | PARAMETER_KW WORD WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($PARAMETER_KW.getLine()),
-            ($PARAMETER_KW.getCharPositionInLine())
-         );
-
-      if (PARAMETERS == null)
-      {
-         ErrorManager.handle
-         (
-            new NotInAMacroException(origin)
-         );
-      }
-      else
-      {
-         final TypedEntryList.TypedEntry param;
-         final String[] subrefs;
-
-         subrefs = ($WORD.text).split("\\.");
-
-         param = PARAMETERS.as_map().get(subrefs[0]);
-
-         if (param == null)
-         {
-            ErrorManager.handle
-            (
-               new UnknownParameterException(origin, subrefs[0], PARAMETERS)
-            );
-
-            $result = new ParameterReference(origin, Type.ANY, ($WORD.text));
-         }
-         else
-         {
-            $result =
-               new ParameterReference
-               (
-                  origin,
-                  param.get_type(),
-                  ($WORD.text)
-               );
-
-            if (subrefs.length > 1)
-            {
-               final List<String> subrefs_list;
-
-               subrefs_list = new ArrayList(Arrays.asList(subrefs));
-
-               subrefs_list.remove(0);
-
-               $result =
-                  FieldReference.build
-                  (
-                     origin,
-                     ($result),
-                     subrefs_list
-                  );
-            }
-         }
-      }
-   }
-
-   | WORD
-   {
-      final Origin target_var_origin;
-      final Variable target_var;
-      final String[] subrefs;
-
-      subrefs = ($WORD.text).split("\\.");
-
-      target_var_origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
 
       $result =
          new VariableReference

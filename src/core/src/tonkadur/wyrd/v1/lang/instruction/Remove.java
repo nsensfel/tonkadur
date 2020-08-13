@@ -1,6 +1,6 @@
 package tonkadur.wyrd.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.computation.Ref;
+import tonkadur.wyrd.v1.lang.computation.Address;
 
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
@@ -10,21 +10,21 @@ public class Remove extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Ref reference;
+   protected final Address address;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Remove (final Ref reference)
+   public Remove (final Address address)
    {
-      this.reference = reference;
+      this.address = address;
    }
 
    /**** Accessors ************************************************************/
-   public Ref get_reference ()
+   public Address get_address ()
    {
-      return reference;
+      return address;
    }
 
    @Override
@@ -43,7 +43,7 @@ public class Remove extends Instruction
       sb = new StringBuilder();
 
       sb.append("(Remove ");
-      sb.append(reference.toString());
+      sb.append(address.toString());
       sb.append(")");
 
       return sb.toString();
