@@ -80,6 +80,11 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
       return result;
    }
 
+   public Declared get_or_null (final String name)
+   {
+      return collection.get(name);
+   }
+
    /**** Misc. ****************************************************************/
    public String toString ()
    {

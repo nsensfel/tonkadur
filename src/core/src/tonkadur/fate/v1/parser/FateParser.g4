@@ -9,7 +9,9 @@ options
 {
    package tonkadur.fate.v1.parser;
 
+   import java.util.ArrayDeque;
    import java.util.Arrays;
+   import java.util.Deque;
    import java.util.Map;
    import java.util.HashMap;
 
@@ -25,10 +27,10 @@ options
 
    import tonkadur.fate.v1.Utils;
 
+   import tonkadur.fate.v1.error.DuplicateLocalVariableException;
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
    import tonkadur.fate.v1.error.InvalidTypeException;
    import tonkadur.fate.v1.error.UnknownExtensionContentException;
-   import tonkadur.fate.v1.error.UnknownVariableScopeException;
 
    import tonkadur.fate.v1.lang.*;
    import tonkadur.fate.v1.lang.instruction.*;
@@ -53,7 +55,7 @@ fate_file [Context context, World world]
    {
       CONTEXT = context;
       WORLD = world;
-      LOCAL_VARIABLES = new ArrayDeque<HashMap<String, Variable>>();
+      LOCAL_VARIABLES = new ArrayDeque<Map<String, Variable>>();
       BREAKABLE_LEVELS = 0;
 
       LOCAL_VARIABLES.push(new HashMap<String, Variable>());
@@ -142,7 +144,7 @@ first_level_fate_instr:
                ($general_fate_sequence.result)
             ),
             ($new_reference_name.result),
-            ($variable_list.result)
+            ($variable_list.result).get_entries()
          );
 
       WORLD.sequences().add(new_sequence);
@@ -255,7 +257,7 @@ first_level_fate_instr:
 
       for
       (
-         final TypedEntryList.TypedEntry te:
+         final Variable te:
             ($variable_list.result).get_entries()
       )
       {
@@ -441,6 +443,7 @@ returns [Instruction result]
       final Map<String, Variable> variable_map;
 
       start_origin =
+         CONTEXT.get_origin_at
          (
             ($LOCAL_KW.getLine()),
             ($LOCAL_KW.getCharPositionInLine())
@@ -741,13 +744,6 @@ returns [Instruction result]
 
          elem_type = Type.ANY;
 
-         variable_map = local_variables.peekfirst();
-
-         if (local_variables == null)
-         {
-            local_variables = new typedentrylist();
-         }
-
          collection_type = ($value_reference.result).get_type();
 
          if (collection_type instanceof CollectionType)
@@ -786,7 +782,9 @@ returns [Instruction result]
                ($new_reference_name.result)
             );
 
-         if (variable_map.containskey(($new_reference_name.result)))
+         variable_map = LOCAL_VARIABLES.peekFirst();
+
+         if (variable_map.containsKey(($new_reference_name.result)))
          {
             ErrorManager.handle
             (
@@ -2336,7 +2334,7 @@ returns [Computation result]
                   ($LAMBDA_KW.getLine()),
                   ($LAMBDA_KW.getCharPositionInLine())
                ),
-               ($variable_list.result),
+               ($variable_list.result).get_entries(),
                ($value.result)
             );
 
@@ -2523,7 +2521,7 @@ returns [Reference result]
             ($WORD.getCharPositionInLine())
          );
 
-      target_var = LOCAL_VARIABLE.peekFirst().get(subrefs[0]);
+      target_var = LOCAL_VARIABLES.peekFirst().get(subrefs[0]);
 
       if (target_var == null)
       {

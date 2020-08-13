@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import tonkadur.functional.Cons;
+
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Context;
@@ -16,6 +18,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.error.UnknownSequenceException;
 
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
 import tonkadur.fate.v1.lang.meta.ExtensionInstruction;
 import tonkadur.fate.v1.lang.meta.ExtensionComputation;
@@ -31,7 +34,8 @@ public class World
    protected final Set<String> loaded_files;
    protected final Set<String> required_extensions;
 
-   protected final Map<String, List<Origin>> sequence_uses;
+   protected final Map<String, List<Cons<Origin, List<Computation>>>>
+      sequence_uses;
    protected final Map<String, ExtensionComputation> extension_value_nodes;
    protected final Map<String, ExtensionInstruction> extension_instructions;
    protected final Map<String, ExtensionInstruction>
@@ -55,7 +59,9 @@ public class World
       loaded_files = new HashSet<String>();
       required_extensions = new HashSet<String>();
 
-      sequence_uses = new HashMap<String, List<Origin>>();
+      sequence_uses =
+         new HashMap<String, List<Cons<Origin, List<Computation>>>>();
+
       extension_value_nodes = new HashMap<String, ExtensionComputation>();
       extension_instructions = new HashMap<String, ExtensionInstruction>();
       extension_first_level_instructions =
@@ -111,20 +117,25 @@ public class World
    }
 
    /**** Sequence Calls ****/
-   public void add_sequence_call (final Origin origin, final String sequence)
+   public void add_sequence_use
+   (
+      final Origin origin,
+      final String sequence,
+      final List<Computation> parameters
+   )
    {
-      List<Origin> list_of_uses;
+      List<Cons<Origin, List<Computation>>> list_of_uses;
 
       list_of_uses = sequence_uses.get(sequence);
 
       if (list_of_uses == null)
       {
-         list_of_uses = new ArrayList<Origin>();
+         list_of_uses = new ArrayList<Cons<Origin, List<Computation>>>();
 
          sequence_uses.put(sequence, list_of_uses);
       }
 
-      list_of_uses.add(origin);
+      list_of_uses.add(new Cons(origin, parameters));
    }
 
    /**** Extension Stuff ****/
@@ -140,9 +151,7 @@ public class World
       return extension_first_level_instructions;
    }
 
-   public Map<String, ExtensionComputation> extension_value_nodes
-   (
-   )
+   public Map<String, ExtensionComputation> extension_value_nodes ()
    {
       return extension_value_nodes;
    }
@@ -185,7 +194,7 @@ public class World
 
    /**** Misc. ****************************************************************/
    public boolean assert_sanity ()
-   throws UnknownSequenceException
+   throws Throwable
    {
       boolean is_sane;
 
@@ -278,21 +287,25 @@ public class World
    }
 
    protected boolean assert_sane_sequence_uses ()
-   throws UnknownSequenceException
+   throws Throwable
    {
+      Sequence seq;
+
       boolean is_sane;
 
       is_sane = true;
 
       for
       (
-         final Map.Entry<String, List<Origin>> entry:
+         final Map.Entry<String, List<Cons<Origin, List<Computation>>>> entry:
             sequence_uses.entrySet()
       )
       {
-         if (!sequences().has(entry.getKey()))
+         seq = sequences().get_or_null(entry.getKey());
+
+         if (seq == null)
          {
-            final List<Origin> occurrences;
+            final List<Cons<Origin, List<Computation>>> occurrences;
 
             occurrences = entry.getValue();
 
@@ -307,11 +320,24 @@ public class World
             (
                new UnknownSequenceException
                (
-                  occurrences.get(0),
+                  occurrences.get(0).get_car(),
                   entry.getKey(),
                   ((occurrences.size() == 1) ? null : occurrences)
                )
             );
+         }
+         else
+         {
+            for (final Cons<Origin, List<Computation>> use: entry.getValue())
+            {
+               if
+               (
+                  !seq.assert_can_take_parameters(use.get_car(), use.get_cdr())
+               )
+               {
+                  is_sane = false;
+               }
+            }
          }
       }
 

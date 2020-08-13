@@ -1,18 +1,23 @@
 package tonkadur.fate.v1.error;
 
 import java.util.Collection;
+import java.util.List;
+
+import tonkadur.functional.Cons;
 
 import tonkadur.error.ErrorLevel;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.fate.v1.lang.meta.Computation;
+
 public class UnknownSequenceException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Collection<Origin> all_occurrences;
+   protected final Collection<Cons<Origin, List<Computation>>> all_occurrences;
    protected final String sequence_name;
 
    /***************************************************************************/
@@ -22,7 +27,7 @@ public class UnknownSequenceException extends ParsingError
    (
       final Origin first_occurrence,
       final String sequence_name,
-      final Collection<Origin> all_occurrences
+      final Collection<Cons<Origin, List<Computation>>> all_occurrences
    )
    {
       super
@@ -56,14 +61,14 @@ public class UnknownSequenceException extends ParsingError
          sb.append("Here is a complete list of all calls to this sequence:");
          sb.append(System.lineSeparator());
 
-         for (final Origin occurrence: all_occurrences)
+         for (final Cons<Origin, List<Computation>> occurrence: all_occurrences)
          {
             /*
              * Because sequences can be defined at any point, the context does
              * not matter much, so let's just point out locations instead.
              */
             sb.append("- ");
-            sb.append(occurrence.get_location().toString());
+            sb.append(occurrence.get_car().get_location().toString());
             sb.append(System.lineSeparator());
          }
       }

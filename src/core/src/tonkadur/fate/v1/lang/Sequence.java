@@ -13,10 +13,15 @@ import tonkadur.parser.Context;
 import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.fate.v1.error.InvalidArityException;
+import tonkadur.fate.v1.error.IncompatibleTypeException;
+import tonkadur.fate.v1.error.IncomparableTypeException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
+
+import tonkadur.fate.v1.lang.type.Type;
 
 public class Sequence extends DeclaredEntity
 {
@@ -76,6 +81,65 @@ public class Sequence extends DeclaredEntity
       return null;
    }
 
+   public boolean assert_can_take_parameters
+   (
+      final Origin origin,
+      final List<Computation> parameters
+   )
+   throws Throwable
+   {
+      final Iterator<Computation> param_it;
+      final Iterator<Variable> sign_it;
+      boolean result;
+
+      if (signature.size() != parameters.size())
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException
+            (
+               origin,
+               parameters.size(),
+               signature.size(),
+               signature.size()
+            )
+         );
+
+         return false;
+      }
+
+      result = true;
+      param_it = parameters.iterator();
+      sign_it = signature.iterator();
+
+      while (param_it.hasNext())
+      {
+         final Type param_type, sign_type;
+
+         param_type = param_it.next().get_type();
+         sign_type = sign_it.next().get_type();
+
+         if (param_type.can_be_used_as(sign_type))
+         {
+            continue;
+         }
+
+         ErrorManager.handle
+         (
+            new IncompatibleTypeException(origin, param_type, sign_type)
+         );
+
+         if (param_type.generate_comparable_to(sign_type).equals(Type.ANY))
+         {
+            ErrorManager.handle
+            (
+               new IncomparableTypeException(origin, param_type, sign_type)
+            );
+         }
+      }
+
+      return true;
+   }
 
    /**** Misc. ****************************************************************/
    @Override

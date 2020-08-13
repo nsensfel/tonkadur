@@ -20,7 +20,7 @@ public class LocalVariable extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected LocalVariable (final Variable variable)
+   public LocalVariable (final Variable variable)
    {
       super(variable.get_origin());
 
