@@ -42,7 +42,7 @@ public class TypeCompiler
             );
       }
 
-      if (fate_type instanceof tonkadur.fate.v1.lang.type.AddressType)
+      if (fate_type instanceof tonkadur.fate.v1.lang.type.PointerType)
       {
          return
             new PointerType
@@ -51,7 +51,7 @@ public class TypeCompiler
                (
                   compiler,
                   (
-                     (tonkadur.fate.v1.lang.type.AddressType)
+                     (tonkadur.fate.v1.lang.type.PointerType)
                      fate_type
                   ).get_referenced_type()
                )
@@ -166,7 +166,7 @@ public class TypeCompiler
          return MapType.MAP_TO_RICH_TEXT;
       }
 
-      if (fate_content_type instanceof tonkadur.fate.v1.lang.type.AddressType)
+      if (fate_content_type instanceof tonkadur.fate.v1.lang.type.PointerType)
       {
          return
             new MapType
@@ -177,7 +177,7 @@ public class TypeCompiler
                   (
                      compiler,
                      (
-                        (tonkadur.fate.v1.lang.type.AddressType)
+                        (tonkadur.fate.v1.lang.type.PointerType)
                         fate_content_type
                      ).get_referenced_type()
                   )

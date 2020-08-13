@@ -1,9 +1,10 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import tonkadur.error.Error;
 
@@ -637,7 +638,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
                new Size(collection_compiler.get_address()),
                collection_compiler.get_address(),
                result_as_address,
-               index.get_address();
+               index.get_address()
             )
          );
 
@@ -1355,10 +1356,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       final Register register;
 
       register =
-         compiler.registers().get_register
-         (
-            n.get_variable().get_name()
-         );
+         compiler.registers().get_context_register(n.get_variable().get_name());
 
       result_as_address = register.get_address();
       result_as_computation = register.get_value();

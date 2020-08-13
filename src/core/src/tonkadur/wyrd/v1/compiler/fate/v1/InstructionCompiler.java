@@ -814,7 +814,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       end_of_loop_label = compiler.assembler().generate_label("<AfterForEach>");
 
       compiler.assembler().push_context_label("breakable", end_of_loop_label);
-      compiler.registers().bind(current_value, n.get_parameter_name());
+      compiler.registers().bind(n.get_parameter_name(), current_value);
 
       new_body.add
       (
@@ -1413,7 +1413,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       collection = collection_cc.get_address();
 
-      result.add(new SetValue(collection_size, new Size(collection)));
+      result.add
+      (
+         new SetValue(collection_size.get_address(), new Size(collection))
+      );
 
       if
       (
@@ -1563,13 +1566,11 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       elem = elem_cc.get_address();
       collection = collection_cc.get_address();
 
-      result.add(new SetValue(elem.get_address(), elem_cc.get_computation()));
       result.add
       (
          new SetValue(collection_size.get_address(), new Size(collection))
       );
 
-      elem_cc.release_registers();
 
       if
       (
@@ -1610,8 +1611,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          );
       }
 
-      compiler.registers().release(elem);
-
       result.add
       (
          If.generate
@@ -1624,7 +1623,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
                compiler.registers(),
                compiler.assembler(),
                index.get_address(),
-               value_of_collection_size,
+               collection_size.get_value(),
                collection
             )
          )
@@ -1634,6 +1633,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       compiler.registers().release(found);
       compiler.registers().release(collection_size);
 
+      elem_cc.release_registers();
       collection_cc.release_registers();
    }
 

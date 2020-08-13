@@ -16,7 +16,7 @@ class RegisterContext
    protected final String name;
    protected final Map<String, Register> register_by_name;
    protected final Map<String, Register> aliased_registers;
-   protected final Map<Type, Register> anonymous_register_by_type;
+   protected final Map<Type, List<Register>> anonymous_register_by_type;
    protected int generated_registers;
 
    public RegisterContext (final String name)
@@ -25,7 +25,7 @@ class RegisterContext
 
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
-      anonymous_register_by_type = new HashMap<Type, Register>();
+      anonymous_register_by_type = new HashMap<Type, List<Register>>();
 
       generated_registers = 0;
    }
@@ -50,9 +50,9 @@ class RegisterContext
          anonymous_register_by_type.put(t, list);
       }
 
-      for (final register r: list)
+      for (final Register r: list)
       {
-         if (!entry.get_is_in_use())
+         if (!r.get_is_in_use())
          {
             r.set_is_in_use(true);
 
@@ -62,7 +62,7 @@ class RegisterContext
 
       name = (name_prefix + Integer.toString(generated_registers++));
 
-      result = create_register(t, "local", name);
+      result = create_register(t, name);
 
       result.set_is_in_use(true);
 
@@ -73,11 +73,11 @@ class RegisterContext
       return result;
    }
 
-   public Register reserve (final Type t, final String scope, final String name)
+   public Register reserve (final Type t, final String name)
    {
       final Register result;
 
-      result = create_register(t, scope, name);
+      result = create_register(t, name);
 
       if (register_by_name.get(name) != null)
       {
@@ -96,7 +96,7 @@ class RegisterContext
       return result;
    }
 
-   public void bind (final Register reg, final String name)
+   public void bind (final String name, final Register reg)
    {
       if (aliased_registers.containsKey(name))
       {
@@ -137,13 +137,8 @@ class RegisterContext
       r.set_is_in_use(false);
    }
 
-   protected Register create_register
-   (
-      final Type t,
-      final String scope,
-      final String name
-   )
+   protected Register create_register (final Type t, final String name)
    {
-      return new Register(t, scope, name);
+      return new Register(t, name);
    }
 }

@@ -8,14 +8,20 @@ import java.util.ArrayList;
 
 import tonkadur.functional.Cons;
 
-import tonkadur.wyrd.v1.lang.Variable;
+import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.Constant;
+import tonkadur.wyrd.v1.lang.computation.Cast;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.PointerType;
+import tonkadur.wyrd.v1.lang.type.MapType;
+import tonkadur.wyrd.v1.lang.type.DictType;
 
 
 class StackableRegisterContext extends RegisterContext
@@ -55,16 +61,11 @@ class StackableRegisterContext extends RegisterContext
    }
 
    @Override
-   protected Register generate_register
-   (
-      final Type t,
-      final String scope,
-      final String name
-   )
+   protected Register create_register (final Type t, final String name)
    {
       final Register result;
 
-      if (context_structure.get(name) != null)
+      if (context_structure.get_fields().get(name) != null)
       {
          System.err.println
          (
@@ -76,7 +77,7 @@ class StackableRegisterContext extends RegisterContext
          );
       }
 
-      context_structure.put(name, t);
+      context_structure.get_fields().put(name, t);
 
       return
          new Register
@@ -88,9 +89,20 @@ class StackableRegisterContext extends RegisterContext
                t
             ),
             t,
-            scope,
             name
          );
+   }
+
+   public List<Instruction> get_enter_instructions ()
+   {
+      /* TODO */
+      return new ArrayList<>();
+   }
+
+   public List<Instruction> get_leave_instructions ()
+   {
+      /* TODO */
+      return new ArrayList<>();
    }
 
    public DictType get_structure_type ()

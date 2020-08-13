@@ -1,21 +1,25 @@
 package tonkadur.wyrd.v1.compiler.util.registers;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import tonkadur.functional.Cons;
 
 import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
+import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.DictType;
 
 
 public class RegisterManager
@@ -30,7 +34,7 @@ public class RegisterManager
    {
       base_context = new RegisterContext("base context");
 
-      context_by_name = new HashMap<String, RegisterContext>();
+      context_by_name = new HashMap<String, StackableRegisterContext>();
       context = new ArrayDeque<RegisterContext>();
       created_contexts = 0;
 
@@ -39,7 +43,7 @@ public class RegisterManager
 
    public Register reserve (final Type t)
    {
-      context.peekFirst().reserve(t);
+      return context.peekFirst().reserve(t);
    }
 
    public void release (final Register r)
@@ -56,14 +60,19 @@ public class RegisterManager
    {
       final StackableRegisterContext result;
 
-      result = StackableRegisterContext.generate(base_context, context_name);
+      result = new StackableRegisterContext(base_context, context_name);
 
-      context_by_name.put(result);
+      if (context_by_name.containsKey(context_name))
+      {
+         System.err.println("[P] Duplicate context '" + context_name +"'.");
+      }
+
+      context_by_name.put(context_name, result);
    }
 
-   public void register (final Type t, final String register_name)
+   public Register register (final Type t, final String name)
    {
-      context.peekFirst().reserve(t, name);
+      return context.peekFirst().reserve(t, name);
    }
 
    public void bind (final String name, final Register register)
@@ -76,7 +85,7 @@ public class RegisterManager
       context.peekFirst().unbind(name);
    }
 
-   public Register get_context_register (final String register_name)
+   public Register get_context_register (final String name)
    {
       final Register result;
 
@@ -110,9 +119,9 @@ public class RegisterManager
    {
       final Collection<DictType> result;
 
-      result = new ArrayList<Type>();
+      result = new ArrayList<DictType>();
 
-      for (final StackableRegisterContext src: register_by_name.values())
+      for (final StackableRegisterContext src: context_by_name.values())
       {
          result.add(src.get_structure_type());
       }

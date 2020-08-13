@@ -1,7 +1,9 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
-import tonkadur.wyrd.v1.compiler.util.RegisterManager;
+import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 import tonkadur.wyrd.v1.compiler.util.InstructionManager;
+
+import tonkadur.wyrd.v1.lang.type.DictType;
 
 import tonkadur.wyrd.v1.lang.Register;
 import tonkadur.wyrd.v1.lang.World;
@@ -41,7 +43,6 @@ public class Compiler
    {
       this.wyrd_world = wyrd_world;
 
-      macro_manager = new MacroManager();
       registers = new RegisterManager();
       assembler = new InstructionManager();
    }
@@ -145,10 +146,5 @@ public class Compiler
    public InstructionManager assembler ()
    {
       return assembler;
-   }
-
-   public MacroManager macros ()
-   {
-      return macro_manager;
    }
 }
