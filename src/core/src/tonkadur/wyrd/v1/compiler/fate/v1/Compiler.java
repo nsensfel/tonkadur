@@ -28,7 +28,7 @@ public class Compiler
 
       compiler.compile_extensions(fate_world);
       compiler.compile_types(fate_world);
-      compiler.compile_registers(fate_world);
+      compiler.compile_variables(fate_world);
 
       compiler.compile_main_sequence(fate_world);
 
@@ -74,7 +74,7 @@ public class Compiler
       }
    }
 
-   protected void compile_registers
+   protected void compile_variables
    (
       final tonkadur.fate.v1.lang.World fate_world
    )
@@ -82,11 +82,20 @@ public class Compiler
    {
       for
       (
-         final tonkadur.fate.v1.lang.Register register:
-            fate_world.registers().get_all()
+         final tonkadur.fate.v1.lang.Variable variable:
+            fate_world.variables().get_all()
       )
       {
-         RegisterCompiler.compile(this, register);
+         final Register r;
+
+         r =
+            registers.register
+            (
+               TypeCompiler.compile(this, variable.get_type()),
+               variable.get_name()
+            );
+
+         r.set_is_in_use(true);
       }
    }
 
@@ -122,7 +131,7 @@ public class Compiler
    protected void add_registers ()
    throws Throwable
    {
-      for (final DictType type: registers.get_context_structures_types())
+      for (final DictType type: registers.get_context_structure_types())
       {
          wyrd_world.add_dict_type(type);
       }

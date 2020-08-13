@@ -4,6 +4,7 @@ import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 
@@ -48,11 +49,6 @@ public class Register
    public String get_name ()
    {
       return name;
-   }
-
-   public String get_scope ()
-   {
-      return scope;
    }
 
    public Address get_address ()

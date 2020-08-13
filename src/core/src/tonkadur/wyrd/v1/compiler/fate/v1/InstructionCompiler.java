@@ -1412,6 +1412,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       }
 
       collection = collection_cc.get_address();
+      elem = elem_cc.get_address();
 
       result.add
       (

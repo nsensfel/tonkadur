@@ -2,6 +2,7 @@ package tonkadur.wyrd.v1.lang;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class World
    {
       required_extensions = new HashSet<String>();
 
-      registers = new HashMap<String, Register>();
+      registers = new ArrayList<Register>();
       sequence_labels = new HashMap<String, Integer>();
       dict_types = new HashMap<String, DictType>();
       dict_types_in_order = new ArrayList<DictType>();
