@@ -76,7 +76,7 @@ PLAYER_CHOICE_KW: L_PAREN ('choice'|'user'US'choice'|'player'US'choice') SEP+;
 PLUS_KW: L_PAREN ('plus'|'+') SEP+;
 POWER_KW: L_PAREN ('power'|'^'|'**'|'pow') SEP+;
 RANDOM_KW: L_PAREN ('random'|'rand'|'rnd') SEP+;
-REF_KW: L_PAREN (('ref'('erence'?))|'ptr') SEP+;
+REF_KW: L_PAREN (((('ref'('erence'?))|'ptr'|'pointer')(US'to')?)|('address'(US'of'))) SEP+;
 REMOVE_ALL_KW: L_PAREN 'remove'US'all' SEP+;
 REVERSE_KW: L_PAREN 'reverse'(US'list')? SEP+;
 REMOVE_ONE_KW: L_PAREN 'remove'US'one' SEP+;

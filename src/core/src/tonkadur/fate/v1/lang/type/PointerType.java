@@ -4,7 +4,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
-public class RefType extends Type
+public class PointerType extends Type
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -16,7 +16,7 @@ public class RefType extends Type
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   public RefType
+   public PointerType
    (
       final Origin origin,
       final Type referenced_type,
@@ -38,11 +38,11 @@ public class RefType extends Type
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof RefType)
+      if (t instanceof PointerType)
       {
-         final RefType dt;
+         final PointerType dt;
 
-         dt = (RefType) t;
+         dt = (PointerType) t;
 
          return referenced_type.can_be_used_as(dt.referenced_type);
       }
@@ -60,18 +60,18 @@ public class RefType extends Type
    public DeclaredEntity generate_comparable_to (final DeclaredEntity de)
    {
       final Type resulting_referenced_type;
-      final RefType dt;
+      final PointerType dt;
 
-      if (!(de instanceof RefType))
+      if (!(de instanceof PointerType))
       {
          return Type.ANY;
       }
 
-      dt = (RefType) de;
+      dt = (PointerType) de;
       resulting_referenced_type =
          (Type) referenced_type.generate_comparable_to(dt.referenced_type);
 
-      return new RefType(get_origin(), resulting_referenced_type, name);
+      return new PointerType(get_origin(), resulting_referenced_type, name);
    }
 
    @Override
@@ -86,7 +86,7 @@ public class RefType extends Type
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Ref to ");
+      sb.append("(Pointer to ");
       sb.append(referenced_type.toString());
       sb.append(")::");
       sb.append(name);

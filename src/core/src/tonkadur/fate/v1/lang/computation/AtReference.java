@@ -14,7 +14,7 @@ import tonkadur.fate.v1.lang.Variable;
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 
-import tonkadur.fate.v1.lang.type.RefType;
+import tonkadur.fate.v1.lang.type.PointerType;
 import tonkadur.fate.v1.lang.type.Type;
 
 public class AtReference extends Reference
@@ -56,7 +56,7 @@ public class AtReference extends Reference
 
       current_type = parent.get_type();
 
-      if (!(current_type instanceof RefType))
+      if (!(current_type instanceof PointerType))
       {
          ErrorManager.handle
          (
@@ -73,7 +73,7 @@ public class AtReference extends Reference
       }
       else
       {
-         current_type = ((RefType) current_type).get_referenced_type();
+         current_type = ((PointerType) current_type).get_referenced_type();
       }
 
       return new AtReference(origin, current_type, parent);

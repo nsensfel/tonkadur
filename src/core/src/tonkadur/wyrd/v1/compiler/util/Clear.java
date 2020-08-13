@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import tonkadur.wyrd.v1.lang.Register;
+
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.MapType;
 
@@ -59,8 +61,6 @@ public class Clear
          ((MapType) collection.get_target_type()).get_member_type();
 
       iterator = registers.reserve(Type.INT);
-
-      value_of_iterator = new ValueOf(iterator);
 
       /* (set .iterator collection_size) */
       result.add(new SetValue(iterator.get_address(), collection_size));

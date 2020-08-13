@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import tonkadur.wyrd.v1.lang.Register;
+
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.MapType;
 

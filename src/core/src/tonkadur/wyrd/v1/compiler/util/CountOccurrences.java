@@ -3,6 +3,8 @@ package tonkadur.wyrd.v1.compiler.util;
 import java.util.List;
 import java.util.ArrayList;
 
+import tonkadur.wyrd.v1.lang.Register;
+
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
@@ -73,7 +75,7 @@ public class CountOccurrences
       (
          new SetValue
          (
-            index.get_addresss(),
+            index.get_address(),
             Operation.minus(index.get_value(), Constant.ONE)
          )
       );

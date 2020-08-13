@@ -13,6 +13,7 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.PointerType;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
@@ -25,8 +26,8 @@ import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
 
 import tonkadur.wyrd.v1.lang.computation.*;
 
-
 import tonkadur.wyrd.v1.lang.World;
+import tonkadur.wyrd.v1.lang.Register;
 
 public class ComputationCompiler
 implements tonkadur.fate.v1.lang.meta.ComputationVisitor
@@ -84,7 +85,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    {
       if (result_as_address == null)
       {
-         System.err.println("[P] Missing generate_ref()!");
+         System.err.println("[P] Missing generate_address()!");
       }
 
       return result_as_address;
@@ -133,9 +134,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
-   public void visit_at_address
+   public void visit_at_reference
    (
-      final tonkadur.fate.v1.lang.computation.AtAddress n
+      final tonkadur.fate.v1.lang.computation.AtReference n
    )
    throws Throwable
    {
@@ -155,9 +156,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                compiler,
                (
-                  (tonkadur.fate.v1.lang.type.AddressType)
+                  (tonkadur.fate.v1.lang.type.PointerType)
                      n.get_parent().get_type()
-               ).get_addressd_type()
+               ).get_referenced_type()
             )
          );
    }
@@ -258,8 +259,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       else
       {
          final Iterator<Cons<ComputationCompiler, ComputationCompiler>> it;
-         final Register result_register;
-         final Address result_address;
+         final Register result;
          Cons<ComputationCompiler, ComputationCompiler> next;
          List<Instruction> new_value, new_cond;
          Instruction prev_branch;
@@ -442,9 +442,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
-   public void visit_field_address
+   public void visit_field_reference
    (
-      final tonkadur.fate.v1.lang.computation.FieldAddress n
+      final tonkadur.fate.v1.lang.computation.FieldReference n
    )
    throws Throwable
    {
@@ -536,7 +536,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          (
             new SetValue
             (
-               if_else_result.get_addresss(),
+               if_else_result.get_address(),
                if_false_cc.get_computation()
             )
          );
@@ -597,7 +597,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       n.get_collection().get_visited_by(collection_compiler);
       n.get_element().get_visited_by(element_compiler);
 
-      collection_compiler.generate_ref();
+      collection_compiler.generate_address();
 
       assimilate(collection_compiler);
       assimilate(element_compiler);
@@ -1260,7 +1260,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       assimilate(n_cc);
 
-      result_as_computation = n_cc.get_address()
+      result_as_computation = n_cc.get_address();
    }
 
    @Override

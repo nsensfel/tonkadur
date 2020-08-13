@@ -2,13 +2,13 @@ package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.type.RefType;
+import tonkadur.fate.v1.lang.type.PointerType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class RefOperator extends Computation
+public class AddressOperator extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -19,9 +19,13 @@ public class RefOperator extends Computation
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public RefOperator (final Origin origin, final Reference referred)
+   public AddressOperator (final Origin origin, final Reference referred)
    {
-      super(origin, new RefType(origin, referred.get_type(), "auto generated"));
+      super
+      (
+         origin,
+         new PointerType(origin, referred.get_type(), "auto generated")
+      );
       this.referred = referred;
    }
 
@@ -33,7 +37,7 @@ public class RefOperator extends Computation
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_ref_operator(this);
+      cv.visit_address_operator(this);
    }
 
    public Reference get_target ()
@@ -48,7 +52,7 @@ public class RefOperator extends Computation
       final StringBuilder sb = new StringBuilder();
 
       sb.append(origin.toString());
-      sb.append("(Ref ");
+      sb.append("(AddressOf ");
       sb.append(referred.get_name());
       sb.append(") ");
 

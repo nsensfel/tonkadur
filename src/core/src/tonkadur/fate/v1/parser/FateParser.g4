@@ -1482,7 +1482,7 @@ returns [Type result]
          );
 
       $result =
-         new RefType
+         new PointerType
          (
             start_origin,
             ($type.result),
@@ -2349,7 +2349,7 @@ returns [Computation result]
    | REF_KW value_reference WS* R_PAREN
    {
       $result =
-         new RefOperator
+         new AddressOperator
          (
             CONTEXT.get_origin_at
             (

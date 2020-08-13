@@ -2,7 +2,7 @@ package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.type.RefType;
+import tonkadur.fate.v1.lang.type.PointerType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
@@ -21,7 +21,7 @@ public class New extends Computation
    /**** Constructors *********************************************************/
    public New (final Origin origin, final Type t)
    {
-      super(origin, new RefType(origin, t, "auto generated"));
+      super(origin, new PointerType(origin, t, "auto generated"));
       this.target_type = t;
    }
 

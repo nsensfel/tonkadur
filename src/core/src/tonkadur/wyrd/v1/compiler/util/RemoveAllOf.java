@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import tonkadur.wyrd.v1.lang.Register;
+
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
@@ -108,7 +110,11 @@ public class RemoveAllOf
       /* (set .end (- (collection_size) 1) */
       result.add
       (
-         new SetValue(end, Operation.minus(collection_size, Constant.ONE))
+         new SetValue
+         (
+            end.get_address(),
+            Operation.minus(collection_size, Constant.ONE)
+         )
       );
 
       /*

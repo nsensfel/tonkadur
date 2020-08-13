@@ -58,7 +58,7 @@ public interface ComputationVisitor
    public void visit_paragraph (final Paragraph n)
    throws Throwable;
 
-   public void visit_ref_operator (final RefOperator n)
+   public void visit_address_operator (final AddressOperator n)
    throws Throwable;
 
    public void visit_text_with_effect (final TextWithEffect n)
