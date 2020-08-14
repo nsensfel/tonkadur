@@ -1333,7 +1333,49 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final String out_label, in_label;
+      final List<Register> parameters;
+      final Register result_holder;
+      final String context_name;
+
+      out_label = compiler.assembler().generate_label("<lambda_expr#out>");
+      in_label = compiler.assembler().generate_label("<lambda_expr#in>");
+
+      parameters = new ArrayList<Register>();
+
+      context_name = compiler.registers().create_stackable_context_name();
+
+      compiler.registers().create_stackable_context(context_name);
+
+      compiler.registers().push_context(context_name);
+
+      result_holder =
+         compiler.registers().reserve
+         (
+            new PointerType
+            (
+               TypeCompiler.compile
+               (
+                  compiler,
+                  n.get_lambda_function().get_type()
+               )
+            )
+         );
+
+      parameters.add(result_holder);
+
+      for (final
+      compiler.registers().read_parameters(parameters);
+      /* create new context */
+      /* push context */
+
+      /* (mark_after (setpc (label out)) (label in)) */
+      /* cc = compile lambda_expression */
+      /* (set result = cc.get_result())
+      /* (mark_after (merge (exit_instr)) (label out)) */
+      /* pop context */
+
+      /* result = (label in) */
    }
 
    @Override
@@ -1343,7 +1385,67 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler target_line_cc;
+      final List<Computation> parameters;
+      final Register result;
+      final String return_to_label;
+
+      target_line_cc = new ComputationCompiler();
+
+      return_to_label =
+         compiler.assembler().generate_label("<lambda_eval#return_to>");
+
+      n.get_lambda_function_reference().get_visited_by(target_line_cc);
+
+      assimilate(target_line_cc);
+
+      result =
+         compiler.registers().reserve
+         (
+            TypeCompiler.compile(compiler, n.get_type())
+         );
+
+      parameters.add(result.get_address());
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         param.get_visited_by(cc);
+
+         assimilate(cc);
+
+         parameters.add(cc.get_computation());
+      }
+
+      init_instructions.addAll
+      (
+         compiler.registers().store_parameters(parameters);
+      );
+
+      init_instructions.add
+      (
+         compiler.assembler().mark_after
+         (
+            compiler.assembler().merge
+            (
+               compiler.registers().get_visit_context_instructions
+               (
+                  target_line_cc.get_computation(),
+                  return_to_label
+               )
+            ),
+            return_to_label
+         )
+      );
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
    }
 
    @Override

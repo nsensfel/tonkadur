@@ -233,7 +233,11 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final Register r;
+
+      r = compiler.registers().reserve(n.get_type());
+
+      compiler.registers().bind(r, n.get_name());
    }
 
    @Override
@@ -1205,7 +1209,20 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      result.add
+      (
+         compiler.assembler().merge
+         (
+            compiler.registers().get_finalize_context_instructions()
+         )
+      );
+      result.add
+      (
+         compiler.assembler().merge
+         (
+            compiler.registers().get_leave_context_instructions()
+         )
+      );
    }
 
    @Override
@@ -1646,6 +1663,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    throws Throwable
    {
       /* TODO */
+      /* ... handle parameters ... */
+
+      /* init target seq */
+      /* enter target seq */
    }
 
    @Override
@@ -1655,19 +1676,23 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /*
-       * Fate: (sequence_call string)
-       * Wyrd: (set_pc <label string>)
-       */
-      compiler.assembler().add_fixed_name_label(n.get_sequence_name());
+      /* TODO */
+      final String sequence_name;
 
-      result.add
-      (
-         new SetPC
-         (
-            compiler.assembler().get_label_constant(n.get_sequence_name())
-         )
-      );
+      sequence_name = n.get_sequence_name();
+
+      /* ... handle parameters ... */
+
+      if (compiler.registers().get_current_context_name().equals(sequence_name))
+      {
+         /* Special case, we morph into it. */
+      }
+      else
+      {
+         /* init target seq */
+         /* finalize current seq */
+         /* jump to current seq */
+      }
    }
 
    @Override

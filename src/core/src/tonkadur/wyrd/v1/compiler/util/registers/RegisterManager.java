@@ -27,12 +27,16 @@ public class RegisterManager
    protected static final String context_name_prefix = ".context.";
    protected final Map<String, StackableRegisterContext> context_by_name;
    protected final Deque<RegisterContext> context;
-   protected final RegisterContext base_context;
+   protected final RegisterContext base_context, parameter_context;
+   protected final Register next_pc, pc_stack;
    protected int created_contexts;
 
    public RegisterManager ()
    {
       base_context = new RegisterContext("base context");
+      parameter_context = new RegisterContext("parameter context", ".param.");
+      next_pc = base_context.reserve(Type.INT);
+      pc_stack = base_context.reserve(new MapType(Type.INT));
 
       context_by_name = new HashMap<String, StackableRegisterContext>();
       context = new ArrayDeque<RegisterContext>();
@@ -70,6 +74,30 @@ public class RegisterManager
       context_by_name.put(context_name, result);
    }
 
+   public void push_context (final String context_name)
+   {
+      final StackableRegisterContext target;
+
+      target = context_by_name.get(context_name);
+
+      if (target == null)
+      {
+         System.err.println
+         (
+            "[P] Cannot push unknown context '"
+            + context
+            + "'."
+         );
+      }
+
+      context.push(target);
+   }
+
+   public void pop_context ()
+   {
+      context.pop();
+   }
+
    public Register register (final Type t, final String name)
    {
       return context.peekFirst().reserve(t, name);
@@ -99,20 +127,104 @@ public class RegisterManager
       return result;
    }
 
-   public List<Instruction> get_enter_context_instructions
+   public List<Instruction> get_visit_context_instructions
    (
-      final String context_name
+      final Computation enter_at,
+      final Computation leave_to
    )
    {
-      return context_by_name.get(context_name).get_enter_instructions();
+      final List<Instruction> result;
+
+      result = new ArrayList<Instruction>();
+
+      result.add
+      (
+         new SetValue
+         (
+            new RelativeAddress
+            (
+               pc_stack.get_address(),
+               new Size(pc_stack.get_address()),
+               Type.INT
+            ),
+            leave_to
+         )
+      );
+
+      result.add(new SetPC(enter_at));
+
+      return result;
    }
 
-   public List<Instruction> get_leave_context_instructions
+   public List<Instruction> get_jump_to_context_instructions
    (
-      final String context_name
+      final Computation enter_at
    )
    {
-      return context_by_name.get(context_name).get_leave_instructions();
+      final List<Instruction> result;
+
+      result = new ArrayList<Instruction>();
+
+      result.add(new SetPC(enter_at));
+
+      return result;
+   }
+
+   public List<Instruction> get_initialize_context_instructions
+   (
+      final String context_name,
+      final List<Computation> parameters
+   )
+   {
+      return
+         context_by_name.get(context_name).get_initialize_instructions
+         (
+            parameters
+         );
+   }
+
+   public List<Instruction> get_morph_into_context_instructions
+   (
+      final List<Computation> parameters
+   )
+   {
+      return context.peekFirst().get_morph_into_instructions(parameters);
+   }
+
+   public String get_current_context_name ()
+   {
+      return context.peekFirst().get_name();
+   }
+
+   public List<Instruction> get_leave_context_instructions ()
+   {
+      final Address return_to_address;
+      final List<Instruction> result;
+
+      return_to_address =
+         new RelativeAddress
+         (
+            pc_stack.get_address(),
+            new Size(pc_stack.get_address()),
+            Type.INT
+         );
+
+      result = new ArrayList<Instruction>();
+
+      result.add
+      (
+         new SetValue(next_pc.get_address(), new ValueOf(return_to_address))
+      );
+
+      result.add(new Remove(return_to_address));
+      result.add(new SetPC(next.pc.get_value()));
+
+      return result;
+   }
+
+   public List<Instruction> get_finalize_context_instructions ()
+   {
+      return context.peekFirst().get_finalize_instructions();
    }
 
    public Collection<DictType> get_context_structure_types ()
@@ -132,5 +244,61 @@ public class RegisterManager
    public Collection<Register> get_base_registers ()
    {
       return base_context.get_all_registers();
+   }
+
+   public List<Instruction> store_parameters (final List<Computation> params)
+   {
+      final List<Register> used_registers;
+      final List<Instruction> result;
+
+      used_registers = new ArrayList<Register>();
+      result = new ArrayList<Instruction>();
+
+      for (final Computation p: params)
+      {
+         final Register r;
+
+         r = parameters_context.reserve(p.get_type());
+
+         result.add(new SetValue(r.get_address(), p));
+
+         used_registers.add(r);
+      }
+
+      for (final Register r: used_registers)
+      {
+         /* Side-channel attack to pass parameters, because it's convenient. */
+         r.set_is_in_use(false);
+      }
+
+      return result;
+   }
+
+   public List<Instruction> read_parameters (final List<Register> params)
+   {
+      final List<Register> used_registers;
+      final List<Instruction> result;
+
+      used_registers = new ArrayList<Register>();
+      result = new ArrayList<Instruction>();
+
+      for (final Register p: params)
+      {
+         final Register r;
+
+         r = parameters_context.reserve(p.get_type());
+
+         result.add(new SetValue(p.get_address(), r.get_value()));
+
+         used_registers.add(r);
+      }
+
+      for (final Register r: used_registers)
+      {
+         /* Side-channel attack to pass parameters, because it's convenient. */
+         r.set_is_in_use(false);
+      }
+
+      return result;
    }
 }

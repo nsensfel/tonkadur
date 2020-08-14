@@ -27,10 +27,12 @@ import tonkadur.wyrd.v1.lang.type.DictType;
 class StackableRegisterContext extends RegisterContext
 {
    protected final Map<String, Type> context_structure_fields;
+   protected final RegisterContext base_context;
    protected final DictType context_structure;
    protected final Register context_stack_level;
    protected final Register context_stacks;
-   protected final Address current_context_address;
+   protected final Address current_context_address_holder;
+   protected final Computation current_context_address;
 
    public StackableRegisterContext
    (
@@ -39,6 +41,8 @@ class StackableRegisterContext extends RegisterContext
    )
    {
       super(context_name);
+
+      this.base_context = base_context;
 
       context_structure_fields = new HashMap<String, Type>();
 
@@ -51,13 +55,15 @@ class StackableRegisterContext extends RegisterContext
             new MapType(new PointerType(context_structure))
          );
 
-      current_context_address =
+      current_context_address_holder =
          new RelativeAddress
          (
             context_stacks.get_address(),
             new Cast(context_stack_level.get_value(), Type.STRING),
             new PointerType(context_structure)
          );
+
+      current_context_address = new ValueOf(current_context_address_holder);
    }
 
    @Override
@@ -67,7 +73,8 @@ class StackableRegisterContext extends RegisterContext
 
       if (context_structure.get_fields().get(name) != null)
       {
-         System.err.println
+   ;
+   System.err.println
          (
             "[P] Duplicate register '"
             + name
@@ -93,16 +100,40 @@ class StackableRegisterContext extends RegisterContext
          );
    }
 
-   public List<Instruction> get_enter_instructions ()
+   public List<Instruction> get_initialize_instructions ()
    {
       /* TODO */
       return new ArrayList<>();
    }
 
-   public List<Instruction> get_leave_instructions ()
+   public List<Instruction> get_finalize_instructions ()
    {
-      /* TODO */
-      return new ArrayList<>();
+      final List<Instruction> result;
+
+      result = new ArrayList<Instruction>();
+
+      result.add(new Remove(current_context_address));
+      result.add(new Remove(current_context_address_holder));
+
+      result.add
+      (
+         new SetValue
+         (
+            context_stack_level.get_address(),
+            Operation.minus(context_stack_level.get_value(), Constant.ONE)
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            context_stack_level.get_address(),
+            Operation.minus(context_stack_level.get_value(), Constant.ONE)
+         )
+      );
+
+      return result;
    }
 
    public DictType get_structure_type ()
