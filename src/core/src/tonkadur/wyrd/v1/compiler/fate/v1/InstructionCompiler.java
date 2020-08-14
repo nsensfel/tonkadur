@@ -1662,11 +1662,58 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
-      /* ... handle parameters ... */
+      final List<ComputationCompiler> parameters;
+      final String return_to_label;
 
-      /* init target seq */
-      /* enter target seq */
+      return_to_label =
+         compiler.assembler().generate_label("<seq_call#return_to>");
+
+      parameters = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         param.get_visited_by(cc);
+
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
+
+         parameters.add(cc.get_computation());
+      }
+
+      result.addAll(compiler.registers().store_parameters(parameters));
+
+      result.add
+      (
+         compiler.assembler().mark_after
+         (
+            compiler.assembler().merge
+            (
+               compiler.registers().get_visit_context_instructions
+               (
+                  compiler.assembler().get_label_constant
+                  (
+                     n.get_sequence_name()
+                  ),
+                  return_to_label
+               )
+            ),
+            return_to_label
+         )
+      );
+
+      for (final ComputationCompiler cc: parameters)
+      {
+         cc.release_registers();
+      }
    }
 
    @Override
@@ -1676,22 +1723,42 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
-      final String sequence_name;
+      final List<ComputationCompiler> parameters;
 
-      sequence_name = n.get_sequence_name();
+      parameters = new ArrayList<Computation>();
 
-      /* ... handle parameters ... */
-
-      if (compiler.registers().get_current_context_name().equals(sequence_name))
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
+      )
       {
-         /* Special case, we morph into it. */
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         param.get_visited_by(cc);
+
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
+
+         parameters.add(cc.get_computation());
       }
-      else
+
+      result.addAll(compiler.registers().store_parameters(parameters));
+
+      result.addAll
+      (
+         compiler.registers().get_jump_to_context_instructions
+         (
+            compiler.assembler().get_label_constant(n.get_sequence_name())
+         )
+      );
+
+      for (final ComputationCompiler cc: parameters)
       {
-         /* init target seq */
-         /* finalize current seq */
-         /* jump to current seq */
+         cc.release_registers();
       }
    }
 

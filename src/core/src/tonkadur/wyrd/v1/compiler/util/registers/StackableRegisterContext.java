@@ -73,8 +73,7 @@ class StackableRegisterContext extends RegisterContext
 
       if (context_structure.get_fields().get(name) != null)
       {
-   ;
-   System.err.println
+         System.err.println
          (
             "[P] Duplicate register '"
             + name
@@ -102,8 +101,29 @@ class StackableRegisterContext extends RegisterContext
 
    public List<Instruction> get_initialize_instructions ()
    {
-      /* TODO */
-      return new ArrayList<>();
+      final List<Instruction> result;
+
+      result = new ArrayList<Instruction>();
+
+      result.add
+      (
+         new SetValue
+         (
+            context_stack_level.get_address(),
+            Operation.plus(context_stack_level.get_value, Constant.ONE)
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            current_context_address_holder,
+            new New(context_structure)
+         )
+      );
+
+      return result;
    }
 
    public List<Instruction> get_finalize_instructions ()

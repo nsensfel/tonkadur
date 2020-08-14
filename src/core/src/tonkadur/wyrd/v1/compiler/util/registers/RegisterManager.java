@@ -172,23 +172,11 @@ public class RegisterManager
 
    public List<Instruction> get_initialize_context_instructions
    (
-      final String context_name,
-      final List<Computation> parameters
+      final String context_name
    )
    {
       return
-         context_by_name.get(context_name).get_initialize_instructions
-         (
-            parameters
-         );
-   }
-
-   public List<Instruction> get_morph_into_context_instructions
-   (
-      final List<Computation> parameters
-   )
-   {
-      return context.peekFirst().get_morph_into_instructions(parameters);
+         context_by_name.get(context_name).get_initialize_instructions();
    }
 
    public String get_current_context_name ()
