@@ -16,11 +16,18 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.Constant;
+import tonkadur.wyrd.v1.lang.computation.ValueOf;
+import tonkadur.wyrd.v1.lang.computation.Size;
+
+import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.SetPC;
+import tonkadur.wyrd.v1.lang.instruction.Remove;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.MapType;
 import tonkadur.wyrd.v1.lang.type.DictType;
-
 
 public class RegisterManager
 {
@@ -205,7 +212,7 @@ public class RegisterManager
       );
 
       result.add(new Remove(return_to_address));
-      result.add(new SetPC(next.pc.get_value()));
+      result.add(new SetPC(next_pc.get_value()));
 
       return result;
    }
@@ -246,7 +253,7 @@ public class RegisterManager
       {
          final Register r;
 
-         r = parameters_context.reserve(p.get_type());
+         r = parameter_context.reserve(p.get_type());
 
          result.add(new SetValue(r.get_address(), p));
 
@@ -274,7 +281,7 @@ public class RegisterManager
       {
          final Register r;
 
-         r = parameters_context.reserve(p.get_type());
+         r = parameter_context.reserve(p.get_type());
 
          result.add(new SetValue(p.get_address(), r.get_value()));
 

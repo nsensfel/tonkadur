@@ -14,9 +14,15 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.Operation;
 import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Cast;
+import tonkadur.wyrd.v1.lang.computation.New;
+import tonkadur.wyrd.v1.lang.computation.ValueOf;
+
+import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.Remove;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.PointerType;
@@ -32,7 +38,7 @@ class StackableRegisterContext extends RegisterContext
    protected final Register context_stack_level;
    protected final Register context_stacks;
    protected final Address current_context_address_holder;
-   protected final Computation current_context_address;
+   protected final Address current_context_address;
 
    public StackableRegisterContext
    (
@@ -63,7 +69,12 @@ class StackableRegisterContext extends RegisterContext
             new PointerType(context_structure)
          );
 
-      current_context_address = new ValueOf(current_context_address_holder);
+      current_context_address =
+            new Address
+            (
+               new ValueOf(current_context_address_holder),
+               context_structure
+            );
    }
 
    @Override
@@ -110,7 +121,7 @@ class StackableRegisterContext extends RegisterContext
          new SetValue
          (
             context_stack_level.get_address(),
-            Operation.plus(context_stack_level.get_value, Constant.ONE)
+            Operation.plus(context_stack_level.get_value(), Constant.ONE)
          )
       );
 
@@ -126,6 +137,7 @@ class StackableRegisterContext extends RegisterContext
       return result;
    }
 
+   @Override
    public List<Instruction> get_finalize_instructions ()
    {
       final List<Instruction> result;

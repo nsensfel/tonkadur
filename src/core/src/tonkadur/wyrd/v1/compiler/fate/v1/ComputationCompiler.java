@@ -17,6 +17,7 @@ import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.PointerType;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
@@ -1336,7 +1337,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       final String out_label, in_label;
       final List<Register> parameters;
       final Register result_holder;
-      final ComputationCompiler expr_cc;
+      final ComputationCompiler expr_compiler;
+      final Type result_type;
       final String context_name;
 
       out_label = compiler.assembler().generate_label("<lambda_expr#out>");
@@ -1346,9 +1348,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       (
          compiler.assembler().mark_after
          (
-            new SetPC(compiler.assembler().get_label_constant(out_label))
-         ),
-         in_label
+            new SetPC(compiler.assembler().get_label_constant(out_label)),
+            in_label
+         )
       );
 
       parameters = new ArrayList<Register>();
@@ -1364,18 +1366,10 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       compiler.registers().push_context(context_name);
 
-      result_holder =
-         reserve
-         (
-            new PointerType
-            (
-               TypeCompiler.compile
-               (
-                  compiler,
-                  n.get_lambda_function().get_type()
-               )
-            )
-         );
+      result_type =
+         TypeCompiler.compile(compiler, n.get_lambda_function().get_type());
+
+      result_holder = reserve(new PointerType(result_type));
 
       parameters.add(result_holder);
 
@@ -1387,7 +1381,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          parameters.add(r);
 
-         compiler.registers().bind(r, param.get_name());
+         compiler.registers().bind(param.get_name(), r);
       }
 
       compiler.registers().read_parameters(parameters);
@@ -1403,14 +1397,14 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       (
          new SetValue
          (
-            result_holder.get_value(),
+            new Address(result_holder.get_value(), result_type),
             expr_compiler.get_computation()
          )
       );
 
       init_instructions.addAll
       (
-         compiler.registers().get_finalize_context_instructions(context_name)
+         compiler.registers().get_finalize_context_instructions()
       );
 
       init_instructions.add
@@ -1419,13 +1413,13 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          (
             compiler.assembler().merge
             (
-               compiler.registers().get_exit_context_instructions()
+               compiler.registers().get_leave_context_instructions()
             ),
             out_label
          )
       );
 
-      compiler.registers().pop_context(context_name);
+      compiler.registers().pop_context();
 
       result_as_computation = compiler.assembler().get_label_constant(in_label);
    }
@@ -1442,7 +1436,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       final Register result;
       final String return_to_label;
 
-      target_line_cc = new ComputationCompiler();
+      parameters = new ArrayList<Computation>();
+      target_line_cc = new ComputationCompiler(compiler);
 
       return_to_label =
          compiler.assembler().generate_label("<lambda_eval#return_to>");
@@ -1473,7 +1468,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       init_instructions.addAll
       (
-         compiler.registers().store_parameters(parameters);
+         compiler.registers().store_parameters(parameters)
       );
 
       init_instructions.add
@@ -1485,7 +1480,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
                compiler.registers().get_visit_context_instructions
                (
                   target_line_cc.get_computation(),
-                  return_to_label
+                  compiler.assembler().get_label_constant(return_to_label)
                )
             ),
             return_to_label

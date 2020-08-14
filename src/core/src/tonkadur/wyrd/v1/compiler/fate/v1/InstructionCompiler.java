@@ -235,9 +235,13 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    {
       final Register r;
 
-      r = compiler.registers().reserve(n.get_type());
+      r =
+         compiler.registers().reserve
+         (
+            TypeCompiler.compile(compiler, n.get_variable().get_type())
+         );
 
-      compiler.registers().bind(r, n.get_name());
+      compiler.registers().bind(n.get_variable().get_name(), r);
    }
 
    @Override
@@ -1662,12 +1666,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      final List<ComputationCompiler> parameters;
+      final List<ComputationCompiler> parameter_ccs;
+      final List<Computation> parameters;
+
       final String return_to_label;
 
       return_to_label =
          compiler.assembler().generate_label("<seq_call#return_to>");
 
+      parameter_ccs = new ArrayList<ComputationCompiler>();
       parameters = new ArrayList<Computation>();
 
       for
@@ -1687,6 +1694,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          }
 
          parameters.add(cc.get_computation());
+         parameter_ccs.add(cc);
       }
 
       result.addAll(compiler.registers().store_parameters(parameters));
@@ -1703,14 +1711,14 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
                   (
                      n.get_sequence_name()
                   ),
-                  return_to_label
+                  compiler.assembler().get_label_constant(return_to_label)
                )
             ),
             return_to_label
          )
       );
 
-      for (final ComputationCompiler cc: parameters)
+      for (final ComputationCompiler cc: parameter_ccs)
       {
          cc.release_registers();
       }
@@ -1723,8 +1731,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      final List<ComputationCompiler> parameters;
+      final List<ComputationCompiler> parameter_ccs;
+      final List<Computation> parameters;
 
+      parameter_ccs = new ArrayList<ComputationCompiler>();
       parameters = new ArrayList<Computation>();
 
       for
@@ -1744,6 +1754,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          }
 
          parameters.add(cc.get_computation());
+         parameter_ccs.add(cc);
       }
 
       result.addAll(compiler.registers().store_parameters(parameters));
@@ -1756,7 +1767,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          )
       );
 
-      for (final ComputationCompiler cc: parameters)
+      for (final ComputationCompiler cc: parameter_ccs)
       {
          cc.release_registers();
       }

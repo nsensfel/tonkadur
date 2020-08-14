@@ -6,17 +6,20 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 
+import tonkadur.wyrd.v1.lang.meta.Instruction;
+
 import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
 class RegisterContext
 {
-   protected static final String name_prefix = ".anon.";
+   protected static final String default_name_prefix = ".anon.";
    protected final String name;
    protected final Map<String, Register> register_by_name;
    protected final Map<String, Register> aliased_registers;
    protected final Map<Type, List<Register>> anonymous_register_by_type;
+   protected final String name_prefix;
    protected int generated_registers;
 
    public RegisterContext (final String name)
@@ -26,8 +29,26 @@ class RegisterContext
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
       anonymous_register_by_type = new HashMap<Type, List<Register>>();
+      name_prefix = default_name_prefix;
 
       generated_registers = 0;
+   }
+
+   public RegisterContext (final String name, final String name_prefix)
+   {
+      this.name = name;
+
+      register_by_name = new HashMap<String, Register>();
+      aliased_registers = new HashMap<String, Register>();
+      anonymous_register_by_type = new HashMap<Type, List<Register>>();
+      this.name_prefix = name_prefix;
+
+      generated_registers = 0;
+   }
+
+   public String get_name ()
+   {
+      return name;
    }
 
    public Collection<Register> get_all_registers ()
@@ -140,5 +161,10 @@ class RegisterContext
    protected Register create_register (final Type t, final String name)
    {
       return new Register(t, name);
+   }
+
+   public List<Instruction> get_finalize_instructions ()
+   {
+      return new ArrayList();
    }
 }
