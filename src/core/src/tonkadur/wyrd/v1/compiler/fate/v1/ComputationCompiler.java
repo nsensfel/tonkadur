@@ -1384,8 +1384,10 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          compiler.registers().bind(param.get_name(), r);
       }
 
-      compiler.registers().read_parameters(parameters);
-
+      init_instructions.addAll
+      (
+         compiler.registers().read_parameters(parameters)
+      );
 
       expr_compiler = new ComputationCompiler(compiler);
 
