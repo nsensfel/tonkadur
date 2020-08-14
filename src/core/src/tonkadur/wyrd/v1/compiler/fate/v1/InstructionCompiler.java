@@ -1677,6 +1677,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       parameter_ccs = new ArrayList<ComputationCompiler>();
       parameters = new ArrayList<Computation>();
 
+      compiler.assembler().add_fixed_name_label(n.get_sequence_name());
+
       for
       (
          final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
@@ -1737,6 +1739,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       parameter_ccs = new ArrayList<ComputationCompiler>();
       parameters = new ArrayList<Computation>();
 
+      compiler.assembler().add_fixed_name_label(n.get_sequence_name());
+
       for
       (
          final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
@@ -1763,7 +1767,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       (
          compiler.registers().get_jump_to_context_instructions
          (
-            compiler.assembler().get_label_constant(n.get_sequence_name())
+            compiler.assembler().get_label_constant
+            (
+               n.get_sequence_name()
+            )
          )
       );
 

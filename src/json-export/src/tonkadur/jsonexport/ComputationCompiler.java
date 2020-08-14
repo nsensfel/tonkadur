@@ -142,7 +142,7 @@ public class ComputationCompiler implements ComputationVisitor
       }
    }
 
-   public void visit_ref (final Ref n)
+   public void visit_address (final Address n)
    throws Throwable
    {
       final ComputationCompiler cc;
@@ -153,12 +153,12 @@ public class ComputationCompiler implements ComputationVisitor
 
       result = new JSONObject();
 
-      result.put("category", "ref");
+      result.put("category", "address");
       result.put("target_type", Translator.compile_type(n.get_type()));
       result.put("address", cc.get_result());
    }
 
-   public void visit_relative_ref (final RelativeRef n)
+   public void visit_relative_address (final RelativeAddress n)
    throws Throwable
    {
       final ComputationCompiler cc, param_cc;
@@ -171,7 +171,7 @@ public class ComputationCompiler implements ComputationVisitor
 
       result = new JSONObject();
 
-      result.put("category", "relative_ref");
+      result.put("category", "relative_address");
       result.put("type", Translator.compile_type(n.get_type()));
       result.put("base", cc.get_result());
       result.put("extra", param_cc.get_result());

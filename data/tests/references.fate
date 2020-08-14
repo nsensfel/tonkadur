@@ -1,15 +1,13 @@
 (fate_version 1)
 
-(require include/data_types.fate)
-
-(def_var (ptr int) alloc_i)
+(global (ptr int) alloc_i)
 
 (set alloc_i (new int))
 (set (at alloc_i) 2)
 
 (assert (= (at (var alloc_i)) 2) FAILED: set at A)
 
-(def_var (ptr (ptr int)) i_ptr_ptr)
+(global (ptr (ptr int)) i_ptr_ptr)
 (set i_ptr_ptr (ptr alloc_i))
 (set (at (at i_ptr_ptr)) 4)
 (assert (= (at (var alloc_i)) 4) FAILED: set at B)

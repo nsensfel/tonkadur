@@ -156,15 +156,6 @@ class StackableRegisterContext extends RegisterContext
          )
       );
 
-      result.add
-      (
-         new SetValue
-         (
-            context_stack_level.get_address(),
-            Operation.minus(context_stack_level.get_value(), Constant.ONE)
-         )
-      );
-
       return result;
    }
 

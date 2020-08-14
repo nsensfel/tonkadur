@@ -10,7 +10,7 @@ import org.json.simple.JSONObject;
 
 import tonkadur.wyrd.v1.lang.World;
 import tonkadur.wyrd.v1.lang.type.*;
-import tonkadur.wyrd.v1.lang.Variable;
+import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
@@ -47,16 +47,15 @@ public class Translator
 
       for
       (
-         final Map.Entry<String, Variable> e:
-            wyrd_world.get_variables().entrySet()
+         final Register e: wyrd_world.get_registers()
       )
       {
          final JSONObject obj;
 
          obj = new JSONObject();
 
-         obj.put("name", e.getKey());
-         obj.put("type", compile_type(e.getValue().get_type()));
+         obj.put("name", e.get_name());
+         obj.put("type", compile_type(e.get_type()));
 
          result.add(obj);
       }

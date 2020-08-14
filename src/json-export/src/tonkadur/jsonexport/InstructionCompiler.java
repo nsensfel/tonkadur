@@ -103,7 +103,7 @@ public class InstructionCompiler implements InstructionVisitor
 
       cc = new ComputationCompiler();
 
-      n.get_reference().get_visited_by(cc);
+      n.get_address().get_visited_by(cc);
 
       result = new JSONObject();
 
@@ -142,7 +142,7 @@ public class InstructionCompiler implements InstructionVisitor
       ref_cc = new ComputationCompiler();
       val_cc = new ComputationCompiler();
 
-      n.get_reference().get_visited_by(ref_cc);
+      n.get_address().get_visited_by(ref_cc);
       n.get_value().get_visited_by(val_cc);
 
       result = new JSONObject();

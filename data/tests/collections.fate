@@ -1,14 +1,12 @@
 (fate_version 1)
 
-(require include/data_types.fate)
+(global (list int) int_list_a)
+(global (list int) int_list_b)
+(global (list int) int_list_c)
 
-(declare_variable int_list int_list_a)
-(declare_variable int_list int_list_b)
-(declare_variable int_list int_list_c)
-
-(declare_variable int_set int_set_a)
-(declare_variable int_set int_set_b)
-(declare_variable int_set int_set_c)
+(global (set int) int_set_a)
+(global (set int) int_set_b)
+(global (set int) int_set_c)
 
 (assert (= 0 (size (var int_list_a))) FAILED: size list A)
 (assert (= 0 (size (var int_set_a))) FAILED: size set A)

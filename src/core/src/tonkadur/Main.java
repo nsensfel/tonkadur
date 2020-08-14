@@ -59,6 +59,8 @@ public class Main
          tp.post_fate_parsing(fate_world);
       }
 
+      fate_world.assert_sanity();
+
       wyrd_world = new tonkadur.wyrd.v1.lang.World();
 
       for (final TonkadurPlugin tp: plugins)

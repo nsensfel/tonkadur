@@ -18,6 +18,7 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.computation.Address;
 import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.Constant;
+import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 import tonkadur.wyrd.v1.lang.computation.Size;
 
@@ -151,7 +152,7 @@ public class RegisterManager
             new RelativeAddress
             (
                pc_stack.get_address(),
-               new Size(pc_stack.get_address()),
+               new Cast(new Size(pc_stack.get_address()), Type.STRING),
                Type.INT
             ),
             leave_to
@@ -200,7 +201,7 @@ public class RegisterManager
          new RelativeAddress
          (
             pc_stack.get_address(),
-            new Size(pc_stack.get_address()),
+            new Cast(new Size(pc_stack.get_address()), Type.STRING),
             Type.INT
          );
 

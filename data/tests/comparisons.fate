@@ -8,13 +8,11 @@
    FAILED: string comparison C
 )
 
-(declare_ptr_type int int_ptr)
+(global int i)
+(global (ptr int) i_ptr)
 
-(def_var int i)
-(def_var int_ptr i_ptr)
-
-(def_var int j)
-(def_var int_ptr j_ptr)
+(global int j)
+(global (ptr int) j_ptr)
 
 (set i_ptr (ptr i))
 (set j_ptr (ptr j))
@@ -31,7 +29,7 @@
    (int b)
 )
 
-(def_var test_dict_t td)
+(global test_dict_t td)
 
 (set i_ptr (ptr td.a))
 (set j_ptr (ptr td.b))

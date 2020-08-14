@@ -100,8 +100,9 @@ returns [List<Instruction> result]
 first_level_fate_instr:
    DEFINE_SEQUENCE_KW
       new_reference_name
+      WS*
       (
-         L_PAREN WS+ variable_list WS* R_PAREN
+         L_PAREN WS* variable_list WS* R_PAREN
          {
             final Map<String, Variable> variable_map;
 
@@ -817,6 +818,8 @@ returns [Instruction result]
             ($new_reference_name.result),
             ($general_fate_sequence.result)
          );
+
+      variable_map.remove(($new_reference_name.result));
    }
 
    | EVENT_KW WORD WS+ value_list WS* R_PAREN
