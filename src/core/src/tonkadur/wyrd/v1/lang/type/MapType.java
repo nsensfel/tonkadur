@@ -38,4 +38,15 @@ public class MapType extends Type
    {
       return name;
    }
+
+   @Override
+   public boolean equals (final Object o)
+   {
+      if (o instanceof MapType)
+      {
+         return ((MapType) o).member_type.equals(member_type);
+      }
+
+      return false;
+   }
 }

@@ -17,6 +17,7 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
 import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
+import tonkadur.wyrd.v1.lang.computation.Operation;
 import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
@@ -201,7 +202,15 @@ public class RegisterManager
          new RelativeAddress
          (
             pc_stack.get_address(),
-            new Cast(new Size(pc_stack.get_address()), Type.STRING),
+            new Cast
+            (
+               Operation.minus
+               (
+                  new Size(pc_stack.get_address()),
+                  Constant.ONE
+               ),
+               Type.STRING
+            ),
             Type.INT
          );
 
@@ -256,6 +265,16 @@ public class RegisterManager
 
          r = parameter_context.reserve(p.get_type());
 
+         System.out.println
+         (
+            "[D] Storing param ("
+            + p.get_type().toString()
+            + ") "
+            + r.get_name()
+            + " <- "
+            + p.toString()
+         );
+
          result.add(new SetValue(r.get_address(), p));
 
          used_registers.add(r);
@@ -284,6 +303,15 @@ public class RegisterManager
 
          r = parameter_context.reserve(p.get_type());
 
+         System.out.println
+         (
+            "[D] Reading param ("
+            + p.get_type().toString()
+            + ") "
+            + p.get_name()
+            + " <- "
+            + r.get_name()
+         );
          result.add(new SetValue(p.get_address(), r.get_value()));
 
          used_registers.add(r);

@@ -1,0 +1,158 @@
+(fate_version 1)
+
+(global int test_var)
+
+(set test_var 0)
+
+(define_sequence seq0 ()
+   (set test_var 1)
+)
+
+(assert (= (var test_var) 0) FAILED: sequence A)
+
+(call seq0)
+
+(assert (= (var test_var) 1) FAILED: sequence B)
+
+(set test_var 0)
+
+(define_sequence seq1 ()
+   (set test_var (+ 1 (var test_var)))
+   (if (< (var test_var) 6)
+      (call seq1)
+   )
+)
+
+(call seq1)
+
+(assert (= (var test_var) 6) FAILED: sequence C)
+
+(set test_var 0)
+
+(define_sequence seq2 ()
+   (local int a)
+   (set a 2)
+   (set test_var (+ (var a) (var test_var)))
+   (if (< (var test_var) 8)
+      (call seq2)
+   )
+)
+
+(call seq2)
+
+(assert (= (var test_var) 8) FAILED: sequence D)
+
+(set test_var 0)
+
+(define_sequence seq3 (((ptr int) a_ptr))
+   (set (at a_ptr) 2)
+)
+
+(call seq3 (ptr test_var))
+
+(assert (= (var test_var) 2) FAILED: sequence E)
+
+(set test_var 0)
+
+(define_sequence index_of_loop
+   (
+      ((ptr int) result_holder)
+      ((list int) collection)
+      (int target)
+   )
+   (local int collection_size)
+   (local int i)
+
+   (set collection_size (size collection))
+
+   (for (set i 0) (< (var i) (var collection_size)) (set i (+ (var i) 1))
+      (if (= (access collection (var i)) (var target))
+         (
+            (set (at result_holder) (var i))
+            (done)
+         )
+      )
+   )
+   (set (at result_holder) -1)
+)
+
+(global (list int) l0)
+
+(add 0 l0)
+(add 1 l0)
+(add 2 l0)
+(add 3 l0)
+(add 4 l0)
+(add 5 l0)
+
+(call index_of_loop (ptr test_var) (var l0) 5)
+
+(assert (= (var test_var) 5) FAILED: sequence E)
+
+(call index_of_loop (ptr test_var) (var l0) 6)
+
+(assert (= (var test_var) -1) FAILED: sequence F)
+
+(define_sequence index_of_jump
+   (
+      ((ptr int) result_holder)
+      ((list int) collection)
+      (int target)
+      (int i)
+      (int collection_size)
+   )
+   (ifelse (= (var i) (var collection_size))
+      (set (at result_holder) -1)
+      (ifelse (= (access collection (var i)) (var target))
+         (set (at result_holder) (var i))
+         (jump index_of_jump
+            (var result_holder)
+            (var collection)
+            (var target)
+            (+ (var i) 1)
+            (var collection_size)
+         )
+      )
+   )
+)
+
+(call index_of_jump (ptr test_var) (var l0) 5 0 (size l0))
+
+(assert (= (var test_var) 5) FAILED: sequence G)
+
+(call index_of_jump (ptr test_var) (var l0) 6 0 (size l0))
+
+(assert (= (var test_var) -1) FAILED: sequence H)
+
+(define_sequence index_of_call
+   (
+      ((ptr int) result_holder)
+      ((list int) collection)
+      (int target)
+      (int i)
+      (int collection_size)
+   )
+   (ifelse (= (var i) (var collection_size))
+      (set (at result_holder) -1)
+      (ifelse (= (access collection (var i)) (var target))
+         (set (at result_holder) (var i))
+         (call index_of_call
+            (var result_holder)
+            (var collection)
+            (var target)
+            (+ (var i) 1)
+            (var collection_size)
+         )
+      )
+   )
+)
+
+(call index_of_call (ptr test_var) (var l0) 5 0 (size l0))
+
+(assert (= (var test_var) 5) FAILED: sequence I)
+
+(call index_of_call (ptr test_var) (var l0) 6 0 (size l0))
+
+(assert (= (var test_var) -1) FAILED: sequence J)
+
+(end)

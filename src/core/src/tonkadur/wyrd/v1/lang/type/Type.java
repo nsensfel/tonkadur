@@ -37,4 +37,21 @@ public class Type
    {
       return name;
    }
+
+   @Override
+   public int hashCode ()
+   {
+      return toString().hashCode();
+   }
+
+   @Override
+   public boolean equals (final Object o)
+   {
+      if (o instanceof Type)
+      {
+         return ((Type) o).toString().equals(toString());
+      }
+
+      return false;
+   }
 }

@@ -23,4 +23,15 @@ public class PointerType extends Type
    {
       return name;
    }
+
+   @Override
+   public boolean equals (final Object o)
+   {
+      if (o instanceof PointerType)
+      {
+         return ((PointerType) o).target_type.equals(target_type);
+      }
+
+      return false;
+   }
 }
