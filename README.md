@@ -12,7 +12,7 @@ your stories using a feature rich language without having to worry about the
 implications when it comes time to add support for it to your engine.
 
 ### Sample:
-         (define_sequence in_your_room
+         (define_sequence in_your_room ()
             (ifelse
                (is_member visited_your_room progress)
                (text_effect narrator
@@ -32,11 +32,11 @@ implications when it comes time to add support for it to your engine.
             (player_choice
                (
                   ( Look for healing items )
-                  (sequence look_for_healing_items)
+                  (jump_to look_for_healing_items)
                )
                (
                   ( No time! Let's go adventuring! )
-                  (sequence leave_your_room)
+                  (jump_to leave_your_room)
                )
             )
          )
