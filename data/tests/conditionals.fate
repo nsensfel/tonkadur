@@ -1,5 +1,6 @@
 (fate_version 1)
 
+(global (list int) test_list)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; COMPUTATIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -45,58 +46,154 @@
    )
    FAILED: computation cond D
 )
+(assert
+   (cond
+      ((false) (false))
+      ((true)
+         (cond
+            ((false) (false))
+            ((true) (not (is_member 3 test_list)))
+            ((true) (false))
+         )
+      )
+      ((true) (false))
+   )
+   FAILED: computation cond E
+)
+(assert
+   (cond
+      ((false) (false))
+      ((false) (false))
+      ((true)
+         (cond
+            ((false) (false))
+            ((true) (not (is_member 3 test_list)))
+            ((true) (false))
+         )
+      )
+   )
+   FAILED: computation cond F
+)
 
 ;; COMPUTATION SWITCH
-;; TODO: re-enable. Currently not implemented in Wyrd compiler
-;;(assert
-;;   (switch 3
-;;      (0 (false))
-;;      (1 (false))
-;;      (3 (true))
-;;      (2 (false))
-;;      (false)
-;;   )
-;;   FAILED: computation switch A
-;;)
-;;(assert
-;;   (switch 3
-;;      (0 (false))
-;;      (1 (false))
-;;      (2 (false))
-;;      (true)
-;;   )
-;;   FAILED: computation switch B
-;;)
-;;(assert
-;;   (switch 3
-;;      (0 (false))
-;;      (1 (false))
-;;      (2 (false))
-;;      (switch 2
-;;         (0 (false))
-;;         (1 (false))
-;;         (2 (true))
-;;         (false)
-;;      )
-;;   )
-;;   FAILED: computation switch C
-;;)
-;;(assert
-;;   (switch 3
-;;      (0 (false))
-;;      (1 (false))
-;;      (2
-;;         (switch 1
-;;            (0 (false))
-;;            (2 (false))
-;;            (1 (true))
-;;            (false)
-;;         )
-;;      )
-;;      (false)
-;;   )
-;;   FAILED: computation switch D
-;;)
+(assert
+   (switch 3
+      (0 (false))
+      (1 (false))
+      (3 (true))
+      (2 (false))
+      (false)
+   )
+   FAILED: computation switch A
+)
+
+(assert
+   (switch 3
+      (0 (false))
+      (1 (false))
+      (2 (false))
+      (3 (true))
+      (false)
+   )
+   FAILED: computation switch A BIS
+)
+(assert
+   (switch 3
+      (0 (false))
+      (1 (false))
+      (2 (false))
+      (true)
+   )
+   FAILED: computation switch B
+)
+(assert
+   (switch 3
+      (0 (false))
+      (1 (false))
+      (2 (false))
+      (switch 2
+         (0 (false))
+         (1 (false))
+         (2 (true))
+         (false)
+      )
+   )
+   FAILED: computation switch C
+)
+(assert
+   (switch 2
+      (0 (false))
+      (1 (false))
+      (2
+         (switch 1
+            (0 (false))
+            (2 (false))
+            (1 (true))
+            (false)
+         )
+      )
+      (false)
+   )
+   FAILED: computation switch D
+)
+(assert
+   (switch 4
+      (0 (false))
+      (1 (false))
+      (4
+         (switch 44
+            (0 (false))
+            (2 (false))
+            (true)
+         )
+      )
+      (false)
+   )
+   FAILED: computation switch D BIS
+)
+(assert
+   (switch 4
+      (0 (false))
+      (1 (false))
+      (4 (not (is_member 3 test_list)))
+      (false)
+   )
+   FAILED: computation switch D BIS BIS
+)
+(assert
+   (switch 4
+      (4 (not (is_member 3 test_list)))
+      (0 (false))
+      (1 (false))
+      (false)
+   )
+   FAILED: computation switch D BIS BIS BIS
+)
+(assert
+   (switch 4
+      (0 (false))
+      (1 (false))
+      (3 (false))
+      (not (is_member 3 test_list))
+   )
+   FAILED: computation switch D BIS BIS BIS BIS
+)
+(assert
+   (switch 1
+      (0 (false))
+      (1
+         (switch 2
+            (0 (false))
+            (1 (false))
+            (2 (true))
+            (false)
+         )
+      )
+      (2 (false))
+      (false)
+   )
+   FAILED: computation switch E
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; INSTRUCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

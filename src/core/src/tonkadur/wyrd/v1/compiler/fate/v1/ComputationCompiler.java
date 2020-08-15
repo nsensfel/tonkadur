@@ -1213,7 +1213,156 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler target_cc, default_cc;
+      final List<Cons<ComputationCompiler, ComputationCompiler>> cc_list;
+      boolean is_safe;
+
+      target_cc = new ComputationCompiler(compiler);
+      default_cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(target_cc);
+
+      target_cc.generate_address();
+
+      assimilate(target_cc);
+
+      cc_list = new ArrayList<Cons<ComputationCompiler, ComputationCompiler>>();
+      is_safe = true;
+
+      n.get_default().get_visited_by(default_cc);
+
+      for
+      (
+         final Cons
+         <
+            tonkadur.fate.v1.lang.meta.Computation,
+            tonkadur.fate.v1.lang.meta.Computation
+         >
+         branch:
+            n.get_branches()
+      )
+      {
+         final ComputationCompiler candidate_cc, val_cc;
+
+         candidate_cc = new ComputationCompiler(compiler);
+         val_cc = new ComputationCompiler(compiler);
+
+         branch.get_car().get_visited_by(candidate_cc);
+         branch.get_cdr().get_visited_by(val_cc);
+
+         is_safe = is_safe && !candidate_cc.has_init() && !val_cc.has_init();
+
+         reserved_registers.addAll(candidate_cc.reserved_registers);
+         reserved_registers.addAll(val_cc.reserved_registers);
+
+         cc_list.add(new Cons(candidate_cc, val_cc));
+      }
+
+      is_safe = is_safe && !default_cc.has_init();
+      reserved_registers.addAll(default_cc.reserved_registers);
+
+      Collections.reverse(cc_list);
+
+      if (is_safe)
+      {
+         final Iterator<Cons<ComputationCompiler, ComputationCompiler>> it;
+
+         it = cc_list.iterator();
+
+         result_as_computation = default_cc.get_computation();
+
+         while (it.hasNext())
+         {
+            final Cons<ComputationCompiler, ComputationCompiler> next;
+
+            next = it.next();
+
+            result_as_computation =
+               new IfElseComputation
+               (
+                  Operation.equals
+                  (
+                     next.get_car().get_computation(),
+                     target_cc.get_computation()
+                  ),
+                  next.get_cdr().get_computation(),
+                  result_as_computation
+               );
+         }
+      }
+      else
+      {
+         final Iterator<Cons<ComputationCompiler, ComputationCompiler>> it;
+         final Register result;
+         Cons<ComputationCompiler, ComputationCompiler> next;
+         List<Instruction> new_value, new_cond;
+         Instruction prev_branch;
+
+         it = cc_list.iterator();
+
+
+         new_value = new ArrayList<Instruction>();
+
+         if (default_cc.has_init())
+         {
+            new_value.add(default_cc.get_init());
+         }
+
+         result = reserve(default_cc.get_computation().get_type());
+         result_as_address = result.get_address();
+
+         new_value.add
+         (
+            new SetValue(result_as_address, default_cc.get_computation())
+         );
+
+         prev_branch = compiler.assembler().merge(new_value);
+
+         while (it.hasNext())
+         {
+            next = it.next();
+
+            new_value = new ArrayList<Instruction>();
+            new_cond = new ArrayList<Instruction>();
+
+            if (next.get_car().has_init())
+            {
+               new_cond.add(next.get_car().get_init());
+            }
+
+            if (next.get_cdr().has_init())
+            {
+               new_value.add(next.get_cdr().get_init());
+            }
+
+            new_value.add
+            (
+               new SetValue(result_as_address, next.get_cdr().get_computation())
+            );
+
+            new_cond.add
+            (
+               IfElse.generate
+               (
+                  compiler.registers(),
+                  compiler.assembler(),
+                  Operation.equals
+                  (
+                     next.get_car().get_computation(),
+                     target_cc.get_computation()
+                  ),
+                  compiler.assembler().merge(new_value),
+                  prev_branch
+               )
+            );
+
+            prev_branch = compiler.assembler().merge(new_cond);
+         }
+
+         init_instructions.add(prev_branch);
+
+         result_as_computation = result.get_value();
+      }
    }
 
    @Override

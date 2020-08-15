@@ -2,4 +2,4 @@
 
 (require types/tag.fate)
 
-(global (list tag) progress)
+(global (set tag) progress)
