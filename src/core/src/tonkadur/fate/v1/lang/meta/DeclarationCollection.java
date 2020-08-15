@@ -91,7 +91,16 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
       final StringBuilder sb = new StringBuilder();
 
       sb.append("Default Value: ");
-      sb.append(value_on_missing.toString());
+
+      if (value_on_missing == null)
+      {
+         sb.append("null");
+      }
+      else
+      {
+         sb.append(value_on_missing.toString());
+      }
+
       sb.append(System.lineSeparator());
 
       for (final Map.Entry<String, Declared> entry: collection.entrySet())
@@ -99,7 +108,15 @@ public class DeclarationCollection <Declared extends DeclaredEntity>
          sb.append("- ");
          sb.append(entry.getKey());
          sb.append(": ");
-         sb.append(entry.getValue().toString());
+
+         if (entry.getValue() == null)
+         {
+            sb.append("null");
+         }
+         else
+         {
+            sb.append(entry.getValue().toString());
+         }
          sb.append(System.lineSeparator());
       }
 

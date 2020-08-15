@@ -259,6 +259,12 @@ public class World
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
+      sb.append("Sequences: ");
+      sb.append(System.lineSeparator());
+      sb.append(sequence_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
       sb.append(")");
 
       return sb.toString();

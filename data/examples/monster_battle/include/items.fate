@@ -3,11 +3,11 @@
 (require types/item.fate)
 (require player.fate)
 
-(declare_variable item potion)
+(global item potion)
 
-(define_macro get_item
+(define_procedure get_item
    (
-      (item_ptr item)
+      ((ptr item) item)
    )
-   (add (param item) player.inventory)
+   (add (var item) player.inventory)
 )

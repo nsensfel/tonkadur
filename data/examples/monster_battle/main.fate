@@ -22,4 +22,4 @@
 (text_effect narrator
    You stand in your room, having just dressed.
 )
-(sequence in_your_room)
+(jump_to in_your_room)

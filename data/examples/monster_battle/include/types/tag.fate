@@ -1,5 +1,3 @@
 (fate_version 1)
 
 (define_subtype string tag)
-
-(define_set_type tag tag_collection)

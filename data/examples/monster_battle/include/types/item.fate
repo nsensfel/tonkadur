@@ -4,6 +4,3 @@
    (string name)
    (int price)
 )
-
-(declare_ref_type item item_ptr)
-(declare_list_type item_ptr item_ptr_list)

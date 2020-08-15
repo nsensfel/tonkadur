@@ -2,4 +2,4 @@
 
 (require types/player.fate)
 
-(define_variable player player)
+(global player player)

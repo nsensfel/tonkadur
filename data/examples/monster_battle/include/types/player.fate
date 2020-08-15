@@ -5,6 +5,6 @@
 
 (define_dict_type player
    (creature creature)
-   (item_ptr_list inventory)
+   ((list (ptr item)) inventory)
    (int money)
 )

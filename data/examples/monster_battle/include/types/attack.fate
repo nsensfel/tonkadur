@@ -4,8 +4,6 @@
 
 (declare_dict_type attack
    (string name)
-   (element_ptr element)
+   ((ptr element) element)
    (int power)
 )
-
-(declare_ref_type attack attack_ptr)

@@ -9,7 +9,7 @@
 
 (require battle.fate)
 
-(define_sequence in_your_room
+(define_sequence in_your_room ()
    (ifelse
       (is_member visited_your_room progress)
       (text_effect narrator
@@ -29,16 +29,16 @@
    (player_choice
       (
          ( Look for healing items )
-         (sequence look_for_healing_items)
+         (jump_to look_for_healing_items)
       )
       (
          ( No time! Let's go adventuring! )
-         (sequence leave_your_room)
+         (jump_to leave_your_room)
       )
    )
 )
 
-(define_sequence look_for_healing_items
+(define_sequence look_for_healing_items ()
    (text_effect narrator
       You anxiously alternate between looking at the clock and looking at piles
       of mess for healing items.
@@ -52,16 +52,16 @@
                Oh! You found something!
             )
          )
-         (macro get_item (ref (var potion)))
+         (call get_item (ref (var potion)))
       )
       (text_effect narrator
          No, you don't find anything.
       )
    )
-   (sequence in_your_room)
+   (jump_to in_your_room)
 )
 
-(define_sequence leave_your_room
+(define_sequence leave_your_room ()
    (text_effect narrator
       As you rush through the door of your room, you fail to notice the obstacle
       in your path and trip on something that was clearly meant for you.
@@ -70,7 +70,7 @@
    (text_effect narrator
       It's a monster-holder! There's a note, too.
    )
-   (macro generate_random_creature (var player.creature))
+   (set player.creature (eval random_creature))
    (event pause)
    (text_effect note_reading
       Hey sleepyhead. I couldn't wake you up for your big day, but lucky you,
@@ -88,5 +88,5 @@
       immediately get challenged by some grinning kid who clearly knew you
       haven't had time to train and wants to score an easy victory.
    )
-   (sequence start_battle)
+   (jump_to start_battle)
 )

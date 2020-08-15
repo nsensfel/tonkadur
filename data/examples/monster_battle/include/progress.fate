@@ -2,4 +2,4 @@
 
 (require types/tag.fate)
 
-(define_variable tag_collection progress)
+(global (list tag) progress)

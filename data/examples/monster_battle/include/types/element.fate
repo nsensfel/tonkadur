@@ -2,12 +2,8 @@
 
 (declare_subtype string element_name)
 
-(declare_set_type element_name element_name_set)
-
 (declare_dict_type element
    (element_name name)
-   (element_name_set strong_against)
-   (element_name_set weak_against)
+   ((set element_name) strong_against)
+   ((set element_name) weak_against)
 )
-
-(declare_ref_type element element_ptr)

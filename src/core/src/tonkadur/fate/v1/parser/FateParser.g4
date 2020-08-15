@@ -2446,6 +2446,26 @@ returns [Computation result]
       }
    }
 
+   | EVAL_KW value_reference WS* R_PAREN
+   {
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($EVAL_KW.getLine()),
+            ($EVAL_KW.getCharPositionInLine())
+         );
+
+      $result =
+         LambdaEvaluation.build
+         (
+            origin,
+            ($value_reference.result),
+            new ArrayList()
+         );
+   }
+
    | EVAL_KW value_reference WS+ value_list WS* R_PAREN
    {
       final Origin origin;
