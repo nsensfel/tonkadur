@@ -58,6 +58,11 @@ public class TypeCompiler
             );
       }
 
+      if (fate_type instanceof tonkadur.fate.v1.lang.type.LambdaType)
+      {
+         return Type.INT;
+      }
+
       fate_type = fate_type.get_base_type();
 
       if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.BOOLEAN))
@@ -164,6 +169,11 @@ public class TypeCompiler
       if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.RICH_TEXT))
       {
          return MapType.MAP_TO_RICH_TEXT;
+      }
+
+      if (fate_content_type instanceof tonkadur.fate.v1.lang.type.LambdaType)
+      {
+         return MapType.MAP_TO_INT;
       }
 
       if (fate_content_type instanceof tonkadur.fate.v1.lang.type.PointerType)

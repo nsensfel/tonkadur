@@ -80,6 +80,7 @@ public class Type extends DeclaredEntity
 
       SIMPLE_BASE_TYPES.add(FLOAT);
       SIMPLE_BASE_TYPES.add(INT);
+      SIMPLE_BASE_TYPES.add(LAMBDA);
       SIMPLE_BASE_TYPES.add(STRING);
       SIMPLE_BASE_TYPES.add(BOOLEAN);
       SIMPLE_BASE_TYPES.add(REF);

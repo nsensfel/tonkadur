@@ -418,7 +418,7 @@ catch [final Throwable e]
 general_fate_instr
 returns [Instruction result]
 :
-   L_PAREN WS+ general_fate_sequence WS* R_PAREN
+   L_PAREN WS* general_fate_sequence WS* R_PAREN
    {
       $result =
          new InstructionList
@@ -1534,6 +1534,27 @@ returns [Type result]
             ("anonymous (" + ($type.result).get_name() + ") list type")
          );
    }
+
+   | LAMBDA_KW type WS* L_PAREN WS* type_list WS* R_PAREN WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($LAMBDA_KW.getLine()),
+            ($LAMBDA_KW.getCharPositionInLine())
+         );
+
+      $result =
+         new LambdaType
+         (
+            start_origin,
+            ($type.result),
+            "auto_generated",
+            ($type_list.result)
+         );
+   }
 ;
 catch [final Throwable e]
 {
@@ -2314,7 +2335,7 @@ returns [Computation result]
    }
 
    | LAMBDA_KW
-         L_PAREN WS+ variable_list WS* R_PAREN
+         L_PAREN WS* variable_list WS* R_PAREN
          {
             final Map<String, Variable> variable_map;
 
@@ -2330,7 +2351,7 @@ returns [Computation result]
       R_PAREN
       {
          $result =
-            new LambdaExpression
+            LambdaExpression.build
             (
                CONTEXT.get_origin_at
                (

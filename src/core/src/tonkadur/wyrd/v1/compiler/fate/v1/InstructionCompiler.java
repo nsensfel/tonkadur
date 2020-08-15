@@ -1763,6 +1763,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       result.addAll(compiler.registers().store_parameters(parameters));
 
+      /* Terminate current context */
+      result.addAll
+      (
+         compiler.registers().get_finalize_context_instructions()
+      );
+
       result.addAll
       (
          compiler.registers().get_jump_to_context_instructions

@@ -1,5 +1,6 @@
 package tonkadur.fate.v1.lang.computation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import tonkadur.parser.Origin;
@@ -8,6 +9,9 @@ import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.Variable;
+
+import tonkadur.fate.v1.lang.type.LambdaType;
+import tonkadur.fate.v1.lang.type.Type;
 
 public class LambdaExpression extends Computation
 {
@@ -20,22 +24,51 @@ public class LambdaExpression extends Computation
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
+   protected LambdaExpression
+   (
+      final Origin origin,
+      final List<Variable> parameters,
+      final Computation function,
+      final Type type
+   )
+   {
+      super(origin, type);
+
+      this.function = function;
+      this.parameters = parameters;
+   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public LambdaExpression
+   public static LambdaExpression build
    (
       final Origin origin,
       final List<Variable> parameters,
       final Computation function
    )
    {
-      super(origin, function.get_type());
+      final List<Type> signature;
+      final LambdaType type;
 
-      this.function = function;
-      this.parameters = parameters;
+      signature = new ArrayList<Type>();
+
+      for (final Variable v: parameters)
+      {
+         signature.add(v.get_type());
+      }
+
+      type =
+         new LambdaType
+         (
+            origin,
+            function.get_type(),
+            "autogen",
+            signature
+         );
+
+      return new LambdaExpression(origin, parameters, function, type);
    }
 
    /**** Accessors ************************************************************/

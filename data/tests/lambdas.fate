@@ -1,0 +1,60 @@
+(fate_version 1)
+
+(global (lambda int (int)) int_to_int)
+
+(set int_to_int
+   (lambda ( (int i) )
+      (+ (var i) 1)
+   )
+)
+
+(assert (= 1 (eval int_to_int 0)) FAILED: lambda A)
+
+(define_sequence map_int_to_int
+   (
+      ((ptr (list int)) out)
+      ((ptr (list int)) in)
+      ((lambda int (int)) fun)
+   )
+   (foreach (at in) i
+      (add (eval fun (var i)) (at out))
+   )
+)
+
+(global (list int) l0)
+(global (list int) l1)
+
+(add 0 l0)
+(add 1 l0)
+(add 2 l0)
+(add 3 l0)
+(add 4 l0)
+(add 5 l0)
+
+(visit map_int_to_int (ptr l1) (ptr l0) (var int_to_int))
+
+(foreach l0 i
+   Was (var i)
+)
+
+(foreach l1 i
+   Is (var i)
+)
+
+(clear l1)
+
+(visit map_int_to_int
+   (ptr l1)
+   (ptr l0)
+   (lambda ( (int i) )
+      (* (eval int_to_int (var i)) 2)
+   )
+)
+
+(foreach l1 i
+   Is (var i)
+)
+
+;;(global (lambda int (int)) times_two)
+
+(end)
