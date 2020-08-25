@@ -265,16 +265,6 @@ public class RegisterManager
 
          r = parameter_context.reserve(p.get_type());
 
-         System.out.println
-         (
-            "[D] Storing param ("
-            + p.get_type().toString()
-            + ") "
-            + r.get_name()
-            + " <- "
-            + p.toString()
-         );
-
          result.add(new SetValue(r.get_address(), p));
 
          used_registers.add(r);
@@ -303,15 +293,6 @@ public class RegisterManager
 
          r = parameter_context.reserve(p.get_type());
 
-         System.out.println
-         (
-            "[D] Reading param ("
-            + p.get_type().toString()
-            + ") "
-            + p.get_name()
-            + " <- "
-            + r.get_name()
-         );
          result.add(new SetValue(p.get_address(), r.get_value()));
 
          used_registers.add(r);
