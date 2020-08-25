@@ -1,6 +1,10 @@
 package tonkadur.plugin;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 import tonkadur.TonkadurPlugin;
+import tonkadur.RuntimeParameters;
 
 import tonkadur.wyrd.v1.lang.World;
 
@@ -15,7 +19,39 @@ public class JSONExport extends TonkadurPlugin
    public void initialize (final String[] args)
    throws Throwable
    {
-      output_file = (args[0] + ".json");
+      final Iterator<String> args_it;
+
+      args_it = Arrays.stream(args).iterator();
+
+      output_file = null;
+
+      while (args_it.hasNext())
+      {
+         final String option = args_it.next();
+
+         if (option.equals("-o") || option.equals("--output"))
+         {
+            if (!args_it.hasNext())
+            {
+               throw
+                  new Exception
+                  (
+                     "Invalide usage. No arguments to "
+                     + option
+                     + " parameter"
+                  );
+            }
+
+            output_file = args_it.next();
+
+            break;
+         }
+      }
+
+      if (output_file == null)
+      {
+         output_file = (RuntimeParameters.get_input_file() + ".json");
+      }
    }
 
    @Override
@@ -30,5 +66,11 @@ public class JSONExport extends TonkadurPlugin
    throws Throwable
    {
       Translator.toJSON(wyrd_world, output_file);
+   }
+
+   @Override
+   public void print_options ()
+   {
+      System.out.println(" -o|--output <file>\t\tOutput to <file>.");
    }
 }

@@ -21,7 +21,17 @@ public class Main
       final tonkadur.wyrd.v1.lang.World wyrd_world;
       final Context context;
 
+      tonkadur.fate.v1.Base.initialize();
+      tonkadur.wyrd.v1.Base.initialize();
+
       plugins = TonkadurPlugin.get_plugins();
+
+      if (!RuntimeParameters.parse_options(args))
+      {
+         RuntimeParameters.print_usage(plugins);
+
+         return;
+      }
 
       for (final TonkadurPlugin tp: plugins)
       {
@@ -29,7 +39,7 @@ public class Main
       }
 
       fate_world = new tonkadur.fate.v1.lang.World();
-      context = Context.build(args[0]);
+      context = Context.build(RuntimeParameters.get_input_file());
 
       for (final TonkadurPlugin tp: plugins)
       {

@@ -1,6 +1,6 @@
 package tonkadur.fate.v1.error;
 
-class ErrorCategory extends tonkadur.error.ErrorCategory
+public class ErrorCategory extends tonkadur.error.ErrorCategory
 {
    public static final ErrorCategory CONFLICTING;
    public static final ErrorCategory DUPLICATE_DECLARATION;
@@ -19,6 +19,11 @@ class ErrorCategory extends tonkadur.error.ErrorCategory
       INVALID_USE = new ErrorCategory("invalid_use");
       MISSING_DECLARATION = new ErrorCategory("missing_declaration");
       UNKNOWN = new ErrorCategory("unknown");
+   }
+
+   public static void initialize ()
+   {
+      /* Ensures class is loaded. */
    }
 
    private ErrorCategory (final String name)
