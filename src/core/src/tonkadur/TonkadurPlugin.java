@@ -126,4 +126,8 @@ public abstract class TonkadurPlugin
    {
 
    }
+
+   public void print_options ()
+   {
+   }
 }

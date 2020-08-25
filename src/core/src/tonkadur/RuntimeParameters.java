@@ -1,8 +1,10 @@
 package tonkadur;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import tonkadur.error.ErrorCategory;
@@ -13,6 +15,7 @@ public class RuntimeParameters
    protected static final Collection<ErrorCategory> disabled_errors;
    protected static final Collection<ErrorCategory> tolerated_errors;
    protected static boolean consider_warnings_as_errors;
+   protected static String target_file;
 
    static
    {
@@ -42,8 +45,145 @@ public class RuntimeParameters
       return include_directories;
    }
 
+   public static String get_input_file ()
+   {
+      return target_file;
+   }
+
    public static void add_include_directory (final String name)
    {
       include_directories.add(name);
+   }
+
+   public static void print_usage
+   (
+      final Collection<TonkadurPlugin> plugins
+   )
+   {
+      System.out.println("Usage: tonkadur [<options>] <file>");
+      System.out.println("Options:");
+      System.out.println
+      (
+         " -i|--include <directory>\tAdds <directory> to the search path."
+      );
+      System.out.println
+      (
+         " -s|--strict\t\t\tWarnings are errors."
+      );
+      System.out.println
+      (
+         " -te|--tolerate-error <name>\tRelates <name> to a simple warning."
+      );
+      System.out.println
+      (
+         " -se|--silence-error <name>\tErrors of type <name> are ignored."
+      );
+
+      for (final TonkadurPlugin plugin: plugins)
+      {
+         plugin.print_options();
+      }
+
+      System.out.println("");
+      System.out.println("Home page: https://tonkadur.of.tacticians.online");
+   }
+
+   public static boolean parse_options (final String[] options)
+   {
+      final Iterator<String> options_it;
+
+      if (options.length == 0)
+      {
+         return false;
+      }
+
+      target_file = options[options.length - 1];
+
+      options_it = Arrays.stream(options).iterator();
+
+      while (options_it.hasNext())
+      {
+         final String option = options_it.next();
+
+         if (option.equals("-i") || option.equals("--include"))
+         {
+            if (!options_it.hasNext())
+            {
+               return false;
+            }
+
+            include_directories.add(options_it.next());
+         }
+         else if (option.equals("-s") || option.equals("--strict"))
+         {
+            consider_warnings_as_errors = true;
+         }
+         else if (option.equals("-te") || option.equals("--tolerate-error"))
+         {
+            final ErrorCategory er;
+            final String er_name;
+
+            if (!options_it.hasNext())
+            {
+               return false;
+            }
+
+            er_name = options_it.next();
+
+            er = ErrorCategory.get_error_category(er_name);
+
+            if (er == null)
+            {
+               System.err.println("Unknown error type \"" + er_name + "\".");
+               System.err.println("Available error types:");
+
+
+               for (final String er_type: ErrorCategory.get_error_categories())
+               {
+                  System.err.println("- " + er_type);
+               }
+
+               System.err.println("");
+
+               return false;
+            }
+
+            tolerated_errors.add(er);
+         }
+         else if (option.equals("-se") || option.equals("--silence-error"))
+         {
+            final ErrorCategory er;
+            final String er_name;
+
+            if (!options_it.hasNext())
+            {
+               return false;
+            }
+
+            er_name = options_it.next();
+
+            er = ErrorCategory.get_error_category(er_name);
+
+            if (er == null)
+            {
+               System.err.println("Unknown error type \"" + er_name + "\".");
+               System.err.println("Available error types:");
+
+
+               for (final String er_type: ErrorCategory.get_error_categories())
+               {
+                  System.err.println("- " + er_type);
+               }
+
+               System.err.println("");
+
+               return false;
+            }
+
+            disabled_errors.add(er);
+         }
+      }
+
+      return true;
    }
 }

@@ -75,7 +75,7 @@ clean:
 	rm -rf $(LIB_DIR)/$(STANDALONE)
 
 # Pattern rules can be used to generate multiple target in a single action.
-$(CLASSES): $(BIN_DIR)/%.class: $(SRC_DIR)/%.java $(BIN_DIR)
+$(CLASSES): $(BIN_DIR)/%.class: $(SRC_DIR)/%.java $(BIN_DIR) $(JSON_SIMPLE_JAR) $(TONKADUR_CORE_JAR)
 	$(JAVAC) -cp $(CLASSPATH) -d $(BIN_DIR) $<
 
 %.jar:
