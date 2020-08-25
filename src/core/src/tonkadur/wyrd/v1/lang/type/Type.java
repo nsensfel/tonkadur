@@ -10,7 +10,7 @@ public class Type
 
    static
    {
-      BOOL = new Type("boolean");
+      BOOL = new Type("bool");
       FLOAT = new Type("float");
       INT = new Type("int");
       RICH_TEXT = new Type("rich_text");

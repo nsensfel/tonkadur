@@ -4,17 +4,17 @@
 (assert (= 1 1) FAILED: int equality)
 (assert (= 1.0 1.0) FAILED: float equality)
 (assert (= test test) FAILED: string equality)
-(assert (= (true) (true)) FAILED: boolean equality)
+(assert (= (true) (true)) FAILED: bool equality)
 
 (assert (= (= 1 2) (false)) FAILED: int inequality)
 (assert (= (= 1.0 2.0) (false)) FAILED: float inequality)
 (assert (= (= one two) (false)) FAILED: string inequality)
-(assert (= (= (true) (false)) (false)) FAILED: boolean inequality)
+(assert (= (= (true) (false)) (false)) FAILED: bool inequality)
 
 (assert (= 1 1 1 1 1) FAILED: int n>2 equality)
 (assert (= 1.0 1.0 1.0 1.0 1.0) FAILED: float n>2 equality)
 (assert (= test test test test test) FAILED: string n>2 equality)
-(assert (= (true) (true) (true) (true)) FAILED: boolean n>2 equality)
+(assert (= (true) (true) (true) (true)) FAILED: bool n>2 equality)
 
 
 ;; ADDITION
