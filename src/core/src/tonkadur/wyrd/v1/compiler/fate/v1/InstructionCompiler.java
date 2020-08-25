@@ -114,7 +114,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       collection = address_compiler.get_address();
 
-      element_found = compiler.registers().reserve(Type.BOOLEAN);
+      element_found = compiler.registers().reserve(Type.BOOL);
       element_index = compiler.registers().reserve(Type.INT);
       collection_size = compiler.registers().reserve(Type.INT);
 
@@ -1452,7 +1452,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          final Register index, found;
 
          index = compiler.registers().reserve(Type.INT);
-         found = compiler.registers().reserve(Type.BOOLEAN);
+         found = compiler.registers().reserve(Type.BOOL);
 
          value_of_elem = new ValueOf(elem);
 
@@ -1567,7 +1567,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       collection_cc = new ComputationCompiler(compiler);
 
       collection_size = compiler.registers().reserve(Type.INT);
-      found = compiler.registers().reserve(Type.BOOLEAN);
+      found = compiler.registers().reserve(Type.BOOL);
       index = compiler.registers().reserve(Type.INT);
 
       n.get_element().get_visited_by(elem_cc);

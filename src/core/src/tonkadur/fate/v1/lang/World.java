@@ -277,7 +277,7 @@ public class World
    {
       try
       {
-         type_collection.add(Type.BOOLEAN);
+         type_collection.add(Type.BOOL);
          //type_collection.add(Type.DICT);
          type_collection.add(Type.FLOAT);
          type_collection.add(Type.INT);

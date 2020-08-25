@@ -82,6 +82,12 @@ public class PointerType extends Type
 
    /**** Misc. ****************************************************************/
    @Override
+   public Type generate_alias (final Origin origin, final String name)
+   {
+      return new PointerType(origin, referenced_type, name);
+   }
+
+   @Override
    public String toString ()
    {
       final StringBuilder sb = new StringBuilder();

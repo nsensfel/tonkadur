@@ -33,7 +33,7 @@ public class IsMemberOperator extends Computation
       final Computation collection
    )
    {
-      super(origin, Type.BOOLEAN);
+      super(origin, Type.BOOL);
 
       this.collection = collection;
       this.element = element;

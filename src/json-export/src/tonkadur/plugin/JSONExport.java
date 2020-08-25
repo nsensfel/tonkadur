@@ -44,7 +44,10 @@ public class JSONExport extends TonkadurPlugin
 
             output_file = args_it.next();
 
-            break;
+         }
+         else if (option.equals("--legal"))
+         {
+            print_license();
          }
       }
 
@@ -72,5 +75,10 @@ public class JSONExport extends TonkadurPlugin
    public void print_options ()
    {
       System.out.println(" -o|--output <file>\t\tOutput to <file>.");
+   }
+
+   protected static void print_license ()
+   {
+      System.out.println("This version of Tonkadur ships with a copy of the json-simple library, whose license is available at https://github.com/fangyidong/json-simple/blob/master/LICENSE.txt");
    }
 }

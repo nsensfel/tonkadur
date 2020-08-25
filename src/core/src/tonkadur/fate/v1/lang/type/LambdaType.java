@@ -142,6 +142,12 @@ public class LambdaType extends Type
 
    /**** Misc. ****************************************************************/
    @Override
+   public Type generate_alias (final Origin origin, final String name)
+   {
+      return new LambdaType(origin, return_type, name, signature);
+   }
+
+   @Override
    public String toString ()
    {
       final StringBuilder sb = new StringBuilder();

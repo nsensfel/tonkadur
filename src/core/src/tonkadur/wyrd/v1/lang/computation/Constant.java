@@ -15,8 +15,8 @@ public class Constant extends Computation
 
    static
    {
-      TRUE = new Constant(Type.BOOLEAN, "true");
-      FALSE = new Constant(Type.BOOLEAN, "false");
+      TRUE = new Constant(Type.BOOL, "true");
+      FALSE = new Constant(Type.BOOL, "false");
 
       ZERO = new Constant(Type.INT, "0");
       ONE = new Constant(Type.INT, "1");

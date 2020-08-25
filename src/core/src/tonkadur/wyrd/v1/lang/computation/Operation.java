@@ -96,7 +96,7 @@ public class Operation extends Computation
       final Computation b
    )
    {
-      return new Operation(AND, Type.BOOLEAN, a, b);
+      return new Operation(AND, Type.BOOL, a, b);
    }
 
    public static Operation or
@@ -110,7 +110,7 @@ public class Operation extends Computation
 
    public static Operation not (final Computation a)
    {
-      return new Operation(NOT, Type.BOOLEAN, a, null);
+      return new Operation(NOT, Type.BOOL, a, null);
    }
 
    public static Operation implies
@@ -129,7 +129,7 @@ public class Operation extends Computation
       final Computation b
    )
    {
-      return new Operation(LESS_THAN, Type.BOOLEAN, a, b);
+      return new Operation(LESS_THAN, Type.BOOL, a, b);
    }
 
    public static Operation less_equal_than
@@ -146,7 +146,7 @@ public class Operation extends Computation
       final Computation b
    )
    {
-      return new Operation(EQUALS, Type.BOOLEAN, a, b);
+      return new Operation(EQUALS, Type.BOOL, a, b);
    }
 
    public static Operation greater_than

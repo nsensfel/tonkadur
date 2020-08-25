@@ -20,7 +20,7 @@ import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 public class Type extends DeclaredEntity
 {
    public static final Type ANY;
-   public static final Type BOOLEAN;
+   public static final Type BOOL;
    public static final Type DICT;
    public static final Type FLOAT;
    public static final Type INT;
@@ -33,7 +33,7 @@ public class Type extends DeclaredEntity
 
    public static final Set<Type> NUMBER_TYPES;
    public static final Set<Type> ALL_TYPES;
-   public static final Set<Type> SIMPLE_BASE_TYPES;
+   public static final Set<Type> COMPARABLE_TYPES;
    public static final Set<Type> COLLECTION_TYPES;
 
    static
@@ -47,7 +47,7 @@ public class Type extends DeclaredEntity
        */
       ANY = new Type(base, null, "undetermined type");
 
-      BOOLEAN = new Type(base, null, "boolean");
+      BOOL = new Type(base, null, "bool");
       DICT = new Type(base, null, "dict");
       FLOAT = new Type(base, null, "float");
       INT = new Type(base, null, "int");
@@ -60,7 +60,7 @@ public class Type extends DeclaredEntity
 
       ALL_TYPES = new HashSet<Type>();
       ALL_TYPES.add(ANY);
-      ALL_TYPES.add(BOOLEAN);
+      ALL_TYPES.add(BOOL);
       ALL_TYPES.add(DICT);
       ALL_TYPES.add(FLOAT);
       ALL_TYPES.add(INT);
@@ -76,14 +76,14 @@ public class Type extends DeclaredEntity
       NUMBER_TYPES.add(FLOAT);
       NUMBER_TYPES.add(INT);
 
-      SIMPLE_BASE_TYPES = new HashSet<Type>();
+      COMPARABLE_TYPES = new HashSet<Type>();
 
-      SIMPLE_BASE_TYPES.add(FLOAT);
-      SIMPLE_BASE_TYPES.add(INT);
-      SIMPLE_BASE_TYPES.add(LAMBDA);
-      SIMPLE_BASE_TYPES.add(STRING);
-      SIMPLE_BASE_TYPES.add(BOOLEAN);
-      SIMPLE_BASE_TYPES.add(REF);
+      COMPARABLE_TYPES.add(FLOAT);
+      COMPARABLE_TYPES.add(INT);
+      COMPARABLE_TYPES.add(LAMBDA);
+      COMPARABLE_TYPES.add(STRING);
+      COMPARABLE_TYPES.add(BOOL);
+      COMPARABLE_TYPES.add(REF);
 
       COLLECTION_TYPES = new HashSet<Type>();
 
@@ -122,11 +122,11 @@ public class Type extends DeclaredEntity
    )
    throws InvalidTypeException
    {
-      if (!SIMPLE_BASE_TYPES.contains(parent.get_act_as_type()))
+      if (!COMPARABLE_TYPES.contains(parent.get_act_as_type()))
       {
          ErrorManager.handle
          (
-            new InvalidTypeException(origin, parent, SIMPLE_BASE_TYPES)
+            new InvalidTypeException(origin, parent, COMPARABLE_TYPES)
          );
       }
 
@@ -219,6 +219,11 @@ public class Type extends DeclaredEntity
 
 
    /**** Misc. ****************************************************************/
+   public Type generate_alias (final Origin origin, final String name)
+   {
+      return new Type(origin, this, name);
+   }
+
    @Override
    public boolean is_incompatible_with_declaration (final DeclaredEntity de)
    {

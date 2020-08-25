@@ -56,18 +56,18 @@ public class Operator
          new Operator("rand", 2, 2, Collections.singleton(Type.INT), null);
 
       AND =
-         new Operator("and", 2, 0, Collections.singleton(Type.BOOLEAN), null);
+         new Operator("and", 2, 0, Collections.singleton(Type.BOOL), null);
       OR =
-         new Operator("or", 2, 0, Collections.singleton(Type.BOOLEAN), null);
+         new Operator("or", 2, 0, Collections.singleton(Type.BOOL), null);
       NOT =
-         new Operator("not", 1, 1, Collections.singleton(Type.BOOLEAN), null);
+         new Operator("not", 1, 1, Collections.singleton(Type.BOOL), null);
       IMPLIES =
          new Operator
          (
             "implies",
             2,
             2,
-            Collections.singleton(Type.BOOLEAN),
+            Collections.singleton(Type.BOOL),
             null
          );
       ONE_IN =
@@ -76,20 +76,20 @@ public class Operator
             "one_in",
             1,
             0,
-            Collections.singleton(Type.BOOLEAN),
+            Collections.singleton(Type.BOOL),
             null
          );
 
       EQUALS =
-         new Operator("equals", 2, 0, Type.ALL_TYPES, Type.BOOLEAN);
+         new Operator("equals", 2, 0, Type.ALL_TYPES, Type.BOOL);
       LOWER_THAN =
-         new Operator("<", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
+         new Operator("<", 2, 2, Type.COMPARABLE_TYPES, Type.BOOL);
       LOWER_EQUAL_THAN =
-         new Operator("=<", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
+         new Operator("=<", 2, 2, Type.COMPARABLE_TYPES, Type.BOOL);
       GREATER_EQUAL_THAN =
-         new Operator(">=", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
+         new Operator(">=", 2, 2, Type.COMPARABLE_TYPES, Type.BOOL);
       GREATER_THAN =
-         new Operator(">", 2, 2, Type.SIMPLE_BASE_TYPES, Type.BOOLEAN);
+         new Operator(">", 2, 2, Type.COMPARABLE_TYPES, Type.BOOL);
    }
 
    final protected String name;

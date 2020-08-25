@@ -52,7 +52,7 @@ public class DoWhile extends Instruction
    )
    throws InvalidTypeException
    {
-      if (!condition.get_type().get_base_type().equals(Type.BOOLEAN))
+      if (!condition.get_type().get_base_type().equals(Type.BOOL))
       {
          ErrorManager.handle
          (
@@ -60,7 +60,7 @@ public class DoWhile extends Instruction
             (
                condition.get_origin(),
                condition.get_type(),
-               Collections.singleton(Type.BOOLEAN)
+               Collections.singleton(Type.BOOL)
             )
          );
       }

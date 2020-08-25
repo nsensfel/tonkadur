@@ -65,9 +65,9 @@ public class TypeCompiler
 
       fate_type = fate_type.get_base_type();
 
-      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.BOOLEAN))
+      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.BOOL))
       {
-         return Type.BOOLEAN;
+         return Type.BOOL;
       }
 
       if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.FLOAT))
@@ -146,9 +146,9 @@ public class TypeCompiler
       fate_content_type =
          fate_collection_type.get_content_type().get_base_type();
 
-      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.BOOLEAN))
+      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.BOOL))
       {
-         return MapType.MAP_TO_BOOLEAN;
+         return MapType.MAP_TO_BOOL;
       }
 
       if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.FLOAT))

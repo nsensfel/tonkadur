@@ -40,7 +40,7 @@ public class Constant extends Computation
       final boolean value
    )
    {
-      return new Constant(origin, Type.BOOLEAN, value ? "true" : "false");
+      return new Constant(origin, Type.BOOL, value ? "true" : "false");
    }
 
    public static Constant build_string
