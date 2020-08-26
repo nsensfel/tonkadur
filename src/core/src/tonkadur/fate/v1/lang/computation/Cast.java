@@ -58,7 +58,7 @@ public class Cast extends Computation
 
       allowed_type_changes.put
       (
-         Type.BOOLEAN,
+         Type.BOOL,
          Collections.emptySet()
       );
 
@@ -71,7 +71,7 @@ public class Cast extends Computation
       allowed_type_changes.put
       (
          Type.STRING,
-         Type.SIMPLE_BASE_TYPES
+         Type.COMPARABLE_TYPES
       );
    }
 

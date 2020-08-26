@@ -375,7 +375,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       {
          final Register was_found, index, element;
 
-         was_found = reserve(Type.BOOLEAN);
+         was_found = reserve(Type.BOOL);
          index = reserve(Type.INT);
          element = reserve(element_compiler.get_computation().get_type());
 
@@ -604,7 +604,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       assimilate(collection_compiler);
       assimilate(element_compiler);
 
-      result = reserve(Type.BOOLEAN);
+      result = reserve(Type.BOOL);
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
 
@@ -1132,7 +1132,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       final Register result, result_found;
 
       result = reserve(Type.INT);
-      result_found = reserve(Type.BOOLEAN);
+      result_found = reserve(Type.BOOL);
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();

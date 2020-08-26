@@ -64,7 +64,7 @@ public class IfElseValue extends Computation
       final Type if_true_type;
       final Type if_false_type;
 
-      if (!condition.get_type().can_be_used_as(Type.BOOLEAN))
+      if (!condition.get_type().can_be_used_as(Type.BOOL))
       {
          ErrorManager.handle
          (
@@ -72,7 +72,7 @@ public class IfElseValue extends Computation
             (
                condition.get_origin(),
                condition.get_type(),
-               Collections.singleton(Type.BOOLEAN)
+               Collections.singleton(Type.BOOL)
             )
          );
       }

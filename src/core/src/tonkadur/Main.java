@@ -62,6 +62,8 @@ public class Main
          System.err.println("Parsing failed.");
          System.err.println(fate_world.toString());
          e.printStackTrace();
+
+         return;
       }
 
       for (final TonkadurPlugin tp: plugins)
@@ -92,6 +94,7 @@ public class Main
       {
          System.err.println("Compilation failed.");
          e.printStackTrace();
+         return;
       }
 
       for (final TonkadurPlugin tp: plugins)

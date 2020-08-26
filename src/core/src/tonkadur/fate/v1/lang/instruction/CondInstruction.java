@@ -52,7 +52,7 @@ public class CondInstruction extends Instruction
    {
       for (final Cons<Computation, Instruction> branch: branches)
       {
-         if (!branch.get_car().get_type().get_base_type().equals(Type.BOOLEAN))
+         if (!branch.get_car().get_type().get_base_type().equals(Type.BOOL))
          {
             ErrorManager.handle
             (
@@ -60,7 +60,7 @@ public class CondInstruction extends Instruction
                (
                   branch.get_car().get_origin(),
                   branch.get_car().get_type(),
-                  Collections.singleton(Type.BOOLEAN)
+                  Collections.singleton(Type.BOOL)
                )
             );
          }

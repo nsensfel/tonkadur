@@ -39,13 +39,6 @@ public class SequenceCompiler
 
       compiler.assembler().add_fixed_name_label(fate_sequence.get_name());
 
-      System.out.println
-      (
-         "[D] Compiling sequence '"
-         + fate_sequence.get_name()
-         + "'..."
-      );
-
       compiler.registers().create_stackable_context(fate_sequence.get_name());
 
       init_instructions.add
@@ -128,8 +121,6 @@ public class SequenceCompiler
       final InstructionCompiler ic;
 
       ic = new InstructionCompiler(compiler);
-
-      System.out.println("[D] Compiling main sequence...");
 
       for
       (

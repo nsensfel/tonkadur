@@ -233,10 +233,9 @@ first_level_fate_instr:
          );
 
       new_type =
-         Type.build
+         ($parent.result).generate_alias
          (
             start_origin,
-            ($parent.result),
             ($new_reference_name.result)
          );
 

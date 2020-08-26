@@ -32,7 +32,9 @@ public class CollectionType extends Type
    {
       if
       (
-         !Type.SIMPLE_BASE_TYPES.contains
+         is_set
+         &&
+         !Type.COMPARABLE_TYPES.contains
          (
             content_type.get_act_as_type()
          )
@@ -44,7 +46,7 @@ public class CollectionType extends Type
             (
                origin,
                content_type,
-               Type.SIMPLE_BASE_TYPES
+               Type.COMPARABLE_TYPES
             )
          );
       }
@@ -120,6 +122,12 @@ public class CollectionType extends Type
 
 
    /**** Misc. ****************************************************************/
+   @Override
+   public Type generate_alias (final Origin origin, final String name)
+   {
+      return new CollectionType(origin, content_type, is_set, name);
+   }
+
    @Override
    public String toString ()
    {

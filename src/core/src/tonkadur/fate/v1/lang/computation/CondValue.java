@@ -63,7 +63,7 @@ public class CondValue extends Computation
 
       for (final Cons<Computation, Computation> entry: branches)
       {
-         if (!entry.get_car().get_type().can_be_used_as(Type.BOOLEAN))
+         if (!entry.get_car().get_type().can_be_used_as(Type.BOOL))
          {
             ErrorManager.handle
             (
@@ -71,7 +71,7 @@ public class CondValue extends Computation
                (
                   entry.get_car().get_origin(),
                   entry.get_car().get_type(),
-                  Collections.singleton(Type.BOOLEAN)
+                  Collections.singleton(Type.BOOL)
                )
             );
          }

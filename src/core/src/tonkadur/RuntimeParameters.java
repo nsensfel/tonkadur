@@ -11,6 +11,7 @@ import tonkadur.error.ErrorCategory;
 
 public class RuntimeParameters
 {
+   protected static final String version;
    protected static final List<String> include_directories;
    protected static final Collection<ErrorCategory> disabled_errors;
    protected static final Collection<ErrorCategory> tolerated_errors;
@@ -19,6 +20,7 @@ public class RuntimeParameters
 
    static
    {
+      version = "0.9.0";
       include_directories = new ArrayList<String>();
       disabled_errors = new HashSet<ErrorCategory>();
       tolerated_errors = new HashSet<ErrorCategory>();
@@ -60,6 +62,7 @@ public class RuntimeParameters
       final Collection<TonkadurPlugin> plugins
    )
    {
+      System.out.println("Tonkadur version " + version);
       System.out.println("Usage: tonkadur [<options>] <file>");
       System.out.println("Options:");
       System.out.println
@@ -77,6 +80,10 @@ public class RuntimeParameters
       System.out.println
       (
          " -se|--silence-error <name>\tErrors of type <name> are ignored."
+      );
+      System.out.println
+      (
+         " --legal \t\t\tPrints the relevant licenses."
       );
 
       for (final TonkadurPlugin plugin: plugins)
@@ -182,8 +189,18 @@ public class RuntimeParameters
 
             disabled_errors.add(er);
          }
+         else if (option.equals("--legal"))
+         {
+            print_license();
+         }
       }
 
       return true;
+   }
+
+   protected static void print_license ()
+   {
+      System.out.println("Tonkadur is released under an Apache license. Go to https://tonkadur.of.tacticians.online/LICENSE to consult it.");
+      System.out.println("Tonkadur uses and ships with a copy of ANTLR 4. Go to https://www.antlr.org/license.html to see ANTLR's license.");
    }
 }
