@@ -49,6 +49,9 @@ public interface ComputationVisitor
    public void visit_lambda_evaluation (final LambdaEvaluation n)
    throws Throwable;
 
+   public void visit_let (final Let n)
+   throws Throwable;
+
    public void visit_newline (final Newline n)
    throws Throwable;
 

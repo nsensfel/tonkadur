@@ -1643,6 +1643,59 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_let
+   (
+      final tonkadur.fate.v1.lang.computation.Let n
+   )
+   throws Throwable
+   {
+      final Collection<String> names;
+
+      names = new ArrayList<String>();
+
+      for
+      (
+         final
+            Cons
+            <
+               tonkadur.fate.v1.lang.Variable,
+               tonkadur.fate.v1.lang.meta.Computation
+            >
+            a:
+               n.get_assignments()
+      )
+      {
+         final String name;
+         final Register r;
+         final ComputationCompiler cc;
+
+         name = a.get_car().get_name();
+         r = reserve(TypeCompiler.compile(compiler, a.get_car().get_type()));
+
+         compiler.registers().bind(name, r);
+         names.add(name);
+
+         cc = new ComputationCompiler(compiler);
+
+         a.get_cdr().get_visited_by(cc);
+
+         assimilate(cc);
+
+         init_instructions.add
+         (
+            new SetValue(r.get_address(), cc.get_computation())
+         );
+      }
+
+      n.get_computation().get_visited_by(this);
+
+      for (final String name: names)
+      {
+         compiler.registers().unbind(name);
+      }
+   }
+
+   @Override
    public void visit_variable_reference
    (
       final tonkadur.fate.v1.lang.computation.VariableReference n
