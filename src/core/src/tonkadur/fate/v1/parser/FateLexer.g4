@@ -26,8 +26,9 @@ CLEAR_KW: L_PAREN 'clear' SEP+;
 COND_KW: L_PAREN 'cond' SEP+;
 COUNT_KW: L_PAREN 'count' SEP+;
 DECLARE_ALIAS_TYPE_KW:
-   L_PAREN ((('declare'|'define'|'def')US('sub'US)?'type')|'typedef') SEP+;
-DECLARE_DICT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US('dict'|'struct')(US'type')? SEP+;
+   L_PAREN ((('declare'|'define'|'def')US(('sub'|'alias')US)?'type')|'typedef') SEP+;
+DECLARE_DICT_TYPE_KW: L_PAREN
+('declare'|'define'|'def')US('dict'|('struct''ure'?))(US'type')? SEP+;
 DECLARE_EVENT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US'event'(US'type')? SEP+;
 DECLARE_TEXT_EFFECT_KW: L_PAREN ('declare'|'define'|'def')US'text'US'effect' SEP+;
 DECLARE_VARIABLE_KW: L_PAREN 'global' SEP+;
