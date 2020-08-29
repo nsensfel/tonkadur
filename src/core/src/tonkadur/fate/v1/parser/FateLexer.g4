@@ -60,6 +60,7 @@ INDEX_OF_KW: L_PAREN ('index'US'of') SEP+;
 IS_MEMBER_KW: L_PAREN ('is'US'member'|'contains'|'has') SEP+;
 LOWER_EQUAL_THAN_KW: L_PAREN ('lower'US'equal'US'than'|'=<'|'<='|'le') SEP+;
 LOWER_THAN_KW: L_PAREN ('lower'US'than'|'<'|'lt') SEP+;
+LET_KW: L_PAREN 'let' SEP+;
 MINUS_KW: L_PAREN ('minus'|'-') SEP+;
 MIN_KW: L_PAREN ('min'('imum'?)) SEP+;
 MAX_KW: L_PAREN ('max'('imum'?)) SEP+;

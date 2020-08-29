@@ -1590,6 +1590,67 @@ returns [List<Type> result]
    }
 ;
 
+let_variable_list
+returns [List<Cons<Variable, Computation>> result]
+@init
+{
+   Map<String, Variable> variables;
+
+   variables = LOCAL_VARIABLES.peekFirst();
+
+   $result = new ArrayList<Cons<Variable, Computation>>();
+}
+:
+   (
+      WS*
+      L_PAREN WS* new_reference_name WS+ value WS* R_PAREN
+      {
+         final Variable v;
+
+         v =
+            new Variable
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($L_PAREN.getLine()),
+                  ($L_PAREN.getCharPositionInLine())
+               ),
+               ($value.result).get_type(),
+               ($new_reference_name.result)
+            );
+
+         if (variables.containsKey(v.get_name()))
+         {
+            ErrorManager.handle
+            (
+               new DuplicateLocalVariableException
+               (
+                  variables.get(v.get_name()),
+                  v
+               )
+            );
+         }
+
+         variables.put(v.get_name(), v);
+
+         $result.add(new Cons(v, ($value.result)));
+      }
+   )*
+   {
+   }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
+
 variable_list
 returns [VariableList result]
 @init
@@ -2362,6 +2423,35 @@ returns [Computation result]
             );
 
          LOCAL_VARIABLES.pop();
+      }
+
+   | LET_KW
+         L_PAREN WS* let_variable_list WS* R_PAREN
+         WS*
+         value
+         WS*
+      R_PAREN
+      {
+         final List<Cons<Variable, Computation>> let_list;
+
+         let_list = ($let_variable_list.result);
+
+         $result =
+            new Let
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($LET_KW.getLine()),
+                  ($LET_KW.getCharPositionInLine())
+               ),
+               let_list,
+               ($value.result)
+            );
+
+         for (final Cons<Variable, Computation> entry: let_list)
+         {
+            LOCAL_VARIABLES.peekFirst().remove(entry.get_car().get_name());
+         }
       }
 
    | math_expression
