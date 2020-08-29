@@ -232,6 +232,16 @@ public class RegisterManager
       return context.peekFirst().get_finalize_instructions();
    }
 
+   public void push_hierarchical_instruction_level ()
+   {
+      context.peekFirst().push_hierarchical_instruction_level();
+   }
+
+   public void pop_hierarchical_instruction_level ()
+   {
+      context.peekFirst().pop_hierarchical_instruction_level();
+   }
+
    public Collection<DictType> get_context_structure_types ()
    {
       final Collection<DictType> result;

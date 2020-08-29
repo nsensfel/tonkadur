@@ -44,6 +44,7 @@ options
    Context CONTEXT;
    World WORLD;
    Deque<Map<String, Variable>> LOCAL_VARIABLES;
+   Deque<List<String>> HIERARCHICAL_VARIABLES;
    int BREAKABLE_LEVELS;
 }
 
@@ -56,9 +57,11 @@ fate_file [Context context, World world]
       CONTEXT = context;
       WORLD = world;
       LOCAL_VARIABLES = new ArrayDeque<Map<String, Variable>>();
+      HIERARCHICAL_VARIABLES = new ArrayDeque<List<String>>();
       BREAKABLE_LEVELS = 0;
 
       LOCAL_VARIABLES.push(new HashMap<String, Variable>());
+      HIERARCHICAL_VARIABLES.push(new ArrayList<String>());
    }
    :
    WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
@@ -476,6 +479,11 @@ returns [Instruction result]
       }
 
       $result = new LocalVariable(new_variable);
+
+      if (!HIERARCHICAL_VARIABLES.isEmpty())
+      {
+         HIERARCHICAL_VARIABLES.peekFirst().add(new_variable.get_name());
+      }
    }
 
    | ADD_KW value WS+ value_reference WS* R_PAREN
@@ -667,7 +675,19 @@ returns [Instruction result]
    }
 
    | WHILE_KW value WS*
-      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      {
+         BREAKABLE_LEVELS++;
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_sequence
+      {
+         BREAKABLE_LEVELS--;
+
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
       WS*
       R_PAREN
    {
@@ -685,7 +705,19 @@ returns [Instruction result]
    }
 
    | DO_WHILE_KW value WS*
-      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      {
+         BREAKABLE_LEVELS++;
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_sequence
+      {
+         BREAKABLE_LEVELS--;
+
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
       WS*
       R_PAREN
    {
@@ -716,7 +748,19 @@ returns [Instruction result]
    }
 
    | FOR_KW pre=general_fate_instr WS * value WS* post=general_fate_instr WS*
-      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      {
+         BREAKABLE_LEVELS++;
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_sequence
+      {
+         BREAKABLE_LEVELS--;
+
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
       WS* R_PAREN
    {
       $result =
@@ -801,7 +845,19 @@ returns [Instruction result]
          }
       }
       WS+
-      {BREAKABLE_LEVELS++;} general_fate_sequence {BREAKABLE_LEVELS--;}
+      {
+         BREAKABLE_LEVELS++;
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_sequence
+      {
+         BREAKABLE_LEVELS--;
+
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
       WS*
    R_PAREN
    {
@@ -964,7 +1020,18 @@ returns [Instruction result]
          );
    }
 
-   | IF_KW value WS* general_fate_instr WS* R_PAREN
+   | IF_KW value WS*
+      {
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_instr
+      {
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
+      WS* R_PAREN
    {
       $result =
          IfInstruction.build
@@ -981,8 +1048,26 @@ returns [Instruction result]
 
    | IF_ELSE_KW
          value
+         {
+            HIERARCHICAL_VARIABLES.push(new ArrayList());
+         }
          WS+ if_true=general_fate_instr
+         {
+            for (final String s: HIERARCHICAL_VARIABLES.pop())
+            {
+               LOCAL_VARIABLES.peekFirst().remove(s);
+            }
+
+            HIERARCHICAL_VARIABLES.push(new ArrayList());
+         }
          WS+ if_false=general_fate_instr
+         {
+            for (final String s: HIERARCHICAL_VARIABLES.pop())
+            {
+               LOCAL_VARIABLES.peekFirst().remove(s);
+            }
+
+         }
       WS* R_PAREN
    {
       $result =
@@ -1107,7 +1192,18 @@ returns [List<Cons<Computation, Instruction>> result]
 }
 :
    (
-      L_PAREN WS* value WS+ general_fate_instr WS* R_PAREN
+      L_PAREN WS* value WS+
+         {
+            HIERARCHICAL_VARIABLES.push(new ArrayList());
+         }
+         general_fate_instr
+         {
+            for (final String s: HIERARCHICAL_VARIABLES.pop())
+            {
+               LOCAL_VARIABLES.peekFirst().remove(s);
+            }
+         }
+         WS* R_PAREN
       {
          $result.add(new Cons(($value.result), ($general_fate_instr.result)));
       }
@@ -1139,7 +1235,17 @@ returns [Instruction result]
 :
    start_p=L_PAREN WS*
       L_PAREN WS* paragraph WS* R_PAREN WS+
-      general_fate_sequence WS*
+      {
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_sequence
+      {
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
+      WS*
    R_PAREN
    {
       $result =
@@ -1201,6 +1307,22 @@ returns [Instruction result]
                ($COND_KW.getCharPositionInLine())
             ),
             ($player_choice_cond_list.result)
+         );
+   }
+
+   | SWITCH_KW value WS* player_choice_cond_list WS+ player_choice WS* R_PAREN
+   {
+      $result =
+         SwitchInstruction.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SWITCH_KW.getLine()),
+               ($SWITCH_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($player_choice_cond_list.result),
+            ($player_choice.result)
          );
    }
 ;

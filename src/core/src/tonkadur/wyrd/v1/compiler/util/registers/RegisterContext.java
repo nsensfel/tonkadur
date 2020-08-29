@@ -1,10 +1,12 @@
 package tonkadur.wyrd.v1.compiler.util.registers;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
@@ -18,6 +20,7 @@ class RegisterContext
    protected final String name;
    protected final Map<String, Register> register_by_name;
    protected final Map<String, Register> aliased_registers;
+   protected final Deque<Collection<String>> hierarchical_aliases;
    protected final Map<Type, List<Register>> anonymous_register_by_type;
    protected final String name_prefix;
    protected int generated_registers;
@@ -28,6 +31,7 @@ class RegisterContext
 
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
+      hierarchical_aliases = new ArrayDeque<Collection<String>>();
       anonymous_register_by_type = new HashMap<Type, List<Register>>();
       name_prefix = default_name_prefix;
 
@@ -41,6 +45,7 @@ class RegisterContext
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
       anonymous_register_by_type = new HashMap<Type, List<Register>>();
+      hierarchical_aliases = new ArrayDeque<Collection<String>>();
       this.name_prefix = name_prefix;
 
       generated_registers = 0;
@@ -132,11 +137,29 @@ class RegisterContext
       }
 
       aliased_registers.put(name, reg);
+
+      if (!hierarchical_aliases.isEmpty())
+      {
+         hierarchical_aliases.peekFirst().add(name);
+      }
    }
 
    public void unbind (final String name)
    {
       aliased_registers.remove(name);
+   }
+
+   public void push_hierarchical_instruction_level ()
+   {
+      hierarchical_aliases.push(new ArrayList<String>());
+   }
+
+   public void pop_hierarchical_instruction_level ()
+   {
+      for (final String s: hierarchical_aliases.pop())
+      {
+         unbind(s);
+      }
    }
 
    public Register get_register (final String name)

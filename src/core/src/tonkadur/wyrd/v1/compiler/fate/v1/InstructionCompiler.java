@@ -449,7 +449,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       previous_else_branch = new ArrayList<Instruction>();
 
       ic = new InstructionCompiler(compiler);
+
+      compiler.registers().push_hierarchical_instruction_level();
       n.get_default_instruction().get_visited_by(ic);
+      compiler.registers().pop_hierarchical_instruction_level();
 
       previous_else_branch.add(ic.get_result());
 
@@ -485,7 +488,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc = new ComputationCompiler(compiler);
 
          branch.get_car().get_visited_by(cc);
+         compiler.registers().push_hierarchical_instruction_level();
          branch.get_cdr().get_visited_by(ic);
+         compiler.registers().pop_hierarchical_instruction_level();
 
          if (cc.has_init())
          {
@@ -589,6 +594,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       n.get_condition().get_visited_by(cc);
 
+      compiler.registers().push_hierarchical_instruction_level();
       for (final tonkadur.fate.v1.lang.meta.Instruction i: n.get_body())
       {
          ic = new InstructionCompiler(compiler);
@@ -596,6 +602,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          body.add(ic.get_result());
       }
+      compiler.registers().pop_hierarchical_instruction_level();
 
 
       if (cc.has_init())
@@ -657,6 +664,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       cc = new ComputationCompiler(compiler);
       n.get_condition().get_visited_by(cc);
 
+      compiler.registers().push_hierarchical_instruction_level();
       for (final tonkadur.fate.v1.lang.meta.Instruction i: n.get_body())
       {
          ic = new InstructionCompiler(compiler);
@@ -664,6 +672,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          pre_cond_instructions.add(ic.get_result());
       }
+      compiler.registers().pop_hierarchical_instruction_level();
 
       if (cc.has_init())
       {
@@ -715,6 +724,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       result.add(ic.get_result());
 
+      compiler.registers().push_hierarchical_instruction_level();
       for (final tonkadur.fate.v1.lang.meta.Instruction i: n.get_body())
       {
          ic = new InstructionCompiler(compiler);
@@ -722,6 +732,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          body.add(ic.get_result());
       }
+      compiler.registers().pop_hierarchical_instruction_level();
 
       ic = new InstructionCompiler(compiler);
       n.get_post().get_visited_by(ic);
@@ -841,6 +852,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          )
       );
 
+      compiler.registers().push_hierarchical_instruction_level();
       for
       (
          final tonkadur.fate.v1.lang.meta.Instruction fate_instr: n.get_body()
@@ -854,6 +866,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          new_body.add(ic.get_result());
       }
+      compiler.registers().pop_hierarchical_instruction_level();
 
       new_body.add
       (
@@ -1019,7 +1032,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc = new ComputationCompiler(compiler);
 
          branch.get_car().get_visited_by(cc);
+         compiler.registers().push_hierarchical_instruction_level();
          branch.get_cdr().get_visited_by(ic);
+         compiler.registers().pop_hierarchical_instruction_level();
 
          if (cc.has_init())
          {
@@ -1115,8 +1130,14 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       if_false_ic = new InstructionCompiler(compiler);
 
       n.get_condition().get_visited_by(cc);
+
+      compiler.registers().push_hierarchical_instruction_level();
       n.get_if_true().get_visited_by(if_true_ic);
+      compiler.registers().pop_hierarchical_instruction_level();
+
+      compiler.registers().push_hierarchical_instruction_level();
       n.get_if_false().get_visited_by(if_false_ic);
+      compiler.registers().pop_hierarchical_instruction_level();
 
       if (cc.has_init())
       {
@@ -1157,7 +1178,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       if_true_ic = new InstructionCompiler(compiler);
 
       n.get_condition().get_visited_by(cc);
+
+      compiler.registers().push_hierarchical_instruction_level();
       n.get_if_true().get_visited_by(if_true_ic);
+      compiler.registers().pop_hierarchical_instruction_level();
 
       if (cc.has_init())
       {
@@ -1302,6 +1326,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          )
       );
 
+      compiler.registers().push_hierarchical_instruction_level();
       for
       (
          final tonkadur.fate.v1.lang.meta.Instruction fate_instruction:
@@ -1310,6 +1335,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       {
          fate_instruction.get_visited_by(this);
       }
+      compiler.registers().pop_hierarchical_instruction_level();
 
       result.add
       (
