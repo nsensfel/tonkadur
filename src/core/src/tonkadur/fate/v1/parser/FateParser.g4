@@ -189,9 +189,9 @@ first_level_fate_instr:
    }
 
    | DECLARE_TEXT_EFFECT_KW
-      params=type_list
-      WS*
       new_reference_name
+      WS+
+      params=type_list
       WS*
    R_PAREN
    {
@@ -210,6 +210,32 @@ first_level_fate_instr:
          (
             start_origin,
             ($type_list.result),
+            ($new_reference_name.result)
+         );
+
+      WORLD.text_effects().add(new_text_effect);
+   }
+
+   | DECLARE_TEXT_EFFECT_KW
+      new_reference_name
+      WS*
+   R_PAREN
+   {
+      final Origin start_origin;
+      final TextEffect new_text_effect;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_TEXT_EFFECT_KW.getLine()),
+            ($DECLARE_TEXT_EFFECT_KW.getCharPositionInLine())
+         );
+
+      new_text_effect =
+         new TextEffect
+         (
+            start_origin,
+            new ArrayList(),
             ($new_reference_name.result)
          );
 
