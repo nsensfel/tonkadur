@@ -176,6 +176,11 @@ class RegisterContext
       return register_by_name.get(name);
    }
 
+   public Register get_non_local_register (final String name)
+   {
+      return register_by_name.get(name);
+   }
+
    public void release (final Register r)
    {
       r.set_is_in_use(false);

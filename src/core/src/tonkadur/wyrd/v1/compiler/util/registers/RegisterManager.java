@@ -130,7 +130,7 @@ public class RegisterManager
 
       if (result == null)
       {
-         return base_context.get_register(name);
+         return base_context.get_non_local_register(name);
       }
 
       return result;
