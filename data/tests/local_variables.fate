@@ -1,0 +1,110 @@
+(fate_version 1)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(local int i)
+
+(set_value i 3)
+
+(assert (= (var i) 3) FAILED: local A)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(global int j)
+(set_value j 4)
+
+(local int j)
+(set_value j 16)
+
+(local (lambda int ()) global_j)
+
+(set_value global_j (lambda () (var j)))
+
+(assert (= (var j) 16) FAILED: local B, local j: (var j))
+(assert (= (eval global_j) 4) FAILED: local C, global_j: (eval global_j))
+
+(if (true)
+   (
+      (local int k)
+      (set k 11)
+      (assert (= (var k) 11) FAILED: local D, k: (var k))
+      (assert (= (var j) 16) FAILED: local E, j: (var j))
+   )
+)
+
+(local int k)
+(set k 12)
+(assert (= (var k) 12) FAILED: local F, k: (var k))
+
+(if_else (true)
+   (
+      (local int l)
+      (set l 13)
+      (assert (= (var l) 13) FAILED: local G, k: (var l))
+   )
+   (
+      (local int l)
+      (set l 14)
+   )
+)
+
+(if_else (false)
+   (
+      (local int l)
+      (set l 13)
+      (assert (= (var l) 13) FAILED: local H, k: (var l))
+   )
+   (
+      (local int l)
+      (set l 14)
+      (assert (= (var l) 14) FAILED: local I, k: (var l))
+   )
+)
+
+(define_sequence test0 ()
+   (assert (= (var j) 4) FAILED: local J, j from seq: (var j))
+)
+
+(call test0)
+
+(define_sequence test1 ()
+   (local int j)
+   (set j 634)
+   (assert (= (var j) 634) FAILED: local K, j from seq: (var j))
+)
+
+(call test1)
+
+(assert (= (var j) 16) FAILED: local L, local j: (var j))
+
+(define_sequence test2 ()
+   (local int j)
+   (set j 635)
+   (assert (= (var j) 635) FAILED: local K, j from seq: (var j))
+
+   (local (lambda int ()) global_j)
+
+   (set_value global_j (lambda () (var j)))
+   (assert (= (eval global_j) 4) FAILED: local L, global_j: (eval global_j))
+)
+
+(call test2)
+(assert
+   (=
+      (let
+         (
+            (a_one 1)
+            (a_two 2)
+            (a_three (+ (var a_one) (var a_two)))
+         )
+         (+ (var a_one) (var a_two) (var a_three))
+      )
+      6
+   )
+   FAILED: local M
+)
+(end)
