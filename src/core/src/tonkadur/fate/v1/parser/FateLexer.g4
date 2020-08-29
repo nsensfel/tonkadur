@@ -87,7 +87,7 @@ REQUIRE_EXTENSION_KW: L_PAREN 'require'US'extension' SEP+;
 REQUIRE_KW: L_PAREN 'require' SEP+;
 SEQUENCE_KW: L_PAREN 'seq'('uence')? SEP+;
 SET_FIELDS_KW: L_PAREN 'set'US'fields' SEP+;
-SET_KW: L_PAREN 'set' SEP+;
+SET_KW: L_PAREN 'set'(US(('val''ue'?)|('var''iable'?)))? SEP+;
 LIST_KW: L_PAREN 'list' SEP+;
 SIZE_KW: L_PAREN 'size' SEP+;
 SWITCH_KW: L_PAREN 'switch' SEP+;

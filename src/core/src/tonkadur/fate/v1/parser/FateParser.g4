@@ -420,7 +420,7 @@ catch [final Throwable e]
 general_fate_instr
 returns [Instruction result]
 :
-   L_PAREN WS* general_fate_sequence WS* R_PAREN
+   L_PAREN WS+ general_fate_sequence WS+ R_PAREN
    {
       $result =
          new InstructionList
