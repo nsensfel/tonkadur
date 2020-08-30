@@ -31,6 +31,9 @@ public interface ComputationVisitor
    public void visit_relative_address (final RelativeAddress n)
    throws Throwable;
 
+   public void visit_get_last_choice_index (final GetLastChoiceIndex n)
+   throws Throwable;
+
    public void visit_rich_text (final RichText n)
    throws Throwable;
 

@@ -24,6 +24,7 @@ import tonkadur.wyrd.v1.lang.computation.Operation;
 import tonkadur.wyrd.v1.lang.computation.Address;
 import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.Size;
+import tonkadur.wyrd.v1.lang.computation.GetLastChoiceIndex;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.AddChoice;
@@ -1291,9 +1292,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        *
        * Wyrd (add_choice label i0)
        */
+      final List<Instruction> to_next, labels_only;
       final ComputationCompiler cc;
       final String start_of_effect, end_of_effect;
 
+      to_next = new ArrayList<Instruction>();
+      labels_only = new ArrayList<Instruction>();
       cc = new ComputationCompiler(compiler);
 
       start_of_effect = compiler.assembler().generate_label("<choice#start>");
@@ -1306,7 +1310,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(cc.get_init());
       }
 
-      result.add
+      labels_only.add
       (
          new AddChoice
          (
@@ -1314,13 +1318,62 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             compiler.assembler().get_label_constant(start_of_effect)
          )
       );
+
+      labels_only.add
+      (
+         new SetPC(compiler.assembler().get_label_constant(end_of_effect))
+      );
+
+      result.add
+      (
+         If.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            Operation.equals
+            (
+               compiler.registers().get_choice_number_holder().get_value(),
+               new Constant(Type.INT, "-2")
+            ),
+            compiler.assembler().merge(labels_only)
+         )
+      );
+
+      to_next.add
+      (
+         new SetValue
+         (
+            compiler.registers().get_choice_number_holder().get_address(),
+            Operation.plus
+            (
+               compiler.registers().get_choice_number_holder().get_value(),
+               Constant.ONE
+            )
+         )
+      );
+
+      to_next.add
+      (
+         new SetPC(compiler.assembler().get_label_constant(end_of_effect))
+      );
+
       result.add
       (
          compiler.assembler().mark_after
          (
-            new SetPC
+            If.generate
             (
-               compiler.assembler().get_label_constant(end_of_effect)
+               compiler.registers(),
+               compiler.assembler(),
+               Operation.not
+               (
+                  Operation.equals
+                  (
+                     compiler.registers().get_choice_number_holder().get_value(),
+                     new GetLastChoiceIndex()
+                  )
+               ),
+               compiler.assembler().merge(to_next)
             ),
             start_of_effect
          )
@@ -1359,12 +1412,28 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      final String end_of_choices_label;
+      final String start_of_choices_label, end_of_choices_label;
+
+      start_of_choices_label =
+         compiler.assembler().generate_label("<ChoicesDefinition>");
 
       end_of_choices_label =
          compiler.assembler().generate_label("<ChoicesResolved>");
 
       compiler.assembler().push_context_label("choices", end_of_choices_label);
+
+      result.add
+      (
+         compiler.assembler().mark_after
+         (
+            new SetValue
+            (
+               compiler.registers().get_choice_number_holder().get_address(),
+               new Constant(Type.INT, "-2")
+            ),
+            start_of_choices_label
+         )
+      );
 
       /*
        * Fate: (player_choice_list i0 ... in)
@@ -1386,11 +1455,25 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       compiler.assembler().pop_context_label("choices");
 
+      result.add(new ResolveChoices());
+
+      result.add
+      (
+         new SetValue
+         (
+            compiler.registers().get_choice_number_holder().get_address(),
+            new Constant(Type.INT, "0")
+         )
+      );
+
       result.add
       (
          compiler.assembler().mark_after
          (
-            new ResolveChoices(),
+            new SetPC
+            (
+               compiler.assembler().get_label_constant(start_of_choices_label)
+            ),
             end_of_choices_label
          )
       );

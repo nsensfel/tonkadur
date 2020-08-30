@@ -37,7 +37,7 @@ public class RegisterManager
    protected final Map<String, StackableRegisterContext> context_by_name;
    protected final Deque<RegisterContext> context;
    protected final RegisterContext base_context, parameter_context;
-   protected final Register next_pc, pc_stack;
+   protected final Register next_pc, pc_stack, choice_number;
    protected int created_contexts;
 
    public RegisterManager ()
@@ -45,6 +45,7 @@ public class RegisterManager
       base_context = new RegisterContext("base context");
       parameter_context = new RegisterContext("parameter context", ".param.");
       next_pc = base_context.reserve(Type.INT);
+      choice_number = base_context.reserve(Type.INT);
       pc_stack = base_context.reserve(new MapType(Type.INT));
 
       context_by_name = new HashMap<String, StackableRegisterContext>();
@@ -67,6 +68,11 @@ public class RegisterManager
    public String create_stackable_context_name ()
    {
       return context_name_prefix + (created_contexts++);
+   }
+
+   public Register get_choice_number_holder ()
+   {
+      return choice_number;
    }
 
    public void create_stackable_context (final String context_name)

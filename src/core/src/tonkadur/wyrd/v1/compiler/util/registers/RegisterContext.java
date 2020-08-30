@@ -146,6 +146,7 @@ class RegisterContext
 
    public void unbind (final String name)
    {
+      release(aliased_registers.get(name));
       aliased_registers.remove(name);
    }
 

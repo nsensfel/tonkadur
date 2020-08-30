@@ -1,0 +1,98 @@
+(fate_version 1)
+
+(global int i)
+
+(player_choice
+   (
+      ( Wrong Choice 0 )
+      (set i 1)
+      (assert (false) FAILED: Player Choice A)
+   )
+   (
+      ( Right Choice )
+      Took the right choice.
+      (set i 2)
+   )
+   (
+      ( Wrong Choice 1 )
+      (set i 1)
+      (assert (false) FAILED: Player Choice B)
+   )
+)
+
+(assert (= (var i) 2) FAILED: Player Choice C, i: (var i))
+
+(player_choice
+   (if (false)
+      (
+         ( Wrong Choice 0 )
+         (set i 1)
+      )
+   )
+   (ifelse (false)
+      (
+         ( Wrong Choice 1 )
+         (set i 3)
+      )
+      (if (true)
+         (
+            ( Right Choice )
+            (set i 6)
+         )
+      )
+   )
+)
+
+(assert (= (var i) 6) FAILED: Player Choice D, i: (var i))
+
+(global (set int) test_set)
+
+(while (>= (var i) 0)
+   (add (var i) test_set)
+   (set i (- (var i) 1))
+)
+
+(foreach test_set e
+   (var e)
+)
+
+(player_choice
+   (if (false)
+      (
+         ( Wrong Choice -1 )
+         (set i 1)
+      )
+   )
+   (foreach test_set e
+      (ifelse (= (var e) 3)
+         (
+            ( Correct Choice (var e) )
+            (
+               Chosen var e: (var e)
+               (set i 653)
+            )
+         )
+         (
+            ( Wrong Choice (var e) )
+            (
+               Chosen var e: (var e)
+               (set i (var e))
+            )
+         )
+      )
+   )
+   (ifelse (false)
+      (
+         ( Wrong Choice 1 )
+         (set i 3)
+      )
+      (
+         ( Wrong Choice Other )
+         (set i 6)
+      )
+   )
+)
+
+(assert (= (var i) 653) FAILED: Player Choice E, i: (var i))
+
+(end)

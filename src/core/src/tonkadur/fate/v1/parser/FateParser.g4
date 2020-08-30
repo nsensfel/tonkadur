@@ -1351,6 +1351,105 @@ returns [Instruction result]
             ($player_choice.result)
          );
    }
+
+   | FOR_EACH_KW
+      value_reference WS+ new_reference_name
+      {
+         final Map<String, Variable> variable_map;
+         final Variable new_variable;
+         final Type collection_type;
+         Type elem_type;
+
+         elem_type = Type.ANY;
+
+         collection_type = ($value_reference.result).get_type();
+
+         if (collection_type instanceof CollectionType)
+         {
+            elem_type = ((CollectionType) collection_type).get_content_type();
+         }
+         else
+         {
+            ErrorManager.handle
+            (
+               new InvalidTypeException
+               (
+                  CONTEXT.get_origin_at
+                  (
+                     ($FOR_EACH_KW.getLine()),
+                     ($FOR_EACH_KW.getCharPositionInLine())
+                  ),
+                  elem_type,
+                  Type.COLLECTION_TYPES
+               )
+            );
+
+            elem_type = Type.ANY;
+         }
+
+
+         new_variable =
+            new Variable
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($FOR_EACH_KW.getLine()),
+                  ($FOR_EACH_KW.getCharPositionInLine())
+               ),
+               elem_type,
+               ($new_reference_name.result)
+            );
+
+         variable_map = LOCAL_VARIABLES.peekFirst();
+
+         if (variable_map.containsKey(($new_reference_name.result)))
+         {
+            ErrorManager.handle
+            (
+               new DuplicateLocalVariableException
+               (
+                  variable_map.get(($new_reference_name.result)),
+                  new_variable
+               )
+            );
+         }
+         else
+         {
+            variable_map.put(($new_reference_name.result), new_variable);
+         }
+      }
+      WS+
+      {
+         BREAKABLE_LEVELS++;
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      player_choice_list
+      {
+         BREAKABLE_LEVELS--;
+
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
+      WS*
+   R_PAREN
+   {
+      $result =
+         new ForEach
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOR_EACH_KW.getLine()),
+               ($FOR_EACH_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            ($new_reference_name.result),
+            ($player_choice_list.result)
+         );
+
+      variable_map.remove(($new_reference_name.result));
+   }
 ;
 catch [final Throwable e]
 {
@@ -2757,7 +2856,7 @@ returns [Reference result]
          );
    }
 
-   | FIELD_KW value_reference WORD R_PAREN
+   | FIELD_KW value_reference WS+ WORD WS* R_PAREN
    {
       $result =
          FieldReference.build

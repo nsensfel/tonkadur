@@ -116,6 +116,14 @@ public class ComputationCompiler implements ComputationVisitor
       result.put("category", "newline");
    }
 
+   public void visit_get_last_choice_index (final GetLastChoiceIndex n)
+   throws Throwable
+   {
+      result = new JSONObject();
+
+      result.put("category", "last_choice_index");
+   }
+
    public void visit_operation (final Operation n)
    throws Throwable
    {
