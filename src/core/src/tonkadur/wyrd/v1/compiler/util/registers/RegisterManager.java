@@ -37,16 +37,21 @@ public class RegisterManager
    protected final Map<String, StackableRegisterContext> context_by_name;
    protected final Deque<RegisterContext> context;
    protected final RegisterContext base_context, parameter_context;
-   protected final Register next_pc, pc_stack, choice_number;
+   protected final Register next_pc, pc_stack;
+   protected final Register choice_number, rand_mode, rand_value;
    protected int created_contexts;
 
    public RegisterManager ()
    {
       base_context = new RegisterContext("base context");
       parameter_context = new RegisterContext("parameter context", ".param.");
+
       next_pc = base_context.reserve(Type.INT);
-      choice_number = base_context.reserve(Type.INT);
       pc_stack = base_context.reserve(new MapType(Type.INT));
+
+      choice_number = base_context.reserve(Type.INT);
+      rand_mode = base_context.reserve(Type.INT);
+      rand_value = base_context.reserve(new MapType(Type.INT));
 
       context_by_name = new HashMap<String, StackableRegisterContext>();
       context = new ArrayDeque<RegisterContext>();
@@ -73,6 +78,16 @@ public class RegisterManager
    public Register get_choice_number_holder ()
    {
       return choice_number;
+   }
+
+   public Register get_rand_mode_holder ()
+   {
+      return rand_mode;
+   }
+
+   public Register get_rand_value_holder ()
+   {
+      return rand_value;
    }
 
    public void create_stackable_context (final String context_name)

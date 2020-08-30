@@ -22,6 +22,7 @@ import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.If;
+import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
 
@@ -949,8 +950,114 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       )
       {
-         result_as_computation =
-            Operation.rand(operands.get(0), operands.get(1));
+         final List<Instruction> push_rand, pop_rand;
+         final Register result, zero_holder;
+
+         push_rand = new ArrayList<Instruction>();
+         pop_rand = new ArrayList<Instruction>();
+
+         result = reserve(Type.INT);
+         zero_holder = reserve(Type.INT);
+
+         result_as_computation = result.get_value();
+         result_as_address = result.get_address();
+
+         push_rand.add
+         (
+            new SetValue
+            (
+               result_as_address,
+               Operation.rand(operands.get(0), operands.get(1))
+            )
+         );
+
+         push_rand.add
+         (
+            new SetValue
+            (
+               new RelativeAddress
+               (
+                  compiler.registers().get_rand_value_holder().get_address(),
+                  new Cast
+                  (
+                     new Size
+                     (
+                        compiler.registers().get_rand_value_holder
+                        (
+                        ).get_address()
+                     ),
+                     Type.STRING
+                  ),
+                  Type.INT
+               ),
+               result_as_computation
+            )
+         );
+
+         pop_rand.add
+         (
+            new SetValue
+            (
+               result_as_address,
+               new ValueOf
+               (
+                  new RelativeAddress
+                  (
+                     compiler.registers().get_rand_value_holder().get_address(),
+                     new Cast(Constant.ZERO, Type.STRING),
+                     Type.INT
+                  )
+               )
+            )
+         );
+
+         pop_rand.add(new SetValue(zero_holder.get_address(), Constant.ZERO));
+
+         pop_rand.add
+         (
+            RemoveAt.generate
+            (
+               compiler.registers(),
+               compiler.assembler(),
+               zero_holder.get_address(),
+               new Size
+               (
+                  compiler.registers().get_rand_value_holder().get_address()
+               ),
+               compiler.registers().get_rand_value_holder().get_address()
+            )
+         );
+
+         init_instructions.add
+         (
+            IfElse.generate
+            (
+               compiler.registers(),
+               compiler.assembler(),
+               Operation.equals
+               (
+                  compiler.registers().get_rand_mode_holder().get_value(),
+                  Constant.ZERO
+               ),
+               new SetValue
+               (
+                  result_as_address,
+                  Operation.rand(operands.get(0), operands.get(1))
+               ),
+               IfElse.generate
+               (
+                  compiler.registers(),
+                  compiler.assembler(),
+                  Operation.equals
+                  (
+                     compiler.registers().get_rand_mode_holder().get_value(),
+                     Constant.ONE
+                  ),
+                  compiler.assembler().merge(push_rand),
+                  compiler.assembler().merge(pop_rand)
+               )
+            )
+         );
       }
       else if
       (

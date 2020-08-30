@@ -1379,6 +1379,29 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          )
       );
 
+      result.add
+      (
+         new SetValue
+         (
+            compiler.registers().get_rand_mode_holder().get_address(),
+            new Constant(Type.INT, "0")
+         )
+      );
+
+      result.add
+      (
+         Clear.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            new Size
+            (
+               compiler.registers().get_rand_value_holder().get_address()
+            ),
+            compiler.registers().get_rand_value_holder().get_address()
+         )
+      );
+
       compiler.registers().push_hierarchical_instruction_level();
       for
       (
@@ -1424,6 +1447,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       result.add
       (
+         new SetValue
+         (
+            compiler.registers().get_rand_mode_holder().get_address(),
+            new Constant(Type.INT, "1")
+         )
+      );
+
+      result.add
+      (
          compiler.assembler().mark_after
          (
             new SetValue
@@ -1463,6 +1495,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers().get_choice_number_holder().get_address(),
             new Constant(Type.INT, "0")
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            compiler.registers().get_rand_mode_holder().get_address(),
+            new Constant(Type.INT, "-1")
          )
       );
 

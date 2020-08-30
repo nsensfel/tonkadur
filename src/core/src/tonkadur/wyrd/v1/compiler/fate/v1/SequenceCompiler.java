@@ -8,6 +8,9 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.World;
 import tonkadur.wyrd.v1.lang.Register;
 
+import tonkadur.wyrd.v1.lang.instruction.SetValue;
+
+import tonkadur.wyrd.v1.lang.computation.Constant;
 public class SequenceCompiler
 {
    /* Utility Class */
@@ -121,6 +124,16 @@ public class SequenceCompiler
       final InstructionCompiler ic;
 
       ic = new InstructionCompiler(compiler);
+
+      compiler.assembler().handle_adding_instruction
+      (
+         new SetValue
+         (
+            compiler.registers().get_rand_mode_holder().get_address(),
+            Constant.ZERO
+         ),
+         compiler.world()
+      );
 
       for
       (

@@ -95,4 +95,17 @@
 
 (assert (= (var i) 653) FAILED: Player Choice E, i: (var i))
 
+(player_choice
+   (foreach test_set e
+      (if (= (rand 0 1) 1)
+         (
+            ( Choice (var e) )
+            (
+               Chosen var e: (var e)
+            )
+         )
+      )
+   )
+)
+
 (end)
