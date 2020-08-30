@@ -65,6 +65,12 @@ public interface InstructionVisitor
    public void visit_instruction_list (final InstructionList n)
    throws Throwable;
 
+   public void visit_prompt_integer (final PromptInteger n)
+   throws Throwable;
+
+   public void visit_prompt_string (final PromptString n)
+   throws Throwable;
+
    public void visit_player_choice (final PlayerChoice n)
    throws Throwable;
 

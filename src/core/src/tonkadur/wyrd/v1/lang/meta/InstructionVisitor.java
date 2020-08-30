@@ -28,6 +28,12 @@ public interface InstructionVisitor
    public void visit_set_pc (final SetPC n)
    throws Throwable;
 
+   public void visit_prompt_integer (final PromptInteger n)
+   throws Throwable;
+
+   public void visit_prompt_string (final PromptString n)
+   throws Throwable;
+
    public void visit_set_value (final SetValue n)
    throws Throwable;
 }

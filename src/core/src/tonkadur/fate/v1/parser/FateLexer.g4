@@ -85,6 +85,8 @@ REMOVE_ONE_KW: L_PAREN 'remove'US'one' SEP+;
 REMOVE_AT_KW: L_PAREN ('remove'US('elem'('ent')?US)?'at') SEP+;
 REQUIRE_EXTENSION_KW: L_PAREN 'require'US'extension' SEP+;
 REQUIRE_KW: L_PAREN 'require' SEP+;
+PROMPT_STRING_KW: L_PAREN 'prompt_string' SEP+;
+PROMPT_INTEGER_KW: L_PAREN 'prompt_int'('eger'?) SEP+;
 SET_FIELDS_KW: L_PAREN 'set'US'fields' SEP+;
 SET_KW: L_PAREN 'set'(US(('val''ue'?)|('var''iable'?)))? SEP+;
 LIST_KW: L_PAREN 'list' SEP+;

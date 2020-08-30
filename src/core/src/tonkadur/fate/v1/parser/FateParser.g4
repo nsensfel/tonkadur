@@ -512,6 +512,50 @@ returns [Instruction result]
       }
    }
 
+   | PROMPT_STRING_KW
+         target=value_reference WS+
+         min_size=value WS+
+         max_size=value WS+
+         paragraph WS*
+      R_PAREN
+   {
+      $result =
+         PromptString.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PROMPT_STRING_KW.getLine()),
+               ($PROMPT_STRING_KW.getCharPositionInLine())
+            ),
+            ($target.result),
+            ($min_size.result),
+            ($max_size.result),
+            ($paragraph.result)
+         );
+   }
+
+   | PROMPT_INTEGER_KW
+         target=value_reference WS+
+         min_size=value WS+
+         max_size=value WS+
+         paragraph WS*
+      R_PAREN
+   {
+      $result =
+         PromptInteger.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PROMPT_INTEGER_KW.getLine()),
+               ($PROMPT_INTEGER_KW.getCharPositionInLine())
+            ),
+            ($target.result),
+            ($min_size.result),
+            ($max_size.result),
+            ($paragraph.result)
+         );
+   }
+
    | ADD_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
@@ -1420,13 +1464,10 @@ returns [Instruction result]
       }
       WS+
       {
-         BREAKABLE_LEVELS++;
          HIERARCHICAL_VARIABLES.push(new ArrayList());
       }
       player_choice_list
       {
-         BREAKABLE_LEVELS--;
-
          for (final String s: HIERARCHICAL_VARIABLES.pop())
          {
             LOCAL_VARIABLES.peekFirst().remove(s);

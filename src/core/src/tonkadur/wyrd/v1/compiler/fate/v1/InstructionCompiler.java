@@ -33,6 +33,8 @@ import tonkadur.wyrd.v1.lang.instruction.Display;
 import tonkadur.wyrd.v1.lang.instruction.End;
 import tonkadur.wyrd.v1.lang.instruction.EventCall;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
+import tonkadur.wyrd.v1.lang.instruction.PromptString;
+import tonkadur.wyrd.v1.lang.instruction.PromptInteger;
 import tonkadur.wyrd.v1.lang.instruction.ResolveChoices;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
@@ -1310,14 +1312,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(cc.get_init());
       }
 
-      labels_only.add
-      (
-         new AddChoice
-         (
-            cc.get_computation(),
-            compiler.assembler().get_label_constant(start_of_effect)
-         )
-      );
+      labels_only.add(new AddChoice(cc.get_computation()));
 
       labels_only.add
       (
@@ -1973,5 +1968,131 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       value_cc.release_registers();
       address_cc.release_registers();
+   }
+
+   @Override
+   public void visit_prompt_integer
+   (
+      final tonkadur.fate.v1.lang.instruction.PromptInteger n
+   )
+   throws Throwable
+   {
+      /*
+       * Fate: (prompt_integer target min max label)
+       * Wyrd: (prompt_integer target min max label)
+       */
+      final ComputationCompiler target_cc, min_cc, max_cc, label_cc;
+
+      target_cc = new ComputationCompiler(compiler);
+      min_cc = new ComputationCompiler(compiler);
+      max_cc = new ComputationCompiler(compiler);
+      label_cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(target_cc);
+
+      if (target_cc.has_init())
+      {
+         result.add(target_cc.get_init());
+      }
+
+      n.get_min().get_visited_by(min_cc);
+
+      if (min_cc.has_init())
+      {
+         result.add(min_cc.get_init());
+      }
+
+      n.get_max().get_visited_by(max_cc);
+
+      if (max_cc.has_init())
+      {
+         result.add(max_cc.get_init());
+      }
+
+      n.get_label().get_visited_by(label_cc);
+
+      if (label_cc.has_init())
+      {
+         result.add(label_cc.get_init());
+      }
+
+      result.add
+      (
+         new PromptInteger
+         (
+            target_cc.get_address(),
+            min_cc.get_computation(),
+            max_cc.get_computation(),
+            label_cc.get_computation()
+         )
+      );
+
+      target_cc.release_registers();
+      min_cc.release_registers();
+      max_cc.release_registers();
+      label_cc.release_registers();
+   }
+
+   @Override
+   public void visit_prompt_string
+   (
+      final tonkadur.fate.v1.lang.instruction.PromptString n
+   )
+   throws Throwable
+   {
+      /*
+       * Fate: (prompt_integer target min max label)
+       * Wyrd: (prompt_integer target min max label)
+       */
+      final ComputationCompiler target_cc, min_cc, max_cc, label_cc;
+
+      target_cc = new ComputationCompiler(compiler);
+      min_cc = new ComputationCompiler(compiler);
+      max_cc = new ComputationCompiler(compiler);
+      label_cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(target_cc);
+
+      if (target_cc.has_init())
+      {
+         result.add(target_cc.get_init());
+      }
+
+      n.get_min().get_visited_by(min_cc);
+
+      if (min_cc.has_init())
+      {
+         result.add(min_cc.get_init());
+      }
+
+      n.get_max().get_visited_by(max_cc);
+
+      if (max_cc.has_init())
+      {
+         result.add(max_cc.get_init());
+      }
+
+      n.get_label().get_visited_by(label_cc);
+
+      if (label_cc.has_init())
+      {
+         result.add(label_cc.get_init());
+      }
+
+      result.add
+      (
+         new PromptString
+         (
+            target_cc.get_address(),
+            min_cc.get_computation(),
+            max_cc.get_computation(),
+            label_cc.get_computation()
+         )
+      );
+
+      target_cc.release_registers();
+      min_cc.release_registers();
+      max_cc.release_registers();
+      label_cc.release_registers();
    }
 }

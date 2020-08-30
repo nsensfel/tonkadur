@@ -15,19 +15,16 @@ public class InstructionCompiler implements InstructionVisitor
    public void visit_add_choice (final AddChoice n)
    throws Throwable
    {
-      final ComputationCompiler label_cc, address_cc;
+      final ComputationCompiler label_cc;
 
       label_cc = new ComputationCompiler();
-      address_cc = new ComputationCompiler();
 
       n.get_label().get_visited_by(label_cc);
-      n.get_address().get_visited_by(address_cc);
 
       result = new JSONObject();
 
       result.put("category", "add_choice");
       result.put("label", label_cc.get_result());
-      result.put("address", address_cc.get_result());
    }
 
    public void visit_assert (final Assert n)
@@ -150,6 +147,54 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("category", "set_value");
       result.put("reference", ref_cc.get_result());
       result.put("value", val_cc.get_result());
+   }
+
+   public void visit_prompt_integer (final PromptInteger n)
+   throws Throwable
+   {
+      final ComputationCompiler target_cc, min_cc, max_cc, label_cc;
+
+      target_cc = new ComputationCompiler();
+      min_cc = new ComputationCompiler();
+      max_cc = new ComputationCompiler();
+      label_cc = new ComputationCompiler();
+
+      n.get_target().get_visited_by(target_cc);
+      n.get_min().get_visited_by(min_cc);
+      n.get_max().get_visited_by(max_cc);
+      n.get_label().get_visited_by(label_cc);
+
+      result = new JSONObject();
+
+      result.put("category", "prompt_integer");
+      result.put("target", target_cc.get_result());
+      result.put("min", min_cc.get_result());
+      result.put("max", max_cc.get_result());
+      result.put("label", label_cc.get_result());
+   }
+
+   public void visit_prompt_string (final PromptString n)
+   throws Throwable
+   {
+      final ComputationCompiler target_cc, min_cc, max_cc, label_cc;
+
+      target_cc = new ComputationCompiler();
+      min_cc = new ComputationCompiler();
+      max_cc = new ComputationCompiler();
+      label_cc = new ComputationCompiler();
+
+      n.get_target().get_visited_by(target_cc);
+      n.get_min().get_visited_by(min_cc);
+      n.get_max().get_visited_by(max_cc);
+      n.get_label().get_visited_by(label_cc);
+
+      result = new JSONObject();
+
+      result.put("category", "prompt_string");
+      result.put("target", target_cc.get_result());
+      result.put("min", min_cc.get_result());
+      result.put("max", max_cc.get_result());
+      result.put("label", label_cc.get_result());
    }
 
    public JSONObject get_result ()
