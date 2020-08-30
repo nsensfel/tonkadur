@@ -23,6 +23,7 @@ import tonkadur.wyrd.v1.lang.computation.Constant;
 import tonkadur.wyrd.v1.lang.computation.Operation;
 import tonkadur.wyrd.v1.lang.computation.Address;
 import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
+import tonkadur.wyrd.v1.lang.computation.IfElseComputation;
 import tonkadur.wyrd.v1.lang.computation.Size;
 import tonkadur.wyrd.v1.lang.computation.GetLastChoiceIndex;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
@@ -245,6 +246,128 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          );
 
       compiler.registers().bind(n.get_variable().get_name(), r);
+   }
+
+   @Override
+   public void visit_add_elements_of
+   (
+      final tonkadur.fate.v1.lang.instruction.AddElementsOf n
+   )
+   throws Throwable
+   {
+      final tonkadur.fate.v1.lang.meta.Instruction as_fate;
+
+
+      as_fate =
+         new tonkadur.fate.v1.lang.instruction.ForEach
+         (
+            n.get_origin(),
+            n.get_source_collection(),
+            ".secret var of doom",
+            Collections.singletonList
+            (
+               tonkadur.fate.v1.lang.instruction.AddElement.build
+               (
+                  n.get_origin(),
+                  new tonkadur.fate.v1.lang.computation.VariableReference
+                  (
+                     n.get_origin(),
+                     new tonkadur.fate.v1.lang.Variable
+                     (
+                        n.get_origin(),
+                        (
+                           (tonkadur.fate.v1.lang.type.CollectionType)
+                           n.get_source_collection().get_type()
+                        ).get_content_type(),
+                        ".secret var of doom"
+                     )
+                  ),
+                  n.get_target_collection()
+               )
+            )
+         );
+
+      as_fate.get_visited_by(this);
+   }
+
+   @Override
+   public void visit_add_element_at
+   (
+      final tonkadur.fate.v1.lang.instruction.AddElementAt n
+   )
+   throws Throwable
+   {
+      final Address collection_as_address;
+      final ComputationCompiler index_compiler, element_compiler;
+      final ComputationCompiler collection_compiler;
+      final Register index_holder;
+
+      index_holder = compiler.registers().reserve(Type.INT);
+
+      index_compiler = new ComputationCompiler(compiler);
+
+      n.get_index().get_visited_by(index_compiler);
+
+      if (index_compiler.has_init())
+      {
+         result.add(index_compiler.get_init());
+      }
+
+
+      element_compiler = new ComputationCompiler(compiler);
+
+      n.get_element().get_visited_by(element_compiler);
+
+      if (element_compiler.has_init())
+      {
+         result.add(element_compiler.get_init());
+      }
+
+      collection_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(collection_compiler);
+
+      if (collection_compiler.has_init())
+      {
+         result.add(collection_compiler.get_init());
+      }
+
+      result.add
+      (
+         new SetValue
+         (
+            index_holder.get_address(),
+            new IfElseComputation
+            (
+               Operation.greater_than
+               (
+                  index_compiler.get_computation(),
+                  new Size(collection_compiler.get_address())
+               ),
+               new Size(collection_compiler.get_address()),
+               index_compiler.get_computation()
+            )
+         )
+      );
+
+      result.add
+      (
+         InsertAt.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            index_holder.get_address(),
+            element_compiler.get_computation(),
+            new Size(collection_compiler.get_address()),
+            collection_compiler.get_address()
+         )
+      );
+
+      compiler.registers().release(index_holder);
+
+      index_compiler.release_registers();
+      element_compiler.release_registers();
+      collection_compiler.release_registers();
    }
 
    @Override

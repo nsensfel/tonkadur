@@ -17,6 +17,8 @@ R_PAREN: ')';
 ABS_KW: L_PAREN 'abs'('olute'?) SEP+;
 ACCESS_KW: L_PAREN 'access' SEP+;
 ADD_KW: L_PAREN 'add'(US'element')? SEP+;
+ADD_AT_KW: L_PAREN 'add'(US'element')?US'at' SEP+;
+ADD_ALL_KW: L_PAREN 'add'US'all'(US'elements')? SEP+;
 AND_KW: L_PAREN ('and'|'/\\') SEP+;
 ASSERT_KW: L_PAREN 'assert' SEP+;
 AT_KW: L_PAREN 'at' SEP+;
@@ -28,7 +30,7 @@ COUNT_KW: L_PAREN 'count' SEP+;
 DECLARE_ALIAS_TYPE_KW:
    L_PAREN ((('declare'|'define'|'def')US(('sub'|'alias')US)?'type')|'typedef') SEP+;
 DECLARE_DICT_TYPE_KW: L_PAREN
-('declare'|'define'|'def')US('dict'|('struct''ure'?))(US'type')? SEP+;
+   ('declare'|'define'|'def')US('dict'|('struct''ure'?))(US'type')? SEP+;
 DECLARE_EVENT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US'event'(US'type')? SEP+;
 DECLARE_TEXT_EFFECT_KW: L_PAREN ('declare'|'define'|'def')US'text'US'effect' SEP+;
 DECLARE_VARIABLE_KW: L_PAREN 'global' SEP+;
@@ -58,6 +60,7 @@ IMPLIES_KW: L_PAREN ('implies'|'=>'|'->') SEP+;
 INCLUDE_KW: L_PAREN 'include' SEP+;
 INDEX_OF_KW: L_PAREN ('index'US'of') SEP+;
 IS_MEMBER_KW: L_PAREN ('is'US'member'|'contains'|'has') SEP+;
+IS_EMPTY_KW: L_PAREN 'is'US'empty' SEP+;
 LOWER_EQUAL_THAN_KW: L_PAREN ('lower'US'equal'US'than'|'=<'|'<='|'le') SEP+;
 LOWER_THAN_KW: L_PAREN ('lower'US'than'|'<'|'lt') SEP+;
 LET_KW: L_PAREN 'let' SEP+;

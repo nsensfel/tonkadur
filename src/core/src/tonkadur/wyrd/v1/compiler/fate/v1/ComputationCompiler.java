@@ -1229,6 +1229,25 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_is_empty
+   (
+      final tonkadur.fate.v1.lang.computation.IsEmpty n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler cc;
+
+      cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(cc);
+
+      assimilate(cc);
+
+      result_as_computation =
+         Operation.equals(new Size(cc.get_address()), Constant.ZERO);
+   }
+
+   @Override
    public void visit_index_of_operator
    (
       final tonkadur.fate.v1.lang.computation.IndexOfOperator n

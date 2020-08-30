@@ -571,6 +571,37 @@ returns [Instruction result]
          );
    }
 
+   | ADD_AT_KW index=value WS+ element=value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         AddElementAt.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ADD_AT_KW.getLine()),
+               ($ADD_AT_KW.getCharPositionInLine())
+            ),
+            ($index.result),
+            ($element.result),
+            ($value_reference.result)
+         );
+   }
+
+   | ADD_ALL_KW source=value_reference WS+ target=value_reference WS* R_PAREN
+   {
+      $result =
+         AddElementsOf.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ADD_ALL_KW.getLine()),
+               ($ADD_ALL_KW.getCharPositionInLine())
+            ),
+            ($source.result),
+            ($target.result)
+         );
+   }
+
    | END_KW
    {
       $result =
@@ -2243,6 +2274,20 @@ returns [Computation result]:
                ($IS_MEMBER_KW.getCharPositionInLine())
             ),
             ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | IS_EMPTY_KW value_reference WS* R_PAREN
+   {
+      $result =
+         IsEmpty.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IS_EMPTY_KW.getLine()),
+               ($IS_EMPTY_KW.getCharPositionInLine())
+            ),
             ($value_reference.result)
          );
    }

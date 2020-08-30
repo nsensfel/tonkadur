@@ -52,6 +52,9 @@ public interface ComputationVisitor
    public void visit_let (final Let n)
    throws Throwable;
 
+   public void visit_is_empty (final IsEmpty n)
+   throws Throwable;
+
    public void visit_newline (final Newline n)
    throws Throwable;
 

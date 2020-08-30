@@ -1,67 +1,65 @@
 package tonkadur.fate.v1.lang.computation;
 
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.error.IncompatibleTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
+import tonkadur.fate.v1.error.InvalidTypeException;
 
+import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.RichTextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class ValueToRichText extends RichTextNode
+public class IsEmpty extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation value;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected ValueToRichText (final Computation value)
+   protected IsEmpty
+   (
+      final Origin origin,
+      final Computation collection
+   )
    {
-      super(value.get_origin());
+      super(origin, Type.BOOL);
 
-      this.value = value;
+      this.collection = collection;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static ValueToRichText build (final Computation value)
-   throws
-      IncompatibleTypeException,
-      IncomparableTypeException
+   public static IsEmpty build
+   (
+      final Origin origin,
+      final Computation collection
+   )
+   throws InvalidTypeException
    {
-      final Type value_base_type;
 
-      value_base_type = value.get_type().get_base_type();
-
-      if
-      (
-         value_base_type.equals(Type.STRING)
-         || value_base_type.equals(Type.RICH_TEXT)
-      )
+      if (!(collection.get_type() instanceof CollectionType))
       {
-         return new ValueToRichText(value);
-      }
-
-      return
-         new ValueToRichText
+         ErrorManager.handle
          (
-            Cast.build
+            new InvalidTypeException
             (
-               value.get_origin(),
-               Type.STRING,
-               value,
-               true
+               collection.get_origin(),
+               collection.get_type(),
+               Type.COLLECTION_TYPES
             )
          );
+      }
+
+      return new IsEmpty(origin, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -69,12 +67,12 @@ public class ValueToRichText extends RichTextNode
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_value_to_rich_text(this);
+      cv.visit_is_empty(this);
    }
 
-   public Computation get_value ()
+   public Computation get_collection ()
    {
-      return value;
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -83,8 +81,15 @@ public class ValueToRichText extends RichTextNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ValueToRichText ");
-      sb.append(value.toString());
+      sb.append(origin.toString());
+      sb.append("(IsEmpty");
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("collection:");
+      sb.append(System.lineSeparator());
+      sb.append(collection.toString());
+
       sb.append(")");
 
       return sb.toString();

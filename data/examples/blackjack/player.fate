@@ -1,0 +1,9 @@
+(fate_version 1)
+
+(require cards.fate)
+
+(define_structure player
+   (string name)
+   (int money)
+   ((list card) hand)
+)

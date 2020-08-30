@@ -176,32 +176,6 @@ public class TypeCompiler
          return MapType.MAP_TO_INT;
       }
 
-      if (fate_content_type instanceof tonkadur.fate.v1.lang.type.PointerType)
-      {
-         return
-            new MapType
-            (
-               new PointerType
-               (
-                  compile
-                  (
-                     compiler,
-                     (
-                        (tonkadur.fate.v1.lang.type.PointerType)
-                        fate_content_type
-                     ).get_referenced_type()
-                  )
-               )
-            );
-      }
-
-      System.err.println
-      (
-         "[P] Unknown collection member fate type '"
-         + fate_content_type
-         + "'."
-      );
-
-      return null;
+      return new MapType(compile(compiler, fate_content_type));
    }
 }

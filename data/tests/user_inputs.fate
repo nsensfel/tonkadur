@@ -1,0 +1,14 @@
+(fate_version 1)
+
+(local int i)
+
+(prompt_integer i 0 100 How likely is this test to fail?)
+Did you say (var i)? That sounds
+(ifelse (=< (var i) 50) ( unreasable ) ( very reasonable indeed)).
+
+(local string name)
+(prompt_string name 0 64 Oh, and what's your name?)
+
+I see, (var name), you might be on to something there...
+
+(end)

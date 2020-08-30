@@ -1,0 +1,5 @@
+(fate_version 1)
+
+(define_sequence rules_of_blackjack ()
+   TODO
+)

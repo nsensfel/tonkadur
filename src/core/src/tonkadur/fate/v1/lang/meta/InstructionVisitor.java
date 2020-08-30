@@ -8,6 +8,12 @@ public interface InstructionVisitor
    public void visit_add_element (final AddElement ae)
    throws Throwable;
 
+   public void visit_add_element_at (final AddElementAt n)
+   throws Throwable;
+
+   public void visit_add_elements_of (final AddElementsOf n)
+   throws Throwable;
+
    public void visit_assert (final Assert a)
    throws Throwable;
 

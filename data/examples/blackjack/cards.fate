@@ -1,0 +1,116 @@
+(fate_version 1)
+
+(declare_structure card
+   ( text name )
+   ( int number )
+   ( int score )
+)
+
+(local (list card) heart_cards)
+(local (list card) spade_cards)
+(local (list card) club_cards)
+(local (list card) diamond_cards)
+
+(define_sequence generate_card_familly ((string name) ((ptr (list card)) deck))
+   (local int i)
+
+   (for (set i 1) (=< (var i) 13) (set i (+ (var i) 1))
+      (local card c)
+
+      (set c.number (var i))
+
+      (set c.name
+         (text
+            (switch (var i)
+               (1 Ace)
+               (11 Jack)
+               (12 Queen)
+               (13 Kind)
+               (cast string (var i))
+            )
+            of (var name)
+         )
+      )
+
+      (set c.score
+         (switch (var i)
+            (11 10)
+            (12 10)
+            (13 10)
+            (var i)
+         )
+      )
+
+      (add (var c) (at deck))
+   )
+)
+
+(visit generate_card_familly Hearts (ptr heart_cards))
+(visit generate_card_familly Spades (ptr spade_cards))
+(visit generate_card_familly Diamonds (ptr diamond_cards))
+(visit generate_card_familly Clubs (ptr club_cards))
+
+(global (list card) deck_template)
+
+(add_all heart_cards deck_template)
+(add_all spade_cards deck_template)
+(add_all diamond_cards deck_template)
+(add_all club_cards deck_template)
+
+(define_sequence shuffle_into_deck
+   (
+      ((ptr (list card)) cards)
+      ((ptr (list card)) deck)
+   )
+
+   (while (! (is_empty (at cards)))
+      (local int o)
+      (local int d)
+
+      (set o (rand 0 (- (size (at cards)) 1)))
+
+      (if_else (is_empty (at deck))
+         (set d 0)
+         (set d (rand 0 (- (size (at deck)) 1)))
+      )
+
+      (add_at (var d) (access (at cards) (var o)) (at deck))
+      (remove_at (var o) (at cards))
+   )
+)
+
+(define_sequence generate_shuffled_deck (((ptr (list card)) result))
+   (local (list card) initial_deck)
+
+   (set initial_deck (var deck_template))
+
+   (clear (at result))
+   (visit shuffle_into_deck (ptr initial_deck) (var result))
+)
+
+(define_sequence draw_a_card (((ptr (list card)) deck) ((ptr card) result))
+   (set (at result) (access (at deck) 0))
+   (remove_at 0 (at deck))
+)
+
+(define_sequence compute_score (((ptr (list card)) deck) ((ptr int) result))
+   (local int aces_count)
+   (local int maybe_better_score)
+
+   (set (at result) 0)
+
+   (foreach (at deck) card
+      (set (at result) (+ (var card.score) (at result)))
+      (if (= (var card.number) 1)
+         (set aces_count (+ (var aces_count) 1))
+      )
+   )
+
+   (while (> (var aces_count) 0)
+      (set maybe_better_score (+ (at result) 10))
+      (if (=< (var maybe_better_score) 21)
+         (set (at result) (var maybe_better_score))
+      )
+      (set aces_count (- (var aces_count) 1))
+   )
+)
