@@ -148,6 +148,10 @@ class RegisterContext
    {
       release(aliased_registers.get(name));
       aliased_registers.remove(name);
+      if (!hierarchical_aliases.isEmpty())
+      {
+         hierarchical_aliases.peekFirst().remove(name);
+      }
    }
 
    public void push_hierarchical_instruction_level ()
