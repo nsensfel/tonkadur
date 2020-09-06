@@ -19,6 +19,7 @@ import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.Initialize;
 
 import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
@@ -73,8 +74,28 @@ public class InsertAt
 
       value_of_index = new ValueOf(index);
 
+
       /* (set .end collection_size) */
       result.add(new SetValue(end.get_address(), collection_size));
+
+      /*
+       * Increasing the size of the list by one.
+       * This *does* increase the value of collection_size, so don't do it
+       * before setting .end.
+       */
+      result.add
+      (
+         new Initialize
+         (
+            new RelativeAddress
+            (
+               collection,
+               new Cast(collection_size, Type.STRING),
+               element_type
+            ),
+            element_type
+         )
+      );
 
       /* (set .prev (- (val .end) 1)) */
       while_body.add

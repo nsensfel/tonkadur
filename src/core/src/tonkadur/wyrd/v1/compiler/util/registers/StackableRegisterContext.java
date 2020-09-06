@@ -23,6 +23,7 @@ import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
+import tonkadur.wyrd.v1.lang.instruction.Initialize;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.PointerType;
@@ -43,7 +44,8 @@ class StackableRegisterContext extends RegisterContext
    public StackableRegisterContext
    (
       final RegisterContext base_context,
-      final String context_name
+      final String context_name,
+      final List<Instruction> initialize_holder
    )
    {
       super(context_name);
@@ -54,11 +56,12 @@ class StackableRegisterContext extends RegisterContext
 
       context_structure = new DictType(context_name, context_structure_fields);
 
-      context_stack_level = base_context.reserve(Type.INT);
+      context_stack_level = base_context.reserve(Type.INT, initialize_holder);
       context_stacks =
          base_context.reserve
          (
-            new MapType(new PointerType(context_structure))
+            new MapType(new PointerType(context_structure)),
+            initialize_holder
          );
 
       current_context_address_holder =
@@ -78,7 +81,12 @@ class StackableRegisterContext extends RegisterContext
    }
 
    @Override
-   protected Register create_register (final Type t, final String name)
+   protected Register create_register
+   (
+      final Type t,
+      final String name,
+      final List<Instruction> initialize_holder
+   )
    {
       final Register result;
 
@@ -96,7 +104,7 @@ class StackableRegisterContext extends RegisterContext
 
       context_structure.get_fields().put(name, t);
 
-      return
+      result =
          new Register
          (
             new RelativeAddress
@@ -108,6 +116,11 @@ class StackableRegisterContext extends RegisterContext
             t,
             name
          );
+
+      /* No need for this: it's part of the type. */
+      //initialize_holder.add(new Initialize(result.get_address(), t));
+
+      return result;
    }
 
    public List<Instruction> get_initialize_instructions ()
@@ -122,6 +135,15 @@ class StackableRegisterContext extends RegisterContext
          (
             context_stack_level.get_address(),
             Operation.plus(context_stack_level.get_value(), Constant.ONE)
+         )
+      );
+
+      result.add
+      (
+         new Initialize
+         (
+            current_context_address_holder,
+            new PointerType(context_structure)
          )
       );
 

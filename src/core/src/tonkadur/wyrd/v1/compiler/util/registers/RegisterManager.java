@@ -23,9 +23,10 @@ import tonkadur.wyrd.v1.lang.computation.Cast;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 import tonkadur.wyrd.v1.lang.computation.Size;
 
-import tonkadur.wyrd.v1.lang.instruction.SetValue;
-import tonkadur.wyrd.v1.lang.instruction.SetPC;
+import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
+import tonkadur.wyrd.v1.lang.instruction.SetPC;
+import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.MapType;
@@ -39,19 +40,22 @@ public class RegisterManager
    protected final RegisterContext base_context, parameter_context;
    protected final Register next_pc, pc_stack;
    protected final Register choice_number, rand_mode, rand_value;
+   protected List<Instruction> awaiting_inits;
    protected int created_contexts;
 
    public RegisterManager ()
    {
+      awaiting_inits = new ArrayList<Instruction>();
       base_context = new RegisterContext("base context");
       parameter_context = new RegisterContext("parameter context", ".param.");
 
-      next_pc = base_context.reserve(Type.INT);
-      pc_stack = base_context.reserve(new MapType(Type.INT));
+      next_pc = base_context.reserve(Type.INT, awaiting_inits);
+      pc_stack = base_context.reserve(new MapType(Type.INT), awaiting_inits);
 
-      choice_number = base_context.reserve(Type.INT);
-      rand_mode = base_context.reserve(Type.INT);
-      rand_value = base_context.reserve(new MapType(Type.INT));
+      choice_number = base_context.reserve(Type.INT, awaiting_inits);
+      rand_mode = base_context.reserve(Type.INT, awaiting_inits);
+      rand_value =
+         base_context.reserve(new MapType(Type.INT), awaiting_inits);
 
       context_by_name = new HashMap<String, StackableRegisterContext>();
       context = new ArrayDeque<RegisterContext>();
@@ -62,7 +66,7 @@ public class RegisterManager
 
    public Register reserve (final Type t)
    {
-      return context.peekFirst().reserve(t);
+      return context.peekFirst().reserve(t, awaiting_inits);
    }
 
    public void release (final Register r)
@@ -94,7 +98,13 @@ public class RegisterManager
    {
       final StackableRegisterContext result;
 
-      result = new StackableRegisterContext(base_context, context_name);
+      result =
+         new StackableRegisterContext
+         (
+            base_context,
+            context_name,
+            awaiting_inits
+         );
 
       if (context_by_name.containsKey(context_name))
       {
@@ -130,7 +140,7 @@ public class RegisterManager
 
    public Register register (final Type t, final String name)
    {
-      return context.peekFirst().reserve(t, name);
+      return context.peekFirst().reserve(t, name, awaiting_inits);
    }
 
    public void bind (final String name, final Register register)
@@ -169,12 +179,33 @@ public class RegisterManager
 
       result.add
       (
-         new SetValue
+         new Initialize
          (
             new RelativeAddress
             (
                pc_stack.get_address(),
                new Cast(new Size(pc_stack.get_address()), Type.STRING),
+               Type.INT
+            ),
+            Type.INT
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            new RelativeAddress
+            (
+               pc_stack.get_address(),
+               new Cast
+               (
+                  Operation.minus
+                  (
+                     new Size(pc_stack.get_address()),
+                     Constant.ONE
+                  ), Type.STRING
+               ),
                Type.INT
             ),
             leave_to
@@ -294,7 +325,7 @@ public class RegisterManager
       {
          final Register r;
 
-         r = parameter_context.reserve(p.get_type());
+         r = parameter_context.reserve(p.get_type(), awaiting_inits);
 
          result.add(new SetValue(r.get_address(), p));
 
@@ -322,7 +353,7 @@ public class RegisterManager
       {
          final Register r;
 
-         r = parameter_context.reserve(p.get_type());
+         r = parameter_context.reserve(p.get_type(), awaiting_inits);
 
          result.add(new SetValue(p.get_address(), r.get_value()));
 
@@ -334,6 +365,17 @@ public class RegisterManager
          /* Side-channel attack to pass parameters, because it's convenient. */
          r.set_is_in_use(false);
       }
+
+      return result;
+   }
+
+   public List<Instruction> pop_initializes ()
+   {
+      final List<Instruction> result;
+
+      result = awaiting_inits;
+
+      awaiting_inits = new ArrayList<Instruction>();
 
       return result;
    }

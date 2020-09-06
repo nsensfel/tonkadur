@@ -33,9 +33,10 @@ import tonkadur.wyrd.v1.lang.instruction.Assert;
 import tonkadur.wyrd.v1.lang.instruction.Display;
 import tonkadur.wyrd.v1.lang.instruction.End;
 import tonkadur.wyrd.v1.lang.instruction.EventCall;
-import tonkadur.wyrd.v1.lang.instruction.Remove;
-import tonkadur.wyrd.v1.lang.instruction.PromptString;
+import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.PromptInteger;
+import tonkadur.wyrd.v1.lang.instruction.PromptString;
+import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.ResolveChoices;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
@@ -210,7 +211,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       result.add
       (
-         new SetValue
+         new Initialize
          (
             new RelativeAddress
             (
@@ -218,6 +219,28 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
                new Cast
                (
                   new Size(collection_as_address),
+                  Type.STRING
+               ),
+               element_compiler.get_computation().get_type()
+            ),
+            element_compiler.get_computation().get_type()
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            new RelativeAddress
+            (
+               collection_as_address,
+               new Cast
+               (
+                  Operation.minus
+                  (
+                     new Size(collection_as_address),
+                     Constant.ONE
+                  ),
                   Type.STRING
                ),
                element_compiler.get_computation().get_type()

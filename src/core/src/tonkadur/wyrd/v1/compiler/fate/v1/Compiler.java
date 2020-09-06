@@ -1,9 +1,15 @@
 package tonkadur.wyrd.v1.compiler.fate.v1;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 import tonkadur.wyrd.v1.compiler.util.InstructionManager;
 
 import tonkadur.wyrd.v1.lang.type.DictType;
+import tonkadur.wyrd.v1.lang.type.Type;
+
+import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.Register;
 import tonkadur.wyrd.v1.lang.World;
@@ -26,13 +32,19 @@ public class Compiler
 
       compiler = new Compiler(wyrd_world);
 
+      compiler.assembler().handle_adding_instruction
+      (
+         compiler.assembler().merge(compiler.registers().pop_initializes()),
+         wyrd_world
+      );
+
       compiler.compile_extensions(fate_world);
       compiler.compile_types(fate_world);
       compiler.compile_variables(fate_world);
 
-      compiler.compile_main_sequence(fate_world);
-
       compiler.compile_sequences(fate_world);
+
+      compiler.compile_main_sequence(fate_world);
 
       compiler.add_registers();
 
@@ -80,23 +92,30 @@ public class Compiler
    )
    throws Throwable
    {
+      final List<Instruction> init_instr;
+
+      init_instr = new ArrayList<Instruction>();
+
       for
       (
          final tonkadur.fate.v1.lang.Variable variable:
             fate_world.variables().get_all()
       )
       {
+         final Type t;
          final Register r;
 
-         r =
-            registers.register
-            (
-               TypeCompiler.compile(this, variable.get_type()),
-               variable.get_name()
-            );
+         t = TypeCompiler.compile(this, variable.get_type());
+         r = registers.register(t, variable.get_name());
 
          r.set_is_in_use(true);
       }
+
+      this.assembler().handle_adding_instruction
+      (
+         this.assembler().merge(init_instr),
+         this.world()
+      );
    }
 
    protected void compile_sequences

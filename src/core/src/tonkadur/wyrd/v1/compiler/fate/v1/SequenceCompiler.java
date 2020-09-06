@@ -9,6 +9,7 @@ import tonkadur.wyrd.v1.lang.World;
 import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
 import tonkadur.wyrd.v1.lang.computation.Constant;
 public class SequenceCompiler
@@ -26,6 +27,7 @@ public class SequenceCompiler
       final List<Instruction> init_instructions;
       final List<Register> parameters;
       final List<Register> to_be_cleaned;
+      final String end_of_sequence;
       final InstructionCompiler ic;
 
       init_instructions = new ArrayList<Instruction>();
@@ -33,6 +35,7 @@ public class SequenceCompiler
       to_be_cleaned = new ArrayList<Register>();
       ic = new InstructionCompiler(compiler);
 
+      end_of_sequence = compiler.assembler().generate_label("<sequence#end>");
 
       compiler.world().add_sequence_label
       (
@@ -42,7 +45,15 @@ public class SequenceCompiler
 
       compiler.assembler().add_fixed_name_label(fate_sequence.get_name());
 
-      compiler.registers().create_stackable_context(fate_sequence.get_name());
+      compiler.registers().create_stackable_context
+      (
+         fate_sequence.get_name()
+      );
+
+      init_instructions.add
+      (
+         new SetPC(compiler.assembler().get_label_constant(end_of_sequence))
+      );
 
       init_instructions.add
       (
@@ -109,7 +120,17 @@ public class SequenceCompiler
 
       compiler.assembler().handle_adding_instruction
       (
-         compiler.assembler().merge(init_instructions),
+         compiler.assembler().merge(compiler.registers().pop_initializes()),
+         compiler.world()
+      );
+
+      compiler.assembler().handle_adding_instruction
+      (
+         compiler.assembler().mark_after
+         (
+            compiler.assembler().merge(init_instructions),
+            end_of_sequence
+         ),
          compiler.world()
       );
    }
@@ -143,6 +164,12 @@ public class SequenceCompiler
       {
          fate_instruction.get_visited_by(ic);
       }
+
+      compiler.assembler().handle_adding_instruction
+      (
+         compiler.assembler().merge(compiler.registers().pop_initializes()),
+         compiler.world()
+      );
 
       compiler.assembler().handle_adding_instruction
       (

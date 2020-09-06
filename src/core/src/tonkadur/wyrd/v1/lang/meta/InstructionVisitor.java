@@ -36,4 +36,7 @@ public interface InstructionVisitor
 
    public void visit_set_value (final SetValue n)
    throws Throwable;
+
+   public void visit_initialize (final Initialize n)
+   throws Throwable;
 }

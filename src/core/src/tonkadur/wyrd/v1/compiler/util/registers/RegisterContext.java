@@ -14,6 +14,8 @@ import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
+import tonkadur.wyrd.v1.lang.instruction.Initialize;
+
 class RegisterContext
 {
    protected static final String default_name_prefix = ".anon.";
@@ -61,7 +63,11 @@ class RegisterContext
       return register_by_name.values();
    }
 
-   public Register reserve (final Type t)
+   public Register reserve
+   (
+      final Type t,
+      final List<Instruction> initialize_holder
+   )
    {
       final String name;
       final Register result;
@@ -88,7 +94,7 @@ class RegisterContext
 
       name = (name_prefix + Integer.toString(generated_registers++));
 
-      result = create_register(t, name);
+      result = create_register(t, name, initialize_holder);
 
       result.set_is_in_use(true);
 
@@ -99,11 +105,16 @@ class RegisterContext
       return result;
    }
 
-   public Register reserve (final Type t, final String name)
+   public Register reserve
+   (
+      final Type t,
+      final String name,
+      final List<Instruction> initialize_holder
+   )
    {
       final Register result;
 
-      result = create_register(t, name);
+      result = create_register(t, name, initialize_holder);
 
       if (register_by_name.get(name) != null)
       {
@@ -191,9 +202,20 @@ class RegisterContext
       r.set_is_in_use(false);
    }
 
-   protected Register create_register (final Type t, final String name)
+   protected Register create_register
+   (
+      final Type t,
+      final String name,
+      final List<Instruction> initialize_holder
+   )
    {
-      return new Register(t, name);
+      final Register result;
+
+      result = new Register(t, name);
+
+      initialize_holder.add(new Initialize(result.get_address(), t));
+
+      return result;
    }
 
    public List<Instruction> get_finalize_instructions ()

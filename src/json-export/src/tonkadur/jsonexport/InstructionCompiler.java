@@ -149,6 +149,22 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("value", val_cc.get_result());
    }
 
+   public void visit_initialize (final Initialize n)
+   throws Throwable
+   {
+      final ComputationCompiler ref_cc;
+
+      ref_cc = new ComputationCompiler();
+
+      n.get_address().get_visited_by(ref_cc);
+
+      result = new JSONObject();
+
+      result.put("category", "initialize");
+      result.put("reference", ref_cc.get_result());
+      result.put("type", Translator.compile_type(n.get_type()));
+   }
+
    public void visit_prompt_integer (final PromptInteger n)
    throws Throwable
    {
