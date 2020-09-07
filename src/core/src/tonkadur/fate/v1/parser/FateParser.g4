@@ -52,16 +52,25 @@ options
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-fate_file [Context context, World world]
+fate_file [Context context,  Deque<Map<String, Variable>> local_variables, World world]
    @init
    {
       CONTEXT = context;
       WORLD = world;
-      LOCAL_VARIABLES = new ArrayDeque<Map<String, Variable>>();
+
+      if (local_variables == null)
+      {
+         LOCAL_VARIABLES = new ArrayDeque<Map<String, Variable>>();
+         LOCAL_VARIABLES.push(new HashMap<String, Variable>());
+      }
+      else
+      {
+         LOCAL_VARIABLES = local_variables;
+      }
+
       HIERARCHICAL_VARIABLES = new ArrayDeque<List<String>>();
       BREAKABLE_LEVELS = 0;
 
-      LOCAL_VARIABLES.push(new HashMap<String, Variable>());
       HIERARCHICAL_VARIABLES.push(new ArrayList<String>());
    }
    :
@@ -377,7 +386,13 @@ first_level_fate_instr:
             filename
          );
 
-         tonkadur.fate.v1.Utils.add_file_content(filename, CONTEXT, WORLD);
+         tonkadur.fate.v1.Utils.add_file_content
+         (
+            filename,
+            CONTEXT,
+            LOCAL_VARIABLES,
+            WORLD
+         );
 
          CONTEXT.pop();
       }
@@ -399,7 +414,13 @@ first_level_fate_instr:
          filename
       );
 
-      tonkadur.fate.v1.Utils.add_file_content(filename, CONTEXT, WORLD);
+      tonkadur.fate.v1.Utils.add_file_content
+      (
+         filename,
+         CONTEXT,
+         LOCAL_VARIABLES,
+         WORLD
+      );
 
       CONTEXT.pop();
    }
@@ -724,7 +745,11 @@ returns [Instruction result]
          );
    }
 
-   | INDEXED_MAP_KW value WS+ inr=value_reference WS+ outr=value_reference WS* R_PAREN
+   | INDEXED_MAP_KW
+      value WS+
+      inr=value_reference WS+
+      outr=value_reference WS*
+      R_PAREN
    {
       $result =
          IndexedMap.build
@@ -740,41 +765,6 @@ returns [Instruction result]
          );
    }
 
-   | FOLDL_KW fun=value WS+ init=value WS+ inr=value_reference WS+ outv=value WS* R_PAREN
-   {
-      $result =
-         Fold.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOLDL_MAP_KW.getLine()),
-               ($FOLDL_MAP_KW.getCharPositionInLine())
-            ),
-            true,
-            ($fun.result),
-            ($init.result),
-            ($inr.result)
-            ($outv.result)
-         );
-   }
-
-   | FOLDR_KW fun=value WS+ init=value WS+ inr=value_reference WS+ outv=value WS* R_PAREN
-   {
-      $result =
-         Fold.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOLDR_KW.getLine()),
-               ($FOLDR_KW.getCharPositionInLine())
-            ),
-            false,
-            ($fun.result),
-            ($init.result),
-            ($inr.result)
-            ($outv.result)
-         );
-   }
 
    | MERGE_KW
       fun=value WS+
@@ -925,7 +915,7 @@ returns [Instruction result]
    | SHUFFLE_KW value_reference WS* R_PAREN
    {
       $result =
-        Range.build
+        Shuffle.build
          (
             CONTEXT.get_origin_at
             (
@@ -2089,8 +2079,8 @@ returns [Type result]
          (
             CONTEXT.get_origin_at
             (
-               ($LIST_KW.getLine()),
-               ($LIST_KW.getCharPositionInLine())
+               ($CONS_KW.getLine()),
+               ($CONS_KW.getCharPositionInLine())
             ),
             ($t0.result),
             ($t1.result),
@@ -2978,6 +2968,40 @@ returns [Computation result]
                ($CDR_KW.getCharPositionInLine())
             ),
             ($value.result),
+            false
+         );
+   }
+
+   | FOLDL_KW fun=value WS+ init=value WS+ inr=value_reference WS* R_PAREN
+   {
+      $result =
+         Fold.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOLDL_KW.getLine()),
+               ($FOLDL_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($init.result),
+            ($inr.result),
+            true
+         );
+   }
+
+   | FOLDR_KW fun=value WS+ init=value WS+ inr=value_reference WS* R_PAREN
+   {
+      $result =
+         Fold.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOLDR_KW.getLine()),
+               ($FOLDR_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($init.result),
+            ($inr.result),
             false
          );
    }

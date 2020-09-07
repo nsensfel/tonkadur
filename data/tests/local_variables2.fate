@@ -1,0 +1,4 @@
+(fate_version 1)
+
+(local int other_file_var)
+(set other_file_var 1)
