@@ -710,30 +710,70 @@ returns [Instruction result]
 
    | MAP_KW value WS+ inr=value_reference WS+ outr=value_reference WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Map.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MAP_KW.getLine()),
+               ($MAP_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($inr.result),
+            ($outr.result)
+         );
    }
 
    | INDEXED_MAP_KW value WS+ inr=value_reference WS+ outr=value_reference WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         IndexedMap.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_MAP_KW.getLine()),
+               ($INDEXED_MAP_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($inr.result),
+            ($outr.result)
+         );
    }
 
    | FOLDL_KW fun=value WS+ init=value WS+ inr=value_reference WS+ outv=value WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Fold.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOLDL_MAP_KW.getLine()),
+               ($FOLDL_MAP_KW.getCharPositionInLine())
+            ),
+            true,
+            ($fun.result),
+            ($init.result),
+            ($inr.result)
+            ($outv.result)
+         );
    }
 
    | FOLDR_KW fun=value WS+ init=value WS+ inr=value_reference WS+ outv=value WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Fold.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOLDR_KW.getLine()),
+               ($FOLDR_KW.getCharPositionInLine())
+            ),
+            false,
+            ($fun.result),
+            ($init.result),
+            ($inr.result)
+            ($outv.result)
+         );
    }
 
    | MERGE_KW
@@ -744,9 +784,20 @@ returns [Instruction result]
       outr=value_reference WS*
       R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Merge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MERGE_KW.getLine()),
+               ($MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($init.result),
+            ($inr0.result)
+            ($inr1.result)
+            ($outr.result)
+         );
    }
 
    | MERGE_KW
@@ -759,9 +810,22 @@ returns [Instruction result]
       outr=value_reference WS*
       R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Merge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MERGE_KW.getLine()),
+               ($MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($init.result),
+            ($def0.result),
+            ($inr0.result)
+            ($def1.result),
+            ($inr1.result)
+            ($outr.result)
+         );
    }
 
    | SUB_LIST_KW
@@ -771,16 +835,34 @@ returns [Instruction result]
       outr=value_reference WS*
       R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         SubList.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SUB_LIST_KW.getLine()),
+               ($SUB_LIST_KW.getCharPositionInLine())
+            ),
+            ($start.result),
+            ($end.result),
+            ($inr.result),
+            ($outr.result)
+         );
    }
 
    | FILTER_KW value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Filter.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FILTER_KW.getLine()),
+               ($FILTER_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
    }
 
    | PARTITION_KW
@@ -789,16 +871,33 @@ returns [Instruction result]
       iffalse=value_reference WS*
       R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+        Partition.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PARTITION_KW.getLine()),
+               ($PARTITION_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($iftrue.result),
+            ($iffalse.result)
+         );
    }
 
    | SORT_KW value WS+ value_reference WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+        Sort.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SORT_KW.getLine()),
+               ($SORT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result),
+         );
    }
 
    | RANGE_KW
@@ -808,16 +907,33 @@ returns [Instruction result]
       value_reference WS*
       R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+        Range.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($RANGE_KW.getLine()),
+               ($RANGE_KW.getCharPositionInLine())
+            ),
+            ($start.result),
+            ($end.result),
+            ($inc.result),
+            ($value_reference.result),
+         );
    }
 
    | SHUFFLE_KW value_reference WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+        Range.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SHUFFLE_KW.getLine()),
+               ($SHUFFLE_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
    }
 
    | SET_KW value_reference WS+ value WS* R_PAREN
@@ -1968,9 +2084,18 @@ returns [Type result]
 
    | CONS_KW t0=type WS+ t1=type WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         new ConsType
+         (
+            CONTEXT.get_origin_at
+            (
+               ($LIST_KW.getLine()),
+               ($LIST_KW.getCharPositionInLine())
+            ),
+            ($t0.result),
+            ($t1.result),
+            ("anonymous (" + ($type.result).get_name() + ") list type")
+         );
    }
 
    | LAMBDA_KW type WS* L_PAREN WS* type_list WS* R_PAREN WS* R_PAREN
@@ -2812,25 +2937,47 @@ returns [Computation result]
          );
    }
 
-   | CONS_KW v0=value WS+ t1=value WS* R_PAREN
+   | CONS_KW v0=value WS+ v1=value WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         new ConsComputation
+         (
+            CONTEXT.get_origin_at
+            (
+               ($CONS_KW.getLine()),
+               ($CONS_KW.getCharPositionInLine())
+            ),
+            ($v0.result),
+            ($v1.result)
+         );
    }
 
    | CAR_KW value WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Car.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($CAR_KW.getLine()),
+               ($CAR_KW.getCharPositionInLine())
+            ),
+            ($value.result)
+         );
    }
 
    | CDR_KW value WS* R_PAREN
    {
-      /* TODO */
-
-      $result = null;
+      $result =
+         Cdr.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($CDR_KW.getLine()),
+               ($CDR_KW.getCharPositionInLine())
+            ),
+            ($value.result)
+         );
    }
 
    | COND_KW value_cond_list WS* R_PAREN
