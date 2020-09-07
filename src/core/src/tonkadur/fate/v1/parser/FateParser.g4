@@ -732,7 +732,7 @@ returns [Instruction result]
    | MAP_KW value WS+ inr=value_reference WS+ outr=value_reference WS* R_PAREN
    {
       $result =
-         Map.build
+         tonkadur.fate.v1.lang.instruction.Map.build
          (
             CONTEXT.get_origin_at
             (
@@ -784,8 +784,8 @@ returns [Instruction result]
             ),
             ($fun.result),
             ($init.result),
-            ($inr0.result)
-            ($inr1.result)
+            ($inr0.result),
+            ($inr1.result),
             ($outr.result)
          );
    }
@@ -811,16 +811,16 @@ returns [Instruction result]
             ($fun.result),
             ($init.result),
             ($def0.result),
-            ($inr0.result)
+            ($inr0.result),
             ($def1.result),
-            ($inr1.result)
+            ($inr1.result),
             ($outr.result)
          );
    }
 
    | SUB_LIST_KW
-      start=value WS+
-      end=value WS+
+      vstart=value WS+
+      vend=value WS+
       inr=value_reference WS+
       outr=value_reference WS*
       R_PAREN
@@ -833,8 +833,8 @@ returns [Instruction result]
                ($SUB_LIST_KW.getLine()),
                ($SUB_LIST_KW.getCharPositionInLine())
             ),
-            ($start.result),
-            ($end.result),
+            ($vstart.result),
+            ($vend.result),
             ($inr.result),
             ($outr.result)
          );
@@ -886,13 +886,13 @@ returns [Instruction result]
                ($SORT_KW.getCharPositionInLine())
             ),
             ($value.result),
-            ($value_reference.result),
+            ($value_reference.result)
          );
    }
 
    | RANGE_KW
-      start=value WS+
-      end=value WS+
+      vstart=value WS+
+      vend=value WS+
       inc=value WS+
       value_reference WS*
       R_PAREN
@@ -905,10 +905,10 @@ returns [Instruction result]
                ($RANGE_KW.getLine()),
                ($RANGE_KW.getCharPositionInLine())
             ),
-            ($start.result),
-            ($end.result),
+            ($vstart.result),
+            ($vend.result),
             ($inc.result),
-            ($value_reference.result),
+            ($value_reference.result)
          );
    }
 

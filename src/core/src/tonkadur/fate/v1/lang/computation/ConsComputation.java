@@ -29,7 +29,7 @@ public class ConsComputation extends Computation
       super
       (
          origin,
-         new ConsType(origin, car.get_type(), cdr.get_type, "auto generated")
+         new ConsType(origin, car.get_type(), cdr.get_type(), "auto generated")
       );
 
       this.car = car;
@@ -44,7 +44,7 @@ public class ConsComputation extends Computation
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_cons_computation(this);
+      cv.visit_cons(this);
    }
 
    public Computation get_car ()

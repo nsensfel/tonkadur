@@ -54,7 +54,7 @@ public class ConsType extends Type
 
          return
             car.can_be_used_as(dt.car)
-            && cdr.can_be_used_as(dt.cdr)
+            && cdr.can_be_used_as(dt.cdr);
       }
 
       return false;

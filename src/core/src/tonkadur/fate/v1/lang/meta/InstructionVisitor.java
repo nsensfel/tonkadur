@@ -47,6 +47,15 @@ public interface InstructionVisitor
    public void visit_clear (final Clear c)
    throws Throwable;
 
+   public void visit_map (final Map c)
+   throws Throwable;
+
+   public void visit_range (final Range c)
+   throws Throwable;
+
+   public void visit_shuffle (final Shuffle c)
+   throws Throwable;
+
    public void visit_reverse_list (final ReverseList n)
    throws Throwable;
 

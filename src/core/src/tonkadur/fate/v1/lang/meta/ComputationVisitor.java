@@ -16,6 +16,15 @@ public interface ComputationVisitor
    public void visit_cast (final Cast n)
    throws Throwable;
 
+   public void visit_cons (final ConsComputation n)
+   throws Throwable;
+
+   public void visit_fold (final Fold n)
+   throws Throwable;
+
+   public void visit_car_cdr (final CarCdr n)
+   throws Throwable;
+
    public void visit_cond_value (final CondValue n)
    throws Throwable;
 

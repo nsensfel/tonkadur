@@ -37,6 +37,7 @@ public class CarCdr extends Computation
       super(origin, type);
 
       this.parent = parent;
+      this.is_car = is_car;
    }
 
    /***************************************************************************/
@@ -78,7 +79,7 @@ public class CarCdr extends Computation
          current_type = ((ConsType) current_type).get_cdr_type();
       }
 
-      return new CarCdr(origin, parent, current_type, is_car, field);
+      return new CarCdr(origin, parent, is_car, current_type);
    }
 
    /**** Accessors ************************************************************/

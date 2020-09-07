@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.computation;
+package tonkadur.fate.v1.lang.instruction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,58 +18,56 @@ import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
-import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 
-public class Fold extends Computation
+public class Map extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Computation initial_value;
-   protected final Reference collection;
-   protected final boolean is_foldl;
+   protected final Reference collection_in;
+   protected final Reference collection_out;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected Fold
+   protected Map
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation initial_value,
-      final Reference collection,
-      final boolean is_foldl,
-      final Type act_as
+      final Reference collection_in,
+      final Reference collection_out
    )
    {
-      super(origin, act_as);
+      super(origin);
 
       this.lambda_function = lambda_function;
-      this.initial_value = initial_value;
-      this.collection = collection;
-      this.is_foldl = is_foldl;
+      this.collection_in = collection_in;
+      this.collection_out = collection_out;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static Fold build
+   public static Map build
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation initial_value,
-      final Reference collection,
-      final boolean is_foldl
+      final Reference collection_in,
+      final Reference collection_out
    )
    throws Throwable
    {
-      final Type var_type, collection_generic_type;
-      final CollectionType collection_type;
+      final Type var_type, collection_in_generic_type;
+      final Type collection_out_generic_type;
+      final CollectionType collection_in_type;
+      final CollectionType collection_out_type;
       final LambdaType lambda_type;
       final List<Type> signature;
 
@@ -94,7 +92,7 @@ public class Fold extends Computation
 
       signature = lambda_type.get_signature();
 
-      if (signature.size() != 2)
+      if (signature.size() != 1)
       {
          ErrorManager.handle
          (
@@ -102,22 +100,22 @@ public class Fold extends Computation
             (
                lambda_function.get_origin(),
                signature.size(),
-               2,
-               2
+               1,
+               1
             )
          );
       }
 
-      collection_generic_type = collection.get_type();
+      collection_in_generic_type = collection_in.get_type();
 
-      if (!(collection_generic_type instanceof CollectionType))
+      if (!(collection_in_generic_type instanceof CollectionType))
       {
          ErrorManager.handle
          (
             new InvalidTypeException
             (
-               origin,
-               collection_generic_type,
+               collection_in.get_origin(),
+               collection_in_generic_type,
                Type.COLLECTION_TYPES
             )
          );
@@ -125,36 +123,62 @@ public class Fold extends Computation
          return null;
       }
 
-      collection_type = (CollectionType) collection_generic_type;
+      collection_in_type = (CollectionType) collection_in_generic_type;
 
-      if (!initial_value.get_type().can_be_used_as(signature.get(0)))
+      if
+      (
+         !collection_in_type.get_content_type().can_be_used_as(signature.get(0))
+      )
       {
          /* TODO */
       }
 
-      if (!collection_type.get_content_type().can_be_used_as(signature.get(1)))
+      collection_out_generic_type = collection_out.get_type();
+
+      if (!(collection_out_generic_type instanceof CollectionType))
+      {
+         ErrorManager.handle
+         (
+            new InvalidTypeException
+            (
+               collection_out.get_origin(),
+               collection_out_generic_type,
+               Type.COLLECTION_TYPES
+            )
+         );
+
+         return null;
+      }
+
+      collection_out_type = (CollectionType) collection_out_generic_type;
+
+      if
+      (
+         !collection_out_type.get_content_type().can_be_used_as
+         (
+            lambda_type.get_return_type()
+         )
+      )
       {
          /* TODO */
       }
 
       return
-         new Fold
+         new Map
          (
             origin,
             lambda_function,
-            initial_value,
-            collection,
-            is_foldl,
-            initial_value.get_type()
+            collection_in,
+            collection_out
          );
    }
 
    /**** Accessors ************************************************************/
    @Override
-   public void get_visited_by (final ComputationVisitor cv)
+   public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      cv.visit_fold(this);
+      iv.visit_map(this);
    }
 
    public Computation get_lambda_function ()
@@ -162,19 +186,14 @@ public class Fold extends Computation
       return lambda_function;
    }
 
-   public Computation get_initial_value ()
+   public Reference get_collection_in ()
    {
-      return initial_value;
+      return collection_in;
    }
 
-   public Reference get_collection ()
+   public Reference get_collection_out ()
    {
-      return collection;
-   }
-
-   public boolean is_foldl ()
-   {
-      return is_foldl;
+      return collection_out;
    }
 
    /**** Misc. ****************************************************************/
@@ -183,21 +202,12 @@ public class Fold extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      if (is_foldl)
-      {
-         sb.append("(Foldl ");
-      }
-      else
-      {
-         sb.append("(Foldr ");
-      }
-
+      sb.append("(Map ");
       sb.append(lambda_function.toString());
-
       sb.append(" ");
-      sb.append(initial_value.toString());
+      sb.append(collection_in.toString());
       sb.append(" ");
-      sb.append(collection.get_name());
+      sb.append(collection_out.toString());
       sb.append(")");
 
       return sb.toString();
