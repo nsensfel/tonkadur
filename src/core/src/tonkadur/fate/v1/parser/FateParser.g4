@@ -25,7 +25,8 @@ options
    import tonkadur.parser.Location;
    import tonkadur.parser.Origin;
 
-   import tonkadur.fate.v1.Utils;
+/* Conflicts with an existing package */
+/*   import tonkadur.fate.v1.tonkadur.fate.v1.Utils; */
 
    import tonkadur.fate.v1.error.DuplicateLocalVariableException;
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
@@ -376,7 +377,7 @@ first_level_fate_instr:
             filename
          );
 
-         Utils.add_file_content(filename, CONTEXT, WORLD);
+         tonkadur.fate.v1.Utils.add_file_content(filename, CONTEXT, WORLD);
 
          CONTEXT.pop();
       }
@@ -398,7 +399,7 @@ first_level_fate_instr:
          filename
       );
 
-      Utils.add_file_content(filename, CONTEXT, WORLD);
+      tonkadur.fate.v1.Utils.add_file_content(filename, CONTEXT, WORLD);
 
       CONTEXT.pop();
    }
@@ -705,6 +706,118 @@ returns [Instruction result]
             ),
             ($value_reference.result)
          );
+   }
+
+   | MAP_KW value WS+ inr=value_reference WS+ outr=value_reference WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | INDEXED_MAP_KW value WS+ inr=value_reference WS+ outr=value_reference WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | FOLDL_KW fun=value WS+ init=value WS+ inr=value_reference WS+ outv=value WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | FOLDR_KW fun=value WS+ init=value WS+ inr=value_reference WS+ outv=value WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | MERGE_KW
+      fun=value WS+
+      init=value WS+
+      inr0=value_reference WS+
+      inr1=value_reference WS+
+      outr=value_reference WS*
+      R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | MERGE_KW
+      fun=value WS+
+      init=value WS+
+      def0=value WS+
+      inr0=value_reference WS+
+      def1=value WS+
+      inr1=value_reference WS+
+      outr=value_reference WS*
+      R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | SUB_LIST_KW
+      start=value WS+
+      end=value WS+
+      inr=value_reference WS+
+      outr=value_reference WS*
+      R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | FILTER_KW value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | PARTITION_KW
+      value WS+
+      iftrue=value_reference WS+
+      iffalse=value_reference WS*
+      R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | SORT_KW value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | RANGE_KW
+      start=value WS+
+      end=value WS+
+      inc=value WS+
+      value_reference WS*
+      R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | SHUFFLE_KW value_reference WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
    }
 
    | SET_KW value_reference WS+ value WS* R_PAREN
@@ -1853,6 +1966,13 @@ returns [Type result]
          );
    }
 
+   | CONS_KW t0=type WS+ t1=type WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
    | LAMBDA_KW type WS* L_PAREN WS* type_list WS* R_PAREN WS* R_PAREN
    {
       final Origin start_origin;
@@ -2690,6 +2810,27 @@ returns [Computation result]
             ($if_true.result),
             ($if_false.result)
          );
+   }
+
+   | CONS_KW v0=value WS+ t1=value WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | CAR_KW value WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
+   }
+
+   | CDR_KW value WS* R_PAREN
+   {
+      /* TODO */
+
+      $result = null;
    }
 
    | COND_KW value_cond_list WS* R_PAREN
