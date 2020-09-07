@@ -21,6 +21,7 @@ public class Type extends DeclaredEntity
 {
    public static final Type ANY;
    public static final Type BOOL;
+   public static final Type CONS;
    public static final Type DICT;
    public static final Type FLOAT;
    public static final Type INT;
@@ -48,6 +49,7 @@ public class Type extends DeclaredEntity
       ANY = new Type(base, null, "undetermined type");
 
       BOOL = new Type(base, null, "bool");
+      CONS = new Type(base, null, "cons");
       DICT = new Type(base, null, "dict");
       FLOAT = new Type(base, null, "float");
       INT = new Type(base, null, "int");
@@ -61,6 +63,7 @@ public class Type extends DeclaredEntity
       ALL_TYPES = new HashSet<Type>();
       ALL_TYPES.add(ANY);
       ALL_TYPES.add(BOOL);
+      ALL_TYPES.add(CONS);
       ALL_TYPES.add(DICT);
       ALL_TYPES.add(FLOAT);
       ALL_TYPES.add(INT);

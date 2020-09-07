@@ -2955,28 +2955,30 @@ returns [Computation result]
    | CAR_KW value WS* R_PAREN
    {
       $result =
-         Car.build
+         CarCdr.build
          (
             CONTEXT.get_origin_at
             (
                ($CAR_KW.getLine()),
                ($CAR_KW.getCharPositionInLine())
             ),
-            ($value.result)
+            ($value.result),
+            true
          );
    }
 
    | CDR_KW value WS* R_PAREN
    {
       $result =
-         Cdr.build
+         CarCdr.build
          (
             CONTEXT.get_origin_at
             (
                ($CDR_KW.getLine()),
                ($CDR_KW.getCharPositionInLine())
             ),
-            ($value.result)
+            ($value.result),
+            false
          );
    }
 
