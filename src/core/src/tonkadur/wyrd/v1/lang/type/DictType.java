@@ -1,9 +1,17 @@
 package tonkadur.wyrd.v1.lang.type;
 
 import java.util.Map;
+import java.util.HashMap;
 
 public class DictType extends Type
 {
+   public static final DictType WILD;
+
+   static
+   {
+      WILD = new DictType("wild dict", new HashMap<String, Type>());
+   }
+
    protected Map<String, Type> fields;
 
    public DictType (final String name, final Map<String, Type> fields)

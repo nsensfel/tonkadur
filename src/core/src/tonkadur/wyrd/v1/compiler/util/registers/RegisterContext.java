@@ -192,11 +192,33 @@ class RegisterContext
 
    public Register get_non_local_register (final String name)
    {
-      return register_by_name.get(name);
+      final Register result;
+
+      result = register_by_name.get(name);
+
+      if (result == null)
+      {
+         System.err.println("[F] Access to unknown global register: " + name);
+      }
+      else if (!result.is_active())
+      {
+         System.err.println("[P] Inactive global register: " + name);
+      }
+
+      return result;
    }
 
    public void release (final Register r, final List<Instruction> instr_holder)
    {
+      if (!r.is_active())
+      {
+         System.err.println
+         (
+            "[W][P] Deactivating inactive register: "
+            + r.get_name()
+         );
+         new Throwable().printStackTrace();
+      }
       instr_holder.add(new Remove(r.get_address()));
       r.deactivate();
    }

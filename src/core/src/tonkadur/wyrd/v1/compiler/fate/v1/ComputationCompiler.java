@@ -111,11 +111,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       }
    }
 
-   public void release_registers ()
+   public void release_registers (final List<Instruction> instr_holder)
    {
       for (final Register reg: reserved_registers)
       {
-         compiler.registers().release(reg);
+         compiler.registers().release(reg, instr_holder);
       }
    }
 
@@ -129,7 +129,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    {
       final Register result;
 
-      result = compiler.registers().reserve(t);
+      result = compiler.registers().reserve(t, init_instructions);
 
       reserved_registers.add(result);
 
@@ -1632,7 +1632,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       context_name = compiler.registers().create_stackable_context_name();
 
-      compiler.registers().create_stackable_context(context_name);
+      compiler.registers().create_stackable_context
+      (
+         context_name,
+         init_instructions
+      );
 
       init_instructions.addAll
       (
@@ -1796,7 +1800,13 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          final ComputationCompiler cc;
 
          name = a.get_car().get_name();
-         r = reserve(TypeCompiler.compile(compiler, a.get_car().get_type()));
+         r =
+            /* These are free by the unbind below */
+            compiler.registers().reserve
+            (
+               TypeCompiler.compile(compiler, a.get_car().get_type()),
+               init_instructions
+            );
 
          compiler.registers().bind(name, r);
          names.add(name);
@@ -1817,7 +1827,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       for (final String name: names)
       {
-         compiler.registers().unbind(name);
+         compiler.registers().unbind(name, init_instructions);
       }
    }
 

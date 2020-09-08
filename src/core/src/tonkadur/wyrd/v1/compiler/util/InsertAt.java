@@ -69,8 +69,8 @@ public class InsertAt
 
       element_type = element.get_type();
 
-      prev = registers.reserve(Type.INT);
-      end = registers.reserve(Type.INT);
+      prev = registers.reserve(Type.INT, result);
+      end = registers.reserve(Type.INT, result);
 
       value_of_index = new ValueOf(index);
 
@@ -166,8 +166,8 @@ public class InsertAt
          )
       );
 
-      registers.release(end);
-      registers.release(prev);
+      registers.release(end, result);
+      registers.release(prev, result);
 
       return assembler.merge(result);
    }

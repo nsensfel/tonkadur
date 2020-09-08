@@ -68,8 +68,8 @@ public class RemoveAt
       element_type =
          ((MapType) collection.get_target_type()).get_member_type();
 
-      next = registers.reserve(Type.INT);
-      end = registers.reserve(Type.INT);
+      next = registers.reserve(Type.INT, result);
+      end = registers.reserve(Type.INT, result);
 
       value_of_index = new ValueOf(index);
 
@@ -143,8 +143,8 @@ public class RemoveAt
       /* (remove collection[index]) */
       result.add(new Remove(collection_at_index));
 
-      registers.release(end);
-      registers.release(next);
+      registers.release(end, result);
+      registers.release(next, result);
 
       return assembler.merge(result);
    }

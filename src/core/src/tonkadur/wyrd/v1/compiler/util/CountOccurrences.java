@@ -66,7 +66,7 @@ public class CountOccurrences
 
       target_type = target.get_type();
 
-      index = registers.reserve(Type.INT);
+      index = registers.reserve(Type.INT, result);
 
       result.add(new SetValue(count, Constant.ZERO));
       result.add(new SetValue(index.get_address(), collection_size));
@@ -116,6 +116,8 @@ public class CountOccurrences
             assembler.merge(while_body)
          )
       );
+
+      registers.release(index, result);
 
       return assembler.merge(result);
    }

@@ -24,6 +24,7 @@ import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.DictType;
 import tonkadur.wyrd.v1.lang.type.PointerType;
 import tonkadur.wyrd.v1.lang.type.MapType;
 
@@ -51,7 +52,7 @@ class StackableRegisterContext extends RegisterContext
       context_stacks =
          base_context.reserve
          (
-            new MapType(new PointerType(MapType.MAP_TO_ANY)),
+            new MapType(new PointerType(DictType.WILD)),
             initialize_holder
          );
 
@@ -60,14 +61,14 @@ class StackableRegisterContext extends RegisterContext
          (
             context_stacks.get_address(),
             new Cast(context_stack_level.get_value(), Type.STRING),
-            new PointerType(MapType.MAP_TO_ANY)
+            new PointerType(DictType.WILD)
          );
 
       current_context_address =
             new Address
             (
                new ValueOf(current_context_address_holder),
-               MapType.MAP_TO_ANY
+               DictType.WILD
             );
    }
 
@@ -106,7 +107,7 @@ class StackableRegisterContext extends RegisterContext
          new Initialize
          (
             current_context_address_holder,
-            new PointerType(MapType.MAP_TO_ANY)
+            new PointerType(DictType.WILD)
          )
       );
 
@@ -115,7 +116,7 @@ class StackableRegisterContext extends RegisterContext
          new SetValue
          (
             current_context_address_holder,
-            new New(MapType.MAP_TO_ANY)
+            new New(DictType.WILD)
          )
       );
 

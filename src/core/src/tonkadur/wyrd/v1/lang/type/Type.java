@@ -7,7 +7,6 @@ public class Type
    public static final Type INT;
    public static final Type RICH_TEXT;
    public static final Type STRING;
-   public static final Type ANY;
 
    static
    {
@@ -16,7 +15,6 @@ public class Type
       INT = new Type("int");
       RICH_TEXT = new Type("rich_text");
       STRING = new Type("string");
-      ANY = new Type("any");
    }
 
    /***************************************************************************/

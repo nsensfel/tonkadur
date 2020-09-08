@@ -66,9 +66,9 @@ public class ReverseList
       element_type =
          ((MapType) collection.get_target_type()).get_member_type();
 
-      buffer = registers.reserve(element_type);
-      top = registers.reserve(Type.INT);
-      bot = registers.reserve(Type.INT);
+      buffer = registers.reserve(element_type, result);
+      top = registers.reserve(Type.INT, result);
+      bot = registers.reserve(Type.INT, result);
 
       collection_at_top =
          new RelativeAddress
@@ -158,9 +158,9 @@ public class ReverseList
          )
       );
 
-      registers.release(buffer);
-      registers.release(top);
-      registers.release(bot);
+      registers.release(buffer, result);
+      registers.release(top, result);
+      registers.release(bot, result);
 
       return assembler.merge(result);
    }

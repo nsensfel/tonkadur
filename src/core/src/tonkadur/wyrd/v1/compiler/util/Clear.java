@@ -41,6 +41,9 @@ public class Clear
     *    (set .iterator (- (val .iterator) 1))
     *    (remove collection[.iterator])
     * )
+    * FIXME: this can now be written as
+    * (remove collection)
+    * (initialize collection)
     */
    public static Instruction generate
    (
@@ -60,7 +63,7 @@ public class Clear
       element_type =
          ((MapType) collection.get_target_type()).get_member_type();
 
-      iterator = registers.reserve(Type.INT);
+      iterator = registers.reserve(Type.INT, result);
 
       /* (set .iterator collection_size) */
       result.add(new SetValue(iterator.get_address(), collection_size));
@@ -100,7 +103,7 @@ public class Clear
          )
       );
 
-      registers.release(iterator);
+      registers.release(iterator, result);
 
       return assembler.merge(result);
    }

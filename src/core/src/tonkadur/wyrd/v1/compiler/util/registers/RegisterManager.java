@@ -172,6 +172,10 @@ public class RegisterManager
       {
          return base_context.get_non_local_register(name);
       }
+      else if (!result.is_active())
+      {
+         System.err.println("[P] Inactive context register: " + name);
+      }
 
       return result;
    }

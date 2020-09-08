@@ -7,7 +7,6 @@ public class MapType extends Type
    public static final MapType MAP_TO_INT;
    public static final MapType MAP_TO_STRING;
    public static final MapType MAP_TO_RICH_TEXT;
-   public static final MapType MAP_TO_ANY;
 
    static
    {
@@ -16,7 +15,6 @@ public class MapType extends Type
       MAP_TO_INT = new MapType(Type.INT);
       MAP_TO_RICH_TEXT = new MapType(Type.RICH_TEXT);
       MAP_TO_STRING = new MapType(Type.STRING);
-      MAP_TO_ANY = new MapType(Type.ANY);
    }
 
    /***************************************************************************/

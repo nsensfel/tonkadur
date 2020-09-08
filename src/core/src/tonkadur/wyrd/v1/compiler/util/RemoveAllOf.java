@@ -87,9 +87,9 @@ public class RemoveAllOf
 
       element_type = element.get_type();
 
-      index = registers.reserve(Type.INT);
-      found = registers.reserve(Type.INT);
-      end = registers.reserve(Type.INT);
+      index = registers.reserve(Type.INT, result);
+      found = registers.reserve(Type.INT, result);
+      end = registers.reserve(Type.INT, result);
 
       value_of_found_greater_than_0 =
          Operation.greater_than(found.get_value(), Constant.ZERO);
@@ -248,9 +248,9 @@ public class RemoveAllOf
          )
       );
 
-      registers.release(index);
-      registers.release(found);
-      registers.release(end);
+      registers.release(index, result);
+      registers.release(found, result);
+      registers.release(end, result);
 
       return assembler.merge(result);
    }
