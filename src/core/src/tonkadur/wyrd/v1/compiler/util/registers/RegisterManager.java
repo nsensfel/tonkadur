@@ -40,7 +40,7 @@ public class RegisterManager
    protected final RegisterContext base_context, parameter_context;
    protected final Register next_pc, pc_stack;
    protected final Register choice_number, rand_mode, rand_value;
-   protected List<Instruction> awaiting_inits;
+   protected final List<Instruction> awaiting_inits;
    protected int created_contexts;
 
    public RegisterManager ()
@@ -64,14 +64,14 @@ public class RegisterManager
       context.push(base_context);
    }
 
-   public Register reserve (final Type t)
+   public Register reserve (final Type t, final List<Instruction> instr_holder)
    {
-      return context.peekFirst().reserve(t, awaiting_inits);
+      return context.peekFirst().reserve(t, instr_holder);
    }
 
-   public void release (final Register r)
+   public void release (final Register r, final List<Instruction> instr_holder)
    {
-      context.peekFirst().release(r);
+      context.peekFirst().release(r, instr_holder);
    }
 
    public String create_stackable_context_name ()
@@ -94,7 +94,11 @@ public class RegisterManager
       return rand_value;
    }
 
-   public void create_stackable_context (final String context_name)
+   public void create_stackable_context
+   (
+      final String context_name,
+      final List<Instruction> instr_holder
+   )
    {
       final StackableRegisterContext result;
 
@@ -103,7 +107,7 @@ public class RegisterManager
          (
             base_context,
             context_name,
-            awaiting_inits
+            instr_holder
          );
 
       if (context_by_name.containsKey(context_name))
@@ -138,9 +142,14 @@ public class RegisterManager
       context.pop();
    }
 
-   public Register register (final Type t, final String name)
+   public Register register
+   (
+      final Type t,
+      final String name,
+      final List<Instruction> instr_holder
+   )
    {
-      return context.peekFirst().reserve(t, name, awaiting_inits);
+      return context.peekFirst().reserve(t, name, instr_holder);
    }
 
    public void bind (final String name, final Register register)
@@ -148,9 +157,9 @@ public class RegisterManager
       context.peekFirst().bind(name, register);
    }
 
-   public void unbind (final String name)
+   public void unbind (final String name, final List<Instruction> instr_holder)
    {
-      context.peekFirst().unbind(name);
+      context.peekFirst().unbind(name, instr_holder);
    }
 
    public Register get_context_register (final String name)
@@ -162,6 +171,10 @@ public class RegisterManager
       if (result == null)
       {
          return base_context.get_non_local_register(name);
+      }
+      else if (!result.is_active())
+      {
+         System.err.println("[P] Inactive context register: " + name);
       }
 
       return result;
@@ -289,23 +302,12 @@ public class RegisterManager
       context.peekFirst().push_hierarchical_instruction_level();
    }
 
-   public void pop_hierarchical_instruction_level ()
+   public void pop_hierarchical_instruction_level
+   (
+      final List<Instruction> instr_holder
+   )
    {
-      context.peekFirst().pop_hierarchical_instruction_level();
-   }
-
-   public Collection<DictType> get_context_structure_types ()
-   {
-      final Collection<DictType> result;
-
-      result = new ArrayList<DictType>();
-
-      for (final StackableRegisterContext src: context_by_name.values())
-      {
-         result.add(src.get_structure_type());
-      }
-
-      return result;
+      context.peekFirst().pop_hierarchical_instruction_level(instr_holder);
    }
 
    public Collection<Register> get_base_registers ()
@@ -325,7 +327,7 @@ public class RegisterManager
       {
          final Register r;
 
-         r = parameter_context.reserve(p.get_type(), awaiting_inits);
+         r = parameter_context.reserve(p.get_type(), result);
 
          result.add(new SetValue(r.get_address(), p));
 
@@ -335,7 +337,9 @@ public class RegisterManager
       for (final Register r: used_registers)
       {
          /* Side-channel attack to pass parameters, because it's convenient. */
-         r.set_is_in_use(false);
+         r.deactivate();
+         // Do not use the context to deactivate here, otherwise the value will
+         // be removed.
       }
 
       return result;
@@ -345,15 +349,17 @@ public class RegisterManager
    {
       final List<Register> used_registers;
       final List<Instruction> result;
+      final List<Instruction> ignored_inits;
 
       used_registers = new ArrayList<Register>();
       result = new ArrayList<Instruction>();
+      ignored_inits = new ArrayList<Instruction>();
 
       for (final Register p: params)
       {
          final Register r;
 
-         r = parameter_context.reserve(p.get_type(), awaiting_inits);
+         r = parameter_context.reserve(p.get_type(), ignored_inits);
 
          result.add(new SetValue(p.get_address(), r.get_value()));
 
@@ -363,20 +369,14 @@ public class RegisterManager
       for (final Register r: used_registers)
       {
          /* Side-channel attack to pass parameters, because it's convenient. */
-         r.set_is_in_use(false);
+         parameter_context.release(r, result);
       }
 
       return result;
    }
 
-   public List<Instruction> pop_initializes ()
+   public List<Instruction> get_initialization ()
    {
-      final List<Instruction> result;
-
-      result = awaiting_inits;
-
-      awaiting_inits = new ArrayList<Instruction>();
-
-      return result;
+      return awaiting_inits;
    }
 }

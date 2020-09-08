@@ -111,11 +111,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       }
    }
 
-   public void release_registers ()
+   public void release_registers (final List<Instruction> instr_holder)
    {
       for (final Register reg: reserved_registers)
       {
-         compiler.registers().release(reg);
+         compiler.registers().release(reg, instr_holder);
       }
    }
 
@@ -129,7 +129,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    {
       final Register result;
 
-      result = compiler.registers().reserve(t);
+      result = compiler.registers().reserve(t, init_instructions);
 
       reserved_registers.add(result);
 
@@ -1619,6 +1619,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       out_label = compiler.assembler().generate_label("<lambda_expr#out>");
       in_label = compiler.assembler().generate_label("<lambda_expr#in>");
 
+      parameters = new ArrayList<Register>();
+
+      context_name = compiler.registers().create_stackable_context_name();
+
+      compiler.registers().create_stackable_context
+      (
+         context_name,
+         init_instructions
+      );
+
       init_instructions.add
       (
          compiler.assembler().mark_after
@@ -1627,12 +1637,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             in_label
          )
       );
-
-      parameters = new ArrayList<Register>();
-
-      context_name = compiler.registers().create_stackable_context_name();
-
-      compiler.registers().create_stackable_context(context_name);
 
       init_instructions.addAll
       (
@@ -1644,7 +1648,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       result_type =
          TypeCompiler.compile(compiler, n.get_lambda_function().get_type());
 
-      result_holder = reserve(new PointerType(result_type));
+      result_holder =
+         /* Defining a context, don't use this.reserve(), otherwise this
+          * context-dependent variable will get released outside the context
+          * (where it doesn't exist) and that will cause an error.
+          */
+         compiler.registers().reserve
+         (
+            new PointerType(result_type),
+            init_instructions
+         );
 
       parameters.add(result_holder);
 
@@ -1652,7 +1665,13 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       {
          final Register r;
 
-         r = reserve(TypeCompiler.compile(compiler, param.get_type()));
+         r =
+            /* Bound registers, can't use this.reserve() */
+            compiler.registers().reserve
+            (
+               TypeCompiler.compile(compiler, param.get_type()),
+               init_instructions
+            );
 
          parameters.add(r);
 
@@ -1668,7 +1687,12 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       n.get_lambda_function().get_visited_by(expr_compiler);
 
-      assimilate(expr_compiler);
+      /* Nope: its variables are removed when the context is left. */
+      /* assimilate(expr_compiler); */
+      if (expr_compiler.has_init())
+      {
+         init_instructions.add(expr_compiler.get_init());
+      }
 
       init_instructions.add
       (
@@ -1678,7 +1702,13 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             expr_compiler.get_computation()
          )
       );
-
+/*
+ * No need: it's getting finalized anyway.
+      for (final tonkadur.fate.v1.lang.Variable param: n.get_parameters())
+      {
+         compiler.registers().unbind(param.get_name(), init_instructions);
+      }
+*/
       init_instructions.addAll
       (
          compiler.registers().get_finalize_context_instructions()
@@ -1796,7 +1826,13 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          final ComputationCompiler cc;
 
          name = a.get_car().get_name();
-         r = reserve(TypeCompiler.compile(compiler, a.get_car().get_type()));
+         r =
+            /* These are free by the unbind below */
+            compiler.registers().reserve
+            (
+               TypeCompiler.compile(compiler, a.get_car().get_type()),
+               init_instructions
+            );
 
          compiler.registers().bind(name, r);
          names.add(name);
@@ -1817,7 +1853,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       for (final String name: names)
       {
-         compiler.registers().unbind(name);
+         compiler.registers().unbind(name, init_instructions);
       }
    }
 

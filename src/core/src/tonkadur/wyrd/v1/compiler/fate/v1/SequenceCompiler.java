@@ -26,8 +26,8 @@ public class SequenceCompiler
    {
       final List<Instruction> init_instructions;
       final List<Register> parameters;
-      final List<Register> to_be_cleaned;
       final String end_of_sequence;
+      final List<Register> to_be_cleaned;
       final InstructionCompiler ic;
 
       init_instructions = new ArrayList<Instruction>();
@@ -47,13 +47,16 @@ public class SequenceCompiler
 
       compiler.registers().create_stackable_context
       (
-         fate_sequence.get_name()
+         fate_sequence.get_name(),
+         init_instructions
       );
 
       init_instructions.add
       (
          new SetPC(compiler.assembler().get_label_constant(end_of_sequence))
       );
+
+      System.out.println("[D] Defining Context " + fate_sequence.get_name());
 
       init_instructions.add
       (
@@ -83,7 +86,8 @@ public class SequenceCompiler
          r =
             compiler.registers().reserve
             (
-               TypeCompiler.compile(compiler, param.get_type())
+               TypeCompiler.compile(compiler, param.get_type()),
+               init_instructions
             );
 
          parameters.add(r);
@@ -97,13 +101,29 @@ public class SequenceCompiler
          compiler.registers().read_parameters(parameters)
       );
 
+
       fate_sequence.get_root().get_visited_by(ic);
 
       init_instructions.add(ic.get_result());
 
+      /* No need: the context is about to be finalized anyway. */
+      /*
+      for (final Register r: to_be_cleaned)
+      {
+         compiler.registers().release(r, init_instructions);
+      }
+      */
+
+
       init_instructions.addAll
       (
          compiler.registers().get_finalize_context_instructions()
+      );
+
+      System.out.println
+      (
+         "[D] Completed Context "
+         + compiler.registers().get_current_context_name()
       );
 
       init_instructions.addAll
@@ -111,18 +131,8 @@ public class SequenceCompiler
          compiler.registers().get_leave_context_instructions()
       );
 
-      for (final Register r: to_be_cleaned)
-      {
-         compiler.registers().release(r);
-      }
 
       compiler.registers().pop_context();
-
-      compiler.assembler().handle_adding_instruction
-      (
-         compiler.assembler().merge(compiler.registers().pop_initializes()),
-         compiler.world()
-      );
 
       compiler.assembler().handle_adding_instruction
       (
@@ -164,13 +174,6 @@ public class SequenceCompiler
       {
          fate_instruction.get_visited_by(ic);
       }
-
-      compiler.assembler().handle_adding_instruction
-      (
-         compiler.assembler().merge(compiler.registers().pop_initializes()),
-         compiler.world()
-      );
-
       compiler.assembler().handle_adding_instruction
       (
          ic.get_result(),

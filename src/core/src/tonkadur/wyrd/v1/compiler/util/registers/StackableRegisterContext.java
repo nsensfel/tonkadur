@@ -1,7 +1,5 @@
 package tonkadur.wyrd.v1.compiler.util.registers;
 
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
@@ -26,16 +24,14 @@ import tonkadur.wyrd.v1.lang.instruction.Remove;
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
 
 import tonkadur.wyrd.v1.lang.type.Type;
+import tonkadur.wyrd.v1.lang.type.DictType;
 import tonkadur.wyrd.v1.lang.type.PointerType;
 import tonkadur.wyrd.v1.lang.type.MapType;
-import tonkadur.wyrd.v1.lang.type.DictType;
 
 
 class StackableRegisterContext extends RegisterContext
 {
-   protected final Map<String, Type> context_structure_fields;
    protected final RegisterContext base_context;
-   protected final DictType context_structure;
    protected final Register context_stack_level;
    protected final Register context_stacks;
    protected final Address current_context_address_holder;
@@ -52,15 +48,17 @@ class StackableRegisterContext extends RegisterContext
 
       this.base_context = base_context;
 
-      context_structure_fields = new HashMap<String, Type>();
-
-      context_structure = new DictType(context_name, context_structure_fields);
-
       context_stack_level = base_context.reserve(Type.INT, initialize_holder);
+
+      initialize_holder.add
+      (
+         new SetValue(context_stack_level.get_address(), Constant.ZERO)
+      );
+
       context_stacks =
          base_context.reserve
          (
-            new MapType(new PointerType(context_structure)),
+            new MapType(new PointerType(DictType.WILD)),
             initialize_holder
          );
 
@@ -69,55 +67,27 @@ class StackableRegisterContext extends RegisterContext
          (
             context_stacks.get_address(),
             new Cast(context_stack_level.get_value(), Type.STRING),
-            new PointerType(context_structure)
+            new PointerType(DictType.WILD)
          );
 
       current_context_address =
             new Address
             (
                new ValueOf(current_context_address_holder),
-               context_structure
+               DictType.WILD
             );
    }
 
    @Override
-   protected Register create_register
-   (
-      final Type t,
-      final String name,
-      final List<Instruction> initialize_holder
-   )
+   protected Register create_register (final Type t, final String name)
    {
       final Register result;
 
-      if (context_structure.get_fields().get(name) != null)
-      {
-         System.err.println
-         (
-            "[P] Duplicate register '"
-            + name
-            + "' in stackable context "
-            + this.name
-            + "."
-         );
-      }
+      result = new Register(current_context_address, name);
 
-      context_structure.get_fields().put(name, t);
+      result.activate(t);
 
-      result =
-         new Register
-         (
-            new RelativeAddress
-            (
-               current_context_address,
-               new Constant(Type.STRING, name),
-               t
-            ),
-            t,
-            name
-         );
-
-      /* No need for this: it's part of the type. */
+      /* Handled elsewhere */
       //initialize_holder.add(new Initialize(result.get_address(), t));
 
       return result;
@@ -143,7 +113,7 @@ class StackableRegisterContext extends RegisterContext
          new Initialize
          (
             current_context_address_holder,
-            new PointerType(context_structure)
+            new PointerType(DictType.WILD)
          )
       );
 
@@ -152,7 +122,7 @@ class StackableRegisterContext extends RegisterContext
          new SetValue
          (
             current_context_address_holder,
-            new New(context_structure)
+            new New(DictType.WILD)
          )
       );
 
@@ -179,10 +149,5 @@ class StackableRegisterContext extends RegisterContext
       );
 
       return result;
-   }
-
-   public DictType get_structure_type ()
-   {
-      return context_structure;
    }
 }

@@ -98,9 +98,9 @@ public class BinarySearch
 
       element_type = target.get_type();
 
-      bot = registers.reserve(Type.INT);
-      top = registers.reserve(Type.INT);
-      midval = registers.reserve(element_type);
+      bot = registers.reserve(Type.INT, result);
+      top = registers.reserve(Type.INT, result);
+      midval = registers.reserve(element_type, result);
 
       value_of_result_index = new ValueOf(result_index);
 
@@ -257,9 +257,9 @@ public class BinarySearch
          )
       );
 
-      registers.release(bot);
-      registers.release(top);
-      registers.release(midval);
+      registers.release(bot, result);
+      registers.release(top, result);
+      registers.release(midval, result);
 
       return assembler.merge(result);
    }

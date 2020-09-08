@@ -15,6 +15,7 @@ import tonkadur.wyrd.v1.lang.Register;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
+import tonkadur.wyrd.v1.lang.instruction.Remove;
 
 class RegisterContext
 {
@@ -23,7 +24,7 @@ class RegisterContext
    protected final Map<String, Register> register_by_name;
    protected final Map<String, Register> aliased_registers;
    protected final Deque<Collection<String>> hierarchical_aliases;
-   protected final Map<Type, List<Register>> anonymous_register_by_type;
+   protected final List<Register> anonymous_registers;
    protected final String name_prefix;
    protected int generated_registers;
 
@@ -34,7 +35,7 @@ class RegisterContext
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
       hierarchical_aliases = new ArrayDeque<Collection<String>>();
-      anonymous_register_by_type = new HashMap<Type, List<Register>>();
+      anonymous_registers = new ArrayList<Register>();
       name_prefix = default_name_prefix;
 
       generated_registers = 0;
@@ -46,7 +47,7 @@ class RegisterContext
 
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
-      anonymous_register_by_type = new HashMap<Type, List<Register>>();
+      anonymous_registers = new ArrayList<Register>();
       hierarchical_aliases = new ArrayDeque<Collection<String>>();
       this.name_prefix = name_prefix;
 
@@ -71,22 +72,14 @@ class RegisterContext
    {
       final String name;
       final Register result;
-      List<Register> list;
 
-      list = anonymous_register_by_type.get(t);
-
-      if (list == null)
+      for (final Register r: anonymous_registers)
       {
-         list = new ArrayList<Register>();
-
-         anonymous_register_by_type.put(t, list);
-      }
-
-      for (final Register r: list)
-      {
-         if (!r.get_is_in_use())
+         if (!r.is_active())
          {
-            r.set_is_in_use(true);
+            r.activate(t);
+
+            initialize_holder.add(new Initialize(r.get_address(), t));
 
             return r;
          }
@@ -94,11 +87,11 @@ class RegisterContext
 
       name = (name_prefix + Integer.toString(generated_registers++));
 
-      result = create_register(t, name, initialize_holder);
+      result = create_register(t, name);
 
-      result.set_is_in_use(true);
+      initialize_holder.add(new Initialize(result.get_address(), t));
 
-      list.add(result);
+      anonymous_registers.add(result);
 
       register_by_name.put(name, result);
 
@@ -114,7 +107,7 @@ class RegisterContext
    {
       final Register result;
 
-      result = create_register(t, name, initialize_holder);
+      result = create_register(t, name);
 
       if (register_by_name.get(name) != null)
       {
@@ -126,9 +119,9 @@ class RegisterContext
          );
       }
 
-      register_by_name.put(name, result);
+      initialize_holder.add(new Initialize(result.get_address(), t));
 
-      result.set_is_in_use(true);
+      register_by_name.put(name, result);
 
       return result;
    }
@@ -155,10 +148,12 @@ class RegisterContext
       }
    }
 
-   public void unbind (final String name)
+   public void unbind (final String name, final List<Instruction> instr_holder)
    {
-      release(aliased_registers.get(name));
+      release(aliased_registers.get(name), instr_holder);
+
       aliased_registers.remove(name);
+
       if (!hierarchical_aliases.isEmpty())
       {
          hierarchical_aliases.peekFirst().remove(name);
@@ -170,11 +165,14 @@ class RegisterContext
       hierarchical_aliases.push(new ArrayList<String>());
    }
 
-   public void pop_hierarchical_instruction_level ()
+   public void pop_hierarchical_instruction_level
+   (
+      final List<Instruction> instr_holder
+   )
    {
       for (final String s: hierarchical_aliases.pop())
       {
-         unbind(s);
+         unbind(s, instr_holder);
       }
    }
 
@@ -194,26 +192,43 @@ class RegisterContext
 
    public Register get_non_local_register (final String name)
    {
-      return register_by_name.get(name);
+      final Register result;
+
+      result = register_by_name.get(name);
+
+      if (result == null)
+      {
+         System.err.println("[F] Access to unknown global register: " + name);
+      }
+      else if (!result.is_active())
+      {
+         System.err.println("[P] Inactive global register: " + name);
+      }
+
+      return result;
    }
 
-   public void release (final Register r)
+   public void release (final Register r, final List<Instruction> instr_holder)
    {
-      r.set_is_in_use(false);
+      if (!r.is_active())
+      {
+         System.err.println
+         (
+            "[W][P] Deactivating inactive register: "
+            + r.get_name()
+         );
+         new Throwable().printStackTrace();
+      }
+      instr_holder.add(new Remove(r.get_address()));
+      r.deactivate();
    }
 
-   protected Register create_register
-   (
-      final Type t,
-      final String name,
-      final List<Instruction> initialize_holder
-   )
+   protected Register create_register (final Type t, final String name)
    {
       final Register result;
 
-      result = new Register(t, name);
-
-      initialize_holder.add(new Initialize(result.get_address(), t));
+      result = new Register(name);
+      result.activate(t);
 
       return result;
    }

@@ -34,7 +34,7 @@ public class Compiler
 
       compiler.assembler().handle_adding_instruction
       (
-         compiler.assembler().merge(compiler.registers().pop_initializes()),
+         compiler.assembler().merge(compiler.registers().get_initialization()),
          wyrd_world
       );
 
@@ -45,8 +45,6 @@ public class Compiler
       compiler.compile_sequences(fate_world);
 
       compiler.compile_main_sequence(fate_world);
-
-      compiler.add_registers();
 
       return compiler.wyrd_world;
    }
@@ -106,9 +104,8 @@ public class Compiler
          final Register r;
 
          t = TypeCompiler.compile(this, variable.get_type());
-         r = registers.register(t, variable.get_name());
-
-         r.set_is_in_use(true);
+         r = registers.register(t, variable.get_name(), init_instr);
+         wyrd_world.add_register(r);
       }
 
       this.assembler().handle_adding_instruction
@@ -146,21 +143,6 @@ public class Compiler
          fate_world.get_global_instructions()
       );
    }
-
-   protected void add_registers ()
-   throws Throwable
-   {
-      for (final DictType type: registers.get_context_structure_types())
-      {
-         wyrd_world.add_dict_type(type);
-      }
-
-      for (final Register register: registers.get_base_registers())
-      {
-         wyrd_world.add_register(register);
-      }
-   }
-
    public World world ()
    {
       return wyrd_world;
