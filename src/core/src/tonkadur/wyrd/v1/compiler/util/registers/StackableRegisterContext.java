@@ -102,20 +102,10 @@ class StackableRegisterContext extends RegisterContext
          );
       }
 
-      context_structure.get_fields().put(name, t);
+      context_structure.get_fields().put(name, Type.INT);
 
-      result =
-         new Register
-         (
-            new RelativeAddress
-            (
-               current_context_address,
-               new Constant(Type.STRING, name),
-               t
-            ),
-            t,
-            name
-         );
+      result = new Register(current_context_address, name);
+      result.activate(t);
 
       /* No need for this: it's part of the type. */
       //initialize_holder.add(new Initialize(result.get_address(), t));

@@ -335,7 +335,7 @@ public class RegisterManager
       for (final Register r: used_registers)
       {
          /* Side-channel attack to pass parameters, because it's convenient. */
-         r.set_is_in_use(false);
+         r.deactivate();
       }
 
       return result;
@@ -363,7 +363,7 @@ public class RegisterManager
       for (final Register r: used_registers)
       {
          /* Side-channel attack to pass parameters, because it's convenient. */
-         r.set_is_in_use(false);
+         r.deactivate();
       }
 
       return result;

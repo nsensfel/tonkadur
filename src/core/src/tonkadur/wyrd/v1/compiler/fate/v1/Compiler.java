@@ -107,8 +107,6 @@ public class Compiler
 
          t = TypeCompiler.compile(this, variable.get_type());
          r = registers.register(t, variable.get_name());
-
-         r.set_is_in_use(true);
       }
 
       this.assembler().handle_adding_instruction

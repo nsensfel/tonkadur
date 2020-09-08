@@ -23,7 +23,7 @@ class RegisterContext
    protected final Map<String, Register> register_by_name;
    protected final Map<String, Register> aliased_registers;
    protected final Deque<Collection<String>> hierarchical_aliases;
-   protected final Map<Type, List<Register>> anonymous_register_by_type;
+   protected final List<Register> anonymous_registers;
    protected final String name_prefix;
    protected int generated_registers;
 
@@ -34,7 +34,7 @@ class RegisterContext
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
       hierarchical_aliases = new ArrayDeque<Collection<String>>();
-      anonymous_register_by_type = new HashMap<Type, List<Register>>();
+      anonymous_registers = new ArrayList<Register>();
       name_prefix = default_name_prefix;
 
       generated_registers = 0;
@@ -46,7 +46,7 @@ class RegisterContext
 
       register_by_name = new HashMap<String, Register>();
       aliased_registers = new HashMap<String, Register>();
-      anonymous_register_by_type = new HashMap<Type, List<Register>>();
+      anonymous_registers = new ArrayList<Register>();
       hierarchical_aliases = new ArrayDeque<Collection<String>>();
       this.name_prefix = name_prefix;
 
@@ -71,22 +71,12 @@ class RegisterContext
    {
       final String name;
       final Register result;
-      List<Register> list;
 
-      list = anonymous_register_by_type.get(t);
-
-      if (list == null)
+      for (final Register r: anonymous_registers)
       {
-         list = new ArrayList<Register>();
-
-         anonymous_register_by_type.put(t, list);
-      }
-
-      for (final Register r: list)
-      {
-         if (!r.get_is_in_use())
+         if (!r.is_active())
          {
-            r.set_is_in_use(true);
+            r.activate(t);
 
             return r;
          }
@@ -96,9 +86,7 @@ class RegisterContext
 
       result = create_register(t, name, initialize_holder);
 
-      result.set_is_in_use(true);
-
-      list.add(result);
+      anonymous_registers.add(result);
 
       register_by_name.put(name, result);
 
@@ -128,8 +116,6 @@ class RegisterContext
 
       register_by_name.put(name, result);
 
-      result.set_is_in_use(true);
-
       return result;
    }
 
@@ -158,7 +144,9 @@ class RegisterContext
    public void unbind (final String name)
    {
       release(aliased_registers.get(name));
+
       aliased_registers.remove(name);
+
       if (!hierarchical_aliases.isEmpty())
       {
          hierarchical_aliases.peekFirst().remove(name);
@@ -199,7 +187,7 @@ class RegisterContext
 
    public void release (final Register r)
    {
-      r.set_is_in_use(false);
+      r.deactivate();
    }
 
    protected Register create_register
@@ -211,7 +199,8 @@ class RegisterContext
    {
       final Register result;
 
-      result = new Register(t, name);
+      result = new Register(name);
+      result.activate(t);
 
       initialize_holder.add(new Initialize(result.get_address(), t));
 
