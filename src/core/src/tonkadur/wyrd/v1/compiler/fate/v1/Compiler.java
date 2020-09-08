@@ -42,9 +42,9 @@ public class Compiler
       compiler.compile_types(fate_world);
       compiler.compile_variables(fate_world);
 
-      compiler.compile_main_sequence(fate_world);
-
       compiler.compile_sequences(fate_world);
+
+      compiler.compile_main_sequence(fate_world);
 
       return compiler.wyrd_world;
    }

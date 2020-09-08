@@ -49,6 +49,12 @@ class StackableRegisterContext extends RegisterContext
       this.base_context = base_context;
 
       context_stack_level = base_context.reserve(Type.INT, initialize_holder);
+
+      initialize_holder.add
+      (
+         new SetValue(context_stack_level.get_address(), Constant.ZERO)
+      );
+
       context_stacks =
          base_context.reserve
          (

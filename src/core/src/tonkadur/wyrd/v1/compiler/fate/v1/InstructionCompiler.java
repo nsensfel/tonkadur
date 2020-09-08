@@ -2069,6 +2069,11 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       result.addAll(compiler.registers().store_parameters(parameters));
 
+      for (final ComputationCompiler cc: parameter_ccs)
+      {
+         cc.release_registers(result);
+      }
+
       /* Terminate current context */
       result.addAll
       (
@@ -2085,11 +2090,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             )
          )
       );
-
-      for (final ComputationCompiler cc: parameter_ccs)
-      {
-         cc.release_registers(result);
-      }
    }
 
    @Override

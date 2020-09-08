@@ -24,16 +24,18 @@ public class SequenceCompiler
    )
    throws Throwable
    {
-      final List<Instruction> init_instructions, pre_init;
+      final List<Instruction> init_instructions;
       final List<Register> parameters;
+      final String end_of_sequence;
       final List<Register> to_be_cleaned;
       final InstructionCompiler ic;
 
       init_instructions = new ArrayList<Instruction>();
-      pre_init = new ArrayList<Instruction>();
       parameters = new ArrayList<Register>();
       to_be_cleaned = new ArrayList<Register>();
       ic = new InstructionCompiler(compiler);
+
+      end_of_sequence = compiler.assembler().generate_label("<sequence#end>");
 
       compiler.world().add_sequence_label
       (
@@ -46,25 +48,27 @@ public class SequenceCompiler
       compiler.registers().create_stackable_context
       (
          fate_sequence.get_name(),
-         pre_init
+         init_instructions
       );
+
+      init_instructions.add
+      (
+         new SetPC(compiler.assembler().get_label_constant(end_of_sequence))
+      );
+
+      System.out.println("[D] Defining Context " + fate_sequence.get_name());
 
       init_instructions.add
       (
          compiler.assembler().mark
          (
             fate_sequence.get_name(),
-            compiler.assembler().merge(pre_init)
-         )
-      );
-
-      init_instructions.add
-      (
-         compiler.assembler().merge
-         (
-            compiler.registers().get_initialize_context_instructions
+            compiler.assembler().merge
             (
-               fate_sequence.get_name()
+               compiler.registers().get_initialize_context_instructions
+               (
+                  fate_sequence.get_name()
+               )
             )
          )
       );
@@ -102,14 +106,24 @@ public class SequenceCompiler
 
       init_instructions.add(ic.get_result());
 
+      /* No need: the context is about to be finalized anyway. */
+      /*
       for (final Register r: to_be_cleaned)
       {
          compiler.registers().release(r, init_instructions);
       }
+      */
+
 
       init_instructions.addAll
       (
          compiler.registers().get_finalize_context_instructions()
+      );
+
+      System.out.println
+      (
+         "[D] Completed Context "
+         + compiler.registers().get_current_context_name()
       );
 
       init_instructions.addAll
@@ -117,11 +131,16 @@ public class SequenceCompiler
          compiler.registers().get_leave_context_instructions()
       );
 
+
       compiler.registers().pop_context();
 
       compiler.assembler().handle_adding_instruction
       (
-         compiler.assembler().merge(init_instructions),
+         compiler.assembler().mark_after
+         (
+            compiler.assembler().merge(init_instructions),
+            end_of_sequence
+         ),
          compiler.world()
       );
    }
