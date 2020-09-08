@@ -120,12 +120,6 @@ public class SequenceCompiler
 
       compiler.assembler().handle_adding_instruction
       (
-         compiler.assembler().merge(compiler.registers().pop_initializes()),
-         compiler.world()
-      );
-
-      compiler.assembler().handle_adding_instruction
-      (
          compiler.assembler().mark_after
          (
             compiler.assembler().merge(init_instructions),

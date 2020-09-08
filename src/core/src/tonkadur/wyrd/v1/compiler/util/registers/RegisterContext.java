@@ -15,6 +15,7 @@ import tonkadur.wyrd.v1.lang.Register;
 import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
+import tonkadur.wyrd.v1.lang.instruction.Remove;
 
 class RegisterContext
 {
@@ -78,13 +79,17 @@ class RegisterContext
          {
             r.activate(t);
 
+            initialize_holder.add(new Initialize(r.get_address(), t));
+
             return r;
          }
       }
 
       name = (name_prefix + Integer.toString(generated_registers++));
 
-      result = create_register(t, name, initialize_holder);
+      result = create_register(t, name);
+
+      initialize_holder.add(new Initialize(result.get_address(), t));
 
       anonymous_registers.add(result);
 
@@ -102,7 +107,7 @@ class RegisterContext
    {
       final Register result;
 
-      result = create_register(t, name, initialize_holder);
+      result = create_register(t, name);
 
       if (register_by_name.get(name) != null)
       {
@@ -113,6 +118,8 @@ class RegisterContext
             + "' has multiple declarations within the same context."
          );
       }
+
+      initialize_holder.add(new Initialize(result.get_address(), t));
 
       register_by_name.put(name, result);
 
@@ -141,9 +148,9 @@ class RegisterContext
       }
    }
 
-   public void unbind (final String name)
+   public void unbind (final String name, final List<Instruction> instr_holder)
    {
-      release(aliased_registers.get(name));
+      release(aliased_registers.get(name), instr_holder);
 
       aliased_registers.remove(name);
 
@@ -158,11 +165,14 @@ class RegisterContext
       hierarchical_aliases.push(new ArrayList<String>());
    }
 
-   public void pop_hierarchical_instruction_level ()
+   public void pop_hierarchical_instruction_level
+   (
+      final List<Instruction> instr_holder
+   )
    {
       for (final String s: hierarchical_aliases.pop())
       {
-         unbind(s);
+         unbind(s, instr_holder);
       }
    }
 
@@ -185,24 +195,18 @@ class RegisterContext
       return register_by_name.get(name);
    }
 
-   public void release (final Register r)
+   public void release (final Register r, final List<Instruction> instr_holder)
    {
+      instr_holder.add(new Remove(r.get_address()));
       r.deactivate();
    }
 
-   protected Register create_register
-   (
-      final Type t,
-      final String name,
-      final List<Instruction> initialize_holder
-   )
+   protected Register create_register (final Type t, final String name)
    {
       final Register result;
 
       result = new Register(name);
       result.activate(t);
-
-      initialize_holder.add(new Initialize(result.get_address(), t));
 
       return result;
    }

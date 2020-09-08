@@ -34,7 +34,7 @@ public class Compiler
 
       compiler.assembler().handle_adding_instruction
       (
-         compiler.assembler().merge(compiler.registers().pop_initializes()),
+         compiler.assembler().merge(compiler.registers().get_initialization()),
          wyrd_world
       );
 
