@@ -578,7 +578,7 @@ returns [Instruction result]
          );
    }
 
-   | ADD_KW value WS+ value_reference WS* R_PAREN
+   | IMP_ADD_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          AddElement.build
@@ -593,7 +593,7 @@ returns [Instruction result]
          );
    }
 
-   | ADD_AT_KW index=value WS+ element=value WS+ value_reference WS* R_PAREN
+   | IMP_ADD_AT_KW index=value WS+ element=value WS+ value_reference WS* R_PAREN
    {
       $result =
          AddElementAt.build
@@ -609,7 +609,10 @@ returns [Instruction result]
          );
    }
 
-   | ADD_ALL_KW source=value_reference WS+ target=value_reference WS* R_PAREN
+   | IMP_ADD_ALL_KW
+         source=value_reference WS+
+         target=value_reference WS*
+      R_PAREN
    {
       $result =
          AddElementsOf.build
@@ -656,7 +659,10 @@ returns [Instruction result]
       $result = ($general_fate_instr.result);
    }
 
-   | REMOVE_ONE_KW value WS+ value_reference WS* R_PAREN
+   | IMP_REMOVE_ONE_KW
+         value WS+
+         value_reference WS*
+      R_PAREN
    {
       $result =
          RemoveElement.build
@@ -671,7 +677,10 @@ returns [Instruction result]
          );
    }
 
-   | REMOVE_AT_KW value WS+ value_reference WS* R_PAREN
+   | IMP_REMOVE_AT_KW
+         value WS+
+         value_reference WS*
+      R_PAREN
    {
       $result =
          RemoveElementAt.build
@@ -686,7 +695,10 @@ returns [Instruction result]
          );
    }
 
-   | REMOVE_ALL_KW value WS+ value_reference WS* R_PAREN
+   | IMP_REMOVE_ALL_KW
+         value WS+
+         value_reference WS*
+      R_PAREN
    {
       $result =
          RemoveAllOfElement.build
@@ -715,7 +727,7 @@ returns [Instruction result]
          );
    }
 
-   | REVERSE_KW value_reference WS* R_PAREN
+   | IMP_REVERSE_KW value_reference WS* R_PAREN
    {
       $result =
          ReverseList.build
@@ -729,7 +741,11 @@ returns [Instruction result]
          );
    }
 
-   | MAP_KW value WS+ inr=value_reference WS+ outr=value_reference WS* R_PAREN
+   | IMP_MAP_KW
+         value WS+
+         inr=value_reference WS+
+         outr=value_reference WS*
+      R_PAREN
    {
       $result =
          tonkadur.fate.v1.lang.instruction.Map.build
@@ -745,7 +761,7 @@ returns [Instruction result]
          );
    }
 
-   | INDEXED_MAP_KW
+   | IMP_INDEXED_MAP_KW
       value WS+
       inr=value_reference WS+
       outr=value_reference WS*
@@ -766,7 +782,7 @@ returns [Instruction result]
    }
 
 
-   | MERGE_KW
+   | IMP_MERGE_KW
       fun=value WS+
       init=value WS+
       inr0=value_reference WS+
@@ -790,7 +806,7 @@ returns [Instruction result]
          );
    }
 
-   | MERGE_KW
+   | IMP_MERGE_KW
       fun=value WS+
       init=value WS+
       def0=value WS+
@@ -818,7 +834,7 @@ returns [Instruction result]
          );
    }
 
-   | SUB_LIST_KW
+   | IMP_SUB_LIST_KW
       vstart=value WS+
       vend=value WS+
       inr=value_reference WS+
@@ -840,7 +856,7 @@ returns [Instruction result]
          );
    }
 
-   | FILTER_KW value WS+ value_reference WS* R_PAREN
+   | IMP_FILTER_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          Filter.build
@@ -855,7 +871,7 @@ returns [Instruction result]
          );
    }
 
-   | PARTITION_KW
+   | IMP_PARTITION_KW
       value WS+
       iftrue=value_reference WS+
       iffalse=value_reference WS*
@@ -875,7 +891,7 @@ returns [Instruction result]
          );
    }
 
-   | SORT_KW value WS+ value_reference WS* R_PAREN
+   | IMP_SORT_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
         Sort.build
@@ -890,29 +906,8 @@ returns [Instruction result]
          );
    }
 
-   | RANGE_KW
-      vstart=value WS+
-      vend=value WS+
-      inc=value WS+
-      value_reference WS*
-      R_PAREN
-   {
-      $result =
-        Range.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($RANGE_KW.getLine()),
-               ($RANGE_KW.getCharPositionInLine())
-            ),
-            ($vstart.result),
-            ($vend.result),
-            ($inc.result),
-            ($value_reference.result)
-         );
-   }
 
-   | SHUFFLE_KW value_reference WS* R_PAREN
+   | IMP_SHUFFLE_KW value_reference WS* R_PAREN
    {
       $result =
         Shuffle.build
@@ -955,7 +950,7 @@ returns [Instruction result]
          );
    }
 
-   | SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
+   | IMP_SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
    {
       final Origin origin;
       final List<Instruction> operations;
@@ -3006,6 +3001,26 @@ returns [Computation result]
          );
    }
 
+   | RANGE_KW
+      vstart=value WS+
+      vend=value WS+
+      inc=value WS*
+      R_PAREN
+   {
+      $result =
+        Range.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($RANGE_KW.getLine()),
+               ($RANGE_KW.getCharPositionInLine())
+            ),
+            ($vstart.result),
+            ($vend.result),
+            ($inc.result)
+         );
+   }
+
    | COND_KW value_cond_list WS* R_PAREN
    {
       $result =
@@ -3219,6 +3234,289 @@ returns [Computation result]
             origin,
             ($value_reference.result),
             ($value_list.result)
+         );
+   }
+
+   | ADD_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         AddElementComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ADD_KW.getLine()),
+               ($ADD_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | ADD_AT_KW index=value WS+ element=value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         AddElementAtComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ADD_AT_KW.getLine()),
+               ($ADD_AT_KW.getCharPositionInLine())
+            ),
+            ($index.result),
+            ($element.result),
+            ($value_reference.result)
+         );
+   }
+
+   | ADD_ALL_KW
+         source=value_reference WS+
+         target=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         AddElementsOfComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ADD_ALL_KW.getLine()),
+               ($ADD_ALL_KW.getCharPositionInLine())
+            ),
+            ($source.result),
+            ($target.result)
+         );
+   }
+
+   | REMOVE_ONE_KW
+         value WS+
+         value_reference WS*
+      R_PAREN
+   {
+      $result =
+         RemoveElementComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REMOVE_ONE_KW.getLine()),
+               ($REMOVE_ONE_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | REMOVE_AT_KW
+         value WS+
+         value_reference WS*
+      R_PAREN
+   {
+      $result =
+         RemoveElementAtComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REMOVE_AT_KW.getLine()),
+               ($REMOVE_AT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | REMOVE_ALL_KW
+         value WS+
+         value_reference WS*
+      R_PAREN
+   {
+      $result =
+         RemoveAllOfElementComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REMOVE_ALL_KW.getLine()),
+               ($REMOVE_ALL_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | REVERSE_KW value_reference WS* R_PAREN
+   {
+      $result =
+         ReverseListComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($REVERSE_KW.getLine()),
+               ($REVERSE_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
+         );
+   }
+
+   | MAP_KW
+         value WS+
+         inr=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         tonkadur.fate.v1.lang.computation.MapComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MAP_KW.getLine()),
+               ($MAP_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($inr.result)
+         );
+   }
+
+   | INDEXED_MAP_KW value WS+ inr=value_reference WS* R_PAREN
+   {
+      $result =
+         IndexedMapComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_MAP_KW.getLine()),
+               ($INDEXED_MAP_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($inr.result)
+         );
+   }
+
+
+   | MERGE_KW
+         fun=value WS+
+         init=value WS+
+         inr0=value_reference WS+
+         inr1=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         MergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MERGE_KW.getLine()),
+               ($MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($init.result),
+            ($inr0.result),
+            ($inr1.result)
+         );
+   }
+
+   | MERGE_KW
+         fun=value WS+
+         init=value WS+
+         def0=value WS+
+         inr0=value_reference WS+
+         def1=value WS+
+         inr1=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         MergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MERGE_KW.getLine()),
+               ($MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($init.result),
+            ($def0.result),
+            ($inr0.result),
+            ($def1.result),
+            ($inr1.result)
+         );
+   }
+
+   | SUB_LIST_KW
+      vstart=value WS+
+      vend=value WS+
+      inr=value_reference WS+
+      outr=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         SubListComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SUB_LIST_KW.getLine()),
+               ($SUB_LIST_KW.getCharPositionInLine())
+            ),
+            ($vstart.result),
+            ($vend.result),
+            ($inr.result)
+         );
+   }
+
+   | FILTER_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         FilterComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FILTER_KW.getLine()),
+               ($FILTER_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | PARTITION_KW
+      value WS+
+      value_reference WS*
+      R_PAREN
+   {
+      $result =
+        PartitionComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PARTITION_KW.getLine()),
+               ($PARTITION_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+   | SORT_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+        SortComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SORT_KW.getLine()),
+               ($SORT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+   }
+
+
+   | SHUFFLE_KW value_reference WS* R_PAREN
+   {
+      $result =
+        ShuffleComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SHUFFLE_KW.getLine()),
+               ($SHUFFLE_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result)
          );
    }
 
