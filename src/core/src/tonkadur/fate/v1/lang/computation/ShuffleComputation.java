@@ -1,40 +1,33 @@
-package tonkadur.fate.v1.lang.instruction;
-
-import java.util.Collections;
-
-import tonkadur.error.ErrorManager;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
 
-import tonkadur.fate.v1.lang.type.CollectionType;
-import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.instruction.Shuffle;
 
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Shuffle extends Instruction
+public class ShuffleComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation collection;
+   protected final Shuffle instruction;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected Shuffle
+   protected ShuffleComputation
    (
-      final Origin origin,
-      final Computation collection
+      final Shuffle instruction
    )
    {
-      super(origin);
+      super(instruction.get_origin(), instruction.get_collection().get_type());
 
-      this.collection = collection;
+      this.instruction = instruction;
    }
 
    /***************************************************************************/
@@ -48,41 +41,20 @@ public class Shuffle extends Instruction
    )
    throws InvalidTypeException
    {
-      final Type t;
-
-      t = collection.get_type();
-
-      if
-      (
-         !(t instanceof CollectionType)
-         || ((CollectionType) t).is_set()
-      )
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection.get_type(),
-               Collections.singleton(Type.LIST)
-            )
-         );
-      }
-
-      return new Shuffle(origin, collection);
+      return new ShuffleComputation(Shuffe.build(origin, collection));
    }
 
    /**** Accessors ************************************************************/
    @Override
-   public void get_visited_by (final InstructionVisitor iv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      iv.visit_shuffle(this);
+      cv.visit_shuffle(this);
    }
 
-   public Computation get_collection ()
+   public Shuffle get_instruction ()
    {
-      return collection;
+      return instruction;
    }
 
    /**** Misc. ****************************************************************/
@@ -91,8 +63,8 @@ public class Shuffle extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Shuffle ");
-      sb.append(collection.toString());
+      sb.append("(ComputationOf ");
+      sb.append(instruction.toString());
 
       sb.append(")");
 

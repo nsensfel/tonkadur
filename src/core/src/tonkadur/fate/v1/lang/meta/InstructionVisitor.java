@@ -50,9 +50,6 @@ public interface InstructionVisitor
    public void visit_map (final Map c)
    throws Throwable;
 
-   public void visit_range (final Range c)
-   throws Throwable;
-
    public void visit_shuffle (final Shuffle c)
    throws Throwable;
 

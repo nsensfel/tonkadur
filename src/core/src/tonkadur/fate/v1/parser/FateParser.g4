@@ -585,8 +585,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($ADD_KW.getLine()),
-               ($ADD_KW.getCharPositionInLine())
+               ($IMP_ADD_KW.getLine()),
+               ($IMP_ADD_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($value_reference.result)
@@ -600,8 +600,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($ADD_AT_KW.getLine()),
-               ($ADD_AT_KW.getCharPositionInLine())
+               ($IMP_ADD_AT_KW.getLine()),
+               ($IMP_ADD_AT_KW.getCharPositionInLine())
             ),
             ($index.result),
             ($element.result),
@@ -619,8 +619,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($ADD_ALL_KW.getLine()),
-               ($ADD_ALL_KW.getCharPositionInLine())
+               ($IMP_ADD_ALL_KW.getLine()),
+               ($IMP_ADD_ALL_KW.getCharPositionInLine())
             ),
             ($source.result),
             ($target.result)
@@ -669,8 +669,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($REMOVE_ONE_KW.getLine()),
-               ($REMOVE_ONE_KW.getCharPositionInLine())
+               ($IMP_REMOVE_ONE_KW.getLine()),
+               ($IMP_REMOVE_ONE_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($value_reference.result)
@@ -687,8 +687,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($REMOVE_AT_KW.getLine()),
-               ($REMOVE_AT_KW.getCharPositionInLine())
+               ($IMP_REMOVE_AT_KW.getLine()),
+               ($IMP_REMOVE_AT_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($value_reference.result)
@@ -705,8 +705,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($REMOVE_ALL_KW.getLine()),
-               ($REMOVE_ALL_KW.getCharPositionInLine())
+               ($IMP_REMOVE_ALL_KW.getLine()),
+               ($IMP_REMOVE_ALL_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($value_reference.result)
@@ -734,8 +734,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($REVERSE_KW.getLine()),
-               ($REVERSE_KW.getCharPositionInLine())
+               ($IMP_REVERSE_KW.getLine()),
+               ($IMP_REVERSE_KW.getCharPositionInLine())
             ),
             ($value_reference.result)
          );
@@ -752,8 +752,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($MAP_KW.getLine()),
-               ($MAP_KW.getCharPositionInLine())
+               ($IMP_MAP_KW.getLine()),
+               ($IMP_MAP_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($inr.result),
@@ -772,8 +772,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($INDEXED_MAP_KW.getLine()),
-               ($INDEXED_MAP_KW.getCharPositionInLine())
+               ($IMP_INDEXED_MAP_KW.getLine()),
+               ($IMP_INDEXED_MAP_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($inr.result),
@@ -795,8 +795,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_KW.getLine()),
-               ($MERGE_KW.getCharPositionInLine())
+               ($IMP_MERGE_KW.getLine()),
+               ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($init.result),
@@ -821,8 +821,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_KW.getLine()),
-               ($MERGE_KW.getCharPositionInLine())
+               ($IMP_MERGE_KW.getLine()),
+               ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($init.result),
@@ -846,8 +846,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($SUB_LIST_KW.getLine()),
-               ($SUB_LIST_KW.getCharPositionInLine())
+               ($IMP_SUB_LIST_KW.getLine()),
+               ($IMP_SUB_LIST_KW.getCharPositionInLine())
             ),
             ($vstart.result),
             ($vend.result),
@@ -863,8 +863,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($FILTER_KW.getLine()),
-               ($FILTER_KW.getCharPositionInLine())
+               ($IMP_FILTER_KW.getLine()),
+               ($IMP_FILTER_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($value_reference.result)
@@ -882,8 +882,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($PARTITION_KW.getLine()),
-               ($PARTITION_KW.getCharPositionInLine())
+               ($IMP_PARTITION_KW.getLine()),
+               ($IMP_PARTITION_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($iftrue.result),
@@ -898,8 +898,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($SORT_KW.getLine()),
-               ($SORT_KW.getCharPositionInLine())
+               ($IMP_SORT_KW.getLine()),
+               ($IMP_SORT_KW.getCharPositionInLine())
             ),
             ($value.result),
             ($value_reference.result)
@@ -914,8 +914,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($SHUFFLE_KW.getLine()),
-               ($SHUFFLE_KW.getCharPositionInLine())
+               ($IMP_SHUFFLE_KW.getLine()),
+               ($IMP_SHUFFLE_KW.getCharPositionInLine())
             ),
             ($value_reference.result)
          );
@@ -952,14 +952,15 @@ returns [Instruction result]
 
    | IMP_SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
    {
+      /* FIXME: this should be a true Fate construct. */
       final Origin origin;
       final List<Instruction> operations;
 
       origin =
          CONTEXT.get_origin_at
          (
-            ($SET_FIELDS_KW.getLine()),
-            ($SET_FIELDS_KW.getCharPositionInLine())
+            ($IMP_SET_FIELDS_KW.getLine()),
+            ($IMP_SET_FIELDS_KW.getCharPositionInLine())
          );
 
       operations = new ArrayList<Instruction>();
@@ -3269,8 +3270,8 @@ returns [Computation result]
    }
 
    | ADD_ALL_KW
-         source=value_reference WS+
-         target=value_reference WS*
+         sourcer=value_reference WS+
+         targetr=value_reference WS*
       R_PAREN
    {
       $result =
@@ -3281,8 +3282,8 @@ returns [Computation result]
                ($ADD_ALL_KW.getLine()),
                ($ADD_ALL_KW.getCharPositionInLine())
             ),
-            ($source.result),
-            ($target.result)
+            ($sourcer.result),
+            ($targetr.result)
          );
    }
 

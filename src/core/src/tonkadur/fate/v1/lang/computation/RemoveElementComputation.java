@@ -1,6 +1,4 @@
-package tonkadur.fate.v1.lang.instruction;
-
-import tonkadur.error.ErrorManager;
+package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
 
@@ -8,134 +6,65 @@ import tonkadur.fate.v1.error.ConflictingTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidTypeException;
 
-import tonkadur.fate.v1.lang.type.CollectionType;
-import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.instruction.RemoveElement;
 
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 
-public class RemoveElement extends Instruction
+public class RemoveElementComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation element;
-   protected final Computation collection;
+   protected final RemoveElement instruction;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected RemoveElement
+   protected RemoveElementComputation
    (
-      final Origin origin,
-      final Computation element,
-      final Computation collection
+      final RemoveElement instruction
    )
    {
-      super(origin);
+      super(instruction.get_origin(), instruction.get_collection().get_type());
 
-      this.collection = collection;
-      this.element = element;
+      this.instruction = instruction;
    }
-
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static RemoveElement build
+   public static RemoveElementComputation build
    (
       final Origin origin,
       final Computation element,
-      final Computation collection
+      final Reference collection
    )
    throws
       InvalidTypeException,
       ConflictingTypeException,
       IncomparableTypeException
    {
-      final Type hint;
-      final Type collection_type;
-      final CollectionType collection_true_type;
-      final Type collection_element_type;
-
-      collection_type = collection.get_type();
-
-      if (!(collection_type instanceof CollectionType))
-      {
-         ErrorManager.handle
+      return
+         new RemoveElementComputation
          (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection.get_type(),
-               Type.COLLECTION_TYPES
-            )
+            RemoveElement.build(origin, element, collection)
          );
-      }
-
-      collection_true_type = (CollectionType) collection_type;
-      collection_element_type = collection_true_type.get_content_type();
-
-      if
-      (
-         element.get_type().can_be_used_as(collection_element_type)
-         ||
-         (element.get_type().try_merging_with(collection_element_type) != null)
-      )
-      {
-         return new RemoveElement(origin, element, collection);
-      }
-
-      ErrorManager.handle
-      (
-         new ConflictingTypeException
-         (
-            element.get_origin(),
-            element.get_type(),
-            collection_element_type
-         )
-      );
-
-      hint =
-         (Type) element.get_type().generate_comparable_to
-         (
-            collection_element_type
-         );
-
-      if (hint.equals(Type.ANY))
-      {
-         ErrorManager.handle
-         (
-            new IncomparableTypeException
-            (
-               element.get_origin(),
-               element.get_type(),
-               collection_element_type
-            )
-         );
-      }
-
-      return new RemoveElement(origin, element, collection);
    }
 
    /**** Accessors ************************************************************/
    @Override
-   public void get_visited_by (final InstructionVisitor iv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      iv.visit_remove_element(this);
+      cv.visit_remove_element(this);
    }
 
-   public Computation get_element ()
+   public RemoveElement get_instruction ()
    {
-      return element;
-   }
-
-   public Computation get_collection ()
-   {
-      return collection;
+      return instruction;
    }
 
    /**** Misc. ****************************************************************/
@@ -144,20 +73,8 @@ public class RemoveElement extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
-      sb.append("(RemoveElement");
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-
-      sb.append("element:");
-      sb.append(System.lineSeparator());
-      sb.append(element.toString());
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-
-      sb.append("collection:");
-      sb.append(System.lineSeparator());
-      sb.append(collection.toString());
+      sb.append("(ComputationOf ");
+      sb.append(instruction.toString());
 
       sb.append(")");
 

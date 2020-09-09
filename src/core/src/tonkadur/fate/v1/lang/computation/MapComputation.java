@@ -10,8 +10,8 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.instruction.Map;
 
-import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
 
 public class MapComputation extends Computation
