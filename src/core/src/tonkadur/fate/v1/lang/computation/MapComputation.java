@@ -58,7 +58,8 @@ public class MapComputation extends Computation
          (
             origin,
             ((LambdaType) lambda_function.get_type()).get_return_type(),
-            ((CollectionType) collection_in.get_type()).is_set()
+            ((CollectionType) collection_in.get_type()).is_set(),
+            "auto generated"
          );
 
       return new MapComputation(parent, type);

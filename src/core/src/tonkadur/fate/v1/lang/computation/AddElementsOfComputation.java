@@ -28,7 +28,11 @@ public class AddElementsOfComputation extends Computation
       final AddElementsOf instruction
    )
    {
-      super(instruction.get_origin(), instruction.get_collection().get_type());
+      super
+      (
+         instruction.get_origin(),
+         instruction.get_source_collection().get_type()
+      );
 
       this.instruction = instruction;
    }

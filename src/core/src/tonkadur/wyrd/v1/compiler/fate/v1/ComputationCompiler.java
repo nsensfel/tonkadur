@@ -1872,4 +1872,112 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       result_as_address = register.get_address();
       result_as_computation = register.get_value();
    }
+
+   @Override
+   public void visit_car_cdr
+   (
+      final tonkadur.fate.v1.lang.computation.CarCdr n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_cons
+   (
+      final tonkadur.fate.v1.lang.computation.ConsComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_add_element_at
+   (
+      final tonkadur.fate.v1.lang.computation.AddElementAtComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_add_elements_of
+   (
+      final tonkadur.fate.v1.lang.computation.AddElementsOfComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_fold
+   (
+      final tonkadur.fate.v1.lang.computation.Fold n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_map
+   (
+      final tonkadur.fate.v1.lang.computation.MapComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_range
+   (
+      final tonkadur.fate.v1.lang.computation.Range n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_remove_all_of_element
+   (
+      final tonkadur.fate.v1.lang.computation.RemoveAllOfElementComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_remove_element_at
+   (
+      final tonkadur.fate.v1.lang.computation.RemoveElementAtComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_remove_element
+   (
+      final tonkadur.fate.v1.lang.computation.RemoveElementComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_reverse_list
+   (
+      final tonkadur.fate.v1.lang.computation.ReverseListComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_shuffle
+   (
+      final tonkadur.fate.v1.lang.computation.ShuffleComputation n
+   )
+   {
+      /* TODO */
+   }
 }

@@ -22,9 +22,6 @@ public interface ComputationVisitor
    public void visit_fold (final Fold n)
    throws Throwable;
 
-   public void visit_car_cdr (final CarCdr n)
-   throws Throwable;
-
    public void visit_cond_value (final CondValue n)
    throws Throwable;
 
@@ -85,4 +82,39 @@ public interface ComputationVisitor
    public void visit_variable_reference (final VariableReference n)
    throws Throwable;
 
+   public void visit_car_cdr (final CarCdr n)
+   throws Throwable;
+
+   public void visit_add_element (final AddElementComputation n)
+   throws Throwable;
+
+   public void visit_add_element_at (final AddElementAtComputation n)
+   throws Throwable;
+
+   public void visit_add_elements_of (final AddElementsOfComputation n)
+   throws Throwable;
+
+   public void visit_map (final MapComputation n)
+   throws Throwable;
+
+   public void visit_range (final Range n)
+   throws Throwable;
+
+   public void visit_remove_all_of_element
+   (
+      final RemoveAllOfElementComputation n
+   )
+   throws Throwable;
+
+   public void visit_remove_element_at (final RemoveElementAtComputation n)
+   throws Throwable;
+
+   public void visit_remove_element (final RemoveElementComputation n)
+   throws Throwable;
+
+   public void visit_reverse_list (final ReverseListComputation n)
+   throws Throwable;
+
+   public void visit_shuffle (final ShuffleComputation n)
+   throws Throwable;
 }

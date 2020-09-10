@@ -546,6 +546,57 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       address_compiler.release_registers(result);
    }
 
+   public void visit_shuffle
+   (
+      final tonkadur.fate.v1.lang.instruction.Shuffle n
+   )
+   throws Throwable
+   {
+      /*
+       * Fate: (shuffle collection)
+       *
+       * Wyrd: <shuffle collection>
+       */
+      final ComputationCompiler address_compiler;
+      final Address collection_address;
+
+      address_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         result.add(address_compiler.get_init());
+      }
+
+      collection_address = address_compiler.get_address();
+
+      /*
+       * TODO
+      result.add
+      (
+         Shuffle.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            new Size(collection_address),
+            collection_address
+         )
+      );
+      */
+
+      address_compiler.release_registers(result);
+   }
+
+   public void visit_map
+   (
+      final tonkadur.fate.v1.lang.instruction.Map n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
    @Override
    public void visit_switch_instruction
    (

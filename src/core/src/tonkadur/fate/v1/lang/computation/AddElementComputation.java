@@ -24,7 +24,7 @@ public class AddElementComputation extends Computation
    /**** Constructors *********************************************************/
    protected AddElementComputation
    (
-      final AddElementAt instruction
+      final AddElement instruction
    )
    {
       super(instruction.get_origin(), instruction.get_collection().get_type());

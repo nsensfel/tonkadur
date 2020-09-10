@@ -12,7 +12,7 @@ import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
 
-public class RemoveElementAt extends Computation
+public class RemoveElementAtComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/

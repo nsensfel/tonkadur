@@ -34,14 +34,18 @@ public class ShuffleComputation extends Computation
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static Shuffle build
+   public static ShuffleComputation build
    (
       final Origin origin,
       final Computation collection
    )
    throws InvalidTypeException
    {
-      return new ShuffleComputation(Shuffe.build(origin, collection));
+      /*
+       * FIXME: this computation should accept any collection type, and return a
+       * list, which is not the case of Shuffle.build
+       */
+      return new ShuffleComputation(Shuffle.build(origin, collection));
    }
 
    /**** Accessors ************************************************************/

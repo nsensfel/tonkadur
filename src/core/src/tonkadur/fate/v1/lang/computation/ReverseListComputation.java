@@ -41,7 +41,11 @@ public class ReverseListComputation extends Computation
    )
    throws InvalidTypeException
    {
-      return new ReverseListComputation(Shuffe.build(origin, collection));
+      /*
+       * FIXME: this computation should accept any collection type, and return a
+       * list, which is not the case of ReverseList.build
+       */
+      return new ReverseListComputation(ReverseList.build(origin, collection));
    }
 
    /**** Accessors ************************************************************/

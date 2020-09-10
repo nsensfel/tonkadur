@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.instruction;
+package tonkadur.fate.v1.lang.computation;
 
 import java.util.Collections;
 
@@ -11,16 +11,14 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Range extends Instruction
+public class Range extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation collection;
    protected final Computation start;
    protected final Computation end;
    protected final Computation increment;
@@ -35,12 +33,11 @@ public class Range extends Instruction
       final Computation start,
       final Computation end,
       final Computation increment,
-      final Computation collection
+      final Type target_type
    )
    {
-      super(origin);
+      super(origin, target_type);
 
-      this.collection = collection;
       this.start = start;
       this.end = end;
       this.increment = increment;
@@ -55,28 +52,10 @@ public class Range extends Instruction
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Computation increment,
-      final Computation collection
+      final Computation increment
    )
    throws InvalidTypeException
    {
-      final Type t;
-
-      t = collection.get_type();
-
-      if (!(t instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection.get_type(),
-               Type.COLLECTION_TYPES
-            )
-         );
-      }
-
       if (!start.get_type().can_be_used_as(Type.INT))
       {
          ErrorManager.handle
@@ -116,20 +95,23 @@ public class Range extends Instruction
          );
       }
 
-      return new Range(origin, start, end, increment, collection);
+      return
+         new Range
+         (
+            origin,
+            start,
+            end,
+            increment,
+            CollectionType.build(origin, Type.INT, false, "auto generated")
+         );
    }
 
    /**** Accessors ************************************************************/
    @Override
-   public void get_visited_by (final InstructionVisitor iv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      iv.visit_range(this);
-   }
-
-   public Computation get_collection ()
-   {
-      return collection;
+      cv.visit_range(this);
    }
 
    public Computation get_start ()
@@ -159,8 +141,6 @@ public class Range extends Instruction
       sb.append(end.toString());
       sb.append(" ");
       sb.append(increment.toString());
-      sb.append(" ");
-      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();
