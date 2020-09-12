@@ -1892,6 +1892,15 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_add_element
+   (
+      final tonkadur.fate.v1.lang.computation.AddElementComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
    public void visit_add_element_at
    (
       final tonkadur.fate.v1.lang.computation.AddElementAtComputation n
@@ -1976,6 +1985,78 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    public void visit_shuffle
    (
       final tonkadur.fate.v1.lang.computation.ShuffleComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_merge
+   (
+      final tonkadur.fate.v1.lang.computation.MergeComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_sublist
+   (
+      final tonkadur.fate.v1.lang.computation.SubListComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_partition
+   (
+      final tonkadur.fate.v1.lang.computation.PartitionComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_sort
+   (
+      final tonkadur.fate.v1.lang.computation.SortComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_filter
+   (
+      final tonkadur.fate.v1.lang.computation.FilterComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_indexed_map
+   (
+      final tonkadur.fate.v1.lang.computation.IndexedMapComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_push_element
+   (
+      final tonkadur.fate.v1.lang.computation.PushElementComputation n
+   )
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_pop_element
+   (
+      final tonkadur.fate.v1.lang.computation.PopElementComputation n
    )
    {
       /* TODO */

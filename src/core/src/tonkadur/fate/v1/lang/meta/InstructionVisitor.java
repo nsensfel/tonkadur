@@ -5,7 +5,7 @@ import tonkadur.fate.v1.lang.instruction.*;
 public interface InstructionVisitor
 {
    /* Instruction Nodes */
-   public void visit_add_element (final AddElement ae)
+   public void visit_add_element (final AddElement n)
    throws Throwable;
 
    public void visit_add_element_at (final AddElementAt n)
@@ -14,7 +14,7 @@ public interface InstructionVisitor
    public void visit_add_elements_of (final AddElementsOf n)
    throws Throwable;
 
-   public void visit_assert (final Assert a)
+   public void visit_assert (final Assert n)
    throws Throwable;
 
    public void visit_break (final Break n)
@@ -44,22 +44,46 @@ public interface InstructionVisitor
    public void visit_for_each (final ForEach n)
    throws Throwable;
 
-   public void visit_clear (final Clear c)
+   public void visit_clear (final Clear n)
    throws Throwable;
 
-   public void visit_map (final Map c)
+   public void visit_map (final Map n)
+   throws Throwable;
+
+   public void visit_merge (final Merge n)
+   throws Throwable;
+
+   public void visit_filter (final Filter n)
+   throws Throwable;
+
+   public void visit_sublist (final SubList n)
+   throws Throwable;
+
+   public void visit_partition (final Partition n)
+   throws Throwable;
+
+   public void visit_sort (final Sort n)
+   throws Throwable;
+
+   public void visit_indexed_map (final IndexedMap c)
    throws Throwable;
 
    public void visit_shuffle (final Shuffle c)
    throws Throwable;
 
+   public void visit_pop_element (final PopElement c)
+   throws Throwable;
+
+   public void visit_push_element (final PushElement c)
+   throws Throwable;
+
    public void visit_reverse_list (final ReverseList n)
    throws Throwable;
 
-   public void visit_cond_instruction (final CondInstruction ci)
+   public void visit_cond_instruction (final CondInstruction n)
    throws Throwable;
 
-   public void visit_switch_instruction (final SwitchInstruction ci)
+   public void visit_switch_instruction (final SwitchInstruction n)
    throws Throwable;
 
    public void visit_display (final Display n)

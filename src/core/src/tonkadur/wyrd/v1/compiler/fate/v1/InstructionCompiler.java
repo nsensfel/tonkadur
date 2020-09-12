@@ -546,6 +546,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       address_compiler.release_registers(result);
    }
 
+   @Override
    public void visit_shuffle
    (
       final tonkadur.fate.v1.lang.instruction.Shuffle n
@@ -588,9 +589,90 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       address_compiler.release_registers(result);
    }
 
+   @Override
    public void visit_map
    (
       final tonkadur.fate.v1.lang.instruction.Map n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_sort
+   (
+      final tonkadur.fate.v1.lang.instruction.Sort n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_merge
+   (
+      final tonkadur.fate.v1.lang.instruction.Merge n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_partition
+   (
+      final tonkadur.fate.v1.lang.instruction.Partition n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_sublist
+   (
+      final tonkadur.fate.v1.lang.instruction.SubList n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_push_element
+   (
+      final tonkadur.fate.v1.lang.instruction.PushElement n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_pop_element
+   (
+      final tonkadur.fate.v1.lang.instruction.PopElement n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_filter
+   (
+      final tonkadur.fate.v1.lang.instruction.Filter n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+   @Override
+   public void visit_indexed_map
+   (
+      final tonkadur.fate.v1.lang.instruction.IndexedMap n
    )
    throws Throwable
    {

@@ -741,6 +741,68 @@ returns [Instruction result]
          );
    }
 
+   | IMP_PUSH_LEFT_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         PushElement.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_PUSH_LEFT_KW.getLine()),
+               ($IMP_PUSH_LEFT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result),
+            true
+         );
+   }
+
+   | IMP_PUSH_RIGHT_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         PushElement.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_PUSH_RIGHT_KW.getLine()),
+               ($IMP_PUSH_RIGHT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result),
+            false
+         );
+   }
+
+   | IMP_POP_RIGHT_KW value_reference WS* R_PAREN
+   {
+      $result =
+         PopElement.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_POP_RIGHT_KW.getLine()),
+               ($IMP_POP_RIGHT_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            false
+         );
+   }
+
+   | IMP_POP_LEFT_KW value_reference WS* R_PAREN
+   {
+      $result =
+         PopElement.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_POP_LEFT_KW.getLine()),
+               ($IMP_POP_LEFT_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            true
+         );
+   }
+
    | IMP_MAP_KW
          value WS+
          inr=value_reference WS+
@@ -784,7 +846,6 @@ returns [Instruction result]
 
    | IMP_MERGE_KW
       fun=value WS+
-      init=value WS+
       inr0=value_reference WS+
       inr1=value_reference WS+
       outr=value_reference WS*
@@ -799,16 +860,16 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($init.result),
             ($inr0.result),
+            null,
             ($inr1.result),
+            null,
             ($outr.result)
          );
    }
 
    | IMP_MERGE_KW
       fun=value WS+
-      init=value WS+
       def0=value WS+
       inr0=value_reference WS+
       def1=value WS+
@@ -825,11 +886,10 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($init.result),
-            ($def0.result),
             ($inr0.result),
-            ($def1.result),
+            ($def0.result),
             ($inr1.result),
+            ($def1.result),
             ($outr.result)
          );
    }
@@ -3355,6 +3415,68 @@ returns [Computation result]
          );
    }
 
+   | PUSH_LEFT_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         PushElementComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PUSH_LEFT_KW.getLine()),
+               ($PUSH_LEFT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result),
+            true
+         );
+   }
+
+   | PUSH_RIGHT_KW value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         PushElementComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($PUSH_RIGHT_KW.getLine()),
+               ($PUSH_RIGHT_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result),
+            false
+         );
+   }
+
+   | POP_LEFT_KW value_reference WS* R_PAREN
+   {
+      $result =
+         PopElementComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($POP_LEFT_KW.getLine()),
+               ($POP_LEFT_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            true
+         );
+   }
+
+   | POP_RIGHT_KW value_reference WS* R_PAREN
+   {
+      $result =
+         PopElementComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($POP_RIGHT_KW.getLine()),
+               ($POP_RIGHT_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            true
+         );
+   }
+
    | MAP_KW
          value WS+
          inr=value_reference WS*
@@ -3391,7 +3513,6 @@ returns [Computation result]
 
    | MERGE_KW
          fun=value WS+
-         init=value WS+
          inr0=value_reference WS+
          inr1=value_reference WS*
       R_PAREN
@@ -3405,15 +3526,15 @@ returns [Computation result]
                ($MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($init.result),
             ($inr0.result),
-            ($inr1.result)
+            null,
+            ($inr1.result),
+            null
          );
    }
 
    | MERGE_KW
          fun=value WS+
-         init=value WS+
          def0=value WS+
          inr0=value_reference WS+
          def1=value WS+
@@ -3429,11 +3550,10 @@ returns [Computation result]
                ($MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($init.result),
-            ($def0.result),
             ($inr0.result),
-            ($def1.result),
-            ($inr1.result)
+            ($def0.result),
+            ($inr1.result),
+            ($def1.result)
          );
    }
 

@@ -97,6 +97,12 @@ public interface ComputationVisitor
    public void visit_map (final MapComputation n)
    throws Throwable;
 
+   public void visit_indexed_map (final IndexedMapComputation n)
+   throws Throwable;
+
+   public void visit_sort (final SortComputation n)
+   throws Throwable;
+
    public void visit_range (final Range n)
    throws Throwable;
 
@@ -116,5 +122,23 @@ public interface ComputationVisitor
    throws Throwable;
 
    public void visit_shuffle (final ShuffleComputation n)
+   throws Throwable;
+
+   public void visit_merge (final MergeComputation n)
+   throws Throwable;
+
+   public void visit_filter (final FilterComputation n)
+   throws Throwable;
+
+   public void visit_sublist (final SubListComputation n)
+   throws Throwable;
+
+   public void visit_partition (final PartitionComputation n)
+   throws Throwable;
+
+   public void visit_push_element (final PushElementComputation n)
+   throws Throwable;
+
+   public void visit_pop_element (final PopElementComputation n)
    throws Throwable;
 }
