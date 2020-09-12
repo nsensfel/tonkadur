@@ -1,19 +1,15 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import java.util.Collections;
-
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.RichTextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
+
+import tonkadur.fate.v1.lang.type.Type;
 
 public class Assert extends Instruction
 {
@@ -50,20 +46,9 @@ public class Assert extends Instruction
       final Computation condition,
       final RichTextNode message
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
-      if (!condition.get_type().get_base_type().equals(Type.BOOL))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               condition.get_origin(),
-               condition.get_type(),
-               Collections.singleton(Type.BOOL)
-            )
-         );
-      }
+      RecurrentChecks.assert_can_be_used_as(condition, Type.BOOL);
 
       return new Assert(origin, condition, message);
    }

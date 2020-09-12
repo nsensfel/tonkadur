@@ -1,19 +1,14 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
-import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class AddElementsOf extends Instruction
 {
@@ -50,76 +45,16 @@ public class AddElementsOf extends Instruction
       final Reference other_collection,
       final Reference collection
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      final Type hint;
-      final Type collection_type, other_collection_type;
-
-      collection_type = collection.get_type();
-      other_collection_type = other_collection.get_type();
-
-      if (!(collection_type instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection_type,
-               Type.COLLECTION_TYPES
-            )
-         );
-      }
-
-      if (!(other_collection_type instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               other_collection.get_origin(),
-               other_collection_type,
-               Type.COLLECTION_TYPES
-            )
-         );
-      }
-
-      if (other_collection_type.can_be_used_as(collection_type))
-      {
-         return new AddElementsOf(origin, other_collection, collection);
-      }
-
-      ErrorManager.handle
+      RecurrentChecks.assert_is_a_collection(collection);
+      RecurrentChecks.assert_is_a_collection(other_collection);
+      RecurrentChecks.assert_can_be_used_as
       (
-         new ConflictingTypeException
-         (
-            other_collection.get_origin(),
-            other_collection_type,
-            collection_type
-         )
+         other_collection.get_origin(),
+         ((CollectionType) other_collection.get_type()).get_content_type(),
+         ((CollectionType) collection.get_type()).get_content_type()
       );
-
-      hint =
-         (Type) other_collection.get_type().generate_comparable_to
-         (
-            collection_type
-         );
-
-      if (hint.equals(Type.ANY))
-      {
-         ErrorManager.handle
-         (
-            new IncomparableTypeException
-            (
-               other_collection.get_origin(),
-               other_collection_type,
-               collection_type
-            )
-         );
-      }
 
       return new AddElementsOf(origin, other_collection, collection);
    }

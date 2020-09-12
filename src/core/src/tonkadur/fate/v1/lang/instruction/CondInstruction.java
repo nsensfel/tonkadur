@@ -1,21 +1,18 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import java.util.Collections;
 import java.util.List;
-
-import tonkadur.error.ErrorManager;
 
 import tonkadur.functional.Cons;
 
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class CondInstruction extends Instruction
 {
@@ -48,22 +45,11 @@ public class CondInstruction extends Instruction
       final Origin origin,
       final List<Cons<Computation, Instruction>> branches
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
       for (final Cons<Computation, Instruction> branch: branches)
       {
-         if (!branch.get_car().get_type().get_base_type().equals(Type.BOOL))
-         {
-            ErrorManager.handle
-            (
-               new InvalidTypeException
-               (
-                  branch.get_car().get_origin(),
-                  branch.get_car().get_type(),
-                  Collections.singleton(Type.BOOL)
-               )
-            );
-         }
+         RecurrentChecks.assert_can_be_used_as(branch.get_car(), Type.BOOL);
       }
 
       return new CondInstruction(origin, branches);

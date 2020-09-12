@@ -9,8 +9,6 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.error.ErrorManager;
 
-import tonkadur.fate.v1.error.IncompatibleTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
 import tonkadur.fate.v1.error.InvalidTypeException;
 

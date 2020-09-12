@@ -1,17 +1,12 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.type.CollectionType;
-import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class Clear extends Instruction
 {
@@ -44,26 +39,9 @@ public class Clear extends Instruction
       final Origin origin,
       final Computation collection
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
-      if
-      (
-         !Type.COLLECTION_TYPES.contains
-         (
-            collection.get_type().get_act_as_type()
-         )
-      )
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection.get_type(),
-               Type.COLLECTION_TYPES
-            )
-         );
-      }
+      RecurrentChecks.assert_is_a_collection(collection);
 
       return new Clear(origin, collection);
    }
