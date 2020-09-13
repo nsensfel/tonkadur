@@ -1,18 +1,15 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import java.util.Collections;
-
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.PointerType;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class PromptString extends Instruction
 {
@@ -57,46 +54,16 @@ public class PromptString extends Instruction
       final Computation max,
       final Computation label
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
-      if (!target.get_type().can_be_used_as(Type.STRING))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               target.get_origin(),
-               target.get_type(),
-               Collections.singletonList(Type.STRING)
-            )
-         );
-      }
-
-      if (!min.get_type().can_be_used_as(Type.INT))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               min.get_origin(),
-               min.get_type(),
-               Collections.singletonList(Type.INT)
-            )
-         );
-      }
-
-      if (!max.get_type().can_be_used_as(Type.INT))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               min.get_origin(),
-               min.get_type(),
-               Collections.singletonList(Type.INT)
-            )
-         );
-      }
+      RecurrentChecks.assert_can_be_used_as(min, Type.INT);
+      RecurrentChecks.assert_can_be_used_as(max, Type.INT);
+      RecurrentChecks.assert_can_be_used_as(label, Type.RICH_TEXT);
+      RecurrentChecks.assert_can_be_used_as
+      (
+         target,
+         new PointerType(origin, Type.STRING, "auto generated")
+      );
 
       return new PromptString(origin, target, min, max, label);
    }

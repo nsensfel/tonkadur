@@ -1,27 +1,19 @@
 package tonkadur.fate.v1.lang.instruction;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.error.ErrorManager;
-
-import tonkadur.fate.v1.error.IncompatibleTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidArityException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
 import tonkadur.fate.v1.lang.type.Type;
-import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class Merge extends Instruction
 {
@@ -76,170 +68,46 @@ public class Merge extends Instruction
    )
    throws Throwable
    {
-      final Type var_type, collection_in_a_generic_type;
-      final Type collection_in_b_generic_type, collection_out_generic_type;
-      final CollectionType collection_in_a_type, collection_in_b_type;
-      final CollectionType collection_out_type;
-      final LambdaType lambda_type;
-      final List<Type> signature;
+      final List<Type> types_in;
 
-      var_type = lambda_function.get_type();
+      types_in = new ArrayList<Type>();
 
-      if (!(var_type instanceof LambdaType))
+      RecurrentChecks.assert_is_a_collection(collection_out);
+
+      if (default_a == null)
       {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               origin,
-               var_type,
-               Collections.singleton(Type.LAMBDA)
-            )
-         );
-
-         return null;
+         RecurrentChecks.assert_is_a_collection(collection_in_a);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection_in_a, default_a);
       }
 
-      lambda_type = (LambdaType) var_type;
-
-      signature = lambda_type.get_signature();
-
-      if (signature.size() != 2)
+      if (default_b == null)
       {
-         ErrorManager.handle
-         (
-            new InvalidArityException
-            (
-               lambda_function.get_origin(),
-               signature.size(),
-               2,
-               2
-            )
-         );
+         RecurrentChecks.assert_is_a_collection(collection_in_b);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
       }
 
-      collection_in_a_generic_type = collection_in_a.get_type();
-
-      if (!(collection_in_a_generic_type instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection_in_a.get_origin(),
-               collection_in_a_generic_type,
-               Type.COLLECTION_TYPES
-            )
-         );
-
-         return null;
-      }
-
-      collection_in_a_type = (CollectionType) collection_in_a_generic_type;
-
-      if
+      types_in.add
       (
-         !collection_in_a_type.get_content_type().can_be_used_as
-         (
-            signature.get(0)
-         )
-      )
-      {
-         /* TODO */
-      }
+         ((CollectionType) collection_in_a.get_type()).get_content_type()
+      );
 
-      collection_in_b_generic_type = collection_in_b.get_type();
-
-      if (!(collection_in_b_generic_type instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection_in_b.get_origin(),
-               collection_in_b_generic_type,
-               Type.COLLECTION_TYPES
-            )
-         );
-
-         return null;
-      }
-
-      collection_in_b_type = (CollectionType) collection_in_b_generic_type;
-
-      if
+      types_in.add
       (
-         !collection_in_b_type.get_content_type().can_be_used_as
-         (
-            signature.get(1)
-         )
-      )
-      {
-         /* TODO */
-      }
+         ((CollectionType) collection_in_b.get_type()).get_content_type()
+      );
 
-      if
+      RecurrentChecks.assert_lambda_matches_types
       (
-         (default_a != null)
-         &&
-         (
-            collection_in_a_type.get_content_type().can_be_used_as
-            (
-               default_a.get_type()
-            )
-         )
-      )
-      {
-         /* TODO */
-      }
-
-      if
-      (
-         (default_b != null)
-         &&
-         (
-            collection_in_b_type.get_content_type().can_be_used_as
-            (
-               default_b.get_type()
-            )
-         )
-      )
-      {
-         /* TODO */
-      }
-
-      if (collection_out != null)
-      {
-         collection_out_generic_type = collection_out.get_type();
-
-         if (!(collection_out_generic_type instanceof CollectionType))
-         {
-            ErrorManager.handle
-            (
-               new InvalidTypeException
-               (
-                  collection_out.get_origin(),
-                  collection_out_generic_type,
-                  Type.COLLECTION_TYPES
-               )
-            );
-
-            return null;
-         }
-
-         collection_out_type = (CollectionType) collection_out_generic_type;
-
-         if
-         (
-            !collection_out_type.get_content_type().can_be_used_as
-            (
-               lambda_type.get_return_type()
-            )
-         )
-         {
-            /* TODO */
-         }
-      }
+         lambda_function,
+         ((CollectionType) collection_out.get_type()).get_content_type(),
+         types_in
+      );
 
       return
          new Merge

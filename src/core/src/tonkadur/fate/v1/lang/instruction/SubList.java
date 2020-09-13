@@ -1,26 +1,15 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.error.ErrorManager;
-
-import tonkadur.fate.v1.error.IncompatibleTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidArityException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
 import tonkadur.fate.v1.lang.type.Type;
-import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SubList extends Instruction
 {
@@ -67,29 +56,15 @@ public class SubList extends Instruction
    )
    throws Throwable
    {
-      final Type collection_generic_type;
-
-      collection_generic_type = collection_in.get_type();
-
-      if (!(collection_generic_type instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection_in.get_origin(),
-               collection_generic_type,
-               Type.COLLECTION_TYPES
-            )
-         );
-
-         return null;
-      }
-
-      if (!collection_generic_type.can_be_used_as(collection_out.get_type()))
-      {
-         /* TODO */
-      }
+      RecurrentChecks.assert_is_a_collection(collection_in);
+      RecurrentChecks.assert_is_a_collection(collection_out);
+      RecurrentChecks.assert_can_be_used_as
+      (
+         collection_in,
+         collection_out.get_type()
+      );
+      RecurrentChecks.assert_can_be_used_as(start, Type.INT);
+      RecurrentChecks.assert_can_be_used_as(end, Type.INT);
 
       return new SubList(origin, start, end, collection_in, collection_out);
    }

@@ -1,27 +1,18 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.error.ErrorManager;
-
-import tonkadur.fate.v1.error.IncompatibleTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidArityException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
 import tonkadur.fate.v1.lang.type.Type;
-import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class Partition extends Instruction
 {
@@ -62,84 +53,25 @@ public class Partition extends Instruction
       final Reference collection_in,
       final Reference collection_out
    )
-   throws Throwable
+   throws ParsingError
    {
-      final Type var_type, collection_in_generic_type;
-      final CollectionType collection_in_type;
-      final LambdaType lambda_type;
-      final List<Type> signature;
-
-      var_type = lambda_function.get_type();
-
-      if (!(var_type instanceof LambdaType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               origin,
-               var_type,
-               Collections.singleton(Type.LAMBDA)
-            )
-         );
-
-         return null;
-      }
-
-      lambda_type = (LambdaType) var_type;
-
-      signature = lambda_type.get_signature();
-
-      if (signature.size() != 1)
-      {
-         ErrorManager.handle
-         (
-            new InvalidArityException
-            (
-               lambda_function.get_origin(),
-               signature.size(),
-               1,
-               1
-            )
-         );
-      }
-
-      collection_in_generic_type = collection_in.get_type();
-
-      if (!(collection_in_generic_type instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection_in.get_origin(),
-               collection_in_generic_type,
-               Type.COLLECTION_TYPES
-            )
-         );
-
-         return null;
-      }
-
-      collection_in_type = (CollectionType) collection_in_generic_type;
-
-      if
+      RecurrentChecks.assert_is_a_collection(collection_in);
+      RecurrentChecks.assert_is_a_collection(collection_out);
+      RecurrentChecks.assert_can_be_used_as
       (
-         !collection_in_type.get_content_type().can_be_used_as(signature.get(0))
-      )
-      {
-         /* TODO */
-      }
+         collection_in,
+         collection_out.get_type()
+      );
 
-      if (lambda_type.get_return_type().can_be_used_as(Type.BOOL))
-      {
-         /* TODO */
-      }
-
-      if (!collection_in_type.can_be_used_as(collection_out.get_type()))
-      {
-         /* TODO */
-      }
+      RecurrentChecks.assert_lambda_matches_types
+      (
+         lambda_function,
+         Type.BOOL,
+         Collections.singletonList
+         (
+            ((CollectionType) collection_in.get_type()).get_content_type()
+         )
+      );
 
       return
          new Partition

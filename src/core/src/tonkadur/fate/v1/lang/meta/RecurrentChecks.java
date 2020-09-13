@@ -1,8 +1,11 @@
 package tonkadur.fate.v1.lang.meta;
 
 import java.util.Collections;
+import java.util.List;
 
 import tonkadur.error.ErrorManager;
+
+import tonkadur.functional.Merge;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
@@ -10,8 +13,12 @@ import tonkadur.parser.ParsingError;
 import tonkadur.fate.v1.error.ConflictingTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.fate.v1.error.InvalidArityException;
+import tonkadur.fate.v1.error.SignatureTypeMismatchException;
+import tonkadur.fate.v1.error.IncorrectReturnTypeException;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
+import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.Type;
 
 public class RecurrentChecks
@@ -244,6 +251,190 @@ public class RecurrentChecks
          oe,
          e,
          ((CollectionType) c).get_content_type()
+      );
+   }
+
+   public static void assert_computations_matches_signature
+   (
+      final Origin o,
+      final List<Computation> c,
+      final List<Type> t
+   )
+   throws ParsingError
+   {
+      if (c.size() != t.size())
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException
+            (
+               o,
+               c.size(),
+               t.size(),
+               t.size()
+            )
+         );
+      }
+
+      try
+      {
+         (new Merge<Type, Computation, Boolean>()
+         {
+            @Override
+            public Boolean risky_lambda (final Type t, final Computation p)
+            throws ParsingError
+            {
+               assert_can_be_used_as(p, t);
+
+               return Boolean.TRUE;
+            }
+         }).risky_merge(t, c);
+      }
+      catch (final ParsingError pe)
+      {
+         throw pe;
+      }
+      catch (final Throwable e)
+      {
+         e.printStackTrace();
+         System.exit(-1);
+      }
+   }
+
+   public static void assert_types_matches_signature
+   (
+      final Origin o,
+      final List<Type> c,
+      final List<Type> t
+   )
+   throws ParsingError
+   {
+      if (c.size() != t.size())
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException
+            (
+               o,
+               c.size(),
+               t.size(),
+               t.size()
+            )
+         );
+      }
+
+      try
+      {
+         (new Merge<Type, Type, Boolean>()
+         {
+            @Override
+            public Boolean risky_lambda (final Type t, final Type p)
+            throws ParsingError
+            {
+               assert_can_be_used_as(o, p, t);
+
+               return Boolean.TRUE;
+            }
+         }).risky_merge(t, c);
+      }
+      catch (final ParsingError e)
+      {
+         System.err.println(e.toString());
+
+         ErrorManager.handle
+         (
+            new SignatureTypeMismatchException(o, c, t)
+         );
+      }
+      catch (final Throwable e)
+      {
+         e.printStackTrace();
+         System.exit(-1);
+      }
+   }
+
+   public static void assert_is_a_lambda_function (final Computation l)
+   throws ParsingError
+   {
+      if (!(l.get_type() instanceof LambdaType))
+      {
+         ErrorManager.handle
+         (
+            new InvalidTypeException
+            (
+               l.get_origin(),
+               l.get_type(),
+               Collections.singleton(Type.LAMBDA)
+            )
+         );
+      }
+   }
+
+   public static void assert_return_type_is
+   (
+      final Computation l,
+      final Type r
+   )
+   throws ParsingError
+   {
+      try
+      {
+         assert_can_be_used_as
+         (
+            l.get_origin(),
+            ((LambdaType) l.get_type()).get_return_type(),
+            r
+         );
+      }
+      catch (final ParsingError e)
+      {
+         System.err.println(e.toString());
+
+         ErrorManager.handle
+         (
+            new IncorrectReturnTypeException
+            (
+               l.get_origin(),
+               ((LambdaType) l.get_type()).get_return_type(),
+               r
+            )
+         );
+      }
+   }
+
+   public static void assert_lambda_matches_computations
+   (
+      final Computation l,
+      final Type r,
+      final List<Computation> c
+   )
+   throws ParsingError
+   {
+      assert_is_a_lambda_function(l);
+      assert_return_type_is(l, r);
+      assert_computations_matches_signature
+      (
+         l.get_origin(),
+         c,
+         ((LambdaType) l.get_type()).get_signature()
+      );
+   }
+
+   public static void assert_lambda_matches_types
+   (
+      final Computation l,
+      final Type r,
+      final List<Type> c
+   )
+   throws ParsingError
+   {
+      assert_is_a_lambda_function(l);
+      assert_return_type_is(l, r);
+      assert_types_matches_signature
+      (
+         l.get_origin(),
+         c,
+         ((LambdaType) l.get_type()).get_signature()
       );
    }
 }

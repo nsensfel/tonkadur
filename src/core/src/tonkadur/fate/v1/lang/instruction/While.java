@@ -1,19 +1,16 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import java.util.Collections;
 import java.util.List;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class While extends Instruction
 {
@@ -50,20 +47,9 @@ public class While extends Instruction
       final Computation condition,
       final List<Instruction> body
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
-      if (!condition.get_type().get_base_type().equals(Type.BOOL))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               condition.get_origin(),
-               condition.get_type(),
-               Collections.singleton(Type.BOOL)
-            )
-         );
-      }
+      RecurrentChecks.assert_can_be_used_as(condition, Type.BOOL);
 
       return new While(origin, condition, body);
    }

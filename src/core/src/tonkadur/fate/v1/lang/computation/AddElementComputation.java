@@ -1,6 +1,7 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.error.ConflictingTypeException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
@@ -42,10 +43,7 @@ public class AddElementComputation extends Computation
       final Computation element,
       final Computation collection
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
       return
          new AddElementComputation

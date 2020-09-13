@@ -1,18 +1,13 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SetValue extends Instruction
 {
@@ -49,55 +44,9 @@ public class SetValue extends Instruction
       final Computation element,
       final Computation value_reference
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      final Type hint;
-      final Type value_reference_type;
-
-      value_reference_type = value_reference.get_type();
-
-      if
-      (
-         element.get_type().can_be_used_as(value_reference_type)
-         ||
-         (element.get_type().try_merging_with(value_reference_type) != null)
-      )
-      {
-         return new SetValue(origin, element, value_reference);
-      }
-
-
-      ErrorManager.handle
-      (
-         new ConflictingTypeException
-         (
-            element.get_origin(),
-            element.get_type(),
-            value_reference_type
-         )
-      );
-
-      hint =
-         (Type) element.get_type().generate_comparable_to
-         (
-            value_reference_type
-         );
-
-      if (hint.equals(Type.ANY))
-      {
-         ErrorManager.handle
-         (
-            new IncomparableTypeException
-            (
-               element.get_origin(),
-               element.get_type(),
-               value_reference_type
-            )
-         );
-      }
+      RecurrentChecks.assert_can_be_used_as(element, value_reference);
 
       return new SetValue(origin, element, value_reference);
    }

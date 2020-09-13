@@ -1,19 +1,15 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class RemoveElementAt extends Instruction
 {
@@ -50,47 +46,10 @@ public class RemoveElementAt extends Instruction
       final Computation index,
       final Reference collection
    )
-   throws
-      InvalidTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      final Type collection_type, hint;
-
-      collection_type = collection.get_type();
-
-      if (!(collection_type instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection.get_type(),
-               Type.COLLECTION_TYPES
-            )
-         );
-      }
-
-      if (index.get_type().can_be_used_as(Type.INT))
-      {
-         return new RemoveElementAt(origin, index, collection);
-      }
-
-      hint =
-         (Type) index.get_type().generate_comparable_to(Type.INT);
-
-      if (hint.equals(Type.ANY))
-      {
-         ErrorManager.handle
-         (
-            new IncomparableTypeException
-            (
-               index.get_origin(),
-               index.get_type(),
-               Type.INT
-            )
-         );
-      }
+      RecurrentChecks.assert_is_a_collection(collection);
+      RecurrentChecks.assert_can_be_used_as(index, Type.INT);
 
       return new RemoveElementAt(origin, index, collection);
    }
