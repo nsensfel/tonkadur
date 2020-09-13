@@ -30,7 +30,12 @@
          (done)
       )
    )
-   (prompt_integer bet 1 (var player.money) How much would you like to bet?)
+   (prompt_integer
+      (ptr bet)
+      1
+      (var player.money)
+      How much would you like to bet?
+   )
    (text_effect action_description
       The dealer shuffles the cards and starts dealing.
    )
@@ -40,7 +45,7 @@
    (visit generate_shuffled_deck (ptr current_deck))
 
    (visit draw_a_card (ptr current_deck) (ptr new_card))
-   (add (var new_card) player.hand)
+   (add! (var new_card) player.hand)
 
    (text_effect action_description
       You have been dealt the (var new_card.name).
@@ -49,7 +54,7 @@
 
 
    (visit draw_a_card (ptr current_deck) (ptr new_card))
-   (add (var new_card) dealer_hand)
+   (add! (var new_card) dealer_hand)
 
    (text_effect action_description
       The dealer has drawn the (var new_card.name).
@@ -57,7 +62,7 @@
    )
 
    (visit draw_a_card (ptr current_deck) (ptr new_card))
-   (add (var new_card) player.hand)
+   (add! (var new_card) player.hand)
 
    (text_effect action_description
       You have been dealt the (var new_card.name).
@@ -67,7 +72,7 @@
    (newline)
 
    (visit draw_a_card (ptr current_deck) (ptr new_card))
-   (add (var new_card) dealer_hand)
+   (add! (var new_card) dealer_hand)
 
    (text_effect action_description
       The dealer has drawn a card, face down.
@@ -182,7 +187,7 @@
    (local int player_score)
 
    (visit draw_a_card (ptr current_deck) (ptr new_card))
-   (add (var new_card) player.hand)
+   (add! (var new_card) player.hand)
 
    (visit compute_score (ptr player.hand) (ptr player_score))
 
@@ -260,7 +265,7 @@
       (local card new_card)
 
       (visit draw_a_card (ptr current_deck) (ptr new_card))
-      (add (var new_card) dealer_hand)
+      (add! (var new_card) dealer_hand)
 
       (text_effect action_description
          The dealer has drawn the (var new_card.name).

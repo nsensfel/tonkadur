@@ -137,7 +137,7 @@ public class RecurrentChecks
    public static void assert_is_a_collection (final Computation a)
    throws ParsingError
    {
-      assert_is_a_set(a.get_origin(), a.get_type());
+      assert_is_a_collection(a.get_origin(), a.get_type());
    }
 
    public static void assert_is_a_collection (final Origin o, final Type t)
@@ -160,7 +160,11 @@ public class RecurrentChecks
       }
    }
 
-   public static void assert_is_a_list_of (final Computation c, final Computation e)
+   public static void assert_is_a_list_of
+   (
+      final Computation c,
+      final Computation e
+   )
    throws ParsingError
    {
       assert_is_a_list_of
@@ -190,7 +194,11 @@ public class RecurrentChecks
       );
    }
 
-   public static void assert_is_a_set_of (final Computation c, final Computation e)
+   public static void assert_is_a_set_of
+   (
+      final Computation c,
+      final Computation e
+   )
    throws ParsingError
    {
       assert_is_a_set_of

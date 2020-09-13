@@ -60,12 +60,20 @@ public class SwitchValue extends Computation
       Type candidate_hint, hint;
 
       target_type = target.get_type();
-      first_type = branches.get(0).get_cdr().get_type();
-      hint = first_type;
+
+      candidate_hint =  branches.get(0).get_car().get_type();
+      hint = branches.get(0).get_cdr().get_type();
 
       for (final Cons<Computation, Computation> entry: branches)
       {
-         hint = RecurrentChecks.assert_can_be_used_as(entry.get_car(), hint);
+         candidate_hint =
+            RecurrentChecks.assert_can_be_used_as
+            (
+               entry.get_car(),
+               candidate_hint
+            );
+
+         hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
       }
 
       hint = RecurrentChecks.assert_can_be_used_as(default_value, hint);

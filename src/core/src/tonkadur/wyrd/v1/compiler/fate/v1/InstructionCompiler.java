@@ -2314,7 +2314,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       (
          new PromptInteger
          (
-            target_cc.get_address(),
+            target_cc.get_computation(),
             min_cc.get_computation(),
             max_cc.get_computation(),
             label_cc.get_computation()
@@ -2377,7 +2377,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       (
          new PromptString
          (
-            target_cc.get_address(),
+            target_cc.get_computation(),
             min_cc.get_computation(),
             max_cc.get_computation(),
             label_cc.get_computation()

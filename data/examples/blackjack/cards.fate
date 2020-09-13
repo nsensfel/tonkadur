@@ -41,7 +41,7 @@
          )
       )
 
-      (add (var c) (at deck))
+      (add! (var c) (at deck))
    )
 )
 
@@ -52,10 +52,10 @@
 
 (global (list card) deck_template)
 
-(add_all heart_cards deck_template)
-(add_all spade_cards deck_template)
-(add_all diamond_cards deck_template)
-(add_all club_cards deck_template)
+(add_all! heart_cards deck_template)
+(add_all! spade_cards deck_template)
+(add_all! diamond_cards deck_template)
+(add_all! club_cards deck_template)
 
 (define_sequence shuffle_into_deck
    (
@@ -74,8 +74,8 @@
          (set d (rand 0 (- (size (at deck)) 1)))
       )
 
-      (add_at (var d) (access (at cards) (var o)) (at deck))
-      (remove_at (var o) (at cards))
+      (add_at! (var d) (access (at cards) (var o)) (at deck))
+      (remove_at! (var o) (at cards))
    )
 )
 
@@ -90,7 +90,7 @@
 
 (define_sequence draw_a_card (((ptr (list card)) deck) ((ptr card) result))
    (set (at result) (access (at deck) 0))
-   (remove_at 0 (at deck))
+   (remove_at! 0 (at deck))
 )
 
 (define_sequence compute_score (((ptr (list card)) deck) ((ptr int) result))

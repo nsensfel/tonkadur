@@ -13,7 +13,7 @@
 Welcome to Tonkadur's wonderful and totally original blackjack!
 Say, I don't think I've seen you before...
 No, no, I am sure I haven't, actually.
-(prompt_string player.name 1 64 What's your name, then?)
+(prompt_string (ptr player.name) 1 64 What's your name, then?)
 Alright, (var player.name), well, since it's your first time here, let me give
 you some coins.
 Just between you and me, someone left those laying around, they aren't mine.

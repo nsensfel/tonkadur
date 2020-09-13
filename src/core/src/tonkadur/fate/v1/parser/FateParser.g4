@@ -535,7 +535,7 @@ returns [Instruction result]
    }
 
    | PROMPT_STRING_KW
-         target=value_reference WS+
+         targetv=value WS+
          min_size=value WS+
          max_size=value WS+
          paragraph WS*
@@ -549,7 +549,7 @@ returns [Instruction result]
                ($PROMPT_STRING_KW.getLine()),
                ($PROMPT_STRING_KW.getCharPositionInLine())
             ),
-            ($target.result),
+            ($targetv.result),
             ($min_size.result),
             ($max_size.result),
             ($paragraph.result)
@@ -557,7 +557,7 @@ returns [Instruction result]
    }
 
    | PROMPT_INTEGER_KW
-         target=value_reference WS+
+         targetv=value WS+
          min_size=value WS+
          max_size=value WS+
          paragraph WS*
@@ -571,7 +571,7 @@ returns [Instruction result]
                ($PROMPT_INTEGER_KW.getLine()),
                ($PROMPT_INTEGER_KW.getCharPositionInLine())
             ),
-            ($target.result),
+            ($targetv.result),
             ($min_size.result),
             ($max_size.result),
             ($paragraph.result)

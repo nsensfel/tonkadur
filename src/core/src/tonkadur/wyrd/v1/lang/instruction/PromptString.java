@@ -1,7 +1,5 @@
 package tonkadur.wyrd.v1.lang.instruction;
 
-import tonkadur.wyrd.v1.lang.computation.Address;
-
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
@@ -11,7 +9,7 @@ public class PromptString extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Address target;
+   protected final Computation target;
    protected final Computation min, max, label;
 
    /***************************************************************************/
@@ -20,7 +18,7 @@ public class PromptString extends Instruction
    /**** Constructors *********************************************************/
    public PromptString
    (
-      final Address target,
+      final Computation target,
       final Computation min,
       final Computation max,
       final Computation label
@@ -33,7 +31,7 @@ public class PromptString extends Instruction
    }
 
    /**** Accessors ************************************************************/
-   public Address get_target()
+   public Computation get_target()
    {
       return target;
    }
