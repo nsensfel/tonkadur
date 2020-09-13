@@ -78,7 +78,6 @@ public class RemoveElementAt extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(RemoveElementAt");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

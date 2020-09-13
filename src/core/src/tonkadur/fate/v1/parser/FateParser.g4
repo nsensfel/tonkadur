@@ -3510,8 +3510,7 @@ returns [Computation result]
          );
    }
 
-
-   | MERGE_KW
+   | MERGE_TO_LIST_KW
          fun=value WS+
          inr0=value_reference WS+
          inr1=value_reference WS*
@@ -3522,18 +3521,19 @@ returns [Computation result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_KW.getLine()),
-               ($MERGE_KW.getCharPositionInLine())
+               ($MERGE_TO_LIST_KW.getLine()),
+               ($MERGE_TO_LIST_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($inr0.result),
             null,
             ($inr1.result),
-            null
+            null,
+            false
          );
    }
 
-   | MERGE_KW
+   | MERGE_TO_LIST_KW
          fun=value WS+
          def0=value WS+
          inr0=value_reference WS+
@@ -3546,14 +3546,63 @@ returns [Computation result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_KW.getLine()),
-               ($MERGE_KW.getCharPositionInLine())
+               ($MERGE_TO_LIST_KW.getLine()),
+               ($MERGE_TO_LIST_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($inr0.result),
             ($def0.result),
             ($inr1.result),
-            ($def1.result)
+            ($def1.result),
+            false
+         );
+   }
+
+   | MERGE_TO_SET_KW
+         fun=value WS+
+         inr0=value_reference WS+
+         inr1=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         MergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MERGE_TO_SET_KW.getLine()),
+               ($MERGE_TO_SET_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inr0.result),
+            null,
+            ($inr1.result),
+            null,
+            true
+         );
+   }
+
+   | MERGE_TO_SET_KW
+         fun=value WS+
+         def0=value WS+
+         inr0=value_reference WS+
+         def1=value WS+
+         inr1=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         MergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($MERGE_TO_SET_KW.getLine()),
+               ($MERGE_TO_SET_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inr0.result),
+            ($def0.result),
+            ($inr1.result),
+            ($def1.result),
+            true
          );
    }
 

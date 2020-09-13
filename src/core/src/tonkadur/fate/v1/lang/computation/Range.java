@@ -1,18 +1,14 @@
 package tonkadur.fate.v1.lang.computation;
 
-import java.util.Collections;
-
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class Range extends Computation
 {
@@ -54,46 +50,11 @@ public class Range extends Computation
       final Computation end,
       final Computation increment
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
-      if (!start.get_type().can_be_used_as(Type.INT))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               start.get_origin(),
-               start.get_type(),
-               Collections.singletonList(Type.INT)
-            )
-         );
-      }
-
-      if (!end.get_type().can_be_used_as(Type.INT))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               end.get_origin(),
-               end.get_type(),
-               Collections.singletonList(Type.INT)
-            )
-         );
-      }
-
-      if (!increment.get_type().can_be_used_as(Type.INT))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               increment.get_origin(),
-               increment.get_type(),
-               Collections.singletonList(Type.INT)
-            )
-         );
-      }
+      RecurrentChecks.assert_can_be_used_as(start, Type.INT);
+      RecurrentChecks.assert_can_be_used_as(end, Type.INT);
+      RecurrentChecks.assert_can_be_used_as(increment, Type.INT);
 
       return
          new Range

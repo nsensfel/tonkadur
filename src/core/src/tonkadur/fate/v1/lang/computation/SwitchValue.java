@@ -1,22 +1,17 @@
 package tonkadur.fate.v1.lang.computation;
 
 import java.util.List;
-import java.util.Collections;
 
 import tonkadur.functional.Cons;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SwitchValue extends Computation
 {
@@ -58,10 +53,7 @@ public class SwitchValue extends Computation
       final List<Cons<Computation, Computation>> branches,
       final Computation default_value
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
       final Type target_type;
       final Type first_type;
@@ -73,97 +65,10 @@ public class SwitchValue extends Computation
 
       for (final Cons<Computation, Computation> entry: branches)
       {
-         if (!entry.get_car().get_type().can_be_used_as(target_type))
-         {
-            ErrorManager.handle
-            (
-               new InvalidTypeException
-               (
-                  entry.get_car().get_origin(),
-                  entry.get_car().get_type(),
-                  Collections.singleton(target_type)
-               )
-            );
-         }
-
-         if (entry.get_cdr().get_type().equals(hint))
-         {
-            continue;
-         }
-
-         candidate_hint = entry.get_cdr().get_type().try_merging_with(hint);
-
-         if (candidate_hint != null)
-         {
-            hint = candidate_hint;
-
-            continue;
-         }
-
-         ErrorManager.handle
-         (
-            new ConflictingTypeException
-            (
-               entry.get_cdr().get_origin(),
-               entry.get_cdr().get_type(),
-               first_type
-            )
-         );
-
-         hint = (Type) hint.generate_comparable_to(entry.get_cdr().get_type());
-
-         if (hint.equals(Type.ANY))
-         {
-            ErrorManager.handle
-            (
-               new IncomparableTypeException
-               (
-                  entry.get_cdr().get_origin(),
-                  entry.get_cdr().get_type(),
-                  first_type
-               )
-            );
-         }
+         hint = RecurrentChecks.assert_can_be_used_as(entry.get_car(), hint);
       }
 
-      if (default_value.get_type().equals(hint))
-      {
-         return new SwitchValue(origin, hint, target, branches, default_value);
-      }
-
-      candidate_hint = default_value.get_type().try_merging_with(hint);
-
-      if (candidate_hint != null)
-      {
-         hint = candidate_hint;
-
-         return new SwitchValue(origin, hint, target, branches, default_value);
-      }
-
-      ErrorManager.handle
-      (
-         new ConflictingTypeException
-         (
-            default_value.get_origin(),
-            default_value.get_type(),
-            first_type
-         )
-      );
-
-      hint = (Type) hint.generate_comparable_to(default_value.get_type());
-
-      if (hint.equals(Type.ANY))
-      {
-         ErrorManager.handle
-         (
-            new IncomparableTypeException
-            (
-               default_value.get_origin(),
-               default_value.get_type(),
-               first_type
-            )
-         );
-      }
+      hint = RecurrentChecks.assert_can_be_used_as(default_value, hint);
 
       return new SwitchValue(origin, hint, target, branches, default_value);
    }

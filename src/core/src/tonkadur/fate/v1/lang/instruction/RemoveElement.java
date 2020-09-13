@@ -74,7 +74,6 @@ public class RemoveElement extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(RemoveElement");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

@@ -1,23 +1,22 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.instruction.RemoveElementAt;
+import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class RemoveElementAtComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final RemoveElementAt instruction;
+   protected final Computation index;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -25,12 +24,15 @@ public class RemoveElementAtComputation extends Computation
    /**** Constructors *********************************************************/
    protected RemoveElementAtComputation
    (
-      final RemoveElementAt instruction
+      final Origin origin,
+      final Computation index,
+      final Reference collection
    )
    {
-      super(instruction.get_origin(), instruction.get_collection().get_type());
+      super(origin, collection.get_type());
 
-      this.instruction = instruction;
+      this.collection = collection;
+      this.index = index;
    }
 
    /***************************************************************************/
@@ -43,15 +45,12 @@ public class RemoveElementAtComputation extends Computation
       final Computation index,
       final Reference collection
    )
-   throws
-      InvalidTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      return
-         new RemoveElementAtComputation
-         (
-            RemoveElementAt.build(origin, index, collection)
-         );
+      RecurrentChecks.assert_is_a_collection(collection);
+      RecurrentChecks.assert_can_be_used_as(index, Type.INT);
+
+      return new RemoveElementAtComputation(origin, index, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -62,9 +61,14 @@ public class RemoveElementAtComputation extends Computation
       cv.visit_remove_element_at(this);
    }
 
-   public RemoveElementAt get_instruction ()
+   public Computation get_index ()
    {
-      return instruction;
+      return index;
+   }
+
+   public Reference get_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -73,8 +77,19 @@ public class RemoveElementAtComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
+      sb.append("(RemoveElementAt");
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("index:");
+      sb.append(System.lineSeparator());
+      sb.append(index.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("collection:");
+      sb.append(System.lineSeparator());
+      sb.append(collection.toString());
 
       sb.append(")");
 

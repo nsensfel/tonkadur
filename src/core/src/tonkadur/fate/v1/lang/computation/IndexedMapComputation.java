@@ -1,25 +1,27 @@
 package tonkadur.fate.v1.lang.computation;
 
-import tonkadur.parser.Origin;
+import java.util.List;
+import java.util.ArrayList;
 
-import tonkadur.error.ErrorManager;
+import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
-import tonkadur.fate.v1.lang.instruction.IndexedMap;
-
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class IndexedMapComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final IndexedMap instruction;
+   protected final Computation lambda_function;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -27,13 +29,16 @@ public class IndexedMapComputation extends Computation
    /**** Constructors *********************************************************/
    protected IndexedMapComputation
    (
-      final IndexedMap instruction,
+      final Origin origin,
+      final Computation lambda_function,
+      final Reference collection,
       final Type output_type
    )
    {
-      super(instruction.get_origin(), output_type);
+      super(origin, output_type);
 
-      this.instruction = instruction;
+      this.lambda_function = lambda_function;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -44,25 +49,38 @@ public class IndexedMapComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in
+      final Reference collection
    )
    throws Throwable
    {
-      final Type type;
-      final IndexedMap parent;
+      final List<Type> in_types;
 
-      parent = IndexedMap.build(origin, lambda_function, collection_in, null);
+      in_types = new ArrayList<Type>();
 
-      type =
-         CollectionType.build
+      RecurrentChecks.assert_is_a_collection(collection);
+
+      in_types.add(Type.INT);
+      in_types.add
+      (
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
+
+      RecurrentChecks.assert_lambda_matches_types(lambda_function, in_types);
+
+      return
+         new IndexedMapComputation
          (
             origin,
-            ((LambdaType) lambda_function.get_type()).get_return_type(),
-            ((CollectionType) collection_in.get_type()).is_set(),
-            "auto generated"
+            lambda_function,
+            collection,
+            CollectionType.build
+            (
+               origin,
+               ((LambdaType) lambda_function.get_type()).get_return_type(),
+               ((CollectionType) collection.get_type()).is_set(),
+               "auto generated"
+            )
          );
-
-      return new IndexedMapComputation(parent, type);
    }
 
    /**** Accessors ************************************************************/
@@ -73,9 +91,14 @@ public class IndexedMapComputation extends Computation
       cv.visit_indexed_map(this);
    }
 
-   public IndexedMap get_instruction ()
+   public Computation get_lambda_function ()
    {
-      return instruction;
+      return lambda_function;
+   }
+
+   public Reference get_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -84,9 +107,10 @@ public class IndexedMapComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
-
+      sb.append("(IndexedMap ");
+      sb.append(lambda_function.toString());
+      sb.append(" ");
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();

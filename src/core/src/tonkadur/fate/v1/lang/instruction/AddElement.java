@@ -74,7 +74,6 @@ public class AddElement extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(AddElement");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

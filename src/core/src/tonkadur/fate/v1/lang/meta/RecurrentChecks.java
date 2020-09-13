@@ -420,6 +420,38 @@ public class RecurrentChecks
       );
    }
 
+   public static void assert_lambda_matches_computations
+   (
+      final Computation l,
+      final List<Computation> c
+   )
+   throws ParsingError
+   {
+      assert_is_a_lambda_function(l);
+      assert_computations_matches_signature
+      (
+         l.get_origin(),
+         c,
+         ((LambdaType) l.get_type()).get_signature()
+      );
+   }
+
+   public static void assert_lambda_matches_types
+   (
+      final Computation l,
+      final List<Type> c
+   )
+   throws ParsingError
+   {
+      assert_is_a_lambda_function(l);
+      assert_types_matches_signature
+      (
+         l.get_origin(),
+         c,
+         ((LambdaType) l.get_type()).get_signature()
+      );
+   }
+
    public static void assert_lambda_matches_types
    (
       final Computation l,

@@ -1,8 +1,10 @@
 package tonkadur.fate.v1.lang.computation;
 
-import tonkadur.parser.Origin;
+import java.util.ArrayList;
+import java.util.List;
 
-import tonkadur.error.ErrorManager;
+import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.LambdaType;
@@ -13,13 +15,19 @@ import tonkadur.fate.v1.lang.instruction.Merge;
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class MergeComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Merge instruction;
+   protected final Computation lambda_function;
+   protected final Reference collection_in_a;
+   protected final Computation default_a;
+   protected final Reference collection_in_b;
+   protected final Computation default_b;
+   protected final boolean to_set;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -27,13 +35,24 @@ public class MergeComputation extends Computation
    /**** Constructors *********************************************************/
    protected MergeComputation
    (
-      final Merge instruction,
+      final Origin origin,
+      final Computation lambda_function,
+      final Reference collection_in_a,
+      final Computation default_a,
+      final Reference collection_in_b,
+      final Computation default_b,
+      final boolean to_set,
       final Type output_type
    )
    {
-      super(instruction.get_origin(), output_type);
+      super(origin, output_type);
 
-      this.instruction = instruction;
+      this.lambda_function = lambda_function;
+      this.collection_in_a = collection_in_a;
+      this.default_a = default_a;
+      this.collection_in_b = collection_in_b;
+      this.default_b = default_b;
+      this.to_set = to_set;
    }
 
    /***************************************************************************/
@@ -47,15 +66,47 @@ public class MergeComputation extends Computation
       final Reference collection_in_a,
       final Computation default_a,
       final Reference collection_in_b,
-      final Computation default_b
+      final Computation default_b,
+      final boolean to_set
    )
    throws Throwable
    {
-      final Type type;
-      final Merge parent;
+      final List<Type> types_in;
 
-      parent =
-         Merge.build
+      types_in = new ArrayList<Type>();
+
+      if (default_a == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection_in_a);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection_in_a, default_a);
+      }
+
+      if (default_b == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection_in_b);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
+      }
+
+      types_in.add
+      (
+         ((CollectionType) collection_in_a.get_type()).get_content_type()
+      );
+
+      types_in.add
+      (
+         ((CollectionType) collection_in_b.get_type()).get_content_type()
+      );
+
+      RecurrentChecks.assert_lambda_matches_types(lambda_function, types_in);
+
+      return
+         new MergeComputation
          (
             origin,
             lambda_function,
@@ -63,22 +114,15 @@ public class MergeComputation extends Computation
             default_a,
             collection_in_b,
             default_b,
-            null
-         );
-
-      type =
-         CollectionType.build
-         (
-            origin,
-            ((LambdaType) lambda_function.get_type()).get_return_type(),
+            to_set,
+            CollectionType.build
             (
-               ((CollectionType) collection_in_a.get_type()).is_set()
-               || ((CollectionType) collection_in_b.get_type()).is_set()
-            ),
-            "auto generated"
+               origin,
+               ((LambdaType) lambda_function.get_type()).get_return_type(),
+               to_set,
+               "auto generated"
+            )
          );
-
-      return new MergeComputation(parent, type);
    }
 
    /**** Accessors ************************************************************/
@@ -89,9 +133,34 @@ public class MergeComputation extends Computation
       cv.visit_merge(this);
    }
 
-   public Merge get_instruction ()
+   public Computation get_lambda_function ()
    {
-      return instruction;
+      return lambda_function;
+   }
+
+   public Reference get_collection_in_a ()
+   {
+      return collection_in_a;
+   }
+
+   public Computation get_default_a ()
+   {
+      return default_a;
+   }
+
+   public Reference get_collection_in_b ()
+   {
+      return collection_in_b;
+   }
+
+   public Computation get_default_b ()
+   {
+      return default_b;
+   }
+
+   public boolean to_set ()
+   {
+      return to_set;
    }
 
    /**** Misc. ****************************************************************/
@@ -100,8 +169,41 @@ public class MergeComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
+      if (to_set)
+      {
+         sb.append("(MergeToSet ");
+      }
+      else
+      {
+         sb.append("(MergeToList ");
+      }
+
+      sb.append(lambda_function.toString());
+      sb.append(" ");
+      sb.append(collection_in_a.toString());
+      sb.append(" ");
+
+      if (default_a == null)
+      {
+         sb.append("null");
+      }
+      else
+      {
+         sb.append(default_a.toString());
+      }
+
+      sb.append(" ");
+      sb.append(collection_in_b.toString());
+      sb.append(" ");
+
+      if (default_b == null)
+      {
+         sb.append("null");
+      }
+      else
+      {
+         sb.append(default_b.toString());
+      }
 
       sb.append(")");
 

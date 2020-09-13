@@ -1,24 +1,23 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
-
-import tonkadur.error.ErrorManager;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
-import tonkadur.fate.v1.lang.type.CollectionType;
-
-import tonkadur.fate.v1.lang.instruction.SubList;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SubListComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final SubList instruction;
+   protected final Computation start;
+   protected final Computation end;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -26,13 +25,17 @@ public class SubListComputation extends Computation
    /**** Constructors *********************************************************/
    protected SubListComputation
    (
-      final SubList instruction,
-      final Type output_type
+      final Origin origin,
+      final Computation start,
+      final Computation end,
+      final Reference collection
    )
    {
-      super(instruction.get_origin(), output_type);
+      super(origin, collection.get_type());
 
-      this.instruction = instruction;
+      this.start = start;
+      this.end = end;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -44,18 +47,15 @@ public class SubListComputation extends Computation
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Reference collection_in
+      final Reference collection
    )
-   throws Throwable
+   throws ParsingError
    {
-      final Type type;
-      final SubList parent;
+      RecurrentChecks.assert_can_be_used_as(start, Type.INT);
+      RecurrentChecks.assert_can_be_used_as(end, Type.INT);
+      RecurrentChecks.assert_is_a_collection(collection);
 
-      parent = SubList.build(origin, start, end, collection_in, null);
-
-      type = collection_in.get_type();
-
-      return new SubListComputation(parent, type);
+      return new SubListComputation(origin, start, end, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -66,9 +66,19 @@ public class SubListComputation extends Computation
       cv.visit_sublist(this);
    }
 
-   public SubList get_instruction ()
+   public Reference get_collection ()
    {
-      return instruction;
+      return collection;
+   }
+
+   public Computation get_start_index ()
+   {
+      return start;
+   }
+
+   public Computation get_end_index ()
+   {
+      return end;
    }
 
    /**** Misc. ****************************************************************/
@@ -77,9 +87,12 @@ public class SubListComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
-
+      sb.append("(SubList ");
+      sb.append(start.toString());
+      sb.append(" ");
+      sb.append(end.toString());
+      sb.append(" ");
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();

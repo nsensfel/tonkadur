@@ -83,7 +83,6 @@ public class AddElementsOf extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(AddElementsOf");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

@@ -1,20 +1,21 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.instruction.ReverseList;
+import tonkadur.fate.v1.lang.type.CollectionType;
+import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class ReverseListComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final ReverseList instruction;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -22,12 +23,14 @@ public class ReverseListComputation extends Computation
    /**** Constructors *********************************************************/
    protected ReverseListComputation
    (
-      final ReverseList instruction
+      final Origin origin,
+      final Computation collection,
+      final Type result_type
    )
    {
-      super(instruction.get_origin(), instruction.get_collection().get_type());
+      super(origin, result_type);
 
-      this.instruction = instruction;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -39,13 +42,23 @@ public class ReverseListComputation extends Computation
       final Origin origin,
       final Computation collection
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
-      /*
-       * FIXME: this computation should accept any collection type, and return a
-       * list, which is not the case of ReverseList.build
-       */
-      return new ReverseListComputation(ReverseList.build(origin, collection));
+      RecurrentChecks.assert_is_a_collection(collection);
+
+      return
+         new ReverseListComputation
+         (
+            origin,
+            collection,
+            CollectionType.build
+            (
+               origin,
+               (((CollectionType) collection.get_type()).get_content_type()),
+               false,
+               "auto generated"
+            )
+         );
    }
 
    /**** Accessors ************************************************************/
@@ -56,9 +69,9 @@ public class ReverseListComputation extends Computation
       cv.visit_reverse_list(this);
    }
 
-   public ReverseList get_instruction ()
+   public Computation get_collection ()
    {
-      return instruction;
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -67,8 +80,8 @@ public class ReverseListComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
+      sb.append("(ReverseList ");
+      sb.append(collection.toString());
 
       sb.append(")");
 

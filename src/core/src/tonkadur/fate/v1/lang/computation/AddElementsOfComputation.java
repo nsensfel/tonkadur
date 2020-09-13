@@ -1,23 +1,22 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.instruction.AddElementsOf;
+import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class AddElementsOfComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final AddElementsOf instruction;
+   protected final Reference other_collection;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -25,16 +24,15 @@ public class AddElementsOfComputation extends Computation
    /**** Constructors *********************************************************/
    protected AddElementsOfComputation
    (
-      final AddElementsOf instruction
+      final Origin origin,
+      final Reference other_collection,
+      final Reference collection
    )
    {
-      super
-      (
-         instruction.get_origin(),
-         instruction.get_source_collection().get_type()
-      );
+      super(origin, collection.get_type());
 
-      this.instruction = instruction;
+      this.collection = collection;
+      this.other_collection = other_collection;
    }
 
    /***************************************************************************/
@@ -47,16 +45,18 @@ public class AddElementsOfComputation extends Computation
       final Reference other_collection,
       final Reference collection
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      return
-         new AddElementsOfComputation
-         (
-            AddElementsOf.build(origin, other_collection, collection)
-         );
+      RecurrentChecks.assert_is_a_collection(collection);
+      RecurrentChecks.assert_is_a_collection(other_collection);
+      RecurrentChecks.assert_can_be_used_as
+      (
+         other_collection.get_origin(),
+         ((CollectionType) other_collection.get_type()).get_content_type(),
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
+
+      return new AddElementsOfComputation(origin, other_collection, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -67,9 +67,14 @@ public class AddElementsOfComputation extends Computation
       cv.visit_add_elements_of(this);
    }
 
-   public AddElementsOf get_instruction ()
+   public Reference get_source_collection ()
    {
-      return instruction;
+      return other_collection;
+   }
+
+   public Reference get_target_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -78,8 +83,19 @@ public class AddElementsOfComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
+      sb.append("(AddElementsOf");
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("other_collection:");
+      sb.append(System.lineSeparator());
+      sb.append(other_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("collection:");
+      sb.append(System.lineSeparator());
+      sb.append(collection.toString());
 
       sb.append(")");
 

@@ -1,20 +1,19 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.instruction.PopElement;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class PopElementComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final PopElement instruction;
+   protected final Computation collection;
+   protected final boolean is_from_left;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -22,12 +21,15 @@ public class PopElementComputation extends Computation
    /**** Constructors *********************************************************/
    protected PopElementComputation
    (
-      final PopElement instruction
+      final Origin origin,
+      final Computation collection,
+      final boolean is_from_left
    )
    {
-      super(instruction.get_origin(), instruction.get_collection().get_type());
+      super(origin, collection.get_type());
 
-      this.instruction = instruction;
+      this.collection = collection;
+      this.is_from_left = is_from_left;
    }
 
    /***************************************************************************/
@@ -40,14 +42,11 @@ public class PopElementComputation extends Computation
       final Computation collection,
       final boolean is_from_left
    )
-   throws
-      InvalidTypeException
+   throws ParsingError
    {
-      return
-         new PopElementComputation
-         (
-            PopElement.build(origin, collection, is_from_left)
-         );
+      RecurrentChecks.assert_is_a_collection(collection);
+
+      return new PopElementComputation(origin, collection, is_from_left);
    }
 
    /**** Accessors ************************************************************/
@@ -58,9 +57,14 @@ public class PopElementComputation extends Computation
       cv.visit_pop_element(this);
    }
 
-   public PopElement get_instruction ()
+   public Computation get_collection ()
    {
-      return instruction;
+      return collection;
+   }
+
+   public boolean is_from_left ()
+   {
+      return is_from_left;
    }
 
    /**** Misc. ****************************************************************/
@@ -69,8 +73,16 @@ public class PopElementComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
+      if (is_from_left)
+      {
+         sb.append("(PopLeftElement ");
+      }
+      else
+      {
+         sb.append("(PopRightElement ");
+      }
+
+      sb.append(collection.toString());
 
       sb.append(")");
 

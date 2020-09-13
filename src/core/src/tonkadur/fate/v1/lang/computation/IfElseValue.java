@@ -1,19 +1,13 @@
 package tonkadur.fate.v1.lang.computation;
 
-import java.util.Collections;
-
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class IfElseValue extends Computation
 {
@@ -55,74 +49,25 @@ public class IfElseValue extends Computation
       final Computation if_true,
       final Computation if_false
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      Type hint;
-      final Type if_true_type;
-      final Type if_false_type;
+      final Type type;
 
-      if (!condition.get_type().can_be_used_as(Type.BOOL))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               condition.get_origin(),
-               condition.get_type(),
-               Collections.singleton(Type.BOOL)
-            )
-         );
-      }
+      RecurrentChecks.assert_can_be_used_as(condition, Type.BOOL);
 
-      if_true_type = if_true.get_type();
-      if_false_type = if_false.get_type();
+      type =
+         RecurrentChecks.assert_can_be_used_as(if_false, if_true.get_type());
 
-      if (if_true_type.equals(if_false_type))
-      {
-         return
-            new IfElseValue(origin, if_true_type, condition, if_true, if_false);
-      }
-
-      hint = if_true_type.try_merging_with(if_false_type);
-
-      if (hint != null)
-      {
-         return new IfElseValue(origin, hint, condition, if_true, if_false);
-      }
-
-      ErrorManager.handle
-      (
-         new ConflictingTypeException
-         (
-            if_false.get_origin(),
-            if_false_type,
-            if_true_type
-         )
-      );
-
-      hint =
-         (Type) if_false_type.generate_comparable_to(if_true_type);
-
-      if (hint.equals(Type.ANY))
-      {
-         ErrorManager.handle
-         (
-            new IncomparableTypeException
-            (
-               if_false.get_origin(),
-               if_false_type,
-               if_true_type
-            )
-         );
-      }
-
-      return new IfElseValue(origin, hint, condition, if_true, if_false);
+      return new IfElseValue(origin, type, condition, if_true, if_false);
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_if_else_value(this);
+   }
 
    public Computation get_condition ()
    {
@@ -139,20 +84,12 @@ public class IfElseValue extends Computation
       return if_false;
    }
 
-   @Override
-   public void get_visited_by (final ComputationVisitor cv)
-   throws Throwable
-   {
-      cv.visit_if_else_value(this);
-   }
-
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(IfElseValue");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

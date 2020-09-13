@@ -1,11 +1,12 @@
 package tonkadur.fate.v1.lang.computation;
 
-import tonkadur.parser.Origin;
+import java.util.ArrayList;
+import java.util.List;
 
-import tonkadur.error.ErrorManager;
+import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
-import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.instruction.Sort;
@@ -13,13 +14,15 @@ import tonkadur.fate.v1.lang.instruction.Sort;
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SortComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Sort instruction;
+   protected final Computation lambda_function;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -27,16 +30,15 @@ public class SortComputation extends Computation
    /**** Constructors *********************************************************/
    protected SortComputation
    (
-      final Sort instruction
+      final Origin origin,
+      final Computation lambda_function,
+      final Reference collection
    )
    {
-      super
-      (
-         instruction.get_origin(),
-         instruction.get_collection().get_type()
-      );
+      super(origin, collection.get_type());
 
-      this.instruction = instruction;
+      this.lambda_function = lambda_function;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -49,13 +51,25 @@ public class SortComputation extends Computation
       final Computation lambda_function,
       final Reference collection
    )
-   throws Throwable
+   throws ParsingError
    {
-      final Sort parent;
+      final List<Type> types_in;
 
-      parent = Sort.build(origin, lambda_function, collection);
+      types_in = new ArrayList<Type>();
 
-      return new SortComputation(parent);
+      RecurrentChecks.assert_is_a_list(collection);
+
+      types_in.add(((CollectionType) collection.get_type()).get_content_type());
+      types_in.add(types_in.get(0));
+
+      RecurrentChecks.assert_lambda_matches_types
+      (
+         lambda_function,
+         Type.INT,
+         types_in
+      );
+
+      return new SortComputation(origin, lambda_function, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -66,9 +80,14 @@ public class SortComputation extends Computation
       cv.visit_sort(this);
    }
 
-   public Sort get_instruction ()
+   public Computation get_lambda_function ()
    {
-      return instruction;
+      return lambda_function;
+   }
+
+   public Reference get_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -77,9 +96,10 @@ public class SortComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
-
+      sb.append("(Sort ");
+      sb.append(lambda_function.toString());
+      sb.append(" ");
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();

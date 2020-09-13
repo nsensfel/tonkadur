@@ -75,7 +75,6 @@ public class RemoveAllOfElement extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(RemoveAllOfElement");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

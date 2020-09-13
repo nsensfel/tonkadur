@@ -1,6 +1,7 @@
 package tonkadur.fate.v1.lang.type;
 
 import tonkadur.error.ErrorManager;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.parser.Origin;
 

@@ -1,23 +1,20 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.instruction.RemoveAllOfElement;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class RemoveAllOfElementComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final RemoveAllOfElement instruction;
+   protected final Computation element;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -25,12 +22,15 @@ public class RemoveAllOfElementComputation extends Computation
    /**** Constructors *********************************************************/
    protected RemoveAllOfElementComputation
    (
-      final RemoveAllOfElement instruction
+      final Origin origin,
+      final Computation element,
+      final Reference collection
    )
    {
-      super(instruction.get_origin(), instruction.get_collection().get_type());
+      super(origin, collection.get_type());
 
-      this.instruction = instruction;
+      this.collection = collection;
+      this.element = element;
    }
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -42,16 +42,11 @@ public class RemoveAllOfElementComputation extends Computation
       final Computation element,
       final Reference collection
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      return
-         new RemoveAllOfElementComputation
-         (
-            RemoveAllOfElement.build(origin, element, collection)
-         );
+      RecurrentChecks.assert_is_a_collection_of(collection, element);
+
+      return new RemoveAllOfElementComputation(origin, element, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -62,9 +57,14 @@ public class RemoveAllOfElementComputation extends Computation
       cv.visit_remove_all_of_element(this);
    }
 
-   public RemoveAllOfElement get_instruction ()
+   public Computation get_element ()
    {
-      return instruction;
+      return element;
+   }
+
+   public Reference get_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -73,8 +73,19 @@ public class RemoveAllOfElementComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
+      sb.append("(RemoveAllOfElement");
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("element:");
+      sb.append(System.lineSeparator());
+      sb.append(element.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append("collection:");
+      sb.append(System.lineSeparator());
+      sb.append(collection.toString());
 
       sb.append(")");
 

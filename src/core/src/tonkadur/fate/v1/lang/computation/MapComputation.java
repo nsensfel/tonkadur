@@ -1,25 +1,26 @@
 package tonkadur.fate.v1.lang.computation;
 
-import tonkadur.parser.Origin;
+import java.util.Collections;
 
-import tonkadur.error.ErrorManager;
+import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
-import tonkadur.fate.v1.lang.instruction.Map;
-
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class MapComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Map instruction;
+   protected final Computation lambda_function;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -27,13 +28,15 @@ public class MapComputation extends Computation
    /**** Constructors *********************************************************/
    protected MapComputation
    (
-      final Map instruction,
+      final Origin origin,
+      final Computation lambda_function,
+      final Reference collection,
       final Type output_type
    )
    {
-      super(instruction.get_origin(), output_type);
-
-      this.instruction = instruction;
+      super(origin, output_type);
+      this.lambda_function = lambda_function;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -44,25 +47,34 @@ public class MapComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in
+      final Reference collection
    )
-   throws Throwable
+   throws ParsingError
    {
-      final Type type;
-      final Map parent;
+      RecurrentChecks.assert_is_a_collection(collection);
+      RecurrentChecks.assert_lambda_matches_types
+      (
+         lambda_function,
+         Collections.singletonList
+         (
+            ((CollectionType) collection.get_type()).get_content_type()
+         )
+      );
 
-      parent = Map.build(origin, lambda_function, collection_in, null);
-
-      type =
-         CollectionType.build
+      return
+         new MapComputation
          (
             origin,
-            ((LambdaType) lambda_function.get_type()).get_return_type(),
-            ((CollectionType) collection_in.get_type()).is_set(),
-            "auto generated"
+            lambda_function,
+            collection,
+            CollectionType.build
+            (
+               origin,
+               ((LambdaType) lambda_function.get_type()).get_return_type(),
+               ((CollectionType) collection.get_type()).is_set(),
+               "auto generated"
+            )
          );
-
-      return new MapComputation(parent, type);
    }
 
    /**** Accessors ************************************************************/
@@ -73,9 +85,14 @@ public class MapComputation extends Computation
       cv.visit_map(this);
    }
 
-   public Map get_instruction ()
+   public Computation get_lambda_function ()
    {
-      return instruction;
+      return lambda_function;
+   }
+
+   public Reference get_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -84,9 +101,10 @@ public class MapComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
-
+      sb.append("(Map ");
+      sb.append(lambda_function.toString());
+      sb.append(" ");
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();

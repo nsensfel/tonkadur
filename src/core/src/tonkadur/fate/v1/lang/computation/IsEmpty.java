@@ -1,16 +1,13 @@
 package tonkadur.fate.v1.lang.computation;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.error.InvalidTypeException;
-
-import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class IsEmpty extends Computation
 {
@@ -43,21 +40,9 @@ public class IsEmpty extends Computation
       final Origin origin,
       final Computation collection
    )
-   throws InvalidTypeException
+   throws ParsingError
    {
-
-      if (!(collection.get_type() instanceof CollectionType))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               collection.get_origin(),
-               collection.get_type(),
-               Type.COLLECTION_TYPES
-            )
-         );
-      }
+      RecurrentChecks.assert_is_a_collection(collection);
 
       return new IsEmpty(origin, collection);
    }
@@ -81,7 +66,6 @@ public class IsEmpty extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(IsEmpty");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

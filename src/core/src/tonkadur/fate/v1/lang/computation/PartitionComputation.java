@@ -1,26 +1,26 @@
 package tonkadur.fate.v1.lang.computation;
 
-import tonkadur.parser.Origin;
+import java.util.Collections;
 
-import tonkadur.error.ErrorManager;
+import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.ConsType;
-import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.Type;
-
-import tonkadur.fate.v1.lang.instruction.Partition;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class PartitionComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Partition instruction;
+   protected final Computation lambda_function;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -28,13 +28,16 @@ public class PartitionComputation extends Computation
    /**** Constructors *********************************************************/
    protected PartitionComputation
    (
-      final Partition instruction,
+      final Origin origin,
+      final Computation lambda_function,
+      final Reference collection,
       final Type output_type
    )
    {
-      super(instruction.get_origin(), output_type);
+      super(origin, output_type);
 
-      this.instruction = instruction;
+      this.lambda_function = lambda_function;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -45,32 +48,41 @@ public class PartitionComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in
+      final Reference collection
    )
    throws Throwable
    {
       final Type type;
-      final Partition parent;
 
-      parent =
-         Partition.build
+      RecurrentChecks.assert_is_a_collection(collection);
+
+      RecurrentChecks.assert_lambda_matches_types
+      (
+         lambda_function,
+         Type.BOOL,
+         Collections.singletonList
          (
-            origin,
-            lambda_function,
-            collection_in,
-            null
-         );
+            ((CollectionType) collection.get_type()).get_content_type()
+         )
+      );
 
       type =
          new ConsType
          (
             origin,
-            collection_in.get_type(),
-            collection_in.get_type(),
+            collection.get_type(),
+            collection.get_type(),
             "auto generated"
          );
 
-      return new PartitionComputation(parent, type);
+      return
+         new PartitionComputation
+         (
+            origin,
+            lambda_function,
+            collection,
+            type
+         );
    }
 
    /**** Accessors ************************************************************/
@@ -81,9 +93,14 @@ public class PartitionComputation extends Computation
       cv.visit_partition(this);
    }
 
-   public Partition get_instruction ()
+   public Computation get_lambda_function ()
    {
-      return instruction;
+      return lambda_function;
+   }
+
+   public Reference get_collection ()
+   {
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -92,9 +109,10 @@ public class PartitionComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ComputationOf ");
-      sb.append(instruction.toString());
-
+      sb.append("(Partition ");
+      sb.append(lambda_function.toString());
+      sb.append(" ");
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();

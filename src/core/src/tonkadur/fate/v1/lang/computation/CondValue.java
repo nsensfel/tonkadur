@@ -1,22 +1,17 @@
 package tonkadur.fate.v1.lang.computation;
 
 import java.util.List;
-import java.util.Collections;
 
 import tonkadur.functional.Cons;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.ConflictingTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class CondValue extends Computation
 {
@@ -50,70 +45,17 @@ public class CondValue extends Computation
       final Origin origin,
       final List<Cons<Computation, Computation>> branches
    )
-   throws
-      InvalidTypeException,
-      ConflictingTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
-      final Type first_type;
-      Type candidate_hint, hint;
+      Type hint;
 
-      first_type = branches.get(0).get_cdr().get_type();
-      hint = first_type;
+      hint = branches.get(0).get_cdr().get_type();
 
       for (final Cons<Computation, Computation> entry: branches)
       {
-         if (!entry.get_car().get_type().can_be_used_as(Type.BOOL))
-         {
-            ErrorManager.handle
-            (
-               new InvalidTypeException
-               (
-                  entry.get_car().get_origin(),
-                  entry.get_car().get_type(),
-                  Collections.singleton(Type.BOOL)
-               )
-            );
-         }
+         RecurrentChecks.assert_can_be_used_as(entry.get_car(), Type.BOOL);
 
-         if (entry.get_cdr().get_type().equals(hint))
-         {
-            continue;
-         }
-
-         candidate_hint = entry.get_cdr().get_type().try_merging_with(hint);
-
-         if (candidate_hint != null)
-         {
-            hint = candidate_hint;
-
-            continue;
-         }
-
-         ErrorManager.handle
-         (
-            new ConflictingTypeException
-            (
-               entry.get_cdr().get_origin(),
-               entry.get_cdr().get_type(),
-               first_type
-            )
-         );
-
-         hint = (Type) hint.generate_comparable_to(entry.get_cdr().get_type());
-
-         if (hint.equals(Type.ANY))
-         {
-            ErrorManager.handle
-            (
-               new IncomparableTypeException
-               (
-                  entry.get_cdr().get_origin(),
-                  entry.get_cdr().get_type(),
-                  first_type
-               )
-            );
-         }
+         hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
       }
 
       return new CondValue(origin, hint, branches);
@@ -138,7 +80,6 @@ public class CondValue extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(CondValue");
       sb.append(System.lineSeparator());
 
