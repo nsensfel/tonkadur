@@ -1,0 +1,39 @@
+(fate_version 1)
+
+(declare_structure test_struct
+   (int i)
+   (float f)
+   (int j)
+   (string str)
+)
+
+(global test_struct st0)
+(global test_struct st1)
+
+(set_fields! st0
+   (i -1)
+   (f -5.0)
+   (j -2)
+   (str nothing)
+)
+
+(global (lambda test_struct (test_struct)) update_test_struct)
+
+(set_value update_test_struct
+   (lambda ( (test_struct s) )
+      (if_else (< (var s.i) 10)
+         (eval
+            update_test_struct
+            (set_fields s
+               (i (+ (var s.i) 1))
+               (j (+ (var s.j) 10))
+            )
+         )
+         (var s)
+      )
+   )
+)
+
+(set_value st1 (eval update_test_struct (var st0)))
+
+(end)

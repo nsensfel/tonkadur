@@ -1878,6 +1878,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.CarCdr n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1887,6 +1888,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.ConsComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1896,6 +1898,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.AddElementComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1905,6 +1908,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.AddElementAtComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1914,6 +1918,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.AddElementsOfComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1923,6 +1928,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.Fold n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1932,6 +1938,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.MapComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1941,6 +1948,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.Range n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1950,6 +1958,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.RemoveAllOfElementComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1959,6 +1968,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.RemoveElementAtComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1968,6 +1978,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.RemoveElementComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1977,6 +1988,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.ReverseListComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1986,6 +1998,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.ShuffleComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -1995,6 +2008,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.MergeComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2004,6 +2018,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.SubListComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2013,6 +2028,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.PartitionComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2022,6 +2038,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.SortComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2031,6 +2048,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.FilterComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2040,6 +2058,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.IndexedMapComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2049,6 +2068,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.PushElementComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2058,6 +2078,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.PopElementComputation n
    )
+   throws Throwable
    {
       /* TODO */
    }
@@ -2067,7 +2088,65 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    (
       final tonkadur.fate.v1.lang.computation.SetFieldsComputation n
    )
+   throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler target_cc;
+      final Register result;
+
+      target_cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(target_cc);
+
+      target_cc.generate_address();
+
+      if (target_cc.has_init())
+      {
+         init_instructions.add(target_cc.get_init());
+      }
+
+      result = reserve(target_cc.get_address().get_target_type());
+      result_as_computation = result.get_value();
+      result_as_address = result.get_address();
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, target_cc.get_computation())
+      );
+
+      target_cc.release_registers(init_instructions);
+
+      for
+      (
+         final Cons<String, tonkadur.fate.v1.lang.meta.Computation> entry:
+            n.get_assignments()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         entry.get_cdr().get_visited_by(cc);
+
+         if (cc.has_init())
+         {
+            init_instructions.add(cc.get_init());
+         }
+
+         init_instructions.add
+         (
+            new SetValue
+            (
+               new RelativeAddress
+               (
+                  result_as_address,
+                  new Constant(Type.STRING, entry.get_car()),
+                  cc.get_computation().get_type()
+               ),
+               cc.get_computation()
+            )
+         );
+
+         cc.release_registers(init_instructions);
+      }
    }
 }

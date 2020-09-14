@@ -596,7 +596,54 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler target_cc;
+      final Address target;
+
+      target_cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(target_cc);
+
+      target = target_cc.get_address();
+
+      if (target_cc.has_init())
+      {
+         result.add(target_cc.get_init());
+      }
+      for
+      (
+         final Cons<String, tonkadur.fate.v1.lang.meta.Computation> entry:
+            n.get_assignments()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         entry.get_cdr().get_visited_by(cc);
+
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
+
+         result.add
+         (
+            new SetValue
+            (
+               new RelativeAddress
+               (
+                  target,
+                  new Constant(Type.STRING, entry.get_car()),
+                  cc.get_computation().get_type()
+               ),
+               cc.get_computation()
+            )
+         );
+
+         cc.release_registers(result);
+      }
+
+      target_cc.release_registers(result);
    }
 
 
