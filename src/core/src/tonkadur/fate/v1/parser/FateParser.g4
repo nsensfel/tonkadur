@@ -1015,7 +1015,9 @@ returns [Instruction result]
       /*
        * A bit of a lazy solution: build field references, then extract the data
        */
-      final List<Cons<FieldReference, Computation>> assignments;
+      final List<Cons<String, Computation>> assignments;
+
+      assignments = new ArrayList<Cons<String, Computation>>();
 
       for
       (
@@ -1023,30 +1025,33 @@ returns [Instruction result]
             ($field_value_list.result)
       )
       {
-         assignments.add
-         (
-            new Cons<FieldReference, Computation>
+         final FieldReference fr;
+         final Computation cp;
+
+         fr =
+            FieldReference.build
             (
-               FieldReference.build
-               (
-                  entry.get_car(),
-                  ($value_reference.result),
-                  entry.get_cdr().get_car()
-               ),
-               entry.get_cdr().get_cdr()
-            )
-         );
+               entry.get_car(),
+               ($value_reference.result),
+               entry.get_cdr().get_car()
+            );
+
+         cp = entry.get_cdr().get_cdr();
+
+         RecurrentChecks.assert_can_be_used_as(cp, fr.get_type());
+
+         assignments.add(new Cons(fr.get_field_name(), cp));
       }
 
       $result =
-         SetFields.build
+         new SetFields
          (
             CONTEXT.get_origin_at
             (
                ($IMP_SET_FIELDS_KW.getLine()),
                ($IMP_SET_FIELDS_KW.getCharPositionInLine())
             ),
-            ($value_reference),
+            ($value_reference.result),
             assignments
          );
    }
@@ -3688,6 +3693,52 @@ returns [Computation result]
                ($SHUFFLE_KW.getCharPositionInLine())
             ),
             ($value_reference.result)
+         );
+   }
+
+   | SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
+   {
+      /*
+       * A bit of a lazy solution: build field references, then extract the data
+       */
+      final List<Cons<String, Computation>> assignments;
+
+      assignments = new ArrayList<Cons<String, Computation>>();
+
+      for
+      (
+         final Cons<Origin, Cons<String, Computation>> entry:
+            ($field_value_list.result)
+      )
+      {
+         final FieldReference fr;
+         final Computation cp;
+
+         fr =
+            FieldReference.build
+            (
+               entry.get_car(),
+               ($value_reference.result),
+               entry.get_cdr().get_car()
+            );
+
+         cp = entry.get_cdr().get_cdr();
+
+         RecurrentChecks.assert_can_be_used_as(cp, fr.get_type());
+
+         assignments.add(new Cons(fr.get_field_name(), cp));
+      }
+
+      $result =
+         new SetFieldsComputation
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SET_FIELDS_KW.getLine()),
+               ($SET_FIELDS_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            assignments
          );
    }
 

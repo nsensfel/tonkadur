@@ -590,6 +590,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
+   public void visit_set_fields
+   (
+      final tonkadur.fate.v1.lang.instruction.SetFields n
+   )
+   throws Throwable
+   {
+      /* TODO */
+   }
+
+
+   @Override
    public void visit_map
    (
       final tonkadur.fate.v1.lang.instruction.Map n

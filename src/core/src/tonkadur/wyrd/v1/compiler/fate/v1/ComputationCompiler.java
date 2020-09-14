@@ -2061,4 +2061,13 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    {
       /* TODO */
    }
+
+   @Override
+   public void visit_set_fields
+   (
+      final tonkadur.fate.v1.lang.computation.SetFieldsComputation n
+   )
+   {
+      /* TODO */
+   }
 }

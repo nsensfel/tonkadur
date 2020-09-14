@@ -141,4 +141,7 @@ public interface ComputationVisitor
 
    public void visit_pop_element (final PopElementComputation n)
    throws Throwable;
+
+   public void visit_set_fields (final SetFieldsComputation n)
+   throws Throwable;
 }

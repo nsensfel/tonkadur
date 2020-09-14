@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.instruction;
+package tonkadur.fate.v1.lang.computation;
 
 import java.util.List;
 
@@ -6,12 +6,11 @@ import tonkadur.parser.Origin;
 
 import tonkadur.functional.Cons;
 
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class SetFields extends Instruction
+public class SetFieldsComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -27,14 +26,14 @@ public class SetFields extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public SetFields
+   public SetFieldsComputation
    (
       final Origin origin,
       final Reference target,
       final List<Cons<String, Computation>> field_assignments
    )
    {
-      super(origin);
+      super(origin, target.get_type());
 
       this.target = target;
       this.field_assignments = field_assignments;
@@ -42,10 +41,10 @@ public class SetFields extends Instruction
 
    /**** Accessors ************************************************************/
    @Override
-   public void get_visited_by (final InstructionVisitor iv)
+   public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      iv.visit_set_fields(this);
+      cv.visit_set_fields(this);
    }
 
    public Reference get_target ()
@@ -64,7 +63,7 @@ public class SetFields extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(SetFields");
+      sb.append("(SetFieldsComputation");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
