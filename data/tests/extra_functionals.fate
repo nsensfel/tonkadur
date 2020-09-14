@@ -36,4 +36,10 @@
 
 (set_value st1 (eval update_test_struct (var st0)))
 
+(car (cons 1 (cons 2 (cons 3 (cons 4 5)))))
+(car (cdr (cons 1 (cons 2 (cons 3 (cons 4 5))))))
+(car (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))))
+(car (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5))))))))
+(cdr (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5))))))))
+
 (end)

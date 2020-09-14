@@ -32,6 +32,11 @@ public class TypeCompiler
             );
       }
 
+      if (fate_type instanceof tonkadur.fate.v1.lang.type.ConsType)
+      {
+         return DictType.WILD;
+      }
+
       if (fate_type instanceof tonkadur.fate.v1.lang.type.CollectionType)
       {
          return

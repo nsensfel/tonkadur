@@ -15,6 +15,7 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.PointerType;
+import tonkadur.wyrd.v1.lang.type.DictType;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
@@ -23,6 +24,7 @@ import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.If;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
+import tonkadur.wyrd.v1.compiler.util.CreateCons;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
 
@@ -1880,7 +1882,25 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler address_cc;
+
+      address_cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(address_cc);
+
+      assimilate(address_cc);
+
+      result_as_address =
+         new RelativeAddress
+         (
+            address_cc.get_address(),
+            new Constant
+            (
+               Type.STRING,
+               (n.is_car()? "0" : "1")
+            ),
+            TypeCompiler.compile(compiler, n.get_type())
+         );
    }
 
    @Override
@@ -1890,7 +1910,46 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final Address car_addr, cdr_addr;
+      final ComputationCompiler car_compiler, cdr_compiler;
+      final Register result;
+
+      result = reserve(DictType.WILD);
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      car_compiler = new ComputationCompiler(compiler);
+
+      n.get_car().get_visited_by(car_compiler);
+
+      if (car_compiler.has_init())
+      {
+         init_instructions.add(car_compiler.get_init());
+      }
+
+      cdr_compiler = new ComputationCompiler(compiler);
+
+      n.get_cdr().get_visited_by(cdr_compiler);
+
+      if (cdr_compiler.has_init())
+      {
+         init_instructions.add(cdr_compiler.get_init());
+      }
+
+      init_instructions.add
+      (
+         CreateCons.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            result_as_address,
+            car_compiler.get_computation(),
+            cdr_compiler.get_computation()
+         )
+      );
+
+      car_compiler.release_registers(init_instructions);
+      cdr_compiler.release_registers(init_instructions);
    }
 
    @Override

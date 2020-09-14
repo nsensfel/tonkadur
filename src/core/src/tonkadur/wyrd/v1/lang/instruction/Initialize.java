@@ -24,6 +24,12 @@ public class Initialize extends Instruction
       this.type = type;
    }
 
+   public Initialize (final Address address)
+   {
+      this.address = address;
+      this.type = address.get_target_type();
+   }
+
    /**** Accessors ************************************************************/
    public Address get_address ()
    {
