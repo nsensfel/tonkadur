@@ -1012,18 +1012,10 @@ returns [Instruction result]
 
    | IMP_SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
    {
-      /* FIXME: this should be a true Fate construct. */
-      final Origin origin;
-      final List<Instruction> operations;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($IMP_SET_FIELDS_KW.getLine()),
-            ($IMP_SET_FIELDS_KW.getCharPositionInLine())
-         );
-
-      operations = new ArrayList<Instruction>();
+      /*
+       * A bit of a lazy solution: build field references, then extract the data
+       */
+      final List<Cons<FieldReference, Computation>> assignments;
 
       for
       (
@@ -1031,23 +1023,32 @@ returns [Instruction result]
             ($field_value_list.result)
       )
       {
-         operations.add
+         assignments.add
          (
-            SetValue.build
+            new Cons<FieldReference, Computation>
             (
-               entry.get_car(),
-               entry.get_cdr().get_cdr(),
                FieldReference.build
                (
                   entry.get_car(),
                   ($value_reference.result),
                   entry.get_cdr().get_car()
-               )
+               ),
+               entry.get_cdr().get_cdr()
             )
          );
       }
 
-      $result = new InstructionList(origin, operations);
+      $result =
+         SetFields.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_SET_FIELDS_KW.getLine()),
+               ($IMP_SET_FIELDS_KW.getCharPositionInLine())
+            ),
+            ($value_reference),
+            assignments
+         );
    }
 
    | WHILE_KW value WS*
