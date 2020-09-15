@@ -13,7 +13,7 @@ import tonkadur.fate.v1.lang.instruction.Sort;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SortComputation extends Computation
@@ -22,7 +22,7 @@ public class SortComputation extends Computation
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Reference collection;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -32,7 +32,7 @@ public class SortComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection
+      final Computation collection
    )
    {
       super(origin, collection.get_type());
@@ -49,7 +49,7 @@ public class SortComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection
+      final Computation collection
    )
    throws ParsingError
    {
@@ -85,7 +85,7 @@ public class SortComputation extends Computation
       return lambda_function;
    }
 
-   public Reference get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }

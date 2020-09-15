@@ -14,7 +14,7 @@ import tonkadur.fate.v1.lang.instruction.Merge;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class MergeComputation extends Computation
@@ -23,9 +23,9 @@ public class MergeComputation extends Computation
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Reference collection_in_a;
+   protected final Computation collection_in_a;
    protected final Computation default_a;
-   protected final Reference collection_in_b;
+   protected final Computation collection_in_b;
    protected final Computation default_b;
    protected final boolean to_set;
 
@@ -37,9 +37,9 @@ public class MergeComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in_a,
+      final Computation collection_in_a,
       final Computation default_a,
-      final Reference collection_in_b,
+      final Computation collection_in_b,
       final Computation default_b,
       final boolean to_set,
       final Type output_type
@@ -63,9 +63,9 @@ public class MergeComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in_a,
+      final Computation collection_in_a,
       final Computation default_a,
-      final Reference collection_in_b,
+      final Computation collection_in_b,
       final Computation default_b,
       final boolean to_set
    )
@@ -138,7 +138,7 @@ public class MergeComputation extends Computation
       return lambda_function;
    }
 
-   public Reference get_collection_in_a ()
+   public Computation get_collection_in_a ()
    {
       return collection_in_a;
    }
@@ -148,7 +148,7 @@ public class MergeComputation extends Computation
       return default_a;
    }
 
-   public Reference get_collection_in_b ()
+   public Computation get_collection_in_b ()
    {
       return collection_in_b;
    }

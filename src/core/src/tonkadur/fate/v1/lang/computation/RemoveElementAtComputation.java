@@ -7,7 +7,7 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class RemoveElementAtComputation extends Computation
@@ -16,7 +16,7 @@ public class RemoveElementAtComputation extends Computation
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation index;
-   protected final Reference collection;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -26,7 +26,7 @@ public class RemoveElementAtComputation extends Computation
    (
       final Origin origin,
       final Computation index,
-      final Reference collection
+      final Computation collection
    )
    {
       super(origin, collection.get_type());
@@ -43,7 +43,7 @@ public class RemoveElementAtComputation extends Computation
    (
       final Origin origin,
       final Computation index,
-      final Reference collection
+      final Computation collection
    )
    throws ParsingError
    {
@@ -66,7 +66,7 @@ public class RemoveElementAtComputation extends Computation
       return index;
    }
 
-   public Reference get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }

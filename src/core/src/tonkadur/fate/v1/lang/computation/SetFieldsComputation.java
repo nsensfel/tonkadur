@@ -7,7 +7,7 @@ import tonkadur.parser.Origin;
 import tonkadur.functional.Cons;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Computation;
 
 public class SetFieldsComputation extends Computation
@@ -15,7 +15,7 @@ public class SetFieldsComputation extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference target;
+   protected final Computation target;
    protected final List<Cons<String, Computation>> field_assignments;
 
    /***************************************************************************/
@@ -29,7 +29,7 @@ public class SetFieldsComputation extends Computation
    public SetFieldsComputation
    (
       final Origin origin,
-      final Reference target,
+      final Computation target,
       final List<Cons<String, Computation>> field_assignments
    )
    {
@@ -47,7 +47,7 @@ public class SetFieldsComputation extends Computation
       cv.visit_set_fields(this);
    }
 
-   public Reference get_target ()
+   public Computation get_target ()
    {
       return target;
    }

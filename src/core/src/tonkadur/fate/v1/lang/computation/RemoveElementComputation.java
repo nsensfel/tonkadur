@@ -5,7 +5,6 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class RemoveElementComputation extends Computation
@@ -40,7 +39,7 @@ public class RemoveElementComputation extends Computation
    (
       final Origin origin,
       final Computation element,
-      final Reference collection
+      final Computation collection
    )
    throws ParsingError
    {

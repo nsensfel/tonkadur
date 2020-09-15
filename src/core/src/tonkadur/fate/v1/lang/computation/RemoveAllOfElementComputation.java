@@ -5,7 +5,7 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class RemoveAllOfElementComputation extends Computation
@@ -14,7 +14,7 @@ public class RemoveAllOfElementComputation extends Computation
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation element;
-   protected final Reference collection;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -24,7 +24,7 @@ public class RemoveAllOfElementComputation extends Computation
    (
       final Origin origin,
       final Computation element,
-      final Reference collection
+      final Computation collection
    )
    {
       super(origin, collection.get_type());
@@ -40,7 +40,7 @@ public class RemoveAllOfElementComputation extends Computation
    (
       final Origin origin,
       final Computation element,
-      final Reference collection
+      final Computation collection
    )
    throws ParsingError
    {
@@ -62,7 +62,7 @@ public class RemoveAllOfElementComputation extends Computation
       return element;
    }
 
-   public Reference get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }

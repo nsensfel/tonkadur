@@ -7,7 +7,7 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SubListComputation extends Computation
@@ -17,7 +17,7 @@ public class SubListComputation extends Computation
    /***************************************************************************/
    protected final Computation start;
    protected final Computation end;
-   protected final Reference collection;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -28,7 +28,7 @@ public class SubListComputation extends Computation
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Reference collection
+      final Computation collection
    )
    {
       super(origin, collection.get_type());
@@ -47,7 +47,7 @@ public class SubListComputation extends Computation
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Reference collection
+      final Computation collection
    )
    throws ParsingError
    {
@@ -66,7 +66,7 @@ public class SubListComputation extends Computation
       cv.visit_sublist(this);
    }
 
-   public Reference get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }

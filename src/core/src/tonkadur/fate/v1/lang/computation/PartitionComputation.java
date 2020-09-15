@@ -11,7 +11,7 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class PartitionComputation extends Computation
@@ -20,7 +20,7 @@ public class PartitionComputation extends Computation
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Reference collection;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -30,7 +30,7 @@ public class PartitionComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection,
+      final Computation collection,
       final Type output_type
    )
    {
@@ -48,7 +48,7 @@ public class PartitionComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection
+      final Computation collection
    )
    throws Throwable
    {
@@ -98,7 +98,7 @@ public class PartitionComputation extends Computation
       return lambda_function;
    }
 
-   public Reference get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }

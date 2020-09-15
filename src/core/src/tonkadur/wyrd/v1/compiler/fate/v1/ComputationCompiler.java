@@ -30,6 +30,7 @@ import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
+import tonkadur.wyrd.v1.compiler.util.ReverseList;
 import tonkadur.wyrd.v1.compiler.util.CreateCons;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
@@ -2127,7 +2128,12 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       );
 
       new_element_addr =
-         new RelativeAddress(result_as_address, iterator.get_value(), Type.INT);
+         new RelativeAddress
+         (
+            result_as_address,
+            new Cast(iterator.get_value(), Type.STRING),
+            Type.INT
+         );
 
       while_body.add(new Initialize(new_element_addr));
       while_body.add
@@ -2351,7 +2357,39 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler address_compiler;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      address_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         init_instructions.add(address_compiler.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, address_compiler.get_computation())
+      );
+
+      address_compiler.release_registers(init_instructions);
+
+      init_instructions.add
+      (
+         ReverseList.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            new Size(result_as_address),
+            result_as_address
+         )
+      );
    }
 
    @Override

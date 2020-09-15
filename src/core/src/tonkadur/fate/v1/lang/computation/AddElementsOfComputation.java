@@ -7,7 +7,7 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class AddElementsOfComputation extends Computation
@@ -15,8 +15,8 @@ public class AddElementsOfComputation extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference other_collection;
-   protected final Reference collection;
+   protected final Computation other_collection;
+   protected final Computation collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -25,8 +25,8 @@ public class AddElementsOfComputation extends Computation
    protected AddElementsOfComputation
    (
       final Origin origin,
-      final Reference other_collection,
-      final Reference collection
+      final Computation other_collection,
+      final Computation collection
    )
    {
       super(origin, collection.get_type());
@@ -42,8 +42,8 @@ public class AddElementsOfComputation extends Computation
    public static AddElementsOfComputation build
    (
       final Origin origin,
-      final Reference other_collection,
-      final Reference collection
+      final Computation other_collection,
+      final Computation collection
    )
    throws ParsingError
    {
@@ -67,12 +67,12 @@ public class AddElementsOfComputation extends Computation
       cv.visit_add_elements_of(this);
    }
 
-   public Reference get_source_collection ()
+   public Computation get_source_collection ()
    {
       return other_collection;
    }
 
-   public Reference get_target_collection ()
+   public Computation get_target_collection ()
    {
       return collection;
    }

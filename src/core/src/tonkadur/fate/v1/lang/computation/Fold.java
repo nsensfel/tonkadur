@@ -12,7 +12,7 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class Fold extends Computation
@@ -22,7 +22,7 @@ public class Fold extends Computation
    /***************************************************************************/
    protected final Computation lambda_function;
    protected final Computation initial_value;
-   protected final Reference collection;
+   protected final Computation collection;
    protected final boolean is_foldl;
 
    /***************************************************************************/
@@ -34,7 +34,7 @@ public class Fold extends Computation
       final Origin origin,
       final Computation lambda_function,
       final Computation initial_value,
-      final Reference collection,
+      final Computation collection,
       final boolean is_foldl,
       final Type act_as
    )
@@ -56,7 +56,7 @@ public class Fold extends Computation
       final Origin origin,
       final Computation lambda_function,
       final Computation initial_value,
-      final Reference collection,
+      final Computation collection,
       final boolean is_foldl
    )
    throws ParsingError
@@ -110,7 +110,7 @@ public class Fold extends Computation
       return initial_value;
    }
 
-   public Reference get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }
@@ -140,7 +140,7 @@ public class Fold extends Computation
       sb.append(" ");
       sb.append(initial_value.toString());
       sb.append(" ");
-      sb.append(collection.get_name());
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();
