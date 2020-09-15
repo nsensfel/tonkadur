@@ -52,6 +52,7 @@ import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.Clear;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
+import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
 import tonkadur.wyrd.v1.compiler.util.ReverseList;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 
@@ -2054,15 +2055,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        * )
        */
       final ComputationCompiler elem_cc, collection_cc;
-      final Register collection_size, found, index;
-      final Address elem, collection;
 
       elem_cc = new ComputationCompiler(compiler);
       collection_cc = new ComputationCompiler(compiler);
-
-      collection_size = compiler.registers().reserve(Type.INT, result);
-      found = compiler.registers().reserve(Type.BOOL, result);
-      index = compiler.registers().reserve(Type.INT, result);
 
       n.get_element().get_visited_by(elem_cc);
       n.get_collection().get_visited_by(collection_cc);
@@ -2079,75 +2074,20 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(collection_cc.get_init());
       }
 
-      elem = elem_cc.get_address();
-      collection = collection_cc.get_address();
-
       result.add
       (
-         new SetValue(collection_size.get_address(), new Size(collection))
-      );
-
-
-      if
-      (
-         (
-            (tonkadur.fate.v1.lang.type.CollectionType)
-            n.get_collection().get_type()
-         ).is_set()
-      )
-      {
-         result.add
-         (
-            BinarySearch.generate
-            (
-               compiler.registers(),
-               compiler.assembler(),
-               new ValueOf(elem),
-               collection_size.get_value(),
-               collection,
-               found.get_address(),
-               index.get_address()
-            )
-         );
-      }
-      else
-      {
-         result.add
-         (
-            IterativeSearch.generate
-            (
-               compiler.registers(),
-               compiler.assembler(),
-               new ValueOf(elem),
-               collection_size.get_value(),
-               collection,
-               found.get_address(),
-               index.get_address()
-            )
-         );
-      }
-
-      result.add
-      (
-         If.generate
+         RemoveOneOf.generate
          (
             compiler.registers(),
             compiler.assembler(),
-            new ValueOf(found.get_address()),
-            RemoveAt.generate
+            elem_cc.get_computation(),
+            collection_cc.get_address(),
             (
-               compiler.registers(),
-               compiler.assembler(),
-               index.get_address(),
-               collection_size.get_value(),
-               collection
-            )
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+            ).is_set()
          )
       );
-
-      compiler.registers().release(index, result);
-      compiler.registers().release(found, result);
-      compiler.registers().release(collection_size, result);
 
       elem_cc.release_registers(result);
       collection_cc.release_registers(result);
