@@ -8,6 +8,7 @@ import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class AddElementAt extends Instruction
@@ -17,7 +18,7 @@ public class AddElementAt extends Instruction
    /***************************************************************************/
    protected final Computation index;
    protected final Computation element;
-   protected final Computation collection;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -28,7 +29,7 @@ public class AddElementAt extends Instruction
       final Origin origin,
       final Computation index,
       final Computation element,
-      final Computation collection
+      final Reference collection
    )
    {
       super(origin);
@@ -47,7 +48,7 @@ public class AddElementAt extends Instruction
       final Origin origin,
       final Computation index,
       final Computation element,
-      final Computation collection
+      final Reference collection
    )
    throws ParsingError
    {
@@ -65,7 +66,7 @@ public class AddElementAt extends Instruction
       iv.visit_add_element_at(this);
    }
 
-   public Computation get_collection ()
+   public Reference get_collection ()
    {
       return collection;
    }

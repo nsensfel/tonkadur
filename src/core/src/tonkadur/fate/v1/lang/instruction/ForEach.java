@@ -13,7 +13,7 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class ForEach extends Instruction
@@ -21,7 +21,7 @@ public class ForEach extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference collection;
+   protected final Computation collection;
    protected final String var_name;
    protected final List<Instruction> body;
 
@@ -32,7 +32,7 @@ public class ForEach extends Instruction
    public ForEach
    (
       final Origin origin,
-      final Reference collection,
+      final Computation collection,
       final String var_name,
       final List<Instruction> body
    )
@@ -52,7 +52,7 @@ public class ForEach extends Instruction
       iv.visit_for_each(this);
    }
 
-   public Reference get_collection ()
+   public Computation get_collection ()
    {
       return collection;
    }

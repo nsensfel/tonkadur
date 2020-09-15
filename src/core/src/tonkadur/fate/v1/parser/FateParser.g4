@@ -610,7 +610,7 @@ returns [Instruction result]
    }
 
    | IMP_ADD_ALL_KW
-         source=value_reference WS+
+         sourcev=value WS+
          target=value_reference WS*
       R_PAREN
    {
@@ -622,7 +622,7 @@ returns [Instruction result]
                ($IMP_ADD_ALL_KW.getLine()),
                ($IMP_ADD_ALL_KW.getCharPositionInLine())
             ),
-            ($source.result),
+            ($sourcev.result),
             ($target.result)
          );
    }
@@ -773,7 +773,7 @@ returns [Instruction result]
          );
    }
 
-   | IMP_POP_RIGHT_KW value_reference WS* R_PAREN
+   | IMP_POP_RIGHT_KW value_reference WS+ value WS* R_PAREN
    {
       $result =
          PopElement.build
@@ -783,12 +783,13 @@ returns [Instruction result]
                ($IMP_POP_RIGHT_KW.getLine()),
                ($IMP_POP_RIGHT_KW.getCharPositionInLine())
             ),
+            ($value.result),
             ($value_reference.result),
             false
          );
    }
 
-   | IMP_POP_LEFT_KW value_reference WS* R_PAREN
+   | IMP_POP_LEFT_KW value_reference WS+ value WS* R_PAREN
    {
       $result =
          PopElement.build
@@ -798,14 +799,15 @@ returns [Instruction result]
                ($IMP_POP_LEFT_KW.getLine()),
                ($IMP_POP_LEFT_KW.getCharPositionInLine())
             ),
+            ($value.result),
             ($value_reference.result),
             true
          );
    }
 
    | IMP_MAP_KW
-         value WS+
-         inr=value_reference WS+
+         fun=value WS+
+         in=value WS+
          outr=value_reference WS*
       R_PAREN
    {
@@ -817,15 +819,15 @@ returns [Instruction result]
                ($IMP_MAP_KW.getLine()),
                ($IMP_MAP_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($inr.result),
+            ($fun.result),
+            ($in.result),
             ($outr.result)
          );
    }
 
    | IMP_INDEXED_MAP_KW
-      value WS+
-      inr=value_reference WS+
+      fun=value WS+
+      in=value WS+
       outr=value_reference WS*
       R_PAREN
    {
@@ -837,8 +839,8 @@ returns [Instruction result]
                ($IMP_INDEXED_MAP_KW.getLine()),
                ($IMP_INDEXED_MAP_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($inr.result),
+            ($fun.result),
+            ($in.result),
             ($outr.result)
          );
    }
@@ -846,8 +848,8 @@ returns [Instruction result]
 
    | IMP_MERGE_KW
       fun=value WS+
-      inr0=value_reference WS+
-      inr1=value_reference WS+
+      inv0=value WS+
+      inv1=value WS+
       outr=value_reference WS*
       R_PAREN
    {
@@ -860,9 +862,9 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inr0.result),
+            ($inv0.result),
             null,
-            ($inr1.result),
+            ($inv1.result),
             null,
             ($outr.result)
          );
@@ -871,9 +873,9 @@ returns [Instruction result]
    | IMP_MERGE_KW
       fun=value WS+
       def0=value WS+
-      inr0=value_reference WS+
+      inv0=value WS+
       def1=value WS+
-      inr1=value_reference WS+
+      inv1=value WS+
       outr=value_reference WS*
       R_PAREN
    {
@@ -886,9 +888,9 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inr0.result),
+            ($inv0.result),
             ($def0.result),
-            ($inr1.result),
+            ($inv1.result),
             ($def1.result),
             ($outr.result)
          );
@@ -897,7 +899,7 @@ returns [Instruction result]
    | IMP_SUB_LIST_KW
       vstart=value WS+
       vend=value WS+
-      inr=value_reference WS+
+      inv=value WS+
       outr=value_reference WS*
       R_PAREN
    {
@@ -911,7 +913,7 @@ returns [Instruction result]
             ),
             ($vstart.result),
             ($vend.result),
-            ($inr.result),
+            ($inv.result),
             ($outr.result)
          );
    }
@@ -1161,7 +1163,7 @@ returns [Instruction result]
    }
 
    | FOR_EACH_KW
-      value_reference WS+ new_reference_name
+      coll=value WS+ new_reference_name
       {
          final Map<String, Variable> variable_map;
          final Variable new_variable;
@@ -1170,7 +1172,7 @@ returns [Instruction result]
 
          elem_type = Type.ANY;
 
-         collection_type = ($value_reference.result).get_type();
+         collection_type = ($coll.result).get_type();
 
          if (collection_type instanceof CollectionType)
          {
@@ -1251,7 +1253,7 @@ returns [Instruction result]
                ($FOR_EACH_KW.getLine()),
                ($FOR_EACH_KW.getCharPositionInLine())
             ),
-            ($value_reference.result),
+            ($coll.result),
             ($new_reference_name.result),
             ($general_fate_sequence.result)
          );

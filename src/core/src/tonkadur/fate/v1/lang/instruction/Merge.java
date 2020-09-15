@@ -21,9 +21,9 @@ public class Merge extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Reference collection_in_a;
+   protected final Computation collection_in_a;
    protected final Computation default_a;
-   protected final Reference collection_in_b;
+   protected final Computation collection_in_b;
    protected final Computation default_b;
    protected final Reference collection_out;
 
@@ -35,9 +35,9 @@ public class Merge extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in_a,
+      final Computation collection_in_a,
       final Computation default_a,
-      final Reference collection_in_b,
+      final Computation collection_in_b,
       final Computation default_b,
       final Reference collection_out
    )
@@ -60,9 +60,9 @@ public class Merge extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in_a,
+      final Computation collection_in_a,
       final Computation default_a,
-      final Reference collection_in_b,
+      final Computation collection_in_b,
       final Computation default_b,
       final Reference collection_out
    )
@@ -135,7 +135,7 @@ public class Merge extends Instruction
       return lambda_function;
    }
 
-   public Reference get_collection_in_a ()
+   public Computation get_collection_in_a ()
    {
       return collection_in_a;
    }
@@ -145,7 +145,7 @@ public class Merge extends Instruction
       return default_a;
    }
 
-   public Reference get_collection_in_b ()
+   public Computation get_collection_in_b ()
    {
       return collection_in_b;
    }

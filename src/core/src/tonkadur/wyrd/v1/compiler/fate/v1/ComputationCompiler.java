@@ -29,6 +29,7 @@ import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
+import tonkadur.wyrd.v1.compiler.util.MapLambda;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
 import tonkadur.wyrd.v1.compiler.util.ReverseList;
 import tonkadur.wyrd.v1.compiler.util.CreateCons;
@@ -2077,7 +2078,42 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler lambda_cc, in_collection_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(in_collection_cc);
+
+      assimilate(in_collection_cc);
+
+      init_instructions.add
+      (
+         MapLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            in_collection_cc.get_address(),
+            result_as_address,
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+            ).is_set()
+         )
+      );
+
    }
 
    @Override

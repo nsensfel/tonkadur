@@ -6,6 +6,7 @@ import tonkadur.parser.ParsingError;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class PushElement extends Instruction
@@ -14,7 +15,7 @@ public class PushElement extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation element;
-   protected final Computation collection;
+   protected final Reference collection;
    protected final boolean is_from_left;
 
    /***************************************************************************/
@@ -25,7 +26,7 @@ public class PushElement extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Computation collection,
+      final Reference collection,
       final boolean is_from_left
    )
    {
@@ -44,7 +45,7 @@ public class PushElement extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Computation collection,
+      final Reference collection,
       final boolean is_from_left
    )
    throws ParsingError
@@ -62,7 +63,7 @@ public class PushElement extends Instruction
       iv.visit_push_element(this);
    }
 
-   public Computation get_collection ()
+   public Reference get_collection ()
    {
       return collection;
    }

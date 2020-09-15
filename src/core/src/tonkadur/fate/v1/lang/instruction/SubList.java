@@ -18,7 +18,7 @@ public class SubList extends Instruction
    /***************************************************************************/
    protected final Computation start;
    protected final Computation end;
-   protected final Reference collection_in;
+   protected final Computation collection_in;
    protected final Reference collection_out;
 
    /***************************************************************************/
@@ -30,7 +30,7 @@ public class SubList extends Instruction
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Reference collection_in,
+      final Computation collection_in,
       final Reference collection_out
    )
    {
@@ -51,7 +51,7 @@ public class SubList extends Instruction
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Reference collection_in,
+      final Computation collection_in,
       final Reference collection_out
    )
    throws Throwable
@@ -87,7 +87,7 @@ public class SubList extends Instruction
       return end;
    }
 
-   public Reference get_collection_in ()
+   public Computation get_collection_in ()
    {
       return collection_in;
    }

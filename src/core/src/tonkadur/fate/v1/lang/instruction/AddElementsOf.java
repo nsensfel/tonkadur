@@ -8,6 +8,7 @@ import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class AddElementsOf extends Instruction
@@ -15,7 +16,7 @@ public class AddElementsOf extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference other_collection;
+   protected final Computation other_collection;
    protected final Reference collection;
 
    /***************************************************************************/
@@ -25,7 +26,7 @@ public class AddElementsOf extends Instruction
    protected AddElementsOf
    (
       final Origin origin,
-      final Reference other_collection,
+      final Computation other_collection,
       final Reference collection
    )
    {
@@ -42,7 +43,7 @@ public class AddElementsOf extends Instruction
    public static AddElementsOf build
    (
       final Origin origin,
-      final Reference other_collection,
+      final Computation other_collection,
       final Reference collection
    )
    throws ParsingError
@@ -67,7 +68,7 @@ public class AddElementsOf extends Instruction
       iv.visit_add_elements_of(this);
    }
 
-   public Reference get_source_collection ()
+   public Computation get_source_collection ()
    {
       return other_collection;
    }

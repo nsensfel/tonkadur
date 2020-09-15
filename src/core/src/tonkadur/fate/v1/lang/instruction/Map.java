@@ -21,7 +21,7 @@ public class Map extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Reference collection_in;
+   protected final Computation collection_in;
    protected final Reference collection_out;
 
    /***************************************************************************/
@@ -32,7 +32,7 @@ public class Map extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in,
+      final Computation collection_in,
       final Reference collection_out
    )
    {
@@ -51,7 +51,7 @@ public class Map extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection_in,
+      final Computation collection_in,
       final Reference collection_out
    )
    throws ParsingError
@@ -84,7 +84,7 @@ public class Map extends Instruction
       return lambda_function;
    }
 
-   public Reference get_collection_in ()
+   public Computation get_collection_in ()
    {
       return collection_in;
    }

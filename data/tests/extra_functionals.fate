@@ -73,4 +73,51 @@
 (set int_list_a (var int_list_c))
 (reverse! int_list_a)
 (set int_list_b (reverse (range 0 50 5)))
+
+(global (list string) some_words_a)
+(global (list string) some_words_b)
+(global (set string) some_words_c)
+
+(set some_words
+   (map
+      (lambda ( (int i) )
+         (switch 0
+            ((% (var i) 5) Five)
+            ((% (var i) 4) Four)
+            ((% (var i) 3) Three)
+            ((% (var i) 2) Two)
+            None
+         )
+      )
+      (range 0 20 1)
+   )
+)
+(map!
+   (lambda ( (int i) )
+      (switch 0
+         ((% (var i) 5) Five)
+         ((% (var i) 4) Four)
+         ((% (var i) 3) Three)
+         ((% (var i) 2) Two)
+         None
+      )
+   )
+   (range 0 20 1)
+   some_words_b
+)
+
+(map!
+   (lambda ( (int i) )
+      (switch 0
+         ((% (var i) 5) Five)
+         ((% (var i) 4) Four)
+         ((% (var i) 3) Three)
+         ((% (var i) 2) Two)
+         None
+      )
+   )
+   (range 0 20 1)
+   some_words_c
+)
+
 (end)

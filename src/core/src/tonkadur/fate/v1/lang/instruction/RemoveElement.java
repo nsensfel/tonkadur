@@ -6,6 +6,7 @@ import tonkadur.parser.ParsingError;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class RemoveElement extends Instruction
@@ -14,7 +15,7 @@ public class RemoveElement extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation element;
-   protected final Computation collection;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -24,7 +25,7 @@ public class RemoveElement extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Computation collection
+      final Reference collection
    )
    {
       super(origin);
@@ -41,7 +42,7 @@ public class RemoveElement extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Computation collection
+      final Reference collection
    )
    throws ParsingError
    {
@@ -63,7 +64,7 @@ public class RemoveElement extends Instruction
       return element;
    }
 
-   public Computation get_collection ()
+   public Reference get_collection ()
    {
       return collection;
    }

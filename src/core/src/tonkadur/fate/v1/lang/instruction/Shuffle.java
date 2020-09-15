@@ -1,13 +1,11 @@
 package tonkadur.fate.v1.lang.instruction;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class Shuffle extends Instruction
@@ -15,7 +13,7 @@ public class Shuffle extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation collection;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -24,7 +22,7 @@ public class Shuffle extends Instruction
    protected Shuffle
    (
       final Origin origin,
-      final Computation collection
+      final Reference collection
    )
    {
       super(origin);
@@ -39,7 +37,7 @@ public class Shuffle extends Instruction
    public static Shuffle build
    (
       final Origin origin,
-      final Computation collection
+      final Reference collection
    )
    throws ParsingError
    {
@@ -56,7 +54,7 @@ public class Shuffle extends Instruction
       iv.visit_shuffle(this);
    }
 
-   public Computation get_collection ()
+   public Reference get_collection ()
    {
       return collection;
    }

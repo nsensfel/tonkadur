@@ -5,7 +5,7 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class ReverseList extends Instruction
@@ -13,7 +13,7 @@ public class ReverseList extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation collection;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -22,7 +22,7 @@ public class ReverseList extends Instruction
    protected ReverseList
    (
       final Origin origin,
-      final Computation collection
+      final Reference collection
    )
    {
       super(origin);
@@ -37,7 +37,7 @@ public class ReverseList extends Instruction
    public static ReverseList build
    (
       final Origin origin,
-      final Computation collection
+      final Reference collection
    )
    throws ParsingError
    {
@@ -54,7 +54,7 @@ public class ReverseList extends Instruction
       iv.visit_reverse_list(this);
    }
 
-   public Computation get_collection ()
+   public Reference get_collection ()
    {
       return collection;
    }
