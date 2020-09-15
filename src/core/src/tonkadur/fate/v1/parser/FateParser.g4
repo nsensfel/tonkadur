@@ -3304,7 +3304,7 @@ returns [Computation result]
          );
    }
 
-   | ADD_KW value WS+ value_reference WS* R_PAREN
+   | ADD_KW val=value WS+ coll=value WS* R_PAREN
    {
       $result =
          AddElementComputation.build
@@ -3314,12 +3314,12 @@ returns [Computation result]
                ($ADD_KW.getLine()),
                ($ADD_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($val.result),
+            ($coll.result)
          );
    }
 
-   | ADD_AT_KW index=value WS+ element=value WS+ value_reference WS* R_PAREN
+   | ADD_AT_KW index=value WS+ element=value WS+ coll=value WS* R_PAREN
    {
       $result =
          AddElementAtComputation.build
@@ -3331,13 +3331,13 @@ returns [Computation result]
             ),
             ($index.result),
             ($element.result),
-            ($value_reference.result)
+            ($coll.result)
          );
    }
 
    | ADD_ALL_KW
-         sourcer=value_reference WS+
-         targetr=value_reference WS*
+         sourcev=value WS+
+         targetv=value WS*
       R_PAREN
    {
       $result =
@@ -3348,15 +3348,12 @@ returns [Computation result]
                ($ADD_ALL_KW.getLine()),
                ($ADD_ALL_KW.getCharPositionInLine())
             ),
-            ($sourcer.result),
-            ($targetr.result)
+            ($sourcev.result),
+            ($targetv.result)
          );
    }
 
-   | REMOVE_ONE_KW
-         value WS+
-         value_reference WS*
-      R_PAREN
+   | REMOVE_ONE_KW val=value WS+ coll=value WS* R_PAREN
    {
       $result =
          RemoveElementComputation.build
@@ -3366,15 +3363,12 @@ returns [Computation result]
                ($REMOVE_ONE_KW.getLine()),
                ($REMOVE_ONE_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($val.result),
+            ($coll.result)
          );
    }
 
-   | REMOVE_AT_KW
-         value WS+
-         value_reference WS*
-      R_PAREN
+   | REMOVE_AT_KW val=value WS+ coll=value WS* R_PAREN
    {
       $result =
          RemoveElementAtComputation.build
@@ -3384,15 +3378,12 @@ returns [Computation result]
                ($REMOVE_AT_KW.getLine()),
                ($REMOVE_AT_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($val.result),
+            ($coll.result)
          );
    }
 
-   | REMOVE_ALL_KW
-         value WS+
-         value_reference WS*
-      R_PAREN
+   | REMOVE_ALL_KW val=value WS+ coll=value WS* R_PAREN
    {
       $result =
          RemoveAllOfElementComputation.build
@@ -3402,12 +3393,12 @@ returns [Computation result]
                ($REMOVE_ALL_KW.getLine()),
                ($REMOVE_ALL_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($val.result),
+            ($coll.result)
          );
    }
 
-   | REVERSE_KW value_reference WS* R_PAREN
+   | REVERSE_KW value WS* R_PAREN
    {
       $result =
          ReverseListComputation.build
@@ -3417,11 +3408,11 @@ returns [Computation result]
                ($REVERSE_KW.getLine()),
                ($REVERSE_KW.getCharPositionInLine())
             ),
-            ($value_reference.result)
+            ($value.result)
          );
    }
 
-   | PUSH_LEFT_KW value WS+ value_reference WS* R_PAREN
+   | PUSH_LEFT_KW val=value WS+ coll=value WS* R_PAREN
    {
       $result =
          PushElementComputation.build
@@ -3431,13 +3422,13 @@ returns [Computation result]
                ($PUSH_LEFT_KW.getLine()),
                ($PUSH_LEFT_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result),
+            ($val.result),
+            ($coll.result),
             true
          );
    }
 
-   | PUSH_RIGHT_KW value WS+ value_reference WS* R_PAREN
+   | PUSH_RIGHT_KW val=value WS+ coll=value WS* R_PAREN
    {
       $result =
          PushElementComputation.build
@@ -3447,13 +3438,13 @@ returns [Computation result]
                ($PUSH_RIGHT_KW.getLine()),
                ($PUSH_RIGHT_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result),
+            ($val.result),
+            ($coll.result),
             false
          );
    }
 
-   | POP_LEFT_KW value_reference WS* R_PAREN
+   | POP_LEFT_KW value WS* R_PAREN
    {
       $result =
          PopElementComputation.build
@@ -3463,12 +3454,12 @@ returns [Computation result]
                ($POP_LEFT_KW.getLine()),
                ($POP_LEFT_KW.getCharPositionInLine())
             ),
-            ($value_reference.result),
+            ($value.result),
             true
          );
    }
 
-   | POP_RIGHT_KW value_reference WS* R_PAREN
+   | POP_RIGHT_KW value WS* R_PAREN
    {
       $result =
          PopElementComputation.build
@@ -3478,15 +3469,12 @@ returns [Computation result]
                ($POP_RIGHT_KW.getLine()),
                ($POP_RIGHT_KW.getCharPositionInLine())
             ),
-            ($value_reference.result),
-            true
+            ($value.result),
+            false
          );
    }
 
-   | MAP_KW
-         value WS+
-         inr=value_reference WS*
-      R_PAREN
+   | MAP_KW fun=value WS+ inv=value WS* R_PAREN
    {
       $result =
          tonkadur.fate.v1.lang.computation.MapComputation.build
@@ -3496,12 +3484,12 @@ returns [Computation result]
                ($MAP_KW.getLine()),
                ($MAP_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($inr.result)
+            ($fun.result),
+            ($inv.result)
          );
    }
 
-   | INDEXED_MAP_KW value WS+ inr=value_reference WS* R_PAREN
+   | INDEXED_MAP_KW fun=value WS+ inv=value WS* R_PAREN
    {
       $result =
          IndexedMapComputation.build
@@ -3511,16 +3499,12 @@ returns [Computation result]
                ($INDEXED_MAP_KW.getLine()),
                ($INDEXED_MAP_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($inr.result)
+            ($fun.result),
+            ($inv.result)
          );
    }
 
-   | MERGE_TO_LIST_KW
-         fun=value WS+
-         inr0=value_reference WS+
-         inr1=value_reference WS*
-      R_PAREN
+   | MERGE_TO_LIST_KW fun=value WS+ inv0=value WS+ inv1=value WS* R_PAREN
    {
       $result =
          MergeComputation.build
@@ -3531,9 +3515,9 @@ returns [Computation result]
                ($MERGE_TO_LIST_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inr0.result),
+            ($inv0.result),
             null,
-            ($inr1.result),
+            ($inv1.result),
             null,
             false
          );
@@ -3542,9 +3526,9 @@ returns [Computation result]
    | MERGE_TO_LIST_KW
          fun=value WS+
          def0=value WS+
-         inr0=value_reference WS+
+         inv0=value WS+
          def1=value WS+
-         inr1=value_reference WS*
+         inv1=value WS*
       R_PAREN
    {
       $result =
@@ -3556,9 +3540,9 @@ returns [Computation result]
                ($MERGE_TO_LIST_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inr0.result),
+            ($inv0.result),
             ($def0.result),
-            ($inr1.result),
+            ($inv1.result),
             ($def1.result),
             false
          );
@@ -3566,8 +3550,8 @@ returns [Computation result]
 
    | MERGE_TO_SET_KW
          fun=value WS+
-         inr0=value_reference WS+
-         inr1=value_reference WS*
+         inv0=value WS+
+         inv1=value WS*
       R_PAREN
    {
       $result =
@@ -3579,9 +3563,9 @@ returns [Computation result]
                ($MERGE_TO_SET_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inr0.result),
+            ($inv0.result),
             null,
-            ($inr1.result),
+            ($inv1.result),
             null,
             true
          );
@@ -3590,9 +3574,9 @@ returns [Computation result]
    | MERGE_TO_SET_KW
          fun=value WS+
          def0=value WS+
-         inr0=value_reference WS+
+         inv0=value WS+
          def1=value WS+
-         inr1=value_reference WS*
+         inv1=value WS*
       R_PAREN
    {
       $result =
@@ -3604,9 +3588,9 @@ returns [Computation result]
                ($MERGE_TO_SET_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inr0.result),
+            ($inv0.result),
             ($def0.result),
-            ($inr1.result),
+            ($inv1.result),
             ($def1.result),
             true
          );
@@ -3615,8 +3599,7 @@ returns [Computation result]
    | SUB_LIST_KW
       vstart=value WS+
       vend=value WS+
-      inr=value_reference WS+
-      outr=value_reference WS*
+      inv=value WS*
       R_PAREN
    {
       $result =
@@ -3629,11 +3612,11 @@ returns [Computation result]
             ),
             ($vstart.result),
             ($vend.result),
-            ($inr.result)
+            ($inv.result)
          );
    }
 
-   | FILTER_KW value WS+ value_reference WS* R_PAREN
+   | FILTER_KW fun=value WS+ coll=value WS* R_PAREN
    {
       $result =
          FilterComputation.build
@@ -3643,14 +3626,14 @@ returns [Computation result]
                ($FILTER_KW.getLine()),
                ($FILTER_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($fun.result),
+            ($coll.result)
          );
    }
 
    | PARTITION_KW
-      value WS+
-      value_reference WS*
+      fun=value WS+
+      coll=value WS*
       R_PAREN
    {
       $result =
@@ -3661,12 +3644,12 @@ returns [Computation result]
                ($PARTITION_KW.getLine()),
                ($PARTITION_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($fun.result),
+            ($coll.result)
          );
    }
 
-   | SORT_KW value WS+ value_reference WS* R_PAREN
+   | SORT_KW fun=value WS+ coll=value WS* R_PAREN
    {
       $result =
         SortComputation.build
@@ -3676,13 +3659,13 @@ returns [Computation result]
                ($SORT_KW.getLine()),
                ($SORT_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($fun.result),
+            ($coll.result)
          );
    }
 
 
-   | SHUFFLE_KW value_reference WS* R_PAREN
+   | SHUFFLE_KW value WS* R_PAREN
    {
       $result =
         ShuffleComputation.build
@@ -3692,11 +3675,11 @@ returns [Computation result]
                ($SHUFFLE_KW.getLine()),
                ($SHUFFLE_KW.getCharPositionInLine())
             ),
-            ($value_reference.result)
+            ($value.result)
          );
    }
 
-   | SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
+   | SET_FIELDS_KW value WS* field_value_list WS* R_PAREN
    {
       /*
        * A bit of a lazy solution: build field references, then extract the data
@@ -3718,7 +3701,7 @@ returns [Computation result]
             FieldReference.build
             (
                entry.get_car(),
-               ($value_reference.result),
+               ($value.result),
                entry.get_cdr().get_car()
             );
 
@@ -3737,7 +3720,7 @@ returns [Computation result]
                ($SET_FIELDS_KW.getLine()),
                ($SET_FIELDS_KW.getCharPositionInLine())
             ),
-            ($value_reference.result),
+            ($value.result),
             assignments
          );
    }

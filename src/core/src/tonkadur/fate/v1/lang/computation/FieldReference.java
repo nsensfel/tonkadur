@@ -12,6 +12,7 @@ import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.type.DictType;
 import tonkadur.fate.v1.lang.type.Type;
@@ -21,7 +22,7 @@ public class FieldReference extends Reference
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference parent;
+   protected final Computation parent;
    protected final String field_name;
 
    /***************************************************************************/
@@ -31,12 +32,12 @@ public class FieldReference extends Reference
    protected FieldReference
    (
       final Origin origin,
-      final Reference parent,
+      final Computation parent,
       final Type type,
       final String field_name
    )
    {
-      super(origin, type, (parent.get_name() + "." + field_name));
+      super(origin, type, (parent.toString() + "." + field_name));
 
       this.parent = parent;
       this.field_name = field_name;
@@ -49,7 +50,7 @@ public class FieldReference extends Reference
    public static FieldReference build
    (
       final Origin origin,
-      Reference parent,
+      Computation parent,
       final String field
    )
    throws
@@ -62,7 +63,7 @@ public class FieldReference extends Reference
 
       if (current_type.get_act_as_type().equals(Type.REF))
       {
-         parent = AtReference.build(origin, parent);
+         parent = AtReference.build(origin, (Reference) parent);
          current_type = parent.get_type();
       }
 
@@ -75,7 +76,7 @@ public class FieldReference extends Reference
                origin,
                current_type,
                Collections.singleton(Type.DICT),
-               parent.get_name()
+               parent.toString()
             )
          );
 
@@ -92,7 +93,7 @@ public class FieldReference extends Reference
    public static FieldReference build
    (
       final Origin origin,
-      Reference parent,
+      Computation parent,
       final List<String> field_sequence
    )
    throws
@@ -127,7 +128,7 @@ public class FieldReference extends Reference
       return field_name;
    }
 
-   public Reference get_parent ()
+   public Computation get_parent ()
    {
       return parent;
    }
@@ -141,7 +142,9 @@ public class FieldReference extends Reference
       sb.append("(FieldReference (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(name);
+      sb.append(parent.toString());
+      sb.append(" ");
+      sb.append(field_name);
       sb.append(")");
 
       return sb.toString();
