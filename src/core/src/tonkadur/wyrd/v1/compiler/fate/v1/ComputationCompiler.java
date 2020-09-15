@@ -15,9 +15,11 @@ import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.PointerType;
+import tonkadur.wyrd.v1.lang.type.MapType;
 import tonkadur.wyrd.v1.lang.type.DictType;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
@@ -25,11 +27,13 @@ import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.If;
 import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
+import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
 import tonkadur.wyrd.v1.compiler.util.CreateCons;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
+import tonkadur.wyrd.v1.compiler.util.While;
 import tonkadur.wyrd.v1.compiler.util.LambdaEvaluation;
 
 import tonkadur.wyrd.v1.lang.computation.*;
@@ -103,16 +107,18 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    {
       if ((!instructions_were_generated) && (result_as_address == null))
       {
-         final Address result;
+         final Register result;
 
-         result = reserve(result_as_computation.get_type()).get_address();
+         result = reserve(result_as_computation.get_type());
 
          init_instructions.add
          (
-            new SetValue(result, result_as_computation)
+            new SetValue(result.get_address(), result_as_computation)
          );
 
-         result_as_address = result;
+         result_as_address = result.get_address();
+         /* Avoids recomputations */
+         result_as_computation = result.get_value();
       }
    }
 
@@ -1957,7 +1963,90 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler address_compiler, index_compiler;
+      final ComputationCompiler element_compiler;
+      final Register result, index, collection_size;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      address_compiler = new ComputationCompiler(compiler);
+      index_compiler = new ComputationCompiler(compiler);
+      element_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         init_instructions.add(address_compiler.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, address_compiler.get_computation())
+      );
+
+      address_compiler.release_registers(init_instructions);
+
+      n.get_index().get_visited_by(index_compiler);
+
+      index_compiler.generate_address();
+
+      if (index_compiler.has_init())
+      {
+         init_instructions.add(index_compiler.get_init());
+      }
+
+      n.get_element().get_visited_by(element_compiler);
+
+      if (element_compiler.has_init())
+      {
+         init_instructions.add(element_compiler.get_init());
+      }
+
+      collection_size = reserve(Type.INT);
+      index = reserve(Type.INT);
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            collection_size.get_address(),
+            new Size(result_as_address)
+         )
+      );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            index.get_address(),
+            new IfElseComputation
+            (
+               Operation.greater_than
+               (
+                  index_compiler.get_computation(),
+                  collection_size.get_value()
+               ),
+               collection_size.get_value(),
+               index_compiler.get_computation()
+            )
+         )
+      );
+
+      init_instructions.add
+      (
+         InsertAt.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            index.get_address(),
+            element_compiler.get_computation(),
+            collection_size.get_value(),
+            result_as_address
+         )
+      );
    }
 
    @Override
@@ -1997,7 +2086,109 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final List<Instruction> while_body;
+      final ComputationCompiler start_cc, end_cc, inc_cc;
+      final Register result, iterator, accumulator;
+      final Address new_element_addr;
+
+      while_body = new ArrayList<Instruction>();
+
+      result = reserve(MapType.MAP_TO_INT);
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      start_cc = new ComputationCompiler(compiler);
+      end_cc = new ComputationCompiler(compiler);
+      inc_cc = new ComputationCompiler(compiler);
+
+      n.get_start().get_visited_by(start_cc);
+      start_cc.generate_address();
+
+      n.get_end().get_visited_by(end_cc);
+      end_cc.generate_address();
+
+      n.get_increment().get_visited_by(inc_cc);
+      inc_cc.generate_address();
+
+      assimilate(start_cc);
+      assimilate(end_cc);
+      assimilate(inc_cc);
+
+      iterator = reserve(Type.INT);
+      accumulator = reserve(Type.INT);
+
+      init_instructions.add
+      (
+         new SetValue(iterator.get_address(), Constant.ZERO)
+      );
+      init_instructions.add
+      (
+         new SetValue(accumulator.get_address(), start_cc.get_computation())
+      );
+
+      new_element_addr =
+         new RelativeAddress(result_as_address, iterator.get_value(), Type.INT);
+
+      while_body.add(new Initialize(new_element_addr));
+      while_body.add
+      (
+         new SetValue(new_element_addr, accumulator.get_value())
+      );
+      while_body.add
+      (
+         new SetValue
+         (
+            accumulator.get_address(),
+            Operation.plus(accumulator.get_value(), inc_cc.get_computation())
+         )
+      );
+      while_body.add
+      (
+         new SetValue
+         (
+            iterator.get_address(),
+            Operation.plus(iterator.get_value(), Constant.ONE)
+         )
+      );
+
+      init_instructions.add
+      (
+         While.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            Operation.or
+            (
+               Operation.and
+               (
+                  Operation.greater_than
+                  (
+                     inc_cc.get_computation(),
+                     Constant.ZERO
+                  ),
+                  Operation.less_equal_than
+                  (
+                     accumulator.get_value(),
+                     end_cc.get_computation()
+                  )
+               ),
+               Operation.and
+               (
+                  Operation.less_equal_than
+                  (
+                     inc_cc.get_computation(),
+                     Constant.ZERO
+                  ),
+                  Operation.greater_equal_than
+                  (
+                     accumulator.get_value(),
+                     end_cc.get_computation()
+                  )
+               )
+            ),
+            compiler.assembler.merge(while_body)
+         )
+      );
    }
 
    @Override
@@ -2171,7 +2362,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    throws Throwable
    {
       final ComputationCompiler address_compiler;
-      final Address collection_address;
       final Register result;
 
       result = reserve(TypeCompiler.compile(compiler, n.get_type()));
@@ -2272,7 +2462,70 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler address_compiler, element_compiler;
+      final Register result, collection_size, index;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      address_compiler = new ComputationCompiler(compiler);
+      element_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         init_instructions.add(address_compiler.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, address_compiler.get_computation())
+      );
+
+      address_compiler.release_registers(init_instructions);
+
+      n.get_element().get_visited_by(element_compiler);
+
+      if (element_compiler.has_init())
+      {
+         init_instructions.add(element_compiler.get_init());
+      }
+
+      collection_size = reserve(Type.INT);
+      index = reserve(Type.INT);
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            collection_size.get_address(),
+            new Size(result_as_address)
+         )
+      );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            index.get_address(),
+            (n.is_from_left() ? Constant.ZERO : collection_size.get_value())
+         )
+      );
+
+      init_instructions.add
+      (
+         InsertAt.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            index.get_address(),
+            element_compiler.get_computation(),
+            collection_size.get_value(),
+            result_as_address
+         )
+      );
    }
 
    @Override

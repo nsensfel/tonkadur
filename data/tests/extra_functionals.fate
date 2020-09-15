@@ -69,4 +69,5 @@
 (remove_at! 4 int_list_a)
 (= (var int_list_a) (remove_at 4 int_list_c))
 
+(set int_list_c (range 0 20 2))
 (end)
