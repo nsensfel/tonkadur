@@ -42,4 +42,17 @@
 (car (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5))))))))
 (cdr (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5))))))))
 
+(global (list int) int_list_a)
+(global (list int) int_list_b)
+(global (list int) int_list_c)
+(global int i)
+
+(for (set i 0) (< (var i) 10) (set i (+ (var i) 1))
+   (add! (var i) int_list_a)
+   (add! (var i) int_list_c)
+)
+
+(set int_list_b (shuffle int_list_a))
+(shuffle! int_list_c)
+
 (end)

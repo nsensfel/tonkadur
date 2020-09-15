@@ -48,6 +48,7 @@ import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.InstructionManager;
 import tonkadur.wyrd.v1.compiler.util.NOP;
 import tonkadur.wyrd.v1.compiler.util.While;
+import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.Clear;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
@@ -572,19 +573,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       collection_address = address_compiler.get_address();
 
-      /*
-       * TODO
       result.add
       (
          Shuffle.generate
          (
             compiler.registers(),
             compiler.assembler(),
-            new Size(collection_address),
             collection_address
          )
       );
-      */
 
       address_compiler.release_registers(result);
    }
