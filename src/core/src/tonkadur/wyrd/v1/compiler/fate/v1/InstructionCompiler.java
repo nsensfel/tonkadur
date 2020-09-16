@@ -41,6 +41,7 @@ import tonkadur.wyrd.v1.lang.instruction.ResolveChoices;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
+import tonkadur.wyrd.v1.compiler.util.AddElement;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.If;
@@ -72,188 +73,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    protected Instruction get_result ()
    {
       return compiler.assembler().merge(result);
-   }
-
-   protected void add_element_to_set
-   (
-      final tonkadur.fate.v1.lang.instruction.AddElement ae
-   )
-   throws Throwable
-   {
-      /*
-       * Fate:
-       * (add_element element collection)
-       *
-       * Wyrd:
-       * (declare_variable local <element.type> .anon0)
-       * (set .anon0 element)
-       * (declare_variable local boolean .found)
-       * <binary_search .anon0 collection .found .index>
-       * (ifelse (var .found)
-       *    (nop)
-       *    <insert_at ...>
-       * )
-       */
-      final ComputationCompiler element_compiler, address_compiler;
-      final Address element, collection;
-      final Register collection_size, element_found, element_index;
-      final Type element_type;
-
-      element_compiler = new ComputationCompiler(compiler);
-      ae.get_element().get_visited_by(element_compiler);
-
-      element_compiler.generate_address();
-
-      if (element_compiler.has_init())
-      {
-         result.add(element_compiler.get_init());
-      }
-
-      element_type = element_compiler.get_computation().get_type();
-      element = element_compiler.get_address();
-
-      address_compiler = new ComputationCompiler(compiler);
-      ae.get_collection().get_visited_by(address_compiler);
-
-      if (address_compiler.has_init())
-      {
-         result.add(address_compiler.get_init());
-      }
-
-      collection = address_compiler.get_address();
-
-      element_found = compiler.registers().reserve(Type.BOOL, result);
-      element_index = compiler.registers().reserve(Type.INT, result);
-      collection_size = compiler.registers().reserve(Type.INT, result);
-
-      result.add
-      (
-         new SetValue(collection_size.get_address(), new Size(collection))
-      );
-
-      result.add
-      (
-         BinarySearch.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            new ValueOf(element),
-            collection_size.get_value(),
-            collection,
-            element_found.get_address(),
-            element_index.get_address()
-         )
-      );
-
-      result.add
-      (
-         If.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            Operation.not(element_found.get_value()),
-            InsertAt.generate
-            (
-               compiler.registers(),
-               compiler.assembler(),
-               element_index.get_address(),
-               new ValueOf(element),
-               collection_size.get_value(),
-               collection
-            )
-         )
-      );
-
-      compiler.registers().release(element_found, result);
-      compiler.registers().release(element_index, result);
-      compiler.registers().release(collection_size, result);
-
-      element_compiler.release_registers(result);
-      address_compiler.release_registers(result);
-   }
-
-   protected void add_element_to_list
-   (
-      final tonkadur.fate.v1.lang.instruction.AddElement ae
-   )
-   throws Throwable
-   {
-      /*
-       * Fate:
-       * (add_element element collection)
-       *
-       * Wyrd:
-       * (set
-       *    (relative_address collection ( (cast int string (size collection)) ))
-       *    (element)
-       * )
-       */
-      final Address collection_as_address;
-      final ComputationCompiler element_compiler, address_compiler;
-
-      element_compiler = new ComputationCompiler(compiler);
-
-      ae.get_element().get_visited_by(element_compiler);
-
-      address_compiler = new ComputationCompiler(compiler);
-
-      ae.get_collection().get_visited_by(address_compiler);
-
-
-      if (address_compiler.has_init())
-      {
-         result.add(address_compiler.get_init());
-      }
-
-      if (element_compiler.has_init())
-      {
-         result.add(element_compiler.get_init());
-      }
-
-      collection_as_address = address_compiler.get_address();
-
-      result.add
-      (
-         new Initialize
-         (
-            new RelativeAddress
-            (
-               collection_as_address,
-               new Cast
-               (
-                  new Size(collection_as_address),
-                  Type.STRING
-               ),
-               element_compiler.get_computation().get_type()
-            ),
-            element_compiler.get_computation().get_type()
-         )
-      );
-
-      result.add
-      (
-         new SetValue
-         (
-            new RelativeAddress
-            (
-               collection_as_address,
-               new Cast
-               (
-                  Operation.minus
-                  (
-                     new Size(collection_as_address),
-                     Constant.ONE
-                  ),
-                  Type.STRING
-               ),
-               element_compiler.get_computation().get_type()
-            ),
-            element_compiler.get_computation()
-         )
-      );
-
-      address_compiler.release_registers(result);
-      element_compiler.release_registers(result);
    }
 
    @Override
@@ -400,41 +219,46 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    @Override
    public void visit_add_element
    (
-      final tonkadur.fate.v1.lang.instruction.AddElement ae
+      final tonkadur.fate.v1.lang.instruction.AddElement n
    )
    throws Throwable
    {
-      final tonkadur.fate.v1.lang.type.Type collection_type;
-      final tonkadur.fate.v1.lang.type.CollectionType collection_true_type;
+      final ComputationCompiler address_compiler, element_compiler;
 
-      collection_type = ae.get_collection().get_type();
+      address_compiler = new ComputationCompiler(compiler);
+      element_compiler = new ComputationCompiler(compiler);
 
-      if
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         result.add(address_compiler.get_init());
+      }
+
+      n.get_element().get_visited_by(element_compiler);
+
+      if (element_compiler.has_init())
+      {
+         result.add(element_compiler.get_init());
+      }
+
+      result.add
       (
-         !(collection_type instanceof tonkadur.fate.v1.lang.type.CollectionType)
-      )
-      {
-         System.err.println
+         AddElement.generate
          (
-            "[P] (add_element item collection), but this is not a collection: "
-            + ae.get_collection()
-            + ". It's a "
-            + collection_type.get_name()
-            + "."
-         );
-      }
+            compiler.registers(),
+            compiler.assembler(),
+            element_compiler.get_computation(),
+            address_compiler.get_address(),
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+            ).is_set()
+         )
+      );
 
-      collection_true_type =
-         (tonkadur.fate.v1.lang.type.CollectionType) collection_type;
-
-      if (collection_true_type.is_set())
-      {
-         add_element_to_set(ae);
-      }
-      else
-      {
-         add_element_to_list(ae);
-      }
+      element_compiler.release_registers(result);
+      address_compiler.release_registers(result);
    }
 
    @Override

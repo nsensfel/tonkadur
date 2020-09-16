@@ -22,9 +22,11 @@ import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
+import tonkadur.wyrd.v1.compiler.util.AddElement;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.If;
+import tonkadur.wyrd.v1.compiler.util.Fold;
 import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
@@ -1955,7 +1957,48 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler address_compiler, element_compiler;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      address_compiler = new ComputationCompiler(compiler);
+      element_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         init_instructions.add(address_compiler.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, address_compiler.get_computation())
+      );
+
+      address_compiler.release_registers(init_instructions);
+
+      n.get_element().get_visited_by(element_compiler);
+      assimilate(element_compiler);
+
+      init_instructions.add
+      (
+         AddElement.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            element_compiler.get_computation(),
+            result_as_address,
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+            ).is_set()
+         )
+      );
    }
 
    @Override
@@ -1994,18 +2037,10 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       n.get_index().get_visited_by(index_compiler);
 
       index_compiler.generate_address();
-
-      if (index_compiler.has_init())
-      {
-         init_instructions.add(index_compiler.get_init());
-      }
+      assimilate(index_compiler);
 
       n.get_element().get_visited_by(element_compiler);
-
-      if (element_compiler.has_init())
-      {
-         init_instructions.add(element_compiler.get_init());
-      }
+      assimilate(element_compiler);
 
       collection_size = reserve(Type.INT);
       index = reserve(Type.INT);
@@ -2068,7 +2103,54 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler lambda_cc, in_collection_cc, default_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      default_cc = new ComputationCompiler(compiler);
+
+      n.get_default().get_visited_by(default_cc);
+
+      if (default_cc.has_init())
+      {
+         init_instructions.add(default_cc.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, default_cc.get_computation())
+      );
+
+      default_cc.release_registers(init_instructions());
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(in_collection_cc);
+
+      assimilate(in_collection_cc);
+
+      init_instructions.add
+      (
+         Fold.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            result_as_address,
+            in_collection_cc.get_address(),
+            n.is_foldl()
+         )
+      );
    }
 
    @Override
@@ -2113,7 +2195,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             ).is_set()
          )
       );
-
    }
 
    @Override
