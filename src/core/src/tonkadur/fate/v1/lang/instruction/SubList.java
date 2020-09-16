@@ -18,8 +18,7 @@ public class SubList extends Instruction
    /***************************************************************************/
    protected final Computation start;
    protected final Computation end;
-   protected final Computation collection_in;
-   protected final Reference collection_out;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -30,16 +29,14 @@ public class SubList extends Instruction
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Computation collection_in,
-      final Reference collection_out
+      final Reference collection
    )
    {
       super(origin);
 
       this.start = start;
       this.end = end;
-      this.collection_in = collection_in;
-      this.collection_out = collection_out;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -51,22 +48,15 @@ public class SubList extends Instruction
       final Origin origin,
       final Computation start,
       final Computation end,
-      final Computation collection_in,
-      final Reference collection_out
+      final Reference collection
    )
    throws Throwable
    {
-      RecurrentChecks.assert_is_a_collection(collection_in);
-      RecurrentChecks.assert_is_a_collection(collection_out);
-      RecurrentChecks.assert_can_be_used_as
-      (
-         collection_in,
-         collection_out.get_type()
-      );
+      RecurrentChecks.assert_is_a_collection(collection);
       RecurrentChecks.assert_can_be_used_as(start, Type.INT);
       RecurrentChecks.assert_can_be_used_as(end, Type.INT);
 
-      return new SubList(origin, start, end, collection_in, collection_out);
+      return new SubList(origin, start, end, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -87,14 +77,9 @@ public class SubList extends Instruction
       return end;
    }
 
-   public Computation get_collection_in ()
+   public Reference get_collection ()
    {
-      return collection_in;
-   }
-
-   public Reference get_collection_out ()
-   {
-      return collection_out;
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -108,9 +93,7 @@ public class SubList extends Instruction
       sb.append(" ");
       sb.append(end.toString());
       sb.append(" ");
-      sb.append(collection_in.toString());
-      sb.append(" ");
-      sb.append(collection_out.toString());
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();

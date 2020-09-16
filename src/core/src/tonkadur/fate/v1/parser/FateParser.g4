@@ -805,11 +805,7 @@ returns [Instruction result]
          );
    }
 
-   | IMP_MAP_KW
-         fun=value WS+
-         in=value WS+
-         outr=value_reference WS*
-      R_PAREN
+   | IMP_MAP_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          tonkadur.fate.v1.lang.instruction.Map.build
@@ -819,17 +815,12 @@ returns [Instruction result]
                ($IMP_MAP_KW.getLine()),
                ($IMP_MAP_KW.getCharPositionInLine())
             ),
-            ($fun.result),
-            ($in.result),
-            ($outr.result)
+            ($value.result),
+            ($value_reference.result)
          );
    }
 
-   | IMP_INDEXED_MAP_KW
-      fun=value WS+
-      in=value WS+
-      outr=value_reference WS*
-      R_PAREN
+   | IMP_INDEXED_MAP_KW value WS+ value_reference WS* R_PAREN
    {
       $result =
          IndexedMap.build
@@ -839,19 +830,12 @@ returns [Instruction result]
                ($IMP_INDEXED_MAP_KW.getLine()),
                ($IMP_INDEXED_MAP_KW.getCharPositionInLine())
             ),
-            ($fun.result),
-            ($in.result),
-            ($outr.result)
+            ($value.result),
+            ($value_reference.result)
          );
    }
 
-
-   | IMP_MERGE_KW
-      fun=value WS+
-      inv0=value WS+
-      inv1=value WS+
-      outr=value_reference WS*
-      R_PAREN
+   | IMP_MERGE_KW fun=value WS+ value_reference WS+ inv1=value WS* R_PAREN
    {
       $result =
          Merge.build
@@ -862,21 +846,19 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inv0.result),
+            ($value_reference.result),
             null,
             ($inv1.result),
-            null,
-            ($outr.result)
+            null
          );
    }
 
    | IMP_MERGE_KW
       fun=value WS+
       def0=value WS+
-      inv0=value WS+
+      value_reference WS+
       def1=value WS+
-      inv1=value WS+
-      outr=value_reference WS*
+      inv1=value WS*
       R_PAREN
    {
       $result =
@@ -888,20 +870,14 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($inv0.result),
+            ($value_reference.result),
             ($def0.result),
             ($inv1.result),
-            ($def1.result),
-            ($outr.result)
+            ($def1.result)
          );
    }
 
-   | IMP_SUB_LIST_KW
-      vstart=value WS+
-      vend=value WS+
-      inv=value WS+
-      outr=value_reference WS*
-      R_PAREN
+   | IMP_SUB_LIST_KW vstart=value WS+ vend=value WS+ value_reference WS* R_PAREN
    {
       $result =
          SubList.build
@@ -913,8 +889,7 @@ returns [Instruction result]
             ),
             ($vstart.result),
             ($vend.result),
-            ($inv.result),
-            ($outr.result)
+            ($value_reference.result)
          );
    }
 

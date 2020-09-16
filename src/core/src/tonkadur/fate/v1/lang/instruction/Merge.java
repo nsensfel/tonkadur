@@ -21,11 +21,10 @@ public class Merge extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Computation collection_in_a;
+   protected final Reference collection;
    protected final Computation default_a;
    protected final Computation collection_in_b;
    protected final Computation default_b;
-   protected final Reference collection_out;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -35,21 +34,19 @@ public class Merge extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation collection_in_a,
+      final Reference collection,
       final Computation default_a,
       final Computation collection_in_b,
-      final Computation default_b,
-      final Reference collection_out
+      final Computation default_b
    )
    {
       super(origin);
 
       this.lambda_function = lambda_function;
-      this.collection_in_a = collection_in_a;
+      this.collection = collection;
       this.default_a = default_a;
       this.collection_in_b = collection_in_b;
       this.default_b = default_b;
-      this.collection_out = collection_out;
    }
 
    /***************************************************************************/
@@ -60,11 +57,10 @@ public class Merge extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation collection_in_a,
+      final Reference collection,
       final Computation default_a,
       final Computation collection_in_b,
-      final Computation default_b,
-      final Reference collection_out
+      final Computation default_b
    )
    throws Throwable
    {
@@ -72,15 +68,13 @@ public class Merge extends Instruction
 
       types_in = new ArrayList<Type>();
 
-      RecurrentChecks.assert_is_a_collection(collection_out);
-
       if (default_a == null)
       {
-         RecurrentChecks.assert_is_a_collection(collection_in_a);
+         RecurrentChecks.assert_is_a_collection(collection);
       }
       else
       {
-         RecurrentChecks.assert_is_a_collection_of(collection_in_a, default_a);
+         RecurrentChecks.assert_is_a_collection_of(collection, default_a);
       }
 
       if (default_b == null)
@@ -94,7 +88,7 @@ public class Merge extends Instruction
 
       types_in.add
       (
-         ((CollectionType) collection_in_a.get_type()).get_content_type()
+         ((CollectionType) collection.get_type()).get_content_type()
       );
 
       types_in.add
@@ -105,7 +99,7 @@ public class Merge extends Instruction
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,
-         ((CollectionType) collection_out.get_type()).get_content_type(),
+         ((CollectionType) collection.get_type()).get_content_type(),
          types_in
       );
 
@@ -114,11 +108,10 @@ public class Merge extends Instruction
          (
             origin,
             lambda_function,
-            collection_in_a,
+            collection,
             default_a,
             collection_in_b,
-            default_b,
-            collection_out
+            default_b
          );
    }
 
@@ -133,11 +126,6 @@ public class Merge extends Instruction
    public Computation get_lambda_function ()
    {
       return lambda_function;
-   }
-
-   public Computation get_collection_in_a ()
-   {
-      return collection_in_a;
    }
 
    public Computation get_default_a ()
@@ -155,9 +143,9 @@ public class Merge extends Instruction
       return default_b;
    }
 
-   public Reference get_collection_out ()
+   public Reference get_collection ()
    {
-      return collection_out;
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -169,7 +157,7 @@ public class Merge extends Instruction
       sb.append("(Merge ");
       sb.append(lambda_function.toString());
       sb.append(" ");
-      sb.append(collection_in_a.toString());
+      sb.append(collection.toString());
       sb.append(" ");
 
       if (default_a == null)
@@ -192,17 +180,6 @@ public class Merge extends Instruction
       else
       {
          sb.append(default_b.toString());
-      }
-
-      sb.append(" ");
-
-      if (collection_out == null)
-      {
-         sb.append("null");
-      }
-      else
-      {
-         sb.append(collection_out.toString());
       }
 
       sb.append(")");

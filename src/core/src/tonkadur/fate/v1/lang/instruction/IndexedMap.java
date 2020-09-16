@@ -21,8 +21,7 @@ public class IndexedMap extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation lambda_function;
-   protected final Computation collection_in;
-   protected final Reference collection_out;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -32,15 +31,13 @@ public class IndexedMap extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation collection_in,
-      final Reference collection_out
+      final Reference collection
    )
    {
       super(origin);
 
       this.lambda_function = lambda_function;
-      this.collection_in = collection_in;
-      this.collection_out = collection_out;
+      this.collection = collection;
    }
 
    /***************************************************************************/
@@ -51,8 +48,7 @@ public class IndexedMap extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation collection_in,
-      final Reference collection_out
+      final Reference collection
    )
    throws Throwable
    {
@@ -60,24 +56,22 @@ public class IndexedMap extends Instruction
 
       in_types = new ArrayList<Type>();
 
-      RecurrentChecks.assert_is_a_collection(collection_in);
-      RecurrentChecks.assert_is_a_collection(collection_out);
+      RecurrentChecks.assert_is_a_collection(collection);
 
       in_types.add(Type.INT);
       in_types.add
       (
-         ((CollectionType) collection_in.get_type()).get_content_type()
+         ((CollectionType) collection.get_type()).get_content_type()
       );
 
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,
-         ((CollectionType) collection_out.get_type()).get_content_type(),
+         ((CollectionType) collection.get_type()).get_content_type(),
          in_types
       );
 
-      return
-         new IndexedMap(origin, lambda_function, collection_in, collection_out);
+      return new IndexedMap(origin, lambda_function, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -93,14 +87,9 @@ public class IndexedMap extends Instruction
       return lambda_function;
    }
 
-   public Computation get_collection_in ()
+   public Reference get_collection ()
    {
-      return collection_in;
-   }
-
-   public Reference get_collection_out ()
-   {
-      return collection_out;
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -112,9 +101,7 @@ public class IndexedMap extends Instruction
       sb.append("(IndexedMap ");
       sb.append(lambda_function.toString());
       sb.append(" ");
-      sb.append(collection_in.toString());
-      sb.append(" ");
-      sb.append(collection_out.toString());
+      sb.append(collection.toString());
       sb.append(")");
 
       return sb.toString();
