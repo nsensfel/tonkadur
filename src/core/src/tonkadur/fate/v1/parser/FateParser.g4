@@ -2248,23 +2248,60 @@ variable_list
 returns [VariableList result]
 @init
 {
+   Type next_type;
+   Origin origin;
+
+   next_type = null;
+   origin = null;
+
    $result = new VariableList();
 }
 :
    (
       WS*
-      L_PAREN WS* type WS+ new_reference_name WS* R_PAREN
+      (
+         (
+            (
+               L_PAREN WS* type WS+
+            )
+            {
+               origin =
+                  CONTEXT.get_origin_at
+                  (
+                     ($L_PAREN.getLine()),
+                     ($L_PAREN.getCharPositionInLine())
+                  );
+               next_type = ($type.result);
+            }
+         )
+         |
+         (
+            something_else=.
+            {
+               origin =
+                  CONTEXT.get_origin_at
+                  (
+                     ($something_else.getLine()),
+                     ($something_else.getCharPositionInLine())
+                  );
+
+               next_type =
+                  WORLD.types().get
+                  (
+                     origin,
+                     ($something_else.text).substring(1).trim()
+                  );
+            }
+         )
+      )
+      WS* new_reference_name WS* R_PAREN
       {
          $result.add
          (
             new Variable
             (
-               CONTEXT.get_origin_at
-               (
-                  ($L_PAREN.getLine()),
-                  ($L_PAREN.getCharPositionInLine())
-               ),
-               ($type.result),
+               origin,
+               next_type,
                ($new_reference_name.result)
             )
          );
@@ -2272,6 +2309,7 @@ returns [VariableList result]
    )*
    {
    }
+   |
 ;
 catch [final Throwable e]
 {
