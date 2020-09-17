@@ -22,6 +22,9 @@ public interface ComputationVisitor
    public void visit_fold (final Fold n)
    throws Throwable;
 
+   public void visit_default (final Default n)
+   throws Throwable;
+
    public void visit_cond_value (final CondValue n)
    throws Throwable;
 

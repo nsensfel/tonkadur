@@ -3103,6 +3103,20 @@ returns [Computation result]
          );
    }
 
+   | DEFAULT_KW type WS* R_PAREN
+   {
+      $result =
+         new Default
+         (
+            CONTEXT.get_origin_at
+            (
+               ($DEFAULT_KW.getLine()),
+               ($DEFAULT_KW.getCharPositionInLine())
+            ),
+            ($type.result)
+         );
+   }
+
    | COND_KW value_cond_list WS* R_PAREN
    {
       $result =

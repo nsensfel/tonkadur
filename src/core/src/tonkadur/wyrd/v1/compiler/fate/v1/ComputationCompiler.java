@@ -23,10 +23,12 @@ import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 
 import tonkadur.wyrd.v1.compiler.util.AddElement;
+import tonkadur.wyrd.v1.compiler.util.AddElementsOf;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.If;
 import tonkadur.wyrd.v1.compiler.util.Fold;
+import tonkadur.wyrd.v1.compiler.util.FilterLambda;
 import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
@@ -1316,6 +1318,21 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_default
+   (
+      final tonkadur.fate.v1.lang.computation.Default n
+   )
+   throws Throwable
+   {
+      final Register r;
+
+      r = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      init_instructions.add(new Initialize(r.get_address()));
+   }
+
+
+   @Override
    public void visit_access
    (
       final tonkadur.fate.v1.lang.computation.Access n
@@ -2095,7 +2112,50 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler collection_in_cc, collection_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_target_collection().get_visited_by(collection_cc);
+
+      if (collection_cc.has_init())
+      {
+         init_instructions.add(collection_cc.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, collection_cc.get_computation())
+      );
+
+      collection_cc.release_registers(init_instructions);
+
+      collection_in_cc = new ComputationCompiler(compiler);
+
+      n.get_source_collection().get_visited_by(collection_in_cc);
+
+      assimilate(collection_in_cc);
+
+      init_instructions.add
+      (
+         AddElementsOf.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            collection_in_cc.get_address(),
+            result_as_address,
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_target_collection().get_type()
+            ).is_set()
+         )
+      );
    }
 
    @Override
@@ -2638,7 +2698,41 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler lambda_cc, in_collection_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(in_collection_cc);
+
+      if (in_collection_cc.has_init())
+      {
+         init_instructions.add(in_collection_cc.get_init());
+      }
+
+      in_collection_cc.release_registers(init_instructions);
+
+      init_instructions.add
+      (
+         FilterLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            result_as_address
+         )
+      );
    }
 
    @Override

@@ -41,6 +41,7 @@ DECLARE_EVENT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US'event'(US'type')? SE
 DECLARE_TEXT_EFFECT_KW: L_PAREN ('declare'|'define'|'def')US'text'US'effect' SEP+;
 DECLARE_VARIABLE_KW: L_PAREN 'global' SEP+;
 LOCAL_KW: L_PAREN 'local' SEP+;
+DEFAULT_KW: L_PAREN 'default' SEP+;
 DEFINE_SEQUENCE_KW: L_PAREN ('declare'|'define'|'def')US(('seq'('uence')?)|('proc'('edure'?))) SEP+;
 DIVIDE_KW: L_PAREN ('divide'|'/'|'div') SEP+;
 DO_WHILE_KW: L_PAREN ('do'US'while') SEP+;
