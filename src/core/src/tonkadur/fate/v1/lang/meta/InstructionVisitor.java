@@ -14,6 +14,9 @@ public interface InstructionVisitor
    public void visit_add_elements_of (final AddElementsOf n)
    throws Throwable;
 
+   public void visit_remove_elements_of (final RemoveElementsOf n)
+   throws Throwable;
+
    public void visit_assert (final Assert n)
    throws Throwable;
 

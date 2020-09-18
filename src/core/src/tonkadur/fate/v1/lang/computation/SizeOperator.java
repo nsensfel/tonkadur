@@ -66,7 +66,6 @@ public class SizeOperator extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(SizeOperator");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());

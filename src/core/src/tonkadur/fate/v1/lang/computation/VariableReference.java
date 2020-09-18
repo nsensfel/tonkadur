@@ -64,7 +64,6 @@ public class VariableReference extends Reference
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(VariableReference (");
       sb.append(type.get_name());
       sb.append(") ");

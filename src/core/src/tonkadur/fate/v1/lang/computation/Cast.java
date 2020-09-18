@@ -188,7 +188,6 @@ public class Cast extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(Cast (");
       sb.append(type.get_name());
       sb.append(") ");

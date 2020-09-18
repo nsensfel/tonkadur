@@ -56,7 +56,6 @@ public class Free extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(Free ");
       sb.append(value_reference.toString());
 

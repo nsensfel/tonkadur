@@ -110,7 +110,6 @@ public class SwitchValue extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(SwitchValue");
       sb.append(System.lineSeparator());
 

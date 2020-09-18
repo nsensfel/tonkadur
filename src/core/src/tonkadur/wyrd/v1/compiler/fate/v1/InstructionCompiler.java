@@ -42,6 +42,7 @@ import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
 import tonkadur.wyrd.v1.compiler.util.AddElement;
+import tonkadur.wyrd.v1.compiler.util.AddElementsOf;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.If;
@@ -49,6 +50,7 @@ import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.InstructionManager;
 import tonkadur.wyrd.v1.compiler.util.NOP;
 import tonkadur.wyrd.v1.compiler.util.While;
+import tonkadur.wyrd.v1.compiler.util.FilterLambda;
 import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.Clear;
 import tonkadur.wyrd.v1.compiler.util.MapLambda;
@@ -56,6 +58,7 @@ import tonkadur.wyrd.v1.compiler.util.MergeLambda;
 import tonkadur.wyrd.v1.compiler.util.IndexedMapLambda;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
+import tonkadur.wyrd.v1.compiler.util.RemoveElementsOf;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
 import tonkadur.wyrd.v1.compiler.util.ReverseList;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
@@ -97,45 +100,95 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
+   public void visit_remove_elements_of
+   (
+      final tonkadur.fate.v1.lang.instruction.RemoveElementsOf n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler collection_in_cc, collection_cc;
+
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_target_collection().get_visited_by(collection_cc);
+
+      if (collection_cc.has_init())
+      {
+         result.add(collection_cc.get_init());
+      }
+
+      collection_in_cc = new ComputationCompiler(compiler);
+
+      n.get_source_collection().get_visited_by(collection_in_cc);
+
+      if (collection_in_cc.has_init())
+      {
+         result.add(collection_in_cc.get_init());
+      }
+
+      result.add
+      (
+         RemoveElementsOf.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            collection_in_cc.get_address(),
+            collection_cc.get_address(),
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_target_collection().get_type()
+            ).is_set()
+         )
+      );
+
+      collection_cc.release_registers(result);
+      collection_in_cc.release_registers(result);
+   }
+
+   @Override
    public void visit_add_elements_of
    (
       final tonkadur.fate.v1.lang.instruction.AddElementsOf n
    )
    throws Throwable
    {
-      final tonkadur.fate.v1.lang.meta.Instruction as_fate;
+      final ComputationCompiler collection_in_cc, collection_cc;
 
+      collection_cc = new ComputationCompiler(compiler);
 
-      as_fate =
-         new tonkadur.fate.v1.lang.instruction.ForEach
+      n.get_target_collection().get_visited_by(collection_cc);
+
+      if (collection_cc.has_init())
+      {
+         result.add(collection_cc.get_init());
+      }
+
+      collection_in_cc = new ComputationCompiler(compiler);
+
+      n.get_source_collection().get_visited_by(collection_in_cc);
+
+      if (collection_in_cc.has_init())
+      {
+         result.add(collection_in_cc.get_init());
+      }
+
+      result.add
+      (
+         AddElementsOf.generate
          (
-            n.get_origin(),
-            n.get_source_collection(),
-            ".secret var of doom",
-            Collections.singletonList
+            compiler.registers(),
+            compiler.assembler(),
+            collection_in_cc.get_address(),
+            collection_cc.get_address(),
             (
-               tonkadur.fate.v1.lang.instruction.AddElement.build
-               (
-                  n.get_origin(),
-                  new tonkadur.fate.v1.lang.computation.VariableReference
-                  (
-                     n.get_origin(),
-                     new tonkadur.fate.v1.lang.Variable
-                     (
-                        n.get_origin(),
-                        (
-                           (tonkadur.fate.v1.lang.type.CollectionType)
-                           n.get_source_collection().get_type()
-                        ).get_content_type(),
-                        ".secret var of doom"
-                     )
-                  ),
-                  n.get_target_collection()
-               )
-            )
-         );
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_target_collection().get_type()
+            ).is_set()
+         )
+      );
 
-      as_fate.get_visited_by(this);
+      collection_cc.release_registers(result);
+      collection_in_cc.release_registers(result);
    }
 
    @Override
@@ -664,7 +717,39 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler lambda_cc, collection_cc;
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      if (lambda_cc.has_init())
+      {
+         result.add(lambda_cc.get_init());
+      }
+
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(collection_cc);
+
+      if (collection_cc.has_init())
+      {
+         result.add(collection_cc.get_init());
+      }
+
+      result.add
+      (
+         FilterLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            collection_cc.get_address()
+         )
+      );
+
+      lambda_cc.release_registers(result);
+      collection_cc.release_registers(result);
    }
 
    @Override

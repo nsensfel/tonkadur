@@ -98,7 +98,6 @@ public class Constant extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(");
       sb.append(type.get_name());
       sb.append(" Constant ");

@@ -3,53 +3,61 @@ package tonkadur.fate.v1.lang.instruction;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.fate.v1.lang.type.CollectionType;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
-public class SetValue extends Instruction
+public class RemoveElementsOf extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation element;
-   protected final Reference value_reference;
+   protected final Computation other_collection;
+   protected final Reference collection;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected SetValue
+   protected RemoveElementsOf
    (
       final Origin origin,
-      final Computation element,
-      final Reference value_reference
+      final Computation other_collection,
+      final Reference collection
    )
    {
       super(origin);
 
-      this.value_reference = value_reference;
-      this.element = element;
+      this.collection = collection;
+      this.other_collection = other_collection;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static SetValue build
+   public static RemoveElementsOf build
    (
       final Origin origin,
-      final Computation element,
-      final Reference value_reference
+      final Computation other_collection,
+      final Reference collection
    )
    throws ParsingError
    {
-      RecurrentChecks.assert_can_be_used_as(element, value_reference);
+      RecurrentChecks.assert_is_a_collection(collection);
+      RecurrentChecks.assert_is_a_collection(other_collection);
+      RecurrentChecks.assert_can_be_used_as
+      (
+         other_collection.get_origin(),
+         ((CollectionType) other_collection.get_type()).get_content_type(),
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
 
-      return new SetValue(origin, element, value_reference);
+      return new RemoveElementsOf(origin, other_collection, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -57,17 +65,17 @@ public class SetValue extends Instruction
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_set_value(this);
+      iv.visit_remove_elements_of(this);
    }
 
-   public Computation get_value ()
+   public Computation get_source_collection ()
    {
-      return element;
+      return other_collection;
    }
 
-   public Reference get_reference ()
+   public Reference get_target_collection ()
    {
-      return value_reference;
+      return collection;
    }
 
    /**** Misc. ****************************************************************/
@@ -76,19 +84,19 @@ public class SetValue extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(SetValue");
+      sb.append("(RemoveElementsOf");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("element:");
+      sb.append("other_collection:");
       sb.append(System.lineSeparator());
-      sb.append(element.toString());
+      sb.append(other_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("value_reference:");
+      sb.append("collection:");
       sb.append(System.lineSeparator());
-      sb.append(value_reference.toString());
+      sb.append(collection.toString());
 
       sb.append(")");
 

@@ -51,7 +51,6 @@ public class AddressOperator extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append(origin.toString());
       sb.append("(AddressOf ");
       sb.append(referred.get_name());
       sb.append(") ");
