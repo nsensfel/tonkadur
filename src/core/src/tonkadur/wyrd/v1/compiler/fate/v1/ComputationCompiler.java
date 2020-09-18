@@ -31,6 +31,7 @@ import tonkadur.wyrd.v1.compiler.util.Fold;
 import tonkadur.wyrd.v1.compiler.util.FilterLambda;
 import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
+import tonkadur.wyrd.v1.compiler.util.RemoveElementsOf;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
 import tonkadur.wyrd.v1.compiler.util.IndexedMapLambda;
@@ -2101,6 +2102,59 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             element_compiler.get_computation(),
             collection_size.get_value(),
             result_as_address
+         )
+      );
+   }
+
+   @Override
+   public void visit_remove_elements_of
+   (
+      final tonkadur.fate.v1.lang.computation.RemoveElementsOfComputation n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler collection_in_cc, collection_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_target_collection().get_visited_by(collection_cc);
+
+      if (collection_cc.has_init())
+      {
+         init_instructions.add(collection_cc.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, collection_cc.get_computation())
+      );
+
+      collection_cc.release_registers(init_instructions);
+
+      collection_in_cc = new ComputationCompiler(compiler);
+
+      n.get_source_collection().get_visited_by(collection_in_cc);
+
+      assimilate(collection_in_cc);
+
+      init_instructions.add
+      (
+         RemoveElementsOf.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            collection_in_cc.get_address(),
+            result_as_address,
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_target_collection().get_type()
+            ).is_set()
          )
       );
    }
