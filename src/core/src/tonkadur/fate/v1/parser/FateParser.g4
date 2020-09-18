@@ -535,9 +535,9 @@ returns [Instruction result]
    }
 
    | PROMPT_STRING_KW
-         targetv=value WS+
-         min_size=value WS+
-         max_size=value WS+
+         targetv=non_text_value WS+
+         min_size=non_text_value WS+
+         max_size=non_text_value WS+
          paragraph WS*
       R_PAREN
    {
@@ -557,9 +557,9 @@ returns [Instruction result]
    }
 
    | PROMPT_INTEGER_KW
-         targetv=value WS+
-         min_size=value WS+
-         max_size=value WS+
+         targetv=non_text_value WS+
+         min_size=non_text_value WS+
+         max_size=non_text_value WS+
          paragraph WS*
       R_PAREN
    {
@@ -593,7 +593,11 @@ returns [Instruction result]
          );
    }
 
-   | IMP_ADD_AT_KW index=value WS+ element=value WS+ value_reference WS* R_PAREN
+   | IMP_ADD_AT_KW
+         index=non_text_value WS+
+         element=value WS+
+         value_reference WS*
+      R_PAREN
    {
       $result =
          AddElementAt.build
@@ -610,7 +614,7 @@ returns [Instruction result]
    }
 
    | IMP_ADD_ALL_KW
-         sourcev=value WS+
+         sourcev=non_text_value WS+
          target=value_reference WS*
       R_PAREN
    {
@@ -678,7 +682,7 @@ returns [Instruction result]
    }
 
    | IMP_REMOVE_AT_KW
-         value WS+
+         non_text_value WS+
          value_reference WS*
       R_PAREN
    {
@@ -690,7 +694,7 @@ returns [Instruction result]
                ($IMP_REMOVE_AT_KW.getLine()),
                ($IMP_REMOVE_AT_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($value_reference.result)
          );
    }
@@ -773,7 +777,7 @@ returns [Instruction result]
          );
    }
 
-   | IMP_POP_RIGHT_KW value_reference WS+ value WS* R_PAREN
+   | IMP_POP_RIGHT_KW value_reference WS+ non_text_value WS* R_PAREN
    {
       $result =
          PopElement.build
@@ -783,13 +787,13 @@ returns [Instruction result]
                ($IMP_POP_RIGHT_KW.getLine()),
                ($IMP_POP_RIGHT_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($value_reference.result),
             false
          );
    }
 
-   | IMP_POP_LEFT_KW value_reference WS+ value WS* R_PAREN
+   | IMP_POP_LEFT_KW value_reference WS+ non_text_value WS* R_PAREN
    {
       $result =
          PopElement.build
@@ -799,13 +803,13 @@ returns [Instruction result]
                ($IMP_POP_LEFT_KW.getLine()),
                ($IMP_POP_LEFT_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($value_reference.result),
             true
          );
    }
 
-   | IMP_MAP_KW value WS+ value_reference WS* R_PAREN
+   | IMP_MAP_KW non_text_value WS+ value_reference WS* R_PAREN
    {
       $result =
          tonkadur.fate.v1.lang.instruction.Map.build
@@ -815,12 +819,12 @@ returns [Instruction result]
                ($IMP_MAP_KW.getLine()),
                ($IMP_MAP_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($value_reference.result)
          );
    }
 
-   | IMP_INDEXED_MAP_KW value WS+ value_reference WS* R_PAREN
+   | IMP_INDEXED_MAP_KW non_text_value WS+ value_reference WS* R_PAREN
    {
       $result =
          IndexedMap.build
@@ -830,12 +834,16 @@ returns [Instruction result]
                ($IMP_INDEXED_MAP_KW.getLine()),
                ($IMP_INDEXED_MAP_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($value_reference.result)
          );
    }
 
-   | IMP_MERGE_KW fun=value WS+ value_reference WS+ inv1=value WS* R_PAREN
+   | IMP_MERGE_KW
+         fun=non_text_value WS+
+         value_reference WS+
+         inv1=non_text_value WS*
+      R_PAREN
    {
       $result =
          Merge.build
@@ -854,11 +862,11 @@ returns [Instruction result]
    }
 
    | IMP_MERGE_KW
-      fun=value WS+
+      fun=non_text_value WS+
       def0=value WS+
       value_reference WS+
       def1=value WS+
-      inv1=value WS*
+      inv1=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -877,7 +885,11 @@ returns [Instruction result]
          );
    }
 
-   | IMP_SUB_LIST_KW vstart=value WS+ vend=value WS+ value_reference WS* R_PAREN
+   | IMP_SUB_LIST_KW
+         vstart=non_text_value WS+
+         vend=non_text_value WS+
+         value_reference WS*
+      R_PAREN
    {
       $result =
          SubList.build
@@ -893,7 +905,7 @@ returns [Instruction result]
          );
    }
 
-   | IMP_FILTER_KW value WS+ value_reference WS* R_PAREN
+   | IMP_FILTER_KW non_text_value WS+ value_reference WS* R_PAREN
    {
       $result =
          Filter.build
@@ -903,13 +915,13 @@ returns [Instruction result]
                ($IMP_FILTER_KW.getLine()),
                ($IMP_FILTER_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($value_reference.result)
          );
    }
 
    | IMP_PARTITION_KW
-      value WS+
+      non_text_value WS+
       iftrue=value_reference WS+
       iffalse=value_reference WS*
       R_PAREN
@@ -922,13 +934,13 @@ returns [Instruction result]
                ($IMP_PARTITION_KW.getLine()),
                ($IMP_PARTITION_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($iftrue.result),
             ($iffalse.result)
          );
    }
 
-   | IMP_SORT_KW value WS+ value_reference WS* R_PAREN
+   | IMP_SORT_KW non_text_value WS+ value_reference WS* R_PAREN
    {
       $result =
         Sort.build
@@ -938,7 +950,7 @@ returns [Instruction result]
                ($IMP_SORT_KW.getLine()),
                ($IMP_SORT_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($value_reference.result)
          );
    }
@@ -1033,7 +1045,7 @@ returns [Instruction result]
          );
    }
 
-   | WHILE_KW value WS*
+   | WHILE_KW non_text_value WS*
       {
          BREAKABLE_LEVELS++;
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -1058,12 +1070,12 @@ returns [Instruction result]
                ($WHILE_KW.getLine()),
                ($WHILE_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($general_fate_sequence.result)
          );
    }
 
-   | DO_WHILE_KW value WS*
+   | DO_WHILE_KW non_text_value WS*
       {
          BREAKABLE_LEVELS++;
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -1088,7 +1100,7 @@ returns [Instruction result]
                ($DO_WHILE_KW.getLine()),
                ($DO_WHILE_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($general_fate_sequence.result)
          );
    }
@@ -1106,7 +1118,9 @@ returns [Instruction result]
          );
    }
 
-   | FOR_KW pre=general_fate_instr WS * value WS* post=general_fate_instr WS*
+   | FOR_KW pre=general_fate_instr WS*
+      non_text_value WS*
+      post=general_fate_instr WS*
       {
          BREAKABLE_LEVELS++;
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -1130,7 +1144,7 @@ returns [Instruction result]
                ($FOR_KW.getLine()),
                ($FOR_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($pre.result),
             ($general_fate_sequence.result),
             ($post.result)
@@ -1138,7 +1152,7 @@ returns [Instruction result]
    }
 
    | FOR_EACH_KW
-      coll=value WS+ new_reference_name
+      coll=non_text_value WS+ new_reference_name
       {
          final Map<String, Variable> variable_map;
          final Variable new_variable;
@@ -1364,7 +1378,7 @@ returns [Instruction result]
       $result = new SequenceJump(origin, sequence_name, params);
    }
 
-   | ASSERT_KW value WS+ paragraph WS* R_PAREN
+   | ASSERT_KW non_text_value WS+ paragraph WS* R_PAREN
    {
       $result =
          Assert.build
@@ -1374,12 +1388,12 @@ returns [Instruction result]
                ($ASSERT_KW.getLine()),
                ($ASSERT_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($paragraph.result)
          );
    }
 
-   | IF_KW value WS*
+   | IF_KW non_text_value WS*
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
       }
@@ -1400,13 +1414,13 @@ returns [Instruction result]
                ($IF_KW.getLine()),
                ($IF_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($general_fate_instr.result)
          );
    }
 
    | IF_ELSE_KW
-         value
+         non_text_value
          {
             HIERARCHICAL_VARIABLES.push(new ArrayList());
          }
@@ -1437,7 +1451,7 @@ returns [Instruction result]
                ($IF_ELSE_KW.getLine()),
                ($IF_ELSE_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($if_true.result),
             ($if_false.result)
          );
@@ -1457,7 +1471,10 @@ returns [Instruction result]
          );
    }
 
-   | SWITCH_KW value WS* instr_cond_list WS* general_fate_instr WS *R_PAREN
+   | SWITCH_KW non_text_value WS*
+         instr_cond_list WS*
+         general_fate_instr WS*
+      R_PAREN
    {
       $result =
          SwitchInstruction.build
@@ -1467,7 +1484,7 @@ returns [Instruction result]
                ($SWITCH_KW.getLine()),
                ($SWITCH_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($instr_cond_list.result),
             ($general_fate_instr.result)
          );
@@ -1548,6 +1565,40 @@ returns [List<Cons<Computation, Instruction>> result]
 @init
 {
    $result = new ArrayList<Cons<Computation, Instruction>>();
+   /* TODO: resolve grammar collisions */
+}
+:
+   (
+      L_PAREN WS* non_text_value WS+
+         {
+            HIERARCHICAL_VARIABLES.push(new ArrayList());
+         }
+         general_fate_instr
+         {
+            for (final String s: HIERARCHICAL_VARIABLES.pop())
+            {
+               LOCAL_VARIABLES.peekFirst().remove(s);
+            }
+         }
+         WS* R_PAREN
+      {
+         $result.add
+         (
+            new Cons(($non_text_value.result), ($general_fate_instr.result))
+         );
+      }
+      WS*
+   )+
+   {
+   }
+;
+
+instr_switch_list
+returns [List<Cons<Computation, Instruction>> result]
+@init
+{
+   $result = new ArrayList<Cons<Computation, Instruction>>();
+   /* TODO: resolve grammar collisions */
 }
 :
    (
@@ -1564,7 +1615,10 @@ returns [List<Cons<Computation, Instruction>> result]
          }
          WS* R_PAREN
       {
-         $result.add(new Cons(($value.result), ($general_fate_instr.result)));
+         $result.add
+         (
+            new Cons(($value.result), ($general_fate_instr.result))
+         );
       }
       WS*
    )+
@@ -1620,7 +1674,7 @@ returns [Instruction result]
          );
    }
 
-   | IF_KW value WS+ player_choice WS* R_PAREN
+   | IF_KW non_text_value WS+ player_choice WS* R_PAREN
    {
       $result =
          IfInstruction.build
@@ -1630,13 +1684,13 @@ returns [Instruction result]
                ($IF_KW.getLine()),
                ($IF_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($player_choice.result)
          );
    }
 
    | IF_ELSE_KW
-      value WS+
+      non_text_value WS+
       if_true=player_choice WS+
       if_false=player_choice WS*
    R_PAREN
@@ -1649,7 +1703,7 @@ returns [Instruction result]
                ($IF_ELSE_KW.getLine()),
                ($IF_ELSE_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             ($if_true.result),
             ($if_false.result)
          );
@@ -1669,7 +1723,7 @@ returns [Instruction result]
          );
    }
 
-   | SWITCH_KW value WS* player_choice_cond_list WS+ player_choice WS* R_PAREN
+   | SWITCH_KW value WS* player_choice_switch_list WS+ player_choice WS* R_PAREN
    {
       $result =
          SwitchInstruction.build
@@ -1680,7 +1734,7 @@ returns [Instruction result]
                ($SWITCH_KW.getCharPositionInLine())
             ),
             ($value.result),
-            ($player_choice_cond_list.result),
+            ($player_choice_switch_list.result),
             ($player_choice.result)
          );
    }
@@ -1794,6 +1848,38 @@ catch [final Throwable e]
 }
 
 player_choice_cond_list
+returns [List<Cons<Computation, Instruction>> result]
+@init
+{
+   $result = new ArrayList<Cons<Computation, Instruction>>();
+}
+:
+   (
+      L_PAREN WS* non_text_value WS+ player_choice WS* R_PAREN
+      {
+         $result.add
+         (
+            new Cons(($non_text_value.result), ($player_choice.result))
+         );
+      }
+      WS*
+   )+
+   {
+   }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
+
+player_choice_switch_list
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
@@ -2425,7 +2511,7 @@ returns [Computation result]:
          );
    }
 
-   | AND_KW value_list WS* R_PAREN
+   | AND_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2436,11 +2522,11 @@ returns [Computation result]:
                ($AND_KW.getCharPositionInLine())
             ),
             Operator.AND,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | OR_KW value_list WS* R_PAREN
+   | OR_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2451,11 +2537,11 @@ returns [Computation result]:
                ($OR_KW.getCharPositionInLine())
             ),
             Operator.OR,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | ONE_IN_KW value_list WS* R_PAREN
+   | ONE_IN_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2466,11 +2552,11 @@ returns [Computation result]:
                ($ONE_IN_KW.getCharPositionInLine())
             ),
             Operator.ONE_IN,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | NOT_KW value_list WS* R_PAREN
+   | NOT_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2481,11 +2567,11 @@ returns [Computation result]:
                ($NOT_KW.getCharPositionInLine())
             ),
             Operator.NOT,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | IMPLIES_KW value_list WS* R_PAREN
+   | IMPLIES_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2496,11 +2582,11 @@ returns [Computation result]:
                ($IMPLIES_KW.getCharPositionInLine())
             ),
             Operator.IMPLIES,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | LOWER_THAN_KW value_list WS* R_PAREN
+   | LOWER_THAN_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2511,11 +2597,11 @@ returns [Computation result]:
                ($LOWER_THAN_KW.getCharPositionInLine())
             ),
             Operator.LOWER_THAN,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | LOWER_EQUAL_THAN_KW value_list WS* R_PAREN
+   | LOWER_EQUAL_THAN_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2526,7 +2612,7 @@ returns [Computation result]:
                ($LOWER_EQUAL_THAN_KW.getCharPositionInLine())
             ),
             Operator.LOWER_EQUAL_THAN,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
@@ -2545,7 +2631,7 @@ returns [Computation result]:
          );
    }
 
-   | GREATER_EQUAL_THAN_KW value_list WS* R_PAREN
+   | GREATER_EQUAL_THAN_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2556,11 +2642,11 @@ returns [Computation result]:
                ($GREATER_EQUAL_THAN_KW.getCharPositionInLine())
             ),
             Operator.GREATER_EQUAL_THAN,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | GREATER_THAN_KW value_list WS* R_PAREN
+   | GREATER_THAN_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2571,7 +2657,7 @@ returns [Computation result]:
                ($GREATER_THAN_KW.getCharPositionInLine())
             ),
             Operator.GREATER_THAN,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
@@ -2666,7 +2752,7 @@ catch [final Throwable e]
 
 math_expression
 returns [Computation result]:
-   PLUS_KW value_list WS* R_PAREN
+   PLUS_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2677,11 +2763,11 @@ returns [Computation result]:
                ($PLUS_KW.getCharPositionInLine())
             ),
             Operator.PLUS,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | MINUS_KW value_list WS* R_PAREN
+   | MINUS_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2692,11 +2778,11 @@ returns [Computation result]:
                ($MINUS_KW.getCharPositionInLine())
             ),
             Operator.MINUS,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | MIN_KW value_list WS* R_PAREN
+   | MIN_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2707,11 +2793,11 @@ returns [Computation result]:
                ($MIN_KW.getCharPositionInLine())
             ),
             Operator.MIN,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | MAX_KW value_list WS* R_PAREN
+   | MAX_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2722,11 +2808,11 @@ returns [Computation result]:
                ($MAX_KW.getCharPositionInLine())
             ),
             Operator.MAX,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | CLAMP_KW value_list WS* R_PAREN
+   | CLAMP_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2737,11 +2823,11 @@ returns [Computation result]:
                ($CLAMP_KW.getCharPositionInLine())
             ),
             Operator.CLAMP,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | ABS_KW value_list WS* R_PAREN
+   | ABS_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2752,11 +2838,11 @@ returns [Computation result]:
                ($ABS_KW.getCharPositionInLine())
             ),
             Operator.ABS,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | MODULO_KW value_list WS* R_PAREN
+   | MODULO_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2767,11 +2853,11 @@ returns [Computation result]:
                ($MODULO_KW.getCharPositionInLine())
             ),
             Operator.MODULO,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | TIMES_KW value_list WS* R_PAREN
+   | TIMES_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2782,11 +2868,11 @@ returns [Computation result]:
                ($TIMES_KW.getCharPositionInLine())
             ),
             Operator.TIMES,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | DIVIDE_KW value_list WS* R_PAREN
+   | DIVIDE_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2797,11 +2883,11 @@ returns [Computation result]:
                ($DIVIDE_KW.getCharPositionInLine())
             ),
             Operator.DIVIDE,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | POWER_KW value_list WS* R_PAREN
+   | POWER_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2812,11 +2898,11 @@ returns [Computation result]:
                ($POWER_KW.getCharPositionInLine())
             ),
             Operator.POWER,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
-   | RANDOM_KW value_list WS* R_PAREN
+   | RANDOM_KW non_text_value_list WS* R_PAREN
    {
       $result =
          Operation.build
@@ -2827,7 +2913,7 @@ returns [Computation result]:
                ($RANDOM_KW.getCharPositionInLine())
             ),
             Operator.RANDOM,
-            ($value_list.result)
+            ($non_text_value_list.result)
          );
    }
 
@@ -2988,7 +3074,10 @@ catch [final Throwable e]
 non_text_value
 returns [Computation result]
 :
-   IF_ELSE_KW cond=value WS+ if_true=value WS+ if_false=value WS* R_PAREN
+   IF_ELSE_KW cond=non_text_value WS+
+      if_true=value WS+
+      if_false=value WS*
+   R_PAREN
    {
       $result =
          IfElseValue.build
@@ -3019,7 +3108,7 @@ returns [Computation result]
          );
    }
 
-   | CAR_KW value WS* R_PAREN
+   | CAR_KW non_text_value WS* R_PAREN
    {
       $result =
          CarCdr.build
@@ -3029,12 +3118,12 @@ returns [Computation result]
                ($CAR_KW.getLine()),
                ($CAR_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             true
          );
    }
 
-   | CDR_KW value WS* R_PAREN
+   | CDR_KW non_text_value WS* R_PAREN
    {
       $result =
          CarCdr.build
@@ -3044,12 +3133,16 @@ returns [Computation result]
                ($CDR_KW.getLine()),
                ($CDR_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             false
          );
    }
 
-   | FOLDL_KW fun=value WS+ init=value WS+ inr=value_reference WS* R_PAREN
+   | FOLDL_KW
+         fun=non_text_value WS+
+         init=value WS+
+         inr=value_reference WS*
+      R_PAREN
    {
       $result =
          Fold.build
@@ -3066,7 +3159,11 @@ returns [Computation result]
          );
    }
 
-   | FOLDR_KW fun=value WS+ init=value WS+ inr=value_reference WS* R_PAREN
+   | FOLDR_KW
+         fun=non_text_value WS+
+         init=value WS+
+         inr=value_reference WS*
+      R_PAREN
    {
       $result =
          Fold.build
@@ -3084,9 +3181,9 @@ returns [Computation result]
    }
 
    | RANGE_KW
-      vstart=value WS+
-      vend=value WS+
-      inc=value WS*
+      vstart=non_text_value WS+
+      vend=non_text_value WS+
+      inc=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3131,7 +3228,11 @@ returns [Computation result]
          );
    }
 
-   | SWITCH_KW target=value WS* value_cond_list WS* default_val=value WS* R_PAREN
+   | SWITCH_KW
+         target=value WS*
+         value_switch_list WS*
+         default_val=value WS*
+      R_PAREN
    {
       $result =
          SwitchValue.build
@@ -3142,7 +3243,7 @@ returns [Computation result]
                ($SWITCH_KW.getCharPositionInLine())
             ),
             ($target.result),
-            ($value_cond_list.result),
+            ($value_switch_list.result),
             ($default_val.result)
          );
    }
@@ -3333,7 +3434,7 @@ returns [Computation result]
          );
    }
 
-   | ADD_KW val=value WS+ coll=value WS* R_PAREN
+   | ADD_KW val=value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
          AddElementComputation.build
@@ -3348,7 +3449,11 @@ returns [Computation result]
          );
    }
 
-   | ADD_AT_KW index=value WS+ element=value WS+ coll=value WS* R_PAREN
+   | ADD_AT_KW
+         index=non_text_value WS+
+         element=value WS+
+         coll=non_text_value WS*
+      R_PAREN
    {
       $result =
          AddElementAtComputation.build
@@ -3365,8 +3470,8 @@ returns [Computation result]
    }
 
    | ADD_ALL_KW
-         sourcev=value WS+
-         targetv=value WS*
+         sourcev=non_text_value WS+
+         targetv=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3382,7 +3487,7 @@ returns [Computation result]
          );
    }
 
-   | REMOVE_ONE_KW val=value WS+ coll=value WS* R_PAREN
+   | REMOVE_ONE_KW val=value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
          RemoveElementComputation.build
@@ -3397,7 +3502,7 @@ returns [Computation result]
          );
    }
 
-   | REMOVE_AT_KW val=value WS+ coll=value WS* R_PAREN
+   | REMOVE_AT_KW val=value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
          RemoveElementAtComputation.build
@@ -3412,7 +3517,7 @@ returns [Computation result]
          );
    }
 
-   | REMOVE_ALL_KW val=value WS+ coll=value WS* R_PAREN
+   | REMOVE_ALL_KW val=value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
          RemoveAllOfElementComputation.build
@@ -3427,7 +3532,7 @@ returns [Computation result]
          );
    }
 
-   | REVERSE_KW value WS* R_PAREN
+   | REVERSE_KW non_text_value WS* R_PAREN
    {
       $result =
          ReverseListComputation.build
@@ -3437,11 +3542,11 @@ returns [Computation result]
                ($REVERSE_KW.getLine()),
                ($REVERSE_KW.getCharPositionInLine())
             ),
-            ($value.result)
+            ($non_text_value.result)
          );
    }
 
-   | PUSH_LEFT_KW val=value WS+ coll=value WS* R_PAREN
+   | PUSH_LEFT_KW val=value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
          PushElementComputation.build
@@ -3457,7 +3562,7 @@ returns [Computation result]
          );
    }
 
-   | PUSH_RIGHT_KW val=value WS+ coll=value WS* R_PAREN
+   | PUSH_RIGHT_KW val=value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
          PushElementComputation.build
@@ -3473,7 +3578,7 @@ returns [Computation result]
          );
    }
 
-   | POP_LEFT_KW value WS* R_PAREN
+   | POP_LEFT_KW non_text_value WS* R_PAREN
    {
       $result =
          PopElementComputation.build
@@ -3483,12 +3588,12 @@ returns [Computation result]
                ($POP_LEFT_KW.getLine()),
                ($POP_LEFT_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             true
          );
    }
 
-   | POP_RIGHT_KW value WS* R_PAREN
+   | POP_RIGHT_KW non_text_value WS* R_PAREN
    {
       $result =
          PopElementComputation.build
@@ -3498,12 +3603,12 @@ returns [Computation result]
                ($POP_RIGHT_KW.getLine()),
                ($POP_RIGHT_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             false
          );
    }
 
-   | MAP_KW fun=value WS+ inv=value WS* R_PAREN
+   | MAP_KW fun=non_text_value WS+ inv=non_text_value WS* R_PAREN
    {
       $result =
          tonkadur.fate.v1.lang.computation.MapComputation.build
@@ -3518,7 +3623,7 @@ returns [Computation result]
          );
    }
 
-   | INDEXED_MAP_KW fun=value WS+ inv=value WS* R_PAREN
+   | INDEXED_MAP_KW fun=non_text_value WS+ inv=non_text_value WS* R_PAREN
    {
       $result =
          IndexedMapComputation.build
@@ -3533,7 +3638,11 @@ returns [Computation result]
          );
    }
 
-   | MERGE_TO_LIST_KW fun=value WS+ inv0=value WS+ inv1=value WS* R_PAREN
+   | MERGE_TO_LIST_KW
+         fun=non_text_value WS+
+         inv0=non_text_value WS+
+         inv1=non_text_value WS*
+      R_PAREN
    {
       $result =
          MergeComputation.build
@@ -3553,11 +3662,11 @@ returns [Computation result]
    }
 
    | MERGE_TO_LIST_KW
-         fun=value WS+
+         fun=non_text_value WS+
          def0=value WS+
-         inv0=value WS+
+         inv0=non_text_value WS+
          def1=value WS+
-         inv1=value WS*
+         inv1=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3578,9 +3687,9 @@ returns [Computation result]
    }
 
    | MERGE_TO_SET_KW
-         fun=value WS+
-         inv0=value WS+
-         inv1=value WS*
+         fun=non_text_value WS+
+         inv0=non_text_value WS+
+         inv1=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3601,11 +3710,11 @@ returns [Computation result]
    }
 
    | MERGE_TO_SET_KW
-         fun=value WS+
+         fun=non_text_value WS+
          def0=value WS+
-         inv0=value WS+
+         inv0=non_text_value WS+
          def1=value WS+
-         inv1=value WS*
+         inv1=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3626,9 +3735,9 @@ returns [Computation result]
    }
 
    | SUB_LIST_KW
-      vstart=value WS+
-      vend=value WS+
-      inv=value WS*
+      vstart=non_text_value WS+
+      vend=non_text_value WS+
+      inv=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3645,7 +3754,7 @@ returns [Computation result]
          );
    }
 
-   | FILTER_KW fun=value WS+ coll=value WS* R_PAREN
+   | FILTER_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
          FilterComputation.build
@@ -3660,10 +3769,7 @@ returns [Computation result]
          );
    }
 
-   | PARTITION_KW
-      fun=value WS+
-      coll=value WS*
-      R_PAREN
+   | PARTITION_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
         PartitionComputation.build
@@ -3678,7 +3784,7 @@ returns [Computation result]
          );
    }
 
-   | SORT_KW fun=value WS+ coll=value WS* R_PAREN
+   | SORT_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
         SortComputation.build
@@ -3694,7 +3800,7 @@ returns [Computation result]
    }
 
 
-   | SHUFFLE_KW value WS* R_PAREN
+   | SHUFFLE_KW non_text_value WS* R_PAREN
    {
       $result =
         ShuffleComputation.build
@@ -3704,11 +3810,11 @@ returns [Computation result]
                ($SHUFFLE_KW.getLine()),
                ($SHUFFLE_KW.getCharPositionInLine())
             ),
-            ($value.result)
+            ($non_text_value.result)
          );
    }
 
-   | SET_FIELDS_KW value WS* field_value_list WS* R_PAREN
+   | SET_FIELDS_KW non_text_value WS* field_value_list WS* R_PAREN
    {
       /*
        * A bit of a lazy solution: build field references, then extract the data
@@ -3730,7 +3836,7 @@ returns [Computation result]
             FieldReference.build
             (
                entry.get_car(),
-               ($value.result),
+               ($non_text_value.result),
                entry.get_cdr().get_car()
             );
 
@@ -3749,7 +3855,7 @@ returns [Computation result]
                ($SET_FIELDS_KW.getLine()),
                ($SET_FIELDS_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($non_text_value.result),
             assignments
          );
    }
@@ -3757,6 +3863,57 @@ returns [Computation result]
    | value_reference
    {
       $result = ($value_reference.result);
+   }
+
+   | WORD
+   {
+      final Origin target_var_origin;
+      Variable target_var;
+      final String[] subrefs;
+
+      subrefs = ($WORD.text).split("\\.");
+
+      target_var_origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      target_var = LOCAL_VARIABLES.peekFirst().get(subrefs[0]);
+
+      if (target_var == null)
+      {
+         target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
+      }
+
+      $result =
+         new VariableReference
+         (
+            CONTEXT.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            target_var
+         );
+
+      if (subrefs.length > 1)
+      {
+         final List<String> subrefs_list;
+
+         subrefs_list = new ArrayList(Arrays.asList(subrefs));
+
+         subrefs_list.remove(0);
+
+         $result =
+            FieldReference.build
+            (
+               target_var_origin,
+               ($result),
+               subrefs_list
+            );
+      }
    }
 ;
 catch [final Throwable e]
@@ -3774,7 +3931,7 @@ catch [final Throwable e]
 value_reference
 returns [Reference result]
 :
-   AT_KW value_reference WS* R_PAREN
+   AT_KW non_text_value WS* R_PAREN
    {
       $result =
          AtReference.build
@@ -3784,7 +3941,7 @@ returns [Reference result]
                ($AT_KW.getLine()),
                ($AT_KW.getCharPositionInLine())
             ),
-            ($value_reference.result)
+            ($non_text_value.result)
          );
    }
 
@@ -3889,6 +4046,23 @@ returns [List<Cons<Computation, Computation>> result]
 }
 :
    (
+      L_PAREN WS* c=non_text_value WS+ v=value WS* R_PAREN WS*
+      {
+         $result.add(new Cons(($c.result), ($v.result)));
+      }
+   )+
+   {
+   }
+;
+
+value_switch_list
+returns [List<Cons<Computation, Computation>> result]
+@init
+{
+   $result = new ArrayList<Cons<Computation, Computation>>();
+}
+:
+   (
       L_PAREN WS* c=value WS+ v=value WS* R_PAREN WS*
       {
          $result.add(new Cons(($c.result), ($v.result)));
@@ -3915,6 +4089,29 @@ returns [List<Computation> result]
       value
       {
          ($result).add(($value.result));
+      }
+   )*
+   {
+   }
+;
+
+non_text_value_list
+returns [List<Computation> result]
+@init
+{
+   $result = new ArrayList<Computation>();
+}
+:
+   (
+      non_text_value
+      {
+         ($result).add(($non_text_value.result));
+      }
+   )*
+   (WS+
+      non_text_value
+      {
+         ($result).add(($non_text_value.result));
       }
    )*
    {

@@ -97,6 +97,9 @@ public interface ComputationVisitor
    public void visit_add_elements_of (final AddElementsOfComputation n)
    throws Throwable;
 
+   public void visit_remove_elements_of (final RemoveElementsOfComputation n)
+   throws Throwable;
+
    public void visit_map (final MapComputation n)
    throws Throwable;
 

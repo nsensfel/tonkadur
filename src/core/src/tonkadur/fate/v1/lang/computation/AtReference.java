@@ -13,6 +13,7 @@ import tonkadur.fate.v1.lang.Variable;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.type.PointerType;
 import tonkadur.fate.v1.lang.type.Type;
@@ -22,7 +23,7 @@ public class AtReference extends Reference
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference parent;
+   protected final Computation parent;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -31,10 +32,10 @@ public class AtReference extends Reference
    (
       final Origin origin,
       final Type reported_type,
-      final Reference parent
+      final Computation parent
    )
    {
-      super(origin, reported_type, ("(At " + parent.get_name() + ")"));
+      super(origin, reported_type, ("(At " + parent.toString() + ")"));
 
       this.parent = parent;
    }
@@ -47,7 +48,7 @@ public class AtReference extends Reference
    public static AtReference build
    (
       final Origin origin,
-      final Reference parent
+      final Computation parent
    )
    throws
       InvalidTypeException
@@ -64,8 +65,7 @@ public class AtReference extends Reference
             (
                origin,
                current_type,
-               Collections.singleton(Type.REF),
-               parent.get_name()
+               Collections.singleton(Type.REF)
             )
          );
 
@@ -87,7 +87,7 @@ public class AtReference extends Reference
       cv.visit_at_reference(this);
    }
 
-   public Reference get_parent ()
+   public Computation get_parent ()
    {
       return parent;
    }
@@ -101,7 +101,7 @@ public class AtReference extends Reference
       sb.append("(AtReference (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(parent.get_name());
+      sb.append(parent.toString());
       sb.append(")");
 
       return sb.toString();

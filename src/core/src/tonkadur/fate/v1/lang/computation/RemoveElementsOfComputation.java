@@ -9,7 +9,7 @@ import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
-public class AddElementsOfComputation extends Computation
+public class RemoveElementsOfComputation extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -21,7 +21,7 @@ public class AddElementsOfComputation extends Computation
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected AddElementsOfComputation
+   protected RemoveElementsOfComputation
    (
       final Origin origin,
       final Computation other_collection,
@@ -38,7 +38,7 @@ public class AddElementsOfComputation extends Computation
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static AddElementsOfComputation build
+   public static RemoveElementsOfComputation build
    (
       final Origin origin,
       final Computation other_collection,
@@ -55,7 +55,8 @@ public class AddElementsOfComputation extends Computation
          ((CollectionType) collection.get_type()).get_content_type()
       );
 
-      return new AddElementsOfComputation(origin, other_collection, collection);
+      return
+         new RemoveElementsOfComputation(origin, other_collection, collection);
    }
 
    /**** Accessors ************************************************************/
@@ -63,7 +64,7 @@ public class AddElementsOfComputation extends Computation
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_add_elements_of(this);
+      cv.visit_remove_elements_of(this);
    }
 
    public Computation get_source_collection ()
@@ -82,7 +83,7 @@ public class AddElementsOfComputation extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(AddElementsOf");
+      sb.append("(RemoveElementsOf");
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
