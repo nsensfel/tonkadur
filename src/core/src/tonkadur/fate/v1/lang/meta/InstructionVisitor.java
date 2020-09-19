@@ -56,13 +56,22 @@ public interface InstructionVisitor
    public void visit_merge (final Merge n)
    throws Throwable;
 
+   public void visit_indexed_merge (final IndexedMerge n)
+   throws Throwable;
+
    public void visit_filter (final Filter n)
+   throws Throwable;
+
+   public void visit_indexed_filter (final IndexedFilter n)
    throws Throwable;
 
    public void visit_sublist (final SubList n)
    throws Throwable;
 
    public void visit_partition (final Partition n)
+   throws Throwable;
+
+   public void visit_indexed_partition (final IndexedPartition n)
    throws Throwable;
 
    public void visit_sort (final Sort n)

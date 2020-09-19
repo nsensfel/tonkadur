@@ -924,6 +924,49 @@ returns [Instruction result]
          );
    }
 
+   | IMP_INDEXED_MERGE_KW
+         fun=non_text_value WS+
+         value_reference WS+
+         inv1=non_text_value WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMerge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_INDEXED_MERGE_KW.getLine()),
+               ($IMP_INDEXED_MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($value_reference.result),
+            ($inv1.result),
+            new ArrayList()
+         );
+   }
+
+   | IMP_INDEXED_MERGE_KW
+         fun=non_text_value WS+
+         value_reference WS+
+         inv1=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMerge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_INDEXED_MERGE_KW.getLine()),
+               ($IMP_INDEXED_MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($value_reference.result),
+            ($inv1.result),
+            ($value_list.result)
+         );
+   }
+
    | IMP_MERGE_KW
       fun=non_text_value WS+
       def0=value WS+
@@ -1027,6 +1070,42 @@ returns [Instruction result]
          );
    }
 
+   | IMP_INDEXED_FILTER_KW non_text_value WS+ value_reference WS* R_PAREN
+   {
+      $result =
+         IndexedFilter.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_INDEXED_FILTER_KW.getLine()),
+               ($IMP_INDEXED_FILTER_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($value_reference.result),
+            new ArrayList()
+         );
+   }
+
+   | IMP_INDEXED_FILTER_KW
+         non_text_value WS+
+         value_reference WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedFilter.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_INDEXED_FILTER_KW.getLine()),
+               ($IMP_INDEXED_FILTER_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($value_reference.result),
+            ($value_list.result)
+         );
+   }
+
    | IMP_PARTITION_KW
       non_text_value WS+
       iftrue=value_reference WS+
@@ -1034,7 +1113,7 @@ returns [Instruction result]
       R_PAREN
    {
       $result =
-        Partition.build
+         Partition.build
          (
             CONTEXT.get_origin_at
             (
@@ -1056,12 +1135,55 @@ returns [Instruction result]
       R_PAREN
    {
       $result =
-        Partition.build
+         Partition.build
          (
             CONTEXT.get_origin_at
             (
                ($IMP_PARTITION_KW.getLine()),
                ($IMP_PARTITION_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($iftrue.result),
+            ($iffalse.result),
+            ($value_list.result)
+         );
+   }
+
+   | IMP_INDEXED_PARTITION_KW
+      non_text_value WS+
+      iftrue=value_reference WS+
+      iffalse=value_reference WS*
+      R_PAREN
+   {
+      $result =
+         IndexedPartition.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_INDEXED_PARTITION_KW.getLine()),
+               ($IMP_INDEXED_PARTITION_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($iftrue.result),
+            ($iffalse.result),
+            new ArrayList()
+         );
+   }
+
+   | IMP_INDEXED_PARTITION_KW
+      non_text_value WS+
+      iftrue=value_reference WS+
+      iffalse=value_reference WS+
+      value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedPartition.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_INDEXED_PARTITION_KW.getLine()),
+               ($IMP_INDEXED_PARTITION_KW.getCharPositionInLine())
             ),
             ($non_text_value.result),
             ($iftrue.result),
@@ -1089,7 +1211,7 @@ returns [Instruction result]
    | IMP_SORT_KW non_text_value WS+ value_reference WS+ value_list WS* R_PAREN
    {
       $result =
-        Sort.build
+         Sort.build
          (
             CONTEXT.get_origin_at
             (
@@ -1106,7 +1228,7 @@ returns [Instruction result]
    | IMP_SHUFFLE_KW value_reference WS* R_PAREN
    {
       $result =
-        Shuffle.build
+         Shuffle.build
          (
             CONTEXT.get_origin_at
             (
@@ -3977,6 +4099,51 @@ returns [Computation result]
          );
    }
 
+   | INDEXED_MERGE_TO_LIST_KW
+         fun=non_text_value WS+
+         inv0=non_text_value WS+
+         inv1=non_text_value WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_MERGE_TO_LIST_KW.getLine()),
+               ($INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($inv1.result),
+            false,
+            new ArrayList()
+         );
+   }
+
+   | INDEXED_MERGE_TO_LIST_KW
+         fun=non_text_value WS+
+         inv0=non_text_value WS+
+         inv1=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_MERGE_TO_LIST_KW.getLine()),
+               ($INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($inv1.result),
+            false,
+            ($value_list.result)
+         );
+   }
+
    | MERGE_TO_LIST_KW
          fun=non_text_value WS+
          inv0=non_text_value WS+
@@ -4075,6 +4242,51 @@ returns [Computation result]
             ($inv1.result),
             ($def1.result),
             false,
+            ($value_list.result)
+         );
+   }
+
+   | INDEXED_MERGE_TO_SET_KW
+         fun=non_text_value WS+
+         inv0=non_text_value WS+
+         inv1=non_text_value WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_MERGE_TO_SET_KW.getLine()),
+               ($INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($inv1.result),
+            true,
+            new ArrayList()
+         );
+   }
+
+   | INDEXED_MERGE_TO_SET_KW
+         fun=non_text_value WS+
+         inv0=non_text_value WS+
+         inv1=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_MERGE_TO_SET_KW.getLine()),
+               ($INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($inv1.result),
+            true,
             ($value_list.result)
          );
    }
@@ -4273,10 +4485,46 @@ returns [Computation result]
          );
    }
 
+   | INDEXED_PARTITION_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
+   {
+      $result =
+         IndexedPartitionComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_PARTITION_KW.getLine()),
+               ($INDEXED_PARTITION_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($coll.result),
+            new ArrayList()
+         );
+   }
+
+   | INDEXED_PARTITION_KW
+         fun=non_text_value WS+
+         coll=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedPartitionComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_PARTITION_KW.getLine()),
+               ($INDEXED_PARTITION_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($coll.result),
+            ($value_list.result)
+         );
+   }
+
    | SORT_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =
-        SortComputation.build
+         SortComputation.build
          (
             CONTEXT.get_origin_at
             (
@@ -4296,7 +4544,7 @@ returns [Computation result]
       R_PAREN
    {
       $result =
-        SortComputation.build
+         SortComputation.build
          (
             CONTEXT.get_origin_at
             (

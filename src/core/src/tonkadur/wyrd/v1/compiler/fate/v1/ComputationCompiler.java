@@ -29,6 +29,7 @@ import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.If;
 import tonkadur.wyrd.v1.compiler.util.Fold;
 import tonkadur.wyrd.v1.compiler.util.FilterLambda;
+import tonkadur.wyrd.v1.compiler.util.IndexedFilterLambda;
 import tonkadur.wyrd.v1.compiler.util.Shuffle;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveElementsOf;
@@ -36,8 +37,11 @@ import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
 import tonkadur.wyrd.v1.compiler.util.IndexedMapLambda;
 import tonkadur.wyrd.v1.compiler.util.PartitionLambda;
+import tonkadur.wyrd.v1.compiler.util.IndexedPartitionLambda;
 import tonkadur.wyrd.v1.compiler.util.MapLambda;
+import tonkadur.wyrd.v1.compiler.util.PopElement;
 import tonkadur.wyrd.v1.compiler.util.MergeLambda;
+import tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
 import tonkadur.wyrd.v1.compiler.util.ReverseList;
 import tonkadur.wyrd.v1.compiler.util.CreateCons;
@@ -1929,7 +1933,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      final Address car_addr, cdr_addr;
       final ComputationCompiler car_compiler, cdr_compiler;
       final Register result;
 
@@ -2722,6 +2725,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
+      /* TODO: handle the default values if there are any. */
       final List<Computation> params;
       final ComputationCompiler lambda_cc;
       final ComputationCompiler in_collection_a_cc, in_collection_b_cc;
@@ -2775,6 +2779,79 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       init_instructions.add
       (
          MergeLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            in_collection_a_cc.get_address(),
+            in_collection_b_cc.get_address(),
+            result_as_address,
+            n.to_set(),
+            params
+         )
+      );
+   }
+
+   @Override
+   public void visit_indexed_merge
+   (
+      final tonkadur.fate.v1.lang.computation.IndexedMergeComputation n
+   )
+   throws Throwable
+   {
+      final List<Computation> params;
+      final ComputationCompiler lambda_cc;
+      final ComputationCompiler in_collection_a_cc, in_collection_b_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_a_cc = new ComputationCompiler(compiler);
+
+      n.get_collection_in_a().get_visited_by(in_collection_a_cc);
+
+      assimilate(in_collection_a_cc);
+
+      in_collection_b_cc = new ComputationCompiler(compiler);
+
+      n.get_collection_in_b().get_visited_by(in_collection_b_cc);
+
+      assimilate(in_collection_b_cc);
+
+      init_instructions.add
+      (
+         IndexedMergeLambda.generate
          (
             compiler.registers(),
             compiler.assembler(),
@@ -2900,6 +2977,107 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_indexed_partition
+   (
+      final tonkadur.fate.v1.lang.computation.IndexedPartitionComputation n
+   )
+   throws Throwable
+   {
+      final List<Computation> params;
+      final ComputationCompiler lambda_cc, in_collection_cc;
+      final Address car_addr, cdr_addr;
+      final Register result;
+
+      result = reserve(DictType.WILD);
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(in_collection_cc);
+
+      if (in_collection_cc.has_init())
+      {
+         init_instructions.add(in_collection_cc.get_init());
+      }
+
+      car_addr =
+         new RelativeAddress
+         (
+            result_as_address,
+            new Constant(Type.STRING, "0"),
+            in_collection_cc.get_computation().get_type()
+         );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            car_addr,
+            in_collection_cc.get_computation()
+         )
+      );
+
+      cdr_addr =
+         new RelativeAddress
+         (
+            result_as_address,
+            new Constant(Type.STRING, "1"),
+            in_collection_cc.get_computation().get_type()
+         );
+
+      in_collection_cc.release_registers(init_instructions);
+
+      init_instructions.add(new Initialize(cdr_addr));
+
+      init_instructions.add
+      (
+         IndexedPartitionLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            car_addr,
+            cdr_addr,
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+            ).is_set(),
+            params
+         )
+      );
+   }
+
+   @Override
    public void visit_sort
    (
       final tonkadur.fate.v1.lang.computation.SortComputation n
@@ -2972,6 +3150,79 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       init_instructions.add
       (
          FilterLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            result_as_address,
+            params
+         )
+      );
+   }
+
+   @Override
+   public void visit_indexed_filter
+   (
+      final tonkadur.fate.v1.lang.computation.IndexedFilterComputation n
+   )
+   throws Throwable
+   {
+      final List<Computation> params;
+      final ComputationCompiler lambda_cc, in_collection_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(in_collection_cc);
+
+      if (in_collection_cc.has_init())
+      {
+         init_instructions.add(in_collection_cc.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, in_collection_cc.get_computation())
+      );
+
+      in_collection_cc.release_registers(init_instructions);
+
+      init_instructions.add
+      (
+         IndexedFilterLambda.generate
          (
             compiler.registers(),
             compiler.assembler(),
@@ -3130,7 +3381,75 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler address_compiler;
+      final Register result;
+      final Address car_addr, cdr_addr;
+
+      result = reserve(DictType.WILD);
+      result_as_computation = result.get_value();
+      result_as_address = result.get_address();
+
+      address_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         init_instructions.add(address_compiler.get_init());
+      }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, address_compiler.get_computation())
+      );
+
+      car_addr =
+         new RelativeAddress
+         (
+            result_as_address,
+            new Constant(Type.STRING, "0"),
+            address_compiler.get_computation().get_type()
+         );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            car_addr,
+            address_compiler.get_computation()
+         )
+      );
+
+      address_compiler.release_registers(init_instructions);
+
+      cdr_addr =
+         new RelativeAddress
+         (
+            result_as_address,
+            new Constant(Type.STRING, "1"),
+            TypeCompiler.compile
+            (
+               compiler,
+               (
+                  (tonkadur.fate.v1.lang.type.CollectionType)
+                     n.get_collection().get_type()
+               ).get_content_type()
+            )
+         );
+
+      init_instructions.add(new Initialize(cdr_addr));
+
+      init_instructions.add
+      (
+         PopElement.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            car_addr,
+            cdr_addr,
+            n.is_from_left()
+         )
+      );
    }
 
    @Override

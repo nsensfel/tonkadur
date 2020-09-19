@@ -11,21 +11,21 @@ public class SetValue extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Address address;
+   protected final Computation address;
    protected final Computation value;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public SetValue (final Address address, final Computation value)
+   public SetValue (final Computation address, final Computation value)
    {
       this.address = address;
       this.value = value;
    }
 
    /**** Accessors ************************************************************/
-   public Address get_address ()
+   public Computation get_address ()
    {
       return address;
    }

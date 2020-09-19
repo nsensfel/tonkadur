@@ -133,13 +133,22 @@ public interface ComputationVisitor
    public void visit_merge (final MergeComputation n)
    throws Throwable;
 
+   public void visit_indexed_merge (final IndexedMergeComputation n)
+   throws Throwable;
+
    public void visit_filter (final FilterComputation n)
+   throws Throwable;
+
+   public void visit_indexed_filter (final IndexedFilterComputation n)
    throws Throwable;
 
    public void visit_sublist (final SubListComputation n)
    throws Throwable;
 
    public void visit_partition (final PartitionComputation n)
+   throws Throwable;
+
+   public void visit_indexed_partition (final IndexedPartitionComputation n)
    throws Throwable;
 
    public void visit_push_element (final PushElementComputation n)
