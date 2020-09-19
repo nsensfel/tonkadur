@@ -35,6 +35,7 @@ import tonkadur.wyrd.v1.compiler.util.RemoveElementsOf;
 import tonkadur.wyrd.v1.compiler.util.InsertAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
 import tonkadur.wyrd.v1.compiler.util.IndexedMapLambda;
+import tonkadur.wyrd.v1.compiler.util.PartitionLambda;
 import tonkadur.wyrd.v1.compiler.util.MapLambda;
 import tonkadur.wyrd.v1.compiler.util.MergeLambda;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
@@ -2804,7 +2805,98 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final List<Computation> params;
+      final ComputationCompiler lambda_cc, in_collection_cc;
+      final Address car_addr, cdr_addr;
+      final Register result;
+
+      result = reserve(DictType.WILD);
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(in_collection_cc);
+
+      if (in_collection_cc.has_init())
+      {
+         init_instructions.add(in_collection_cc.get_init());
+      }
+
+      car_addr =
+         new RelativeAddress
+         (
+            result_as_address,
+            new Constant(Type.STRING, "0"),
+            in_collection_cc.get_computation().get_type()
+         );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            car_addr,
+            in_collection_cc.get_computation()
+         )
+      );
+
+      cdr_addr =
+         new RelativeAddress
+         (
+            result_as_address,
+            new Constant(Type.STRING, "1"),
+            in_collection_cc.get_computation().get_type()
+         );
+
+      in_collection_cc.release_registers(init_instructions);
+
+      init_instructions.add(new Initialize(cdr_addr));
+
+      init_instructions.add
+      (
+         PartitionLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            car_addr,
+            cdr_addr,
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+            ).is_set(),
+            params
+         )
+      );
    }
 
    @Override
@@ -2869,6 +2961,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       {
          init_instructions.add(in_collection_cc.get_init());
       }
+
+      init_instructions.add
+      (
+         new SetValue(result_as_address, in_collection_cc.get_computation())
+      );
 
       in_collection_cc.release_registers(init_instructions);
 

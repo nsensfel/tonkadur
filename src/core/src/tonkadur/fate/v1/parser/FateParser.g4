@@ -1784,7 +1784,6 @@ returns [List<Cons<Computation, Instruction>> result]
 @init
 {
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   /* TODO: resolve grammar collisions */
 }
 :
    (
@@ -1929,7 +1928,7 @@ returns [Instruction result]
    }
 
    | FOR_EACH_KW
-      value_reference WS+ new_reference_name
+      non_text_value WS+ new_reference_name
       {
          final Map<String, Variable> variable_map;
          final Variable new_variable;
@@ -1938,7 +1937,7 @@ returns [Instruction result]
 
          elem_type = Type.ANY;
 
-         collection_type = ($value_reference.result).get_type();
+         collection_type = ($non_text_value.result).get_type();
 
          if (collection_type instanceof CollectionType)
          {
@@ -2016,7 +2015,7 @@ returns [Instruction result]
                ($FOR_EACH_KW.getLine()),
                ($FOR_EACH_KW.getCharPositionInLine())
             ),
-            ($value_reference.result),
+            ($non_text_value.result),
             ($new_reference_name.result),
             ($player_choice_list.result)
          );
