@@ -20,6 +20,7 @@ public class Fold extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation initial_value;
    protected final Computation collection;
@@ -36,6 +37,7 @@ public class Fold extends Computation
       final Computation initial_value,
       final Computation collection,
       final boolean is_foldl,
+      final List<Computation> extra_params,
       final Type act_as
    )
    {
@@ -45,6 +47,7 @@ public class Fold extends Computation
       this.initial_value = initial_value;
       this.collection = collection;
       this.is_foldl = is_foldl;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -57,7 +60,8 @@ public class Fold extends Computation
       final Computation lambda_function,
       final Computation initial_value,
       final Computation collection,
-      final boolean is_foldl
+      final boolean is_foldl,
+      final List<Computation> extra_params
    )
    throws ParsingError
    {
@@ -72,6 +76,11 @@ public class Fold extends Computation
       (
          ((CollectionType) collection.get_type()).get_content_type()
       );
+
+      for (final Computation c: extra_params)
+      {
+         types_in.add(c.get_type());
+      }
 
       RecurrentChecks.assert_lambda_matches_types
       (
@@ -88,6 +97,7 @@ public class Fold extends Computation
             initial_value,
             collection,
             is_foldl,
+            extra_params,
             initial_value.get_type()
          );
    }
@@ -120,6 +130,11 @@ public class Fold extends Computation
       return is_foldl;
    }
 
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -141,6 +156,13 @@ public class Fold extends Computation
       sb.append(initial_value.toString());
       sb.append(" ");
       sb.append(collection.toString());
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
+      }
+
       sb.append(")");
 
       return sb.toString();

@@ -20,6 +20,7 @@ public class Merge extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Reference collection;
    protected final Computation default_a;
@@ -37,7 +38,8 @@ public class Merge extends Instruction
       final Reference collection,
       final Computation default_a,
       final Computation collection_in_b,
-      final Computation default_b
+      final Computation default_b,
+      final List<Computation> extra_params
    )
    {
       super(origin);
@@ -47,6 +49,7 @@ public class Merge extends Instruction
       this.default_a = default_a;
       this.collection_in_b = collection_in_b;
       this.default_b = default_b;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -60,7 +63,8 @@ public class Merge extends Instruction
       final Reference collection,
       final Computation default_a,
       final Computation collection_in_b,
-      final Computation default_b
+      final Computation default_b,
+      final List<Computation> extra_params
    )
    throws Throwable
    {
@@ -96,6 +100,11 @@ public class Merge extends Instruction
          ((CollectionType) collection_in_b.get_type()).get_content_type()
       );
 
+      for (final Computation c: extra_params)
+      {
+         types_in.add(c.get_type());
+      }
+
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,
@@ -111,7 +120,8 @@ public class Merge extends Instruction
             collection,
             default_a,
             collection_in_b,
-            default_b
+            default_b,
+            extra_params
          );
    }
 
@@ -148,6 +158,11 @@ public class Merge extends Instruction
       return collection;
    }
 
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -180,6 +195,12 @@ public class Merge extends Instruction
       else
       {
          sb.append(default_b.toString());
+      }
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
       }
 
       sb.append(")");

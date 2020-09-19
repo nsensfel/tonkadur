@@ -20,6 +20,7 @@ public class IndexedMap extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Reference collection;
 
@@ -31,13 +32,15 @@ public class IndexedMap extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection
+      final Reference collection,
+      final List<Computation> extra_params
    )
    {
       super(origin);
 
       this.lambda_function = lambda_function;
       this.collection = collection;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -48,7 +51,8 @@ public class IndexedMap extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection
+      final Reference collection,
+      final List<Computation> extra_params
    )
    throws Throwable
    {
@@ -64,6 +68,11 @@ public class IndexedMap extends Instruction
          ((CollectionType) collection.get_type()).get_content_type()
       );
 
+      for (final Computation c: extra_params)
+      {
+         in_types.add(c.get_type());
+      }
+
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,
@@ -71,7 +80,7 @@ public class IndexedMap extends Instruction
          in_types
       );
 
-      return new IndexedMap(origin, lambda_function, collection);
+      return new IndexedMap(origin, lambda_function, collection, extra_params);
    }
 
    /**** Accessors ************************************************************/
@@ -92,6 +101,11 @@ public class IndexedMap extends Instruction
       return collection;
    }
 
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -102,6 +116,13 @@ public class IndexedMap extends Instruction
       sb.append(lambda_function.toString());
       sb.append(" ");
       sb.append(collection.toString());
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
+      }
+
       sb.append(")");
 
       return sb.toString();

@@ -39,15 +39,14 @@ public class MergeLambda
       final Address collection_in_a,
       final Address collection_in_b,
       final Address collection_out,
-      final boolean to_set
+      final boolean to_set,
+      final List<Computation> extra_params
    )
    {
-      final List<Computation> params;
       final List<Instruction> result, while_body;
       final Register iterator, collection_in_size, storage;
       final Register collection_in_b_size;
 
-      params = new ArrayList<Computation>();
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
@@ -99,21 +98,9 @@ public class MergeLambda
          )
       );
 
-      params.add
+      extra_params.add
       (
-         new ValueOf
-         (
-            new RelativeAddress
-            (
-               collection_in_a,
-               new Cast(iterator.get_value(), Type.STRING),
-               ((MapType) collection_in_a.get_target_type()).get_member_type()
-            )
-         )
-      );
-
-      params.add
-      (
+         0,
          new ValueOf
          (
             new RelativeAddress
@@ -121,6 +108,20 @@ public class MergeLambda
                collection_in_b,
                new Cast(iterator.get_value(), Type.STRING),
                ((MapType) collection_in_b.get_target_type()).get_member_type()
+            )
+         )
+      );
+
+      extra_params.add
+      (
+         0,
+         new ValueOf
+         (
+            new RelativeAddress
+            (
+               collection_in_a,
+               new Cast(iterator.get_value(), Type.STRING),
+               ((MapType) collection_in_a.get_target_type()).get_member_type()
             )
          )
       );
@@ -136,7 +137,7 @@ public class MergeLambda
              * be a set.
              */
             storage.get_address(),
-            params
+            extra_params
          )
       );
 

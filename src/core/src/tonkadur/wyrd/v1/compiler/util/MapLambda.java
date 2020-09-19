@@ -37,14 +37,13 @@ public class MapLambda
       final Computation lambda,
       final Address collection_in,
       final Address collection_out,
-      final boolean to_set
+      final boolean to_set,
+      final List<Computation> extra_params
    )
    {
-      final List<Computation> params;
       final List<Instruction> result, while_body;
       final Register iterator, collection_in_size, storage;
 
-      params = new ArrayList<Computation>();
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
@@ -67,8 +66,9 @@ public class MapLambda
          )
       );
 
-      params.add
+      extra_params.add
       (
+         0,
          new ValueOf
          (
             new RelativeAddress
@@ -93,7 +93,7 @@ public class MapLambda
              * be a set.
              */
             storage.get_address(),
-            params
+            extra_params
          )
       );
 

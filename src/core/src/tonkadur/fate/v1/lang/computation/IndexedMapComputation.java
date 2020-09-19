@@ -20,6 +20,7 @@ public class IndexedMapComputation extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection;
 
@@ -32,6 +33,7 @@ public class IndexedMapComputation extends Computation
       final Origin origin,
       final Computation lambda_function,
       final Computation collection,
+      final List<Computation> extra_params,
       final Type output_type
    )
    {
@@ -39,6 +41,7 @@ public class IndexedMapComputation extends Computation
 
       this.lambda_function = lambda_function;
       this.collection = collection;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -49,7 +52,8 @@ public class IndexedMapComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation collection
+      final Computation collection,
+      final List<Computation> extra_params
    )
    throws Throwable
    {
@@ -65,6 +69,11 @@ public class IndexedMapComputation extends Computation
          ((CollectionType) collection.get_type()).get_content_type()
       );
 
+      for (final Computation c: extra_params)
+      {
+         in_types.add(c.get_type());
+      }
+
       RecurrentChecks.assert_lambda_matches_types(lambda_function, in_types);
 
       return
@@ -73,6 +82,7 @@ public class IndexedMapComputation extends Computation
             origin,
             lambda_function,
             collection,
+            extra_params,
             CollectionType.build
             (
                origin,
@@ -101,6 +111,11 @@ public class IndexedMapComputation extends Computation
       return collection;
    }
 
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -111,6 +126,13 @@ public class IndexedMapComputation extends Computation
       sb.append(lambda_function.toString());
       sb.append(" ");
       sb.append(collection.toString());
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
+      }
+
       sb.append(")");
 
       return sb.toString();

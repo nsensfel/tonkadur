@@ -35,14 +35,13 @@ public class FilterLambda
       final RegisterManager registers,
       final InstructionManager assembler,
       final Computation lambda,
-      final Address collection
+      final Address collection,
+      final List<Computation> extra_params
    )
    {
-      final List<Computation> params;
       final List<Instruction> result, while_body, remove_instructions;
       final Register iterator, index_storage, collection_size, storage;
 
-      params = new ArrayList<Computation>();
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
       remove_instructions = new ArrayList<Instruction>();
@@ -58,8 +57,9 @@ public class FilterLambda
          new SetValue(collection_size.get_address(), new Size(collection))
       );
 
-      params.add
+      extra_params.add
       (
+         0,
          new ValueOf
          (
             new RelativeAddress
@@ -108,7 +108,7 @@ public class FilterLambda
              * be a set.
              */
             storage.get_address(),
-            params
+            extra_params
          )
       );
 

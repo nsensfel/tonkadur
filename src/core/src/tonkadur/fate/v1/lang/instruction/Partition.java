@@ -1,6 +1,8 @@
 package tonkadur.fate.v1.lang.instruction;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
@@ -19,6 +21,7 @@ public class Partition extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Reference collection_in;
    protected final Reference collection_out;
@@ -32,7 +35,8 @@ public class Partition extends Instruction
       final Origin origin,
       final Computation lambda_function,
       final Reference collection_in,
-      final Reference collection_out
+      final Reference collection_out,
+      final List<Computation> extra_params
    )
    {
       super(origin);
@@ -40,6 +44,7 @@ public class Partition extends Instruction
       this.lambda_function = lambda_function;
       this.collection_in = collection_in;
       this.collection_out = collection_out;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -51,10 +56,15 @@ public class Partition extends Instruction
       final Origin origin,
       final Computation lambda_function,
       final Reference collection_in,
-      final Reference collection_out
+      final Reference collection_out,
+      final List<Computation> extra_params
    )
    throws ParsingError
    {
+      final List<Type> target_signature;
+
+      target_signature = new ArrayList<Type>();
+
       RecurrentChecks.assert_is_a_collection(collection_in);
       RecurrentChecks.assert_is_a_collection(collection_out);
       RecurrentChecks.assert_can_be_used_as
@@ -63,14 +73,21 @@ public class Partition extends Instruction
          collection_out.get_type()
       );
 
+      target_signature.add
+      (
+         ((CollectionType) collection_in.get_type()).get_content_type()
+      );
+
+      for (final Computation c: extra_params)
+      {
+         target_signature.add(c.get_type());
+      }
+
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,
          Type.BOOL,
-         Collections.singletonList
-         (
-            ((CollectionType) collection_in.get_type()).get_content_type()
-         )
+         target_signature
       );
 
       return
@@ -79,7 +96,8 @@ public class Partition extends Instruction
             origin,
             lambda_function,
             collection_in,
-            collection_out
+            collection_out,
+            extra_params
          );
    }
 
@@ -106,6 +124,11 @@ public class Partition extends Instruction
       return collection_out;
    }
 
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -118,6 +141,13 @@ public class Partition extends Instruction
       sb.append(collection_in.toString());
       sb.append(" ");
       sb.append(collection_out.toString());
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
+      }
+
       sb.append(")");
 
       return sb.toString();

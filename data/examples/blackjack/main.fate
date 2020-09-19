@@ -46,20 +46,20 @@ Now, you're all set to go... unless you don't know how to play?
 
 (cond
    (
-      (=< (var player.money) (/ (var original_amount) 2))
+      (=< player.money (/ original_amount 2))
       Outch. I suppose all your luck was spent by getting these free coins.
    )
    (
-      (< (var player.money) (var original_amount))
+      (< player.money original_amount)
       Well, that's not too bad for your first time. Come back tomorrow, I am
       sure you'll be getting it all back.
    )
    (
-      (< (var player.money) (* (var original_amount) 2))
+      (< player.money (* original_amount 2))
       Had a good day, I hope?
    )
    (
-      (< (var player.money) (* (var original_amount) 4))
+      (< player.money (* original_amount 4))
       Well! That was some fine play, if I do say so myself!
    )
    (

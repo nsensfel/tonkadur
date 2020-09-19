@@ -21,6 +21,7 @@ public class SortComputation extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection;
 
@@ -32,13 +33,15 @@ public class SortComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation collection
+      final Computation collection,
+      final List<Computation> extra_params
    )
    {
       super(origin, collection.get_type());
 
       this.lambda_function = lambda_function;
       this.collection = collection;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -49,7 +52,8 @@ public class SortComputation extends Computation
    (
       final Origin origin,
       final Computation lambda_function,
-      final Computation collection
+      final Computation collection,
+      final List<Computation> extra_params
    )
    throws ParsingError
    {
@@ -62,6 +66,11 @@ public class SortComputation extends Computation
       types_in.add(((CollectionType) collection.get_type()).get_content_type());
       types_in.add(types_in.get(0));
 
+      for (final Computation c: extra_params)
+      {
+         types_in.add(c.get_type());
+      }
+
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,
@@ -69,7 +78,8 @@ public class SortComputation extends Computation
          types_in
       );
 
-      return new SortComputation(origin, lambda_function, collection);
+      return
+         new SortComputation(origin, lambda_function, collection, extra_params);
    }
 
    /**** Accessors ************************************************************/
@@ -90,6 +100,11 @@ public class SortComputation extends Computation
       return collection;
    }
 
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -100,6 +115,13 @@ public class SortComputation extends Computation
       sb.append(lambda_function.toString());
       sb.append(" ");
       sb.append(collection.toString());
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
+      }
+
       sb.append(")");
 
       return sb.toString();

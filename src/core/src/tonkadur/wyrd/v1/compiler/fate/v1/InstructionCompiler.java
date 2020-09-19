@@ -532,9 +532,39 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
+      final List<ComputationCompiler> param_cc_list;
       /* This is one dangerous operation to do in-place, so we don't. */
       final Register holder;
       final ComputationCompiler lambda_cc, collection_cc;
+
+      params = new ArrayList<Computation>();
+      param_cc_list = new ArrayList<ComputationCompiler>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         if (param_cc.has_init())
+         {
+            result.add(param_cc.get_init());
+         }
+
+         param_cc_list.add(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -578,13 +608,19 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
                n.get_collection().get_type()
-            ).is_set()
+            ).is_set(),
+            params
          )
       );
 
       lambda_cc.release_registers(result);
       collection_cc.release_registers(result);
       compiler.registers().release(holder, result);
+
+      for (final ComputationCompiler cc: param_cc_list)
+      {
+         cc.release_registers(result);
+      }
    }
 
    @Override
@@ -607,7 +643,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       /* This is one dangerous operation to do in-place, so we don't. */
       final Register holder;
       final ComputationCompiler lambda_cc;
+      final List<Computation> params;
+      final List<ComputationCompiler> param_cc_list;
       final ComputationCompiler collection_cc, in_collection_b_cc;
+
+      params = new ArrayList<Computation>();
+      param_cc_list = new ArrayList<ComputationCompiler>();
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -648,6 +689,31 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(in_collection_b_cc.get_init());
       }
 
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         if (param_cc.has_init())
+         {
+            result.add(param_cc.get_init());
+         }
+
+         param_cc_list.add(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
       result.add
       (
          MergeLambda.generate
@@ -661,13 +727,19 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
                n.get_collection().get_type()
-            ).is_set()
+            ).is_set(),
+            params
          )
       );
 
       collection_cc.release_registers(result);
       in_collection_b_cc.release_registers(result);
       compiler.registers().release(holder, result);
+
+      for (final ComputationCompiler cc: param_cc_list)
+      {
+         cc.release_registers(result);
+      }
    }
 
    @Override
@@ -717,7 +789,37 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
+      final List<ComputationCompiler> param_cc_list;
       final ComputationCompiler lambda_cc, collection_cc;
+
+      params = new ArrayList<Computation>();
+      param_cc_list = new ArrayList<ComputationCompiler>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         if (param_cc.has_init())
+         {
+            result.add(param_cc.get_init());
+         }
+
+         param_cc_list.add(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -744,12 +846,18 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             compiler.registers(),
             compiler.assembler(),
             lambda_cc.get_computation(),
-            collection_cc.get_address()
+            collection_cc.get_address(),
+            params
          )
       );
 
       lambda_cc.release_registers(result);
       collection_cc.release_registers(result);
+
+      for (final ComputationCompiler cc: param_cc_list)
+      {
+         cc.release_registers(result);
+      }
    }
 
    @Override
@@ -759,9 +867,39 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
+      final List<ComputationCompiler> param_cc_list;
       /* This is one dangerous operation to do in-place, so we don't. */
       final Register holder;
       final ComputationCompiler lambda_cc, collection_cc;
+
+      params = new ArrayList<Computation>();
+      param_cc_list = new ArrayList<ComputationCompiler>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         if (param_cc.has_init())
+         {
+            result.add(param_cc.get_init());
+         }
+
+         param_cc_list.add(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -805,13 +943,19 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
                n.get_collection().get_type()
-            ).is_set()
+            ).is_set(),
+            params
          )
       );
 
       lambda_cc.release_registers(result);
       collection_cc.release_registers(result);
       compiler.registers().release(holder, result);
+
+      for (final ComputationCompiler cc: param_cc_list)
+      {
+         cc.release_registers(result);
+      }
    }
 
    @Override
@@ -1600,19 +1744,30 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
        *
        * Wyrd (ifelse c0 i0 (nop))
        */
+      final List<Instruction> instructions;
       final ComputationCompiler cc;
-      final InstructionCompiler if_true_ic;
 
+      instructions = new ArrayList<Instruction>();
       cc = new ComputationCompiler(compiler);
-      if_true_ic = new InstructionCompiler(compiler);
 
       n.get_condition().get_visited_by(cc);
 
       compiler.registers().push_hierarchical_instruction_level();
-      n.get_if_true().get_visited_by(if_true_ic);
+
+      for (final tonkadur.fate.v1.lang.meta.Instruction instr: n.get_if_true())
+      {
+         final InstructionCompiler if_true_ic;
+
+         if_true_ic = new InstructionCompiler(compiler);
+
+         instr.get_visited_by(if_true_ic);
+
+         instructions.add(if_true_ic.get_result());
+      }
+
       compiler.registers().pop_hierarchical_instruction_level
       (
-         if_true_ic.result
+         instructions
       );
 
       if (cc.has_init())
@@ -1627,7 +1782,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             compiler.registers(),
             compiler.assembler(),
             cc.get_computation(),
-            if_true_ic.get_result()
+            compiler.assembler().merge(instructions)
          )
       );
 

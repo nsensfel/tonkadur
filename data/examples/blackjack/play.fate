@@ -15,20 +15,16 @@
 (define_sequence play_a_game ()
    (local card new_card)
 
-   (if (not (var has_played))
-      (
-         (text_effect action_description
-            Sitting yourself at a table, you see someone rushing to set up the
-            cards and manage the game.
-         )
-         (set has_played (true))
+   (if (not has_played)
+      (text_effect action_description
+         Sitting yourself at a table, you see someone rushing to set up the
+         cards and manage the game.
       )
+      (set has_played (true))
    )
    (if (= (var player.money) 0)
-      (
-         I am sorry, (var player.name), but you appear to have ran out of coins.
-         (done)
-      )
+      I am sorry, (var player.name), but you appear to have ran out of coins.
+      (done)
    )
    (prompt_integer
       (ptr bet)
@@ -42,9 +38,9 @@
 
    (newline)
 
-   (visit generate_shuffled_deck (ptr current_deck))
+   (set current_deck (shuffle deck_template))
 
-   (visit draw_a_card (ptr current_deck) (ptr new_card))
+   (pop_left! current_deck (ptr new_card))
    (add! (var new_card) player.hand)
 
    (text_effect action_description
@@ -52,8 +48,7 @@
       (newline)
    )
 
-
-   (visit draw_a_card (ptr current_deck) (ptr new_card))
+   (pop_left! current_deck (ptr new_card))
    (add! (var new_card) dealer_hand)
 
    (text_effect action_description
@@ -61,7 +56,7 @@
       (newline)
    )
 
-   (visit draw_a_card (ptr current_deck) (ptr new_card))
+   (pop_left! current_deck (ptr new_card))
    (add! (var new_card) player.hand)
 
    (text_effect action_description
@@ -71,7 +66,7 @@
 
    (newline)
 
-   (visit draw_a_card (ptr current_deck) (ptr new_card))
+   (pop_left! current_deck (ptr new_card))
    (add! (var new_card) dealer_hand)
 
    (text_effect action_description
@@ -111,54 +106,50 @@
    (visit compute_score (ptr player.hand) (ptr player_score))
 
    (if (= (var dealer_score) 21)
-      (
+      (text_effect action_description
+         The dealer reveals their full hand:
+      )
+      (foreach dealer_hand card
          (text_effect action_description
-            The dealer reveals their full hand:
+            (newline)
+            * The (var card.name), worth
+            (if_else (= (var card.number) 1)
+               (text 1 or 11 points.)
+               (text (var card.score) points.)
+            )
          )
-         (foreach dealer_hand card
+      )
+      (newline)
+      (ifelse (= (var player_score) 21)
+         (
             (text_effect action_description
-               (newline)
-               * The (var card.name), worth
-               (if_else (= (var card.number) 1)
-                  (text 1 or 11 points. )
-                  (text (var card.score) points. )
-               )
+               The dealer looks very surprised.
             )
+            (newline)
+            Double Blackjack! A tie, then.
+            (done)
          )
-         (newline)
-         (ifelse (= (var player_score) 21)
-            (
-               (text_effect action_description
-                  The dealer looks very surprised.
-               )
-               (newline)
-               Double Blackjack! A tie, then.
-               (done)
+         (
+            (text_effect action_description
+               The dealer looks surprised, but happy.
             )
-            (
-               (text_effect action_description
-                  The dealer looks surprised, but happy.
-               )
-               (newline)
-               Blackjack! Looks like I win, this time.
-               (visit money_loss (var bet))
-               (done)
-            )
+            (newline)
+            Blackjack! Looks like I win, this time.
+            (visit money_loss (var bet))
+            (done)
          )
       )
    )
 
    (if (= (var player_score) 21)
-      (
-         (text_effect action_description
-            The dealer looks surprised.
-         )
-         (newline)
-         Blackjack! Looks like you win, this time.
-         (newline)
-         (visit money_acquisition (cast int (* (cast float (var bet)) 1.5)))
-         (done)
+      (text_effect action_description
+         The dealer looks surprised.
       )
+      (newline)
+      Blackjack! Looks like you win, this time.
+      (newline)
+      (visit money_acquisition (cast int (* (cast float (var bet)) 1.5)))
+      (done)
    )
 
    (player_choice
@@ -171,10 +162,10 @@
          ( I will stand. )
          (jump_to resolve_dealer)
       )
-      (if (and (>= (var player_score) 9) (<= (var player_score) 11))
+      (if (and (>= player_score 9) (<= player_score 11))
          (
             ( Double my bet, I'll only take one card. )
-            (set bet (* (var bet) 2))
+            (set bet (* bet 2))
             (set has_doubled (true))
             (jump_to acquire_card)
          )
@@ -186,7 +177,7 @@
    (local card new_card)
    (local int player_score)
 
-   (visit draw_a_card (ptr current_deck) (ptr new_card))
+   (pop_left! current_deck (ptr new_card))
    (add! (var new_card) player.hand)
 
    (visit compute_score (ptr player.hand) (ptr player_score))
@@ -201,24 +192,22 @@
          (newline)
          * The (var card.name), worth
          (if_else (= (var card.number) 1)
-            (text 1 or 11 points. )
-            (text (var card.score) points. )
+            (text 1 or 11 points.)
+            (text (var card.score) points.)
          )
       )
    )
    (newline)
 
-   (if (> (var player_score) 21)
-      (
-         (text_effect action_description
-            The dealer looks disappointed.
-         )
-         (newline)
-         A bust! What a shame...
-         (newline)
-         (visit money_loss (var bet))
-         (done)
+   (if (> player_score 21)
+      (text_effect action_description
+         The dealer looks disappointed.
       )
+      (newline)
+      A bust! What a shame...
+      (newline)
+      (visit money_loss (var bet))
+      (done)
    )
 
    (if (var has_doubled)
@@ -261,10 +250,10 @@
    )
    (newline)
 
-   (while (< (var dealer_score) 17)
+   (while (< dealer_score 17)
       (local card new_card)
 
-      (visit draw_a_card (ptr current_deck) (ptr new_card))
+      (pop_left! current_deck (ptr new_card))
       (add! (var new_card) dealer_hand)
 
       (text_effect action_description
@@ -275,17 +264,15 @@
       (visit compute_score (ptr dealer_hand) (ptr dealer_score))
    )
 
-   (if (> (var dealer_score) 21)
-      (
-         (text_effect action_description
-            The dealer looks disappointed.
-         )
-         (newline)
-         Ah. It would appear I have gone above the limit.
-         (newline)
-         (visit money_acquisition (var bet))
-         (done)
+   (if (> dealer_score 21)
+      (text_effect action_description
+         The dealer looks disappointed.
       )
+      (newline)
+      Ah. It would appear I have gone above the limit.
+      (newline)
+      (visit money_acquisition (var bet))
+      (done)
    )
 
    (visit compute_score (ptr player.hand) (ptr player_score))
@@ -295,13 +282,11 @@
    (newline)
 
    (if (= (var player_score) (var dealer_score))
-      (
-         A tie, then.
-         (done)
-      )
+      A tie, then.
+      (done)
    )
 
-   (if_else (> (var player_score) (var dealer_score))
+   (if_else (> player_score dealer_score)
       (
          Congratulation, you won.
          (newline)

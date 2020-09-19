@@ -1,5 +1,7 @@
 package tonkadur.fate.v1.lang.instruction;
 
+import java.util.List;
+
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
@@ -16,7 +18,7 @@ public class IfInstruction extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation condition;
-   protected final Instruction if_true;
+   protected final List<Instruction> if_true;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -26,7 +28,7 @@ public class IfInstruction extends Instruction
    (
       final Origin origin,
       final Computation condition,
-      final Instruction if_true
+      final List<Instruction> if_true
    )
    {
       super(origin);
@@ -43,7 +45,7 @@ public class IfInstruction extends Instruction
    (
       final Origin origin,
       final Computation condition,
-      final Instruction if_true
+      final List<Instruction> if_true
    )
    throws ParsingError
    {
@@ -65,7 +67,7 @@ public class IfInstruction extends Instruction
       return condition;
    }
 
-   public Instruction get_if_true ()
+   public List<Instruction> get_if_true ()
    {
       return if_true;
    }
@@ -79,8 +81,12 @@ public class IfInstruction extends Instruction
       sb.append("(IfInstruction");
       sb.append(System.lineSeparator());
       sb.append(condition.toString());
-      sb.append(System.lineSeparator());
-      sb.append(if_true.toString());
+
+      for (final Instruction instr: if_true)
+      {
+         sb.append(System.lineSeparator());
+         sb.append(instr.toString());
+      }
 
       sb.append(")");
 

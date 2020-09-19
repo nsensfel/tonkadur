@@ -37,14 +37,13 @@ public class IndexedMapLambda
       final Computation lambda,
       final Address collection_in,
       final Address collection_out,
-      final boolean to_set
+      final boolean to_set,
+      final List<Computation> extra_params
    )
    {
-      final List<Computation> params;
       final List<Instruction> result, while_body;
       final Register iterator, collection_in_size, storage;
 
-      params = new ArrayList<Computation>();
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
 
@@ -67,10 +66,10 @@ public class IndexedMapLambda
          )
       );
 
-      params.add(iterator.get_value());
 
-      params.add
+      extra_params.add
       (
+         0,
          new ValueOf
          (
             new RelativeAddress
@@ -81,6 +80,8 @@ public class IndexedMapLambda
             )
          )
       );
+
+      extra_params.add(0, iterator.get_value());
 
       while_body.add
       (
@@ -93,7 +94,7 @@ public class IndexedMapLambda
              * be a set.
              */
             storage.get_address(),
-            params
+            extra_params
          )
       );
 

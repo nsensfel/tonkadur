@@ -2219,6 +2219,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
       final ComputationCompiler lambda_cc, in_collection_cc, default_cc;
       final Register result;
 
@@ -2226,6 +2227,28 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       default_cc = new ComputationCompiler(compiler);
 
@@ -2264,7 +2287,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             lambda_cc.get_computation(),
             result_as_address,
             in_collection_cc.get_address(),
-            n.is_foldl()
+            n.is_foldl(),
+            params
          )
       );
    }
@@ -2276,6 +2300,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
       final ComputationCompiler lambda_cc, in_collection_cc;
       final Register result;
 
@@ -2283,6 +2308,28 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -2308,7 +2355,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
                n.get_collection().get_type()
-            ).is_set()
+            ).is_set(),
+            params
          )
       );
    }
@@ -2673,6 +2721,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
       final ComputationCompiler lambda_cc;
       final ComputationCompiler in_collection_a_cc, in_collection_b_cc;
       final Register result;
@@ -2681,6 +2730,28 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -2710,7 +2781,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             in_collection_a_cc.get_address(),
             in_collection_b_cc.get_address(),
             result_as_address,
-            n.to_set()
+            n.to_set(),
+            params
          )
       );
    }
@@ -2752,6 +2824,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
       final ComputationCompiler lambda_cc, in_collection_cc;
       final Register result;
 
@@ -2759,6 +2832,28 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -2784,7 +2879,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             compiler.registers(),
             compiler.assembler(),
             lambda_cc.get_computation(),
-            result_as_address
+            result_as_address,
+            params
          )
       );
    }
@@ -2796,6 +2892,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
+      final List<Computation> params;
       final ComputationCompiler lambda_cc, in_collection_cc;
       final Register result;
 
@@ -2803,6 +2900,28 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
 
       lambda_cc = new ComputationCompiler(compiler);
 
@@ -2828,7 +2947,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
                n.get_collection().get_type()
-            ).is_set()
+            ).is_set(),
+            params
          )
       );
    }

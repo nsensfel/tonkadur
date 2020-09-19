@@ -2,6 +2,7 @@ package tonkadur.fate.v1.lang.instruction;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
@@ -20,6 +21,7 @@ public class Map extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Reference collection;
 
@@ -31,13 +33,15 @@ public class Map extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection
+      final Reference collection,
+      final List<Computation> extra_params
    )
    {
       super(origin);
 
       this.lambda_function = lambda_function;
       this.collection = collection;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -48,22 +52,35 @@ public class Map extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection
+      final Reference collection,
+      final List<Computation> extra_params
    )
    throws ParsingError
    {
+      final List<Type> target_signature;
+
+      target_signature = new ArrayList<Type>();
+
       RecurrentChecks.assert_is_a_collection(collection);
+
+      target_signature.add
+      (
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
+
+      for (final Computation c: extra_params)
+      {
+         target_signature.add(c.get_type());
+      }
+
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,
          ((CollectionType) collection.get_type()).get_content_type(),
-         Collections.singletonList
-         (
-            ((CollectionType) collection.get_type()).get_content_type()
-         )
+         target_signature
       );
 
-      return new Map(origin, lambda_function, collection);
+      return new Map(origin, lambda_function, collection, extra_params);
    }
 
    /**** Accessors ************************************************************/
@@ -84,6 +101,11 @@ public class Map extends Instruction
       return collection;
    }
 
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -94,6 +116,13 @@ public class Map extends Instruction
       sb.append(lambda_function.toString());
       sb.append(" ");
       sb.append(collection.toString());
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
+      }
+
       sb.append(")");
 
       return sb.toString();

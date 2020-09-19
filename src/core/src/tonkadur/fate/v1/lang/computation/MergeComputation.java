@@ -22,6 +22,7 @@ public class MergeComputation extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection_in_a;
    protected final Computation default_a;
@@ -42,6 +43,7 @@ public class MergeComputation extends Computation
       final Computation collection_in_b,
       final Computation default_b,
       final boolean to_set,
+      final List<Computation> extra_params,
       final Type output_type
    )
    {
@@ -53,6 +55,7 @@ public class MergeComputation extends Computation
       this.collection_in_b = collection_in_b;
       this.default_b = default_b;
       this.to_set = to_set;
+      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -67,7 +70,8 @@ public class MergeComputation extends Computation
       final Computation default_a,
       final Computation collection_in_b,
       final Computation default_b,
-      final boolean to_set
+      final boolean to_set,
+      final List<Computation> extra_params
    )
    throws Throwable
    {
@@ -103,6 +107,11 @@ public class MergeComputation extends Computation
          ((CollectionType) collection_in_b.get_type()).get_content_type()
       );
 
+      for (final Computation c: extra_params)
+      {
+         types_in.add(c.get_type());
+      }
+
       RecurrentChecks.assert_lambda_matches_types(lambda_function, types_in);
 
       return
@@ -115,6 +124,7 @@ public class MergeComputation extends Computation
             collection_in_b,
             default_b,
             to_set,
+            extra_params,
             CollectionType.build
             (
                origin,
@@ -156,6 +166,11 @@ public class MergeComputation extends Computation
    public Computation get_default_b ()
    {
       return default_b;
+   }
+
+   public List<Computation> get_extra_parameters ()
+   {
+      return extra_params;
    }
 
    public boolean to_set ()
@@ -203,6 +218,12 @@ public class MergeComputation extends Computation
       else
       {
          sb.append(default_b.toString());
+      }
+
+      for (final Computation c: extra_params)
+      {
+         sb.append(" ");
+         sb.append(c.toString());
       }
 
       sb.append(")");
