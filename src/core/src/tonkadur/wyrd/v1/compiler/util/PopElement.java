@@ -71,7 +71,7 @@ public class PopElement
             new RelativeAddress
             (
                collection,
-               target_index,
+               new Cast(target_index, Type.STRING),
                ((PointerType) element_holder.get_type()).get_target_type()
             )
          )

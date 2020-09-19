@@ -635,6 +635,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    throws Throwable
    {
       /* TODO */
+      System.err.println("[P] Using unimplemented Sort.");
    }
 
    @Override
@@ -1050,6 +1051,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    throws Throwable
    {
       /* TODO */
+      System.err.println("[P] Using unimplemented SubList.");
    }
 
    @Override
@@ -1127,7 +1129,39 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
+      final ComputationCompiler address_compiler, element_compiler;
+
+      address_compiler = new ComputationCompiler(compiler);
+      element_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         result.add(address_compiler.get_init());
+      }
+
+      n.get_storage_pointer().get_visited_by(element_compiler);
+
+      if (element_compiler.has_init())
+      {
+         result.add(element_compiler.get_init());
+      }
+
+      result.add
+      (
+         PopElement.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            address_compiler.get_address(),
+            element_compiler.get_computation(),
+            n.is_from_left()
+         )
+      );
+
+      address_compiler.release_registers(result);
+      element_compiler.release_registers(result);
    }
 
    @Override

@@ -1335,6 +1335,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       r = reserve(TypeCompiler.compile(compiler, n.get_type()));
 
       init_instructions.add(new Initialize(r.get_address()));
+
+      result_as_address = r.get_address();
+      result_as_computation = r.get_value();
    }
 
 
@@ -2873,6 +2876,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    throws Throwable
    {
       /* TODO */
+      System.err.println("[P] Using unimplemented SubListComputation.");
    }
 
    @Override
@@ -3085,6 +3089,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    throws Throwable
    {
       /* TODO */
+      System.err.println("[P] Using unimplemented SortComputation.");
    }
 
    @Override
