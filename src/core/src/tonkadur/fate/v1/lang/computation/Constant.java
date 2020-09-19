@@ -79,6 +79,37 @@ public class Constant extends Computation
       return new Constant(origin, Type.STRING, as_string);
    }
 
+   public static Constant build_if_non_string
+   (
+      final Origin origin,
+      final String as_string
+   )
+   {
+      try
+      {
+         Integer.valueOf(as_string);
+
+         return new Constant(origin, Type.INT, as_string);
+      }
+      catch (final NumberFormatException nfe)
+      {
+         /* That's fine, we're just testing... */
+      }
+
+      try
+      {
+         Float.valueOf(as_string);
+
+         return new Constant(origin, Type.FLOAT, as_string);
+      }
+      catch (final NumberFormatException nfe)
+      {
+         /* That's fine, we're just testing... */
+      }
+
+      return null;
+   }
+
    /**** Accessors ************************************************************/
    @Override
    public void get_visited_by (final ComputationVisitor cv)

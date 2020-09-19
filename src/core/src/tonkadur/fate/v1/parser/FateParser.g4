@@ -1564,12 +1564,40 @@ instr_cond_list
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
+   Computation condition;
+
+   condition = null;
+
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   /* TODO: resolve grammar collisions */
 }
 :
    (
-      L_PAREN WS* non_text_value WS+
+      (
+         (
+            (L_PAREN WS* non_text_value WS+)
+            {
+               condition = ($non_text_value.result);
+            }
+         )
+         |
+         (
+            something_else=.
+            {
+               condition =
+                  VariableFromWord.generate
+                  (
+                     WORLD,
+                     LOCAL_VARIABLES,
+                     CONTEXT.get_origin_at
+                     (
+                        ($something_else.getLine()),
+                        ($something_else.getCharPositionInLine())
+                     ),
+                     ($something_else.text).substring(1).trim()
+                  );
+            }
+         )
+      )
          {
             HIERARCHICAL_VARIABLES.push(new ArrayList());
          }
@@ -1584,7 +1612,7 @@ returns [List<Cons<Computation, Instruction>> result]
       {
          $result.add
          (
-            new Cons(($non_text_value.result), ($general_fate_instr.result))
+            new Cons(condition, ($general_fate_instr.result))
          );
       }
       WS*
@@ -1592,6 +1620,17 @@ returns [List<Cons<Computation, Instruction>> result]
    {
    }
 ;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
 
 instr_switch_list
 returns [List<Cons<Computation, Instruction>> result]
@@ -1851,16 +1890,43 @@ player_choice_cond_list
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
+   Computation condition;
+
+   condition = null;
+
    $result = new ArrayList<Cons<Computation, Instruction>>();
 }
 :
    (
-      L_PAREN WS* non_text_value WS+ player_choice WS* R_PAREN
-      {
-         $result.add
+      (
          (
-            new Cons(($non_text_value.result), ($player_choice.result))
-         );
+            (L_PAREN WS* non_text_value WS+)
+            {
+               condition = ($non_text_value.result);
+            }
+         )
+         |
+         (
+            something_else=.
+            {
+               condition =
+                  VariableFromWord.generate
+                  (
+                     WORLD,
+                     LOCAL_VARIABLES,
+                     CONTEXT.get_origin_at
+                     (
+                        ($something_else.getLine()),
+                        ($something_else.getCharPositionInLine())
+                     ),
+                     ($something_else.text).substring(1).trim()
+                  );
+            }
+         )
+      )
+      player_choice WS* R_PAREN
+      {
+         $result.add(new Cons(condition, ($player_choice.result)));
       }
       WS*
    )+
@@ -2273,6 +2339,10 @@ let_variable_list
 returns [List<Cons<Variable, Computation>> result]
 @init
 {
+   String var_name;
+
+   var_name = null;
+
    Map<String, Variable> variables;
 
    variables = LOCAL_VARIABLES.peekFirst();
@@ -2282,7 +2352,22 @@ returns [List<Cons<Variable, Computation>> result]
 :
    (
       WS*
-      L_PAREN WS* new_reference_name WS+ value WS* R_PAREN
+         (
+            (
+               L_PAREN WS* new_reference_name WS+
+               {
+                  var_name = ($new_reference_name.result);
+               }
+            )
+            |
+            (
+               something_else=.
+               {
+                  var_name = ($something_else.text).substring(1).trim();
+               }
+            )
+         )
+         WS+ value WS* R_PAREN
       {
          final Variable v;
 
@@ -2295,22 +2380,22 @@ returns [List<Cons<Variable, Computation>> result]
                   ($L_PAREN.getCharPositionInLine())
                ),
                ($value.result).get_type(),
-               ($new_reference_name.result)
+               var_name
             );
 
-         if (variables.containsKey(v.get_name()))
+         if (variables.containsKey(var_name))
          {
             ErrorManager.handle
             (
                new DuplicateLocalVariableException
                (
-                  variables.get(v.get_name()),
+                  variables.get(var_name),
                   v
                )
             );
          }
 
-         variables.put(v.get_name(), v);
+         variables.put(var_name, v);
 
          $result.add(new Cons(v, ($value.result)));
       }
@@ -2413,12 +2498,31 @@ field_value_list
 returns [List<Cons<Origin, Cons<String, Computation>>> result]
 @init
 {
+   String field_name;
+
+   field_name = null;
+
    $result = new ArrayList<Cons<Origin, Cons<String, Computation>>>();
 }
 :
    (
       WS*
-      L_PAREN WS* WORD WS+ value WS* R_PAREN
+      (
+         (
+            L_PAREN WS* WORD WS+
+            {
+               field_name = ($WORD.text);
+            }
+         )
+         |
+         (
+            something_else=.
+            {
+               field_name = ($something_else.text).substring(1).trim();
+            }
+         )
+      )
+      value WS* R_PAREN
       {
          $result.add
          (
@@ -2431,7 +2535,7 @@ returns [List<Cons<Origin, Cons<String, Computation>>> result]
                ),
                new Cons
                (
-                  ($WORD.text),
+                  field_name,
                   ($value.result)
                )
             )
@@ -3860,61 +3964,43 @@ returns [Computation result]
          );
    }
 
-   | value_reference
-   {
-      $result = ($value_reference.result);
-   }
-
    | WORD
    {
-      final Origin target_var_origin;
-      Variable target_var;
-      final String[] subrefs;
-
-      subrefs = ($WORD.text).split("\\.");
-
-      target_var_origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      target_var = LOCAL_VARIABLES.peekFirst().get(subrefs[0]);
-
-      if (target_var == null)
-      {
-         target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
-      }
+      $result = null;
 
       $result =
-         new VariableReference
+         Constant.build_if_non_string
          (
             CONTEXT.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())
             ),
-            target_var
+            ($WORD.text)
          );
 
-      if (subrefs.length > 1)
+      if ($result == null)
       {
-         final List<String> subrefs_list;
-
-         subrefs_list = new ArrayList(Arrays.asList(subrefs));
-
-         subrefs_list.remove(0);
-
          $result =
-            FieldReference.build
+            VariableFromWord.generate
             (
-               target_var_origin,
-               ($result),
-               subrefs_list
+               WORLD,
+               LOCAL_VARIABLES,
+               CONTEXT.get_origin_at
+               (
+                  ($WORD.getLine()),
+                  ($WORD.getCharPositionInLine())
+               ),
+               ($WORD.text)
             );
       }
    }
+
+   | value_reference
+   {
+      $result = ($value_reference.result);
+   }
+
 ;
 catch [final Throwable e]
 {
@@ -3977,53 +4063,18 @@ returns [Reference result]
 
    | (WORD | (VARIABLE_KW WORD WS* R_PAREN))
    {
-      final Origin target_var_origin;
-      Variable target_var;
-      final String[] subrefs;
-
-      subrefs = ($WORD.text).split("\\.");
-
-      target_var_origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      target_var = LOCAL_VARIABLES.peekFirst().get(subrefs[0]);
-
-      if (target_var == null)
-      {
-         target_var = WORLD.variables().get(target_var_origin, subrefs[0]);
-      }
-
       $result =
-         new VariableReference
+         VariableFromWord.generate
          (
+            WORLD,
+            LOCAL_VARIABLES,
             CONTEXT.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())
             ),
-            target_var
+            ($WORD.text)
          );
-
-      if (subrefs.length > 1)
-      {
-         final List<String> subrefs_list;
-
-         subrefs_list = new ArrayList(Arrays.asList(subrefs));
-
-         subrefs_list.remove(0);
-
-         $result =
-            FieldReference.build
-            (
-               target_var_origin,
-               ($result),
-               subrefs_list
-            );
-      }
    }
 ;
 catch [final Throwable e]
@@ -4042,18 +4093,61 @@ value_cond_list
 returns [List<Cons<Computation, Computation>> result]
 @init
 {
+   Computation condition;
+
+   condition = null;
+
    $result = new ArrayList<Cons<Computation, Computation>>();
 }
 :
    (
-      L_PAREN WS* c=non_text_value WS+ v=value WS* R_PAREN WS*
+      (
+         (
+            (
+               L_PAREN WS* c=non_text_value WS+
+            )
+            {
+               condition = ($c.result);
+            }
+         )
+         |
+         (
+            something_else=.
+            {
+               condition =
+                  VariableFromWord.generate
+                  (
+                     WORLD,
+                     LOCAL_VARIABLES,
+                     CONTEXT.get_origin_at
+                     (
+                        ($something_else.getLine()),
+                        ($something_else.getCharPositionInLine())
+                     ),
+                     ($something_else.text).substring(1).trim()
+                  );
+            }
+         )
+      )
+      v=value WS* R_PAREN WS*
       {
-         $result.add(new Cons(($c.result), ($v.result)));
+         $result.add(new Cons(condition, ($v.result)));
       }
    )+
    {
    }
 ;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
 
 value_switch_list
 returns [List<Cons<Computation, Computation>> result]
