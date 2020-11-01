@@ -90,8 +90,10 @@ public class Compiler
    )
    throws Throwable
    {
+      final List<Instruction> ignored_instr;
       final List<Instruction> init_instr;
 
+      ignored_instr = new ArrayList<Instruction>();
       init_instr = new ArrayList<Instruction>();
 
       for
@@ -104,7 +106,16 @@ public class Compiler
          final Register r;
 
          t = TypeCompiler.compile(this, variable.get_type());
-         r = registers.register(t, variable.get_name(), init_instr);
+
+         if (variable.is_external())
+         {
+            r = registers.register(t, variable.get_name(), ignored_instr);
+         }
+         else
+         {
+            r = registers.register(t, variable.get_name(), init_instr);
+         }
+
          wyrd_world.add_register(r);
       }
 

@@ -28,7 +28,8 @@ public class Variable extends DeclaredEntity
              * Use of a space necessary to avoid conflicting with a user created
              * type.
              */
-            "undetermined variable"
+            "undetermined variable",
+            true
          );
    }
 
@@ -48,6 +49,7 @@ public class Variable extends DeclaredEntity
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Type type;
+   protected final boolean is_external;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -58,18 +60,25 @@ public class Variable extends DeclaredEntity
    (
       final Origin origin,
       final Type type,
-      final String name
+      final String name,
+      final boolean is_external
    )
    {
       super(origin, name);
 
       this.type = type;
+      this.is_external = is_external;
    }
 
    /**** Accessors ************************************************************/
    public Type get_type ()
    {
       return type;
+   }
+
+   public boolean is_external ()
+   {
+      return is_external;
    }
 
    @Override
@@ -87,7 +96,7 @@ public class Variable extends DeclaredEntity
 
       new_type = (Type) type.generate_comparable_to(v.type);
 
-      return new Variable(origin, new_type, name);
+      return new Variable(origin, new_type, name, v.is_external());
    }
 
    /**** Misc. ****************************************************************/
@@ -100,7 +109,9 @@ public class Variable extends DeclaredEntity
 
          v = (Variable) de;
 
-         return !type.can_be_used_as(v.type);
+         return
+            !type.can_be_used_as(v.type)
+            || (is_external() != v.is_external());
       }
 
       return true;
@@ -115,6 +126,12 @@ public class Variable extends DeclaredEntity
       sb.append(type.get_name());
       sb.append(" Variable ");
       sb.append(name);
+
+      if (is_external())
+      {
+         sb.append(" (external)");
+      }
+
       sb.append(")");
 
       return sb.toString();

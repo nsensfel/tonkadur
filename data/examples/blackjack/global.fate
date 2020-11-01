@@ -34,3 +34,5 @@
       )
    )
 )
+
+(declare_input_event escape)

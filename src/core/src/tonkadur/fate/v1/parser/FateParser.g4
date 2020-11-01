@@ -187,7 +187,37 @@ first_level_fate_instr:
          (
             start_origin,
             ($type.result),
-            ($name.result)
+            ($name.result),
+            false
+         );
+
+      WORLD.variables().add(new_variable);
+   }
+
+   | EXTERNAL_KW
+      type
+      WS+
+      name=new_reference_name
+      WS*
+   R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($EXTERNAL_KW.getLine()),
+            ($EXTERNAL_KW.getCharPositionInLine())
+         );
+
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            ($type.result),
+            ($name.result),
+            true
          );
 
       WORLD.variables().add(new_variable);
@@ -551,7 +581,8 @@ returns [Instruction result]
          (
             start_origin,
             ($type.result),
-            ($name.result)
+            ($name.result),
+            false
          );
 
       variable_map = LOCAL_VARIABLES.peekFirst();
@@ -1511,7 +1542,8 @@ returns [Instruction result]
                   ($FOR_EACH_KW.getCharPositionInLine())
                ),
                elem_type,
-               ($new_reference_name.result)
+               ($new_reference_name.result),
+               false
             );
 
          variable_map = LOCAL_VARIABLES.peekFirst();
@@ -2027,7 +2059,7 @@ returns [Instruction result]
          );
    }
 
-   | PLAYER_EVENT_KW
+   | (EVENT_KW | PLAYER_EVENT_KW)
       L_PAREN WS* WORD WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -2048,8 +2080,8 @@ returns [Instruction result]
       origin =
          CONTEXT.get_origin_at
          (
-            ($PLAYER_EVENT_KW.getLine()),
-            ($PLAYER_EVENT_KW.getCharPositionInLine())
+            ($L_PAREN.getLine()),
+            ($L_PAREN.getCharPositionInLine())
          );
 
       event = WORLD.input_events().get(origin, ($WORD.text));
@@ -2063,7 +2095,7 @@ returns [Instruction result]
          );
    }
 
-   | PLAYER_EVENT_KW
+   | (EVENT_KW | PLAYER_EVENT_KW)
       L_PAREN WS* WORD WS+ value_list WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -2084,8 +2116,8 @@ returns [Instruction result]
       origin =
          CONTEXT.get_origin_at
          (
-            ($PLAYER_EVENT_KW.getLine()),
-            ($PLAYER_EVENT_KW.getCharPositionInLine())
+            ($L_PAREN.getLine()),
+            ($L_PAREN.getCharPositionInLine())
          );
 
       event = WORLD.input_events().get(origin, ($WORD.text));
@@ -2213,7 +2245,8 @@ returns [Instruction result]
                   ($FOR_EACH_KW.getCharPositionInLine())
                ),
                elem_type,
-               ($new_reference_name.result)
+               ($new_reference_name.result),
+               false
             );
 
          variable_map = LOCAL_VARIABLES.peekFirst();
@@ -2770,7 +2803,8 @@ returns [List<Cons<Variable, Computation>> result]
                   ($L_PAREN.getCharPositionInLine())
                ),
                ($value.result).get_type(),
-               var_name
+               var_name,
+               false
             );
 
          if (variables.containsKey(var_name))
@@ -2863,7 +2897,8 @@ returns [VariableList result]
             (
                origin,
                next_type,
-               ($new_reference_name.result)
+               ($new_reference_name.result),
+               false
             )
          );
       }
