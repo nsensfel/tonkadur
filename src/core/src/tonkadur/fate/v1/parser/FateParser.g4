@@ -367,6 +367,52 @@ first_level_fate_instr:
       WORLD.events().add(new_event);
    }
 
+   | DECLARE_INPUT_EVENT_TYPE_KW new_reference_name WS* R_PAREN
+   {
+      final Origin start_origin;
+      final InputEvent new_event;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_INPUT_EVENT_TYPE_KW.getLine()),
+            ($DECLARE_INPUT_EVENT_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_event =
+         new InputEvent
+         (
+            start_origin,
+            new ArrayList<Type>(),
+            ($new_reference_name.result)
+         );
+
+      WORLD.input_events().add(new_event);
+   }
+
+   | DECLARE_INPUT_EVENT_TYPE_KW new_reference_name WS+ type_list WS* R_PAREN
+   {
+      final Origin start_origin;
+      final InputEvent new_event;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_INPUT_EVENT_TYPE_KW.getLine()),
+            ($DECLARE_INPUT_EVENT_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_event =
+         new InputEvent
+         (
+            start_origin,
+            ($type_list.result),
+            ($new_reference_name.result)
+         );
+
+      WORLD.input_events().add(new_event);
+   }
+
 
    | REQUIRE_KW WORD WS* R_PAREN
    {
@@ -1762,7 +1808,7 @@ returns [Instruction result]
    | PLAYER_CHOICE_KW player_choice_list WS* R_PAREN
    {
       $result =
-         new PlayerChoiceList
+         new PlayerChoice
          (
             CONTEXT.get_origin_at
             (
@@ -1953,7 +1999,7 @@ returns [List<Instruction> result]
 player_choice
 returns [Instruction result]
 :
-   start_p=L_PAREN WS*
+   PLAYER_OPTION_KW
       L_PAREN WS* paragraph WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -1969,14 +2015,87 @@ returns [Instruction result]
    R_PAREN
    {
       $result =
-         new PlayerChoice
+         new PlayerOption
          (
             CONTEXT.get_origin_at
             (
-               ($start_p.getLine()),
-               ($start_p.getCharPositionInLine())
+               ($PLAYER_OPTION_KW.getLine()),
+               ($PLAYER_OPTION_KW.getCharPositionInLine())
             ),
             ($paragraph.result),
+            ($general_fate_sequence.result)
+         );
+   }
+
+   | PLAYER_EVENT_KW
+      L_PAREN WS* WORD WS* R_PAREN WS+
+      {
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_sequence
+      {
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
+      WS*
+   R_PAREN
+   {
+      final Origin origin;
+      final InputEvent event;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($PLAYER_EVENT_KW.getLine()),
+            ($PLAYER_EVENT_KW.getCharPositionInLine())
+         );
+
+      event = WORLD.input_events().get(origin, ($WORD.text));
+
+      $result =
+         new PlayerInput
+         (
+            origin,
+            event,
+            ($general_fate_sequence.result)
+         );
+   }
+
+   | PLAYER_EVENT_KW
+      L_PAREN WS* WORD WS+ value_list WS* R_PAREN WS+
+      {
+         HIERARCHICAL_VARIABLES.push(new ArrayList());
+      }
+      general_fate_sequence
+      {
+         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         {
+            LOCAL_VARIABLES.peekFirst().remove(s);
+         }
+      }
+      WS*
+   R_PAREN
+   {
+      final Origin origin;
+      final InputEvent event;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($PLAYER_EVENT_KW.getLine()),
+            ($PLAYER_EVENT_KW.getCharPositionInLine())
+         );
+
+      event = WORLD.input_events().get(origin, ($WORD.text));
+
+      $result =
+         PlayerInput.build
+         (
+            origin,
+            event,
+            ($value_list.result),
             ($general_fate_sequence.result)
          );
    }

@@ -7,6 +7,9 @@ public interface InstructionVisitor
    public void visit_add_choice (final AddChoice n)
    throws Throwable;
 
+   public void visit_add_event_input (final AddEventInput n)
+   throws Throwable;
+
    public void visit_assert (final Assert n)
    throws Throwable;
 

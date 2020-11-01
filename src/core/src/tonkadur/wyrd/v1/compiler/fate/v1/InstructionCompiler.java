@@ -29,6 +29,7 @@ import tonkadur.wyrd.v1.lang.computation.GetLastChoiceIndex;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.AddChoice;
+import tonkadur.wyrd.v1.lang.instruction.AddEventInput;
 import tonkadur.wyrd.v1.lang.instruction.Assert;
 import tonkadur.wyrd.v1.lang.instruction.Display;
 import tonkadur.wyrd.v1.lang.instruction.End;
@@ -2325,9 +2326,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
-   public void visit_player_choice
+   public void visit_player_option
    (
-      final tonkadur.fate.v1.lang.instruction.PlayerChoice n
+      final tonkadur.fate.v1.lang.instruction.PlayerOption n
    )
    throws Throwable
    {
@@ -2466,9 +2467,172 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
-   public void visit_player_choice_list
+   public void visit_player_input
    (
-      final tonkadur.fate.v1.lang.instruction.PlayerChoiceList n
+      final tonkadur.fate.v1.lang.instruction.PlayerInput n
+   )
+   throws Throwable
+   {
+      /*
+       * Fate: (player_choice label i0)
+       *
+       * Wyrd (add_choice label i0)
+       */
+      final List<Instruction> to_next, labels_only;
+      final List<ComputationCompiler> params_cc;
+      final List<Computation> params;
+      final String start_of_effect, end_of_effect;
+
+      to_next = new ArrayList<Instruction>();
+      labels_only = new ArrayList<Instruction>();
+      params = new ArrayList<Computation>();
+      params_cc = new ArrayList<ComputationCompiler>();
+
+      start_of_effect = compiler.assembler().generate_label("<choice#start>");
+      end_of_effect = compiler.assembler().generate_label("<choice#end>");
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         param.get_visited_by(cc);
+
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
+
+         params.add(cc.get_computation());
+      }
+
+      labels_only.add
+      (
+         new AddEventInput(n.get_input_event().get_name(), params)
+      );
+
+      for (final ComputationCompiler cc: params_cc)
+      {
+         cc.release_registers(labels_only);
+      }
+
+      labels_only.add
+      (
+         new SetPC(compiler.assembler().get_label_constant(end_of_effect))
+      );
+
+      result.add
+      (
+         If.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            Operation.equals
+            (
+               compiler.registers().get_choice_number_holder().get_value(),
+               new Constant(Type.INT, "-2")
+            ),
+            compiler.assembler().merge(labels_only)
+         )
+      );
+
+
+      to_next.add
+      (
+         new SetValue
+         (
+            compiler.registers().get_choice_number_holder().get_address(),
+            Operation.plus
+            (
+               compiler.registers().get_choice_number_holder().get_value(),
+               Constant.ONE
+            )
+         )
+      );
+
+      to_next.add
+      (
+         new SetPC(compiler.assembler().get_label_constant(end_of_effect))
+      );
+
+      result.add
+      (
+         compiler.assembler().mark_after
+         (
+            If.generate
+            (
+               compiler.registers(),
+               compiler.assembler(),
+               Operation.not
+               (
+                  Operation.equals
+                  (
+                     compiler.registers().get_choice_number_holder().get_value(),
+                     new GetLastChoiceIndex()
+                  )
+               ),
+               compiler.assembler().merge(to_next)
+            ),
+            start_of_effect
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            compiler.registers().get_rand_mode_holder().get_address(),
+            new Constant(Type.INT, "0")
+         )
+      );
+
+      result.add
+      (
+         Clear.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            new Size
+            (
+               compiler.registers().get_rand_value_holder().get_address()
+            ),
+            compiler.registers().get_rand_value_holder().get_address()
+         )
+      );
+
+      compiler.registers().push_hierarchical_instruction_level();
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Instruction fate_instruction:
+            n.get_effects()
+      )
+      {
+         fate_instruction.get_visited_by(this);
+      }
+      compiler.registers().pop_hierarchical_instruction_level(result);
+
+      result.add
+      (
+         compiler.assembler().mark_after
+         (
+            new SetPC
+            (
+               compiler.assembler().get_context_label_constant("choices")
+            ),
+            end_of_effect
+         )
+      );
+   }
+
+
+   @Override
+   public void visit_player_choice
+   (
+      final tonkadur.fate.v1.lang.instruction.PlayerChoice n
    )
    throws Throwable
    {
@@ -2516,7 +2680,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       for
       (
          final tonkadur.fate.v1.lang.meta.Instruction fate_instruction:
-            n.get_choices()
+            n.get_entries()
       )
       {
          fate_instruction.get_visited_by(this);

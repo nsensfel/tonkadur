@@ -83,13 +83,13 @@
    Interesting. Would you like to go again?
 
    (player_choice
-      (
+      (option
          ( Yes, please. )
          Very well.
          (newline)
          (jump_to play_a_game)
       )
-      (
+      (option
          ( No, thank you. )
          It was a pleasure to play with you. Farewell.
          (newline)
@@ -153,17 +153,17 @@
    )
 
    (player_choice
-      (
+      (option
          ( Another card, please. )
          (set has_doubled (false))
          (jump_to acquire_card)
       )
-      (
+      (option
          ( I will stand. )
          (jump_to resolve_dealer)
       )
       (if (and (>= player_score 9) (<= player_score 11))
-         (
+         (option
             ( Double my bet, I'll only take one card. )
             (set bet (* bet 2))
             (set has_doubled (true))
@@ -215,11 +215,11 @@
    )
 
    (player_choice
-      (
+      (option
          ( Another card, please. )
          (jump_to acquire_card)
       )
-      (
+      (option
          ( This will do. I stand. )
          (jump_to resolve_dealer)
       )

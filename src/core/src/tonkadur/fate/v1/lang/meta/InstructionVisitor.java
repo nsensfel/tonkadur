@@ -122,7 +122,10 @@ public interface InstructionVisitor
    public void visit_player_choice (final PlayerChoice n)
    throws Throwable;
 
-   public void visit_player_choice_list (final PlayerChoiceList n)
+   public void visit_player_option (final PlayerOption n)
+   throws Throwable;
+
+   public void visit_player_input (final PlayerInput n)
    throws Throwable;
 
    public void visit_remove_all_of_element (final RemoveAllOfElement n)

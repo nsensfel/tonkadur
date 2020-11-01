@@ -27,6 +27,31 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("label", label_cc.get_result());
    }
 
+   public void visit_add_event_input (final AddEventInput n)
+   throws Throwable
+   {
+      final JSONArray params;
+
+      params = new JSONArray();
+
+      for (final Computation c: n.get_parameters())
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler();
+
+         c.get_visited_by(cc);
+
+         params.add(cc.get_result());
+      }
+
+      result = new JSONObject();
+
+      result.put("category", "add_event_input");
+      result.put("event", n.get_name());
+      result.put("parameters", params);
+   }
+
    public void visit_assert (final Assert n)
    throws Throwable
    {

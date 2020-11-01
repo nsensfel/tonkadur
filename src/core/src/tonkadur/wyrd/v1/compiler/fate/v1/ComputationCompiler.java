@@ -831,7 +831,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
                   result_as_address,
                   new IfElseComputation
                   (
-                     Operation.less_than(result_as_computation, operand),
+                     Operation.less_than
+                     (
+                        result_as_computation,
+                        operand
+                     ),
                      result_as_computation,
                      operand
                   )

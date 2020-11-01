@@ -4,19 +4,15 @@ import java.util.List;
 
 import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.lang.type.Type;
-
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.RichTextNode;
 
 public class PlayerChoice extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final RichTextNode text;
-   protected final List<Instruction> effects;
+   protected final List<Instruction> entries;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -25,16 +21,13 @@ public class PlayerChoice extends Instruction
    public PlayerChoice
    (
       final Origin origin,
-      final RichTextNode text,
-      final List<Instruction> effects
+      final List<Instruction> entries
    )
    {
       super(origin);
 
-      this.text = text;
-      this.effects = effects;
+      this.entries = entries;
    }
-
 
    /**** Accessors ************************************************************/
    @Override
@@ -44,14 +37,9 @@ public class PlayerChoice extends Instruction
       iv.visit_player_choice(this);
    }
 
-   public RichTextNode get_text ()
+   public List<Instruction> get_entries ()
    {
-      return text;
-   }
-
-   public List<Instruction> get_effects ()
-   {
-      return effects;
+      return entries;
    }
 
    /**** Misc. ****************************************************************/
@@ -60,14 +48,14 @@ public class PlayerChoice extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(PlayerChoice");
-      sb.append(System.lineSeparator());
-      sb.append(text.toString());
+      sb.append("(PlayerChoice ");
 
-      for (final Instruction effect: effects)
+      sb.append(System.lineSeparator());
+
+      for (final Instruction entry: entries)
       {
+         sb.append(entry.toString());
          sb.append(System.lineSeparator());
-         sb.append(effect.toString());
       }
 
       sb.append(")");

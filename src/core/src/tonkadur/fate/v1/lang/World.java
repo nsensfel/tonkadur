@@ -42,6 +42,7 @@ public class World
       extension_first_level_instructions;
 
    protected final DeclarationCollection<Event> event_collection;
+   protected final DeclarationCollection<InputEvent> input_event_collection;
    protected final DeclarationCollection<Sequence> sequence_collection;
    protected final DeclarationCollection<TextEffect> text_effect_collection;
    protected final DeclarationCollection<Type> type_collection;
@@ -69,6 +70,8 @@ public class World
 
       event_collection =
          new DeclarationCollection<Event>(Event.value_on_missing());
+      input_event_collection =
+         new DeclarationCollection<InputEvent>(InputEvent.value_on_missing());
       sequence_collection = new DeclarationCollection<Sequence>(null);
 
       text_effect_collection =
@@ -162,6 +165,11 @@ public class World
       return event_collection;
    }
 
+   public DeclarationCollection<InputEvent> input_events ()
+   {
+      return input_event_collection;
+   }
+
    public DeclarationCollection<Sequence> sequences ()
    {
       return sequence_collection;
@@ -238,6 +246,13 @@ public class World
       sb.append("Events: ");
       sb.append(System.lineSeparator());
       sb.append(event_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append(System.lineSeparator());
+      sb.append("Input Events: ");
+      sb.append(System.lineSeparator());
+      sb.append(input_event_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 

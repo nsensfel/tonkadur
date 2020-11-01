@@ -68,11 +68,14 @@ public class PopElement
          new SetValue
          (
             element_holder,
-            new RelativeAddress
+            new ValueOf
             (
-               collection,
-               new Cast(target_index, Type.STRING),
-               ((PointerType) element_holder.get_type()).get_target_type()
+               new RelativeAddress
+               (
+                  collection,
+                  new Cast(target_index, Type.STRING),
+                  ((PointerType) element_holder.get_type()).get_target_type()
+               )
             )
          )
       );

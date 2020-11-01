@@ -24,7 +24,7 @@ Just between you and me, someone left those laying around, they aren't mine.
 Now, you're all set to go... unless you don't know how to play?
 
 (player_choice
-   (
+   (option
       ( As it happens, I do not. )
       (visit rules_of_blackjack)
       (text_effect action_description
@@ -32,7 +32,7 @@ Now, you're all set to go... unless you don't know how to play?
       )
       (visit play_a_game)
    )
-   (
+   (option
       ( I am familiar with BlackJack. )
       (text_effect action_description
          You leave the counter and approach one of the tables.

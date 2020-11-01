@@ -38,6 +38,7 @@ DECLARE_ALIAS_TYPE_KW:
 DECLARE_DICT_TYPE_KW: L_PAREN
    ('declare'|'define'|'def')US('dict'|('struct''ure'?))(US'type')? SEP+;
 DECLARE_EVENT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US'event'(US'type')? SEP+;
+DECLARE_INPUT_EVENT_TYPE_KW: L_PAREN ('declare'|'define'|'def')US'input'US'event'(US'type')? SEP+;
 DECLARE_TEXT_EFFECT_KW: L_PAREN ('declare'|'define'|'def')US'text'US'effect' SEP+;
 DECLARE_VARIABLE_KW: L_PAREN 'global' SEP+;
 LOCAL_KW: L_PAREN 'local' SEP+;
@@ -113,6 +114,8 @@ IMP_PUSH_LEFT_KW: L_PAREN 'push'US'left!' SEP+;
 PUSH_RIGHT_KW: L_PAREN 'push'US'right' SEP+;
 IMP_PUSH_RIGHT_KW: L_PAREN 'push'US'right!' SEP+;
 PLAYER_CHOICE_KW: L_PAREN ('choice'|'user'US'choice'|'player'US'choice') SEP+;
+PLAYER_OPTION_KW: L_PAREN ('option'|'user'US'option'|'player'US'option') SEP+;
+PLAYER_EVENT_KW: L_PAREN ('event'|'user'US'event'|'player'US'event') SEP+;
 PLUS_KW: L_PAREN ('plus'|'+') SEP+;
 POWER_KW: L_PAREN ('power'|'^'|'**'|'pow') SEP+;
 RANGE_KW: L_PAREN 'range' SEP+;
