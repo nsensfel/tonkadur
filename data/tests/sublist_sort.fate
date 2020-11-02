@@ -1,0 +1,39 @@
+(fate_version 1)
+
+(global (list int) li0)
+(global (list int) li1)
+(global (list int) li2)
+(global (list int) li3)
+
+(global (list int) ili1)
+(global (list int) ili2)
+(global (list int) ili3)
+
+(global (lambda int (int int)) sort_fun)
+
+(set sort_fun
+   (lambda ((int x) (int y))
+      (cond
+         ((< x y) -1)
+         ((> x y) 1)
+         ((true) 0)
+      )
+   )
+)
+
+(set li0 (range 0 10 1))
+(set ili1 (var li0))
+(set ili3 (var li0))
+
+(set li3 (sublist 3 6 li0))
+(sublist! 3 6 ili3)
+
+(set li1 (shuffle li0))
+(shuffle! ili1)
+
+(set ili2 (var ili1))
+(sort! sort_fun ili2)
+(set li2 (sort sort_fun li1))
+
+
+(end)

@@ -30,80 +30,29 @@ public class Clear
    private Clear () {}
 
    /*
-    * (Computation int collection_size)
     * (declare_variable global <List E> collection)
     *
-    * (declare_variable int .iterator)
+    * (declare_variable <List E> .clean_value)
     *
-    * (set .iterator collection_size)
-    *
-    * (while (> (var .iterator) 0)
-    *    (set .iterator (- (val .iterator) 1))
-    *    (remove collection[.iterator])
-    * )
-    * FIXME: this can now be written as
-    * (remove collection)
-    * (initialize collection)
+    * (set collection .clean_value)
     */
    public static Instruction generate
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation collection_size,
       final Address collection
    )
    {
-      final List<Instruction> result, while_body;
-      final Type element_type;
-      final Register iterator;
+      final List<Instruction> result;
+      final Register clean_value;
 
       result = new ArrayList<Instruction>();
-      while_body = new ArrayList<Instruction>();
 
-      element_type =
-         ((MapType) collection.get_target_type()).get_member_type();
+      clean_value = registers.reserve(collection.get_target_type(), result);
 
-      iterator = registers.reserve(Type.INT, result);
+      result.add(new SetValue(collection, clean_value.get_value()));
 
-      /* (set .iterator collection_size) */
-      result.add(new SetValue(iterator.get_address(), collection_size));
-
-      /* (set .iterator (- (val .iterator) 1)) */
-      while_body.add
-      (
-         new SetValue
-         (
-            iterator.get_address(),
-            Operation.minus(iterator.get_value(), Constant.ONE)
-         )
-      );
-
-      /* (remove collection[.iterator]) */
-      while_body.add
-      (
-         new Remove
-         (
-            new RelativeAddress
-            (
-               collection,
-               new Cast(iterator.get_value(), Type.STRING),
-               element_type
-            )
-         )
-      );
-
-      result.add
-      (
-         While.generate
-         (
-            registers,
-            assembler,
-            Operation.greater_than(iterator.get_value(), Constant.ZERO),
-            assembler.merge(while_body)
-         )
-      );
-
-      registers.release(iterator, result);
+      registers.release(clean_value, result);
 
       return assembler.merge(result);
    }

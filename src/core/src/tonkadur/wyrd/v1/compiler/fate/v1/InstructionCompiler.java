@@ -45,29 +45,31 @@ import tonkadur.wyrd.v1.lang.instruction.SetValue;
 import tonkadur.wyrd.v1.compiler.util.AddElement;
 import tonkadur.wyrd.v1.compiler.util.AddElementsOf;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
-import tonkadur.wyrd.v1.compiler.util.InsertAt;
+import tonkadur.wyrd.v1.compiler.util.Clear;
+import tonkadur.wyrd.v1.compiler.util.FilterLambda;
 import tonkadur.wyrd.v1.compiler.util.If;
 import tonkadur.wyrd.v1.compiler.util.IfElse;
-import tonkadur.wyrd.v1.compiler.util.InstructionManager;
-import tonkadur.wyrd.v1.compiler.util.NOP;
-import tonkadur.wyrd.v1.compiler.util.While;
 import tonkadur.wyrd.v1.compiler.util.IndexedFilterLambda;
-import tonkadur.wyrd.v1.compiler.util.FilterLambda;
-import tonkadur.wyrd.v1.compiler.util.Shuffle;
-import tonkadur.wyrd.v1.compiler.util.Clear;
-import tonkadur.wyrd.v1.compiler.util.MapLambda;
-import tonkadur.wyrd.v1.compiler.util.PopElement;
-import tonkadur.wyrd.v1.compiler.util.MergeLambda;
-import tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda;
-import tonkadur.wyrd.v1.compiler.util.PartitionLambda;
-import tonkadur.wyrd.v1.compiler.util.IndexedPartitionLambda;
 import tonkadur.wyrd.v1.compiler.util.IndexedMapLambda;
+import tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda;
+import tonkadur.wyrd.v1.compiler.util.IndexedPartitionLambda;
+import tonkadur.wyrd.v1.compiler.util.InsertAt;
+import tonkadur.wyrd.v1.compiler.util.InstructionManager;
 import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
+import tonkadur.wyrd.v1.compiler.util.MapLambda;
+import tonkadur.wyrd.v1.compiler.util.MergeLambda;
+import tonkadur.wyrd.v1.compiler.util.NOP;
+import tonkadur.wyrd.v1.compiler.util.PartitionLambda;
+import tonkadur.wyrd.v1.compiler.util.PopElement;
 import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
+import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveElementsOf;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
 import tonkadur.wyrd.v1.compiler.util.ReverseList;
-import tonkadur.wyrd.v1.compiler.util.RemoveAt;
+import tonkadur.wyrd.v1.compiler.util.Shuffle;
+import tonkadur.wyrd.v1.compiler.util.Sort;
+import tonkadur.wyrd.v1.compiler.util.SubList;
+import tonkadur.wyrd.v1.compiler.util.While;
 
 public class InstructionCompiler
 implements tonkadur.fate.v1.lang.meta.InstructionVisitor
@@ -386,7 +388,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers(),
             compiler.assembler(),
-            new Size(collection_address),
             collection_address
          )
       );
@@ -635,8 +636,91 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
-      System.err.println("[P] Using unimplemented Sort.");
+      final ComputationCompiler lambda_cc;
+      final List<Computation> params;
+      final List<ComputationCompiler> param_cc_list;
+      final ComputationCompiler collection_cc;
+      final Register sorted_result;
+
+      params = new ArrayList<Computation>();
+      param_cc_list = new ArrayList<ComputationCompiler>();
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      if (lambda_cc.has_init())
+      {
+         result.add(lambda_cc.get_init());
+      }
+
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(collection_cc);
+
+      if (collection_cc.has_init())
+      {
+         result.add(collection_cc.get_init());
+      }
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         if (param_cc.has_init())
+         {
+            result.add(param_cc.get_init());
+         }
+
+         param_cc_list.add(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      sorted_result =
+         compiler.registers().reserve
+         (
+            collection_cc.get_computation().get_type(),
+            result
+         );
+
+      result.add
+      (
+         Sort.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            collection_cc.get_address(),
+            sorted_result.get_address(),
+            params
+         )
+      );
+
+      result.add
+      (
+         new SetValue(collection_cc.get_address(), sorted_result.get_value())
+      );
+
+      compiler.registers().release(sorted_result, result);
+
+      collection_cc.release_registers(result);
+
+      for (final ComputationCompiler cc: param_cc_list)
+      {
+         cc.release_registers(result);
+      }
    }
 
    @Override
@@ -1051,8 +1135,68 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO */
-      System.err.println("[P] Using unimplemented SubList.");
+      final ComputationCompiler address_compiler, start_compiler, end_compiler;
+      final Register result_holder;
+
+      address_compiler = new ComputationCompiler(compiler);
+      start_compiler = new ComputationCompiler(compiler);
+      end_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         result.add(address_compiler.get_init());
+      }
+
+      n.get_start_index().get_visited_by(start_compiler);
+
+      if (start_compiler.has_init())
+      {
+         result.add(start_compiler.get_init());
+      }
+
+      n.get_end_index().get_visited_by(end_compiler);
+
+      if (end_compiler.has_init())
+      {
+         result.add(end_compiler.get_init());
+      }
+
+      result_holder =
+         compiler.registers().reserve
+         (
+            address_compiler.get_computation().get_type(),
+            result
+         );
+
+      result.add
+      (
+         SubList.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            start_compiler.get_computation(),
+            end_compiler.get_computation(),
+            address_compiler.get_address(),
+            result_holder.get_address()
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            address_compiler.get_address(),
+            result_holder.get_value()
+         )
+      );
+
+      compiler.registers().release(result_holder, result);
+
+      address_compiler.release_registers(result);
+      start_compiler.release_registers(result);
+      end_compiler.release_registers(result);
    }
 
    @Override
@@ -2432,10 +2576,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers(),
             compiler.assembler(),
-            new Size
-            (
-               compiler.registers().get_rand_value_holder().get_address()
-            ),
             compiler.registers().get_rand_value_holder().get_address()
          )
       );
@@ -2596,10 +2736,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers(),
             compiler.assembler(),
-            new Size
-            (
-               compiler.registers().get_rand_value_holder().get_address()
-            ),
             compiler.registers().get_rand_value_holder().get_address()
          )
       );

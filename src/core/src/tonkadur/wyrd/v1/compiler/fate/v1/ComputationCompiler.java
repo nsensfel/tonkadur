@@ -25,30 +25,32 @@ import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.compiler.util.AddElement;
 import tonkadur.wyrd.v1.compiler.util.AddElementsOf;
 import tonkadur.wyrd.v1.compiler.util.BinarySearch;
-import tonkadur.wyrd.v1.compiler.util.IfElse;
-import tonkadur.wyrd.v1.compiler.util.If;
-import tonkadur.wyrd.v1.compiler.util.Fold;
+import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
+import tonkadur.wyrd.v1.compiler.util.CreateCons;
 import tonkadur.wyrd.v1.compiler.util.FilterLambda;
+import tonkadur.wyrd.v1.compiler.util.Fold;
+import tonkadur.wyrd.v1.compiler.util.If;
+import tonkadur.wyrd.v1.compiler.util.IfElse;
 import tonkadur.wyrd.v1.compiler.util.IndexedFilterLambda;
-import tonkadur.wyrd.v1.compiler.util.Shuffle;
+import tonkadur.wyrd.v1.compiler.util.IndexedMapLambda;
+import tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda;
+import tonkadur.wyrd.v1.compiler.util.IndexedPartitionLambda;
+import tonkadur.wyrd.v1.compiler.util.InsertAt;
+import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
+import tonkadur.wyrd.v1.compiler.util.LambdaEvaluation;
+import tonkadur.wyrd.v1.compiler.util.MapLambda;
+import tonkadur.wyrd.v1.compiler.util.MergeLambda;
+import tonkadur.wyrd.v1.compiler.util.PartitionLambda;
+import tonkadur.wyrd.v1.compiler.util.PopElement;
+import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
 import tonkadur.wyrd.v1.compiler.util.RemoveAt;
 import tonkadur.wyrd.v1.compiler.util.RemoveElementsOf;
-import tonkadur.wyrd.v1.compiler.util.InsertAt;
-import tonkadur.wyrd.v1.compiler.util.RemoveAllOf;
-import tonkadur.wyrd.v1.compiler.util.IndexedMapLambda;
-import tonkadur.wyrd.v1.compiler.util.PartitionLambda;
-import tonkadur.wyrd.v1.compiler.util.IndexedPartitionLambda;
-import tonkadur.wyrd.v1.compiler.util.MapLambda;
-import tonkadur.wyrd.v1.compiler.util.PopElement;
-import tonkadur.wyrd.v1.compiler.util.MergeLambda;
-import tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda;
 import tonkadur.wyrd.v1.compiler.util.RemoveOneOf;
 import tonkadur.wyrd.v1.compiler.util.ReverseList;
-import tonkadur.wyrd.v1.compiler.util.CreateCons;
-import tonkadur.wyrd.v1.compiler.util.IterativeSearch;
-import tonkadur.wyrd.v1.compiler.util.CountOccurrences;
+import tonkadur.wyrd.v1.compiler.util.Shuffle;
+import tonkadur.wyrd.v1.compiler.util.Sort;
+import tonkadur.wyrd.v1.compiler.util.SubList;
 import tonkadur.wyrd.v1.compiler.util.While;
-import tonkadur.wyrd.v1.compiler.util.LambdaEvaluation;
 
 import tonkadur.wyrd.v1.lang.computation.*;
 
@@ -2879,8 +2881,54 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
-      System.err.println("[P] Using unimplemented SubListComputation.");
+      final ComputationCompiler address_compiler, start_compiler, end_compiler;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      address_compiler = new ComputationCompiler(compiler);
+      start_compiler = new ComputationCompiler(compiler);
+      end_compiler = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(address_compiler);
+
+      if (address_compiler.has_init())
+      {
+         init_instructions.add(address_compiler.get_init());
+      }
+
+      n.get_start_index().get_visited_by(start_compiler);
+
+      if (start_compiler.has_init())
+      {
+         init_instructions.add(start_compiler.get_init());
+      }
+
+      n.get_end_index().get_visited_by(end_compiler);
+
+      if (end_compiler.has_init())
+      {
+         init_instructions.add(end_compiler.get_init());
+      }
+
+      init_instructions.add
+      (
+         SubList.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            start_compiler.get_computation(),
+            end_compiler.get_computation(),
+            address_compiler.get_address(),
+            result_as_address
+         )
+      );
+
+      start_compiler.release_registers(init_instructions);
+      end_compiler.release_registers(init_instructions);
+      address_compiler.release_registers(init_instructions);
    }
 
    @Override
@@ -3092,8 +3140,66 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      /* TODO */
-      System.err.println("[P] Using unimplemented SortComputation.");
+      final List<Computation> params;
+      final ComputationCompiler lambda_cc, in_collection_cc;
+      final Register result;
+
+      result = reserve(TypeCompiler.compile(compiler, n.get_type()));
+
+      result_as_address = result.get_address();
+      result_as_computation = result.get_value();
+
+      params = new ArrayList<Computation>();
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         assimilate(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      assimilate(lambda_cc);
+
+      in_collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(in_collection_cc);
+
+      if (in_collection_cc.has_init())
+      {
+         init_instructions.add(in_collection_cc.get_init());
+      }
+
+      init_instructions.add
+      (
+         Sort.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            in_collection_cc.get_address(),
+            result_as_address,
+            params
+         )
+      );
+
+      in_collection_cc.release_registers(init_instructions);
    }
 
    @Override
@@ -3381,6 +3487,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             result_as_address
          )
       );
+
+      element_compiler.release_registers(init_instructions);
    }
 
    @Override

@@ -277,8 +277,62 @@ public class BinarySearch
       final List<Computation> sort_fun_extra_params
    )
    {
-      final List<Instruction> result, while_body;
+      final List<Instruction> result;
       final Register bot, top, midval, cmp;
+
+      result = new ArrayList<Instruction>();
+
+      bot = registers.reserve(Type.INT, result);
+      top = registers.reserve(Type.INT, result);
+      midval = registers.reserve(target.get_type(), result);
+      cmp = registers.reserve(Type.INT, result);
+
+      result.add
+      (
+         generate
+         (
+            registers,
+            assembler,
+            sort_fun,
+            target,
+            collection_size,
+            collection,
+            result_was_found,
+            result_index,
+            sort_fun_extra_params,
+            bot,
+            top,
+            midval,
+            cmp
+         )
+      );
+
+      registers.release(bot, result);
+      registers.release(top, result);
+      registers.release(midval, result);
+      registers.release(cmp, result);
+
+      return assembler.merge(result);
+   }
+
+   public static Instruction generate
+   (
+      final RegisterManager registers,
+      final InstructionManager assembler,
+      final Computation sort_fun,
+      final Computation target,
+      final Computation collection_size,
+      final Address collection,
+      final Address result_was_found,
+      final Address result_index,
+      final List<Computation> sort_fun_extra_params,
+      final Register bot,
+      final Register top,
+      final Register midval,
+      final Register cmp
+   )
+   {
+      final List<Instruction> result, while_body;
       final Type element_type;
       final Computation value_of_result_index;
 
@@ -286,11 +340,6 @@ public class BinarySearch
       while_body = new ArrayList<Instruction>();
 
       element_type = target.get_type();
-
-      bot = registers.reserve(Type.INT, result);
-      top = registers.reserve(Type.INT, result);
-      midval = registers.reserve(element_type, result);
-      cmp = registers.reserve(Type.INT, result);
 
       value_of_result_index = new ValueOf(result_index);
 
@@ -363,6 +412,9 @@ public class BinarySearch
             )
          )
       );
+
+      sort_fun_extra_params.add(0, target);
+      sort_fun_extra_params.add(0, midval.get_value());
 
       while_body.add
       (
@@ -458,11 +510,6 @@ public class BinarySearch
             )
          )
       );
-
-      registers.release(bot, result);
-      registers.release(top, result);
-      registers.release(midval, result);
-      registers.release(cmp, result);
 
       return assembler.merge(result);
    }
