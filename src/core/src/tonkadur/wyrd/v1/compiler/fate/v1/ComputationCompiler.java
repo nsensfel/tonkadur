@@ -1348,6 +1348,74 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
 
    @Override
+   public void visit_access_pointer
+   (
+      final tonkadur.fate.v1.lang.computation.AccessPointer n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler extra_address_cc, base_address_cc;
+
+      base_address_cc = new ComputationCompiler(compiler);
+      extra_address_cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(base_address_cc);
+      n.get_index().get_visited_by(extra_address_cc);
+
+      assimilate(base_address_cc);
+      assimilate(extra_address_cc);
+
+      result_as_computation =
+         new RelativeAddress
+         (
+            base_address_cc.get_address(),
+            new Cast(extra_address_cc.get_computation(), Type.STRING),
+            TypeCompiler.compile
+            (
+               compiler,
+               (
+                  (tonkadur.fate.v1.lang.type.CollectionType)
+                     n.get_parent().get_type()
+               ).get_content_type()
+            )
+         );
+   }
+
+   @Override
+   public void visit_access_as_reference
+   (
+      final tonkadur.fate.v1.lang.computation.AccessAsReference n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler extra_address_cc, base_address_cc;
+
+      base_address_cc = new ComputationCompiler(compiler);
+      extra_address_cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(base_address_cc);
+      n.get_index().get_visited_by(extra_address_cc);
+
+      assimilate(base_address_cc);
+      assimilate(extra_address_cc);
+
+      result_as_address =
+         new RelativeAddress
+         (
+            base_address_cc.get_address(),
+            new Cast(extra_address_cc.get_computation(), Type.STRING),
+            TypeCompiler.compile
+            (
+               compiler,
+               (
+                  (tonkadur.fate.v1.lang.type.CollectionType)
+                     n.get_parent().get_type()
+               ).get_content_type()
+            )
+         );
+   }
+
+   @Override
    public void visit_access
    (
       final tonkadur.fate.v1.lang.computation.Access n
@@ -1361,6 +1429,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       n.get_parent().get_visited_by(base_address_cc);
       n.get_index().get_visited_by(extra_address_cc);
+
+      base_address_cc.generate_address();
 
       assimilate(base_address_cc);
       assimilate(extra_address_cc);

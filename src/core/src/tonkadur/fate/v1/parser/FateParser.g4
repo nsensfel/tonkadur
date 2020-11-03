@@ -3667,7 +3667,7 @@ returns [Computation result]
          );
    }
 
-   | ACCESS_KW value_reference WS+ non_text_value R_PAREN
+   | ACCESS_KW collection=non_text_value WS+ index=non_text_value R_PAREN
    {
       $result =
          Access.build
@@ -3676,6 +3676,21 @@ returns [Computation result]
             (
                ($ACCESS_KW.getLine()),
                ($ACCESS_KW.getCharPositionInLine())
+            ),
+            ($collection.result),
+            ($index.result)
+         );
+   }
+
+   | ACCESS_POINTER_KW value_reference WS+ non_text_value R_PAREN
+   {
+      $result =
+         AccessPointer.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ACCESS_POINTER_KW.getLine()),
+               ($ACCESS_POINTER_KW.getCharPositionInLine())
             ),
             ($value_reference.result),
             ($non_text_value.result)

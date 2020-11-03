@@ -20,7 +20,7 @@ import tonkadur.fate.v1.lang.meta.Computation;
 
 public class Cast extends Computation
 {
-   protected static final Map<Type,Set<Type>> allowed_type_changes;
+   protected static final Map<Type, Set<Type>> allowed_type_changes;
 
    static
    {

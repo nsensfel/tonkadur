@@ -8,7 +8,6 @@ import tonkadur.parser.Origin;
 import tonkadur.error.ErrorManager;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
-import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -53,15 +52,13 @@ public class Access extends Computation
       Computation parent,
       final Computation index
    )
-   throws
-      InvalidTypeException,
-      UnknownDictionaryFieldException
+   throws InvalidTypeException
    {
       Type current_type;
 
       current_type = parent.get_type();
 
-      if (current_type.get_act_as_type().equals(Type.REF))
+      while (current_type.get_act_as_type().equals(Type.REF))
       {
          parent = AtReference.build(origin, parent);
          current_type = parent.get_type();

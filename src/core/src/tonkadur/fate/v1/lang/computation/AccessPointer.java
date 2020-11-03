@@ -8,54 +8,56 @@ import tonkadur.parser.Origin;
 import tonkadur.error.ErrorManager;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
-import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Reference;
 
-import tonkadur.fate.v1.lang.type.DictType;
+import tonkadur.fate.v1.lang.type.CollectionType;
+import tonkadur.fate.v1.lang.type.PointerType;
 import tonkadur.fate.v1.lang.type.Type;
 
-public class FieldReference extends Reference
+public class AccessPointer extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation parent;
-   protected final String field_name;
+   protected final Reference parent;
+   protected final Computation index;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected FieldReference
+   protected AccessPointer
    (
       final Origin origin,
-      final Computation parent,
+      final Reference parent,
       final Type type,
-      final String field_name
+      final Computation index
    )
    {
-      super(origin, type, (parent.toString() + "." + field_name));
+      super
+      (
+         origin,
+         new PointerType(origin, type, "(ptr " + type.toString() + ") autogen")
+      );
 
       this.parent = parent;
-      this.field_name = field_name;
+      this.index = index;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static FieldReference build
+   public static AccessPointer build
    (
       final Origin origin,
-      Computation parent,
-      final String field
+      Reference parent,
+      final Computation index
    )
-   throws
-      InvalidTypeException,
-      UnknownDictionaryFieldException
+   throws InvalidTypeException
    {
       Type current_type;
 
@@ -63,11 +65,25 @@ public class FieldReference extends Reference
 
       while (current_type.get_act_as_type().equals(Type.REF))
       {
-         parent = AtReference.build(origin, (Reference) parent);
+         parent = AtReference.build(origin, parent);
          current_type = parent.get_type();
       }
 
-      if (!(current_type instanceof DictType))
+      if (!index.get_type().can_be_used_as(Type.INT))
+      {
+         ErrorManager.handle
+         (
+            new InvalidTypeException
+            (
+               index.get_origin(),
+               current_type,
+               Collections.singleton(Type.INT),
+               index.toString()
+            )
+         );
+      }
+
+      if (!(current_type instanceof CollectionType))
       {
          ErrorManager.handle
          (
@@ -75,7 +91,7 @@ public class FieldReference extends Reference
             (
                origin,
                current_type,
-               Collections.singleton(Type.DICT),
+               Collections.singleton(Type.LIST),
                parent.toString()
             )
          );
@@ -84,51 +100,27 @@ public class FieldReference extends Reference
       }
       else
       {
-         current_type = ((DictType) current_type).get_field_type(origin, field);
+         current_type = ((CollectionType) current_type).get_content_type();
       }
 
-      return new FieldReference(origin, parent, current_type, field);
+      return new AccessPointer(origin, parent, current_type, index);
    }
 
-   public static FieldReference build
-   (
-      final Origin origin,
-      Computation parent,
-      final List<String> field_sequence
-   )
-   throws
-      InvalidTypeException,
-      UnknownDictionaryFieldException
-   {
-      for (final String field: field_sequence)
-      {
-         parent = build(origin, parent, field);
-      }
-
-      if (parent instanceof FieldReference)
-      {
-         return (FieldReference) parent;
-      }
-      else
-      {
-         return null;
-      }
-   }
 
    /**** Accessors ************************************************************/
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_field_reference(this);
+      cv.visit_access_pointer(this);
    }
 
-   public String get_field_name ()
+   public Computation get_index ()
    {
-      return field_name;
+      return index;
    }
 
-   public Computation get_parent ()
+   public Reference get_parent ()
    {
       return parent;
    }
@@ -139,12 +131,12 @@ public class FieldReference extends Reference
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(FieldReference (");
+      sb.append("(AccessPointer (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(parent.toString());
-      sb.append(" ");
-      sb.append(field_name);
+      sb.append(parent.get_name());
+      sb.append(".");
+      sb.append(index.toString());
       sb.append(")");
 
       return sb.toString();

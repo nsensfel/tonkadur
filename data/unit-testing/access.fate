@@ -8,12 +8,15 @@
 
 (global int i)
 
-(for (set i 0) (< i 10) (set i (+ i 1))
+(for (set i 0) (=< i 10) (set i (+ i 1))
    (assert (= (access li i) (var i))
       [FAILED] ACCESS assert failed on (var i) for li.
    )
    (assert (= (access li_ptr i) (var i))
       [FAILED] ACCESS assert failed on (var i) with for li_ptr.
+   )
+   (assert (= (access (range 0 10 1) i) (var i))
+      [FAILED] ACCESS assert failed on (var i) with for range.
    )
 )
 

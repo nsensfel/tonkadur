@@ -16,6 +16,7 @@ R_PAREN: ')';
 
 ABS_KW: L_PAREN 'abs'('olute'?) SEP+;
 ACCESS_KW: L_PAREN 'access' SEP+;
+ACCESS_POINTER_KW: L_PAREN 'access'US('ptr'|'pointer') SEP+;
 ADD_KW: L_PAREN 'add'(US'element')? SEP+;
 IMP_ADD_KW: L_PAREN 'add'(US'element')?'!' SEP+;
 ADD_AT_KW: L_PAREN 'add'(US'element')?US'at' SEP+;

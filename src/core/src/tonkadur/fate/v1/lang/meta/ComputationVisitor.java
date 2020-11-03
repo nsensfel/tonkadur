@@ -10,6 +10,12 @@ public interface ComputationVisitor
    public void visit_access (final Access n)
    throws Throwable;
 
+   public void visit_access_pointer (final AccessPointer n)
+   throws Throwable;
+
+   public void visit_access_as_reference (final AccessAsReference n)
+   throws Throwable;
+
    public void visit_new (final New n)
    throws Throwable;
 
