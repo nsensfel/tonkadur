@@ -3667,6 +3667,21 @@ returns [Computation result]
          );
    }
 
+   | ACCESS_KW value_reference WS+ non_text_value R_PAREN
+   {
+      $result =
+         Access.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($ACCESS_KW.getLine()),
+               ($ACCESS_KW.getCharPositionInLine())
+            ),
+            ($value_reference.result),
+            ($non_text_value.result)
+         );
+   }
+
    | FOLDL_KW
          fun=non_text_value WS+
          init=value WS+
@@ -4854,20 +4869,6 @@ returns [Reference result]
          );
    }
 
-   | ACCESS_KW value_reference WS+ value R_PAREN
-   {
-      $result =
-         Access.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ACCESS_KW.getLine()),
-               ($ACCESS_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result),
-            ($value.result)
-         );
-   }
 
    | (WORD | (VARIABLE_KW WORD WS* R_PAREN))
    {

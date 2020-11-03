@@ -17,12 +17,12 @@ import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.Type;
 
-public class Access extends Reference
+public class Access extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference parent;
+   protected final Computation parent;
    protected final Computation index;
 
    /***************************************************************************/
@@ -32,12 +32,12 @@ public class Access extends Reference
    protected Access
    (
       final Origin origin,
-      final Reference parent,
+      final Computation parent,
       final Type type,
       final Computation index
    )
    {
-      super(origin, type, (parent.get_name() + "." + index.toString()));
+      super(origin, type);
 
       this.parent = parent;
       this.index = index;
@@ -50,7 +50,7 @@ public class Access extends Reference
    public static Access build
    (
       final Origin origin,
-      Reference parent,
+      Computation parent,
       final Computation index
    )
    throws
@@ -76,7 +76,7 @@ public class Access extends Reference
                index.get_origin(),
                current_type,
                Collections.singleton(Type.INT),
-               parent.get_name()
+               index.toString()
             )
          );
       }
@@ -90,7 +90,7 @@ public class Access extends Reference
                origin,
                current_type,
                Collections.singleton(Type.LIST),
-               parent.get_name()
+               parent.toString()
             )
          );
 
@@ -118,7 +118,7 @@ public class Access extends Reference
       return index;
    }
 
-   public Reference get_parent ()
+   public Computation get_parent ()
    {
       return parent;
    }
@@ -132,7 +132,7 @@ public class Access extends Reference
       sb.append("(Access (");
       sb.append(type.get_name());
       sb.append(") ");
-      sb.append(name);
+      sb.append(parent.toString());
       sb.append(".");
       sb.append(index.toString());
       sb.append(")");

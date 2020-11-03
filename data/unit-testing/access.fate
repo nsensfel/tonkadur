@@ -1,0 +1,22 @@
+(fate_version 1)
+
+(global (list int) li)
+(global (ptr (list int)) li_ptr)
+
+(set li (range 0 10 1))
+(set li_ptr (ptr li))
+
+(global int i)
+
+(for (set i 0) (< i 10) (set i (+ i 1))
+   (assert (= (access li i) (var i))
+      [FAILED] ACCESS assert failed on (var i) for li.
+   )
+   (assert (= (access li_ptr i) (var i))
+      [FAILED] ACCESS assert failed on (var i) with for li_ptr.
+   )
+)
+
+[COMPLETED] ACCESS
+
+(end)
