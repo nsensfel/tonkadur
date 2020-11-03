@@ -253,7 +253,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
                   new Size(collection_compiler.get_address())
                ),
                new Size(collection_compiler.get_address()),
-               index_compiler.get_computation()
+               new IfElseComputation
+               (
+                  Operation.less_than
+                  (
+                     index_compiler.get_computation(),
+                     Constant.ZERO
+                  ),
+                  Constant.ZERO,
+                  index_compiler.get_computation()
+               )
             )
          )
       );

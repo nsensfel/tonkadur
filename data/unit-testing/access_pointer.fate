@@ -1,5 +1,9 @@
 (fate_version 1)
 
+(global string test_name)
+
+(set test_name ( ACCESS POINTER ))
+
 (global (list int) li)
 (global (ptr (list int)) li_ptr)
 
@@ -16,6 +20,36 @@
       [FAILED] ACCESS POINTER assert failed on (var i) with for li_ptr.
    )
 )
+
+(global (list (list int)) lili)
+
+(for (set i 0) (=< i 10) (set i (+ i 1))
+   (add! (range 0 i 1) lili)
+)
+
+(assert (= (at (access_ptr (at (access_ptr lili 10)) 0)) 0) [FAILED] (var test_name) lili.10.0 was (at (access_ptr (at (access_ptr lili 10)) 0)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 9)) 1)) 1) [FAILED] (var test_name) lili.9.1 was (at (access_ptr (at (access_ptr lili 9)) 1)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 8)) 2)) 2) [FAILED] (var test_name) lili.8.2 was (at (access_ptr (at (access_ptr lili 8)) 2)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 7)) 3)) 3) [FAILED] (var test_name) lili.7.3 was (at (access_ptr (at (access_ptr lili 7)) 3)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 6)) 4)) 4) [FAILED] (var test_name) lili.6.4 was (at (access_ptr (at (access_ptr lili 6)) 4)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 5)) 5)) 5) [FAILED] (var test_name) lili.5.5 was (at (access_ptr (at (access_ptr lili 5)) 5)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 4)) 3)) 3) [FAILED] (var test_name) lili.4.3 was (at (access_ptr (at (access_ptr lili 4)) 3)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 3)) 2)) 2) [FAILED] (var test_name) lili.3.2 was (at (access_ptr (at (access_ptr lili 3)) 2)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 2)) 1)) 1) [FAILED] (var test_name) lili.2.1 was (at (access_ptr (at (access_ptr lili 2)) 1)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 1)) 0)) 0) [FAILED] (var test_name) lili.1.0 was (at (access_ptr (at (access_ptr lili 1)) 0)) for part A.)
+(assert (= (at (access_ptr (at (access_ptr lili 0)) 0)) 0) [FAILED] (var test_name) lili.0.0 was (at (access_ptr (at (access_ptr lili 0)) 0)) for part A.)
+
+(assert (= (at (access_ptr lili.10 0)) 0) [FAILED] (var test_name) lili.10.0 was (at (access_ptr lili.10 0)) for part B.)
+(assert (= (at (access_ptr lili.9 1)) 1) [FAILED] (var test_name) lili.9.1 was (at (access_ptr lili.9 1)) for part B.)
+(assert (= (at (access_ptr lili.8 2)) 2) [FAILED] (var test_name) lili.8.2 was (at (access_ptr lili.8 2)) for part B.)
+(assert (= (at (access_ptr lili.7 3)) 3) [FAILED] (var test_name) lili.7.3 was (at (access_ptr lili.7 3)) for part B.)
+(assert (= (at (access_ptr lili.6 4)) 4) [FAILED] (var test_name) lili.6.4 was (at (access_ptr lili.6 4)) for part B.)
+(assert (= (at (access_ptr lili.5 5)) 5) [FAILED] (var test_name) lili.5.5 was (at (access_ptr lili.5 5)) for part B.)
+(assert (= (at (access_ptr lili.4 3)) 3) [FAILED] (var test_name) lili.4.3 was (at (access_ptr lili.4 3)) for part B.)
+(assert (= (at (access_ptr lili.3 2)) 2) [FAILED] (var test_name) lili.3.2 was (at (access_ptr lili.3 2)) for part B.)
+(assert (= (at (access_ptr lili.2 1)) 1) [FAILED] (var test_name) lili.2.1 was (at (access_ptr lili.2 1)) for part B.)
+(assert (= (at (access_ptr lili.1 0)) 0) [FAILED] (var test_name) lili.1.0 was (at (access_ptr lili.1 0)) for part B.)
+(assert (= (at (access_ptr lili.0 0)) 0) [FAILED] (var test_name) lili.0.0 was (at (access_ptr lili.0 0)) for part B.)
 
 [COMPLETED] ACCESS POINTER
 

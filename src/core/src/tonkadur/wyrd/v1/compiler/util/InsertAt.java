@@ -74,7 +74,6 @@ public class InsertAt
 
       value_of_index = new ValueOf(index);
 
-
       /* (set .end collection_size) */
       result.add(new SetValue(end.get_address(), collection_size));
 
