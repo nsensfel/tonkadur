@@ -74,6 +74,7 @@ public class IndexedFilter extends Instruction
       {
          target_signature.add(c.get_type());
       }
+
       RecurrentChecks.assert_lambda_matches_types
       (
          lambda_function,

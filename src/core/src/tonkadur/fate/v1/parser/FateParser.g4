@@ -4648,6 +4648,42 @@ returns [Computation result]
          );
    }
 
+   | INDEXED_FILTER_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
+   {
+      $result =
+         IndexedFilterComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_FILTER_KW.getLine()),
+               ($INDEXED_FILTER_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($coll.result),
+            new ArrayList()
+         );
+   }
+
+   | INDEXED_FILTER_KW
+         fun=non_text_value WS+
+         coll=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedFilterComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($INDEXED_FILTER_KW.getLine()),
+               ($INDEXED_FILTER_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($coll.result),
+            ($value_list.result)
+         );
+   }
+
    | PARTITION_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
    {
       $result =

@@ -130,15 +130,6 @@ public class IndexedFilterLambda
          )
       );
 
-      while_body.add
-      (
-         new SetValue
-         (
-            iterator.get_address(),
-            Operation.plus(iterator.get_value(), Constant.ONE)
-         )
-      );
-
       result.add
       (
          While.generate

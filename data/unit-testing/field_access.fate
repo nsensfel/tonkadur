@@ -85,6 +85,16 @@
    ts0_1.i = (var ts0_1.i)
 )
 
+(assert
+   (=
+      (field ts0_1 i)
+      (get_field (set_fields ts1_0 (i 420)) i)
+      (get_field (field (field ts2_0 ts1) ts0) i)
+      420
+   )
+   [FAILED] (var test_name) Test 2.
+)
+
 [COMPLETED] (var test_name)
 
 (end)

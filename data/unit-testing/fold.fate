@@ -1,0 +1,64 @@
+(fate_version 1)
+
+(global string test_name)
+
+(set test_name ( FILTER ))
+
+(global (list int) 0to10)
+
+(set 0to10 (range 0 10 1))
+
+(assert
+   (= 55
+      (foldl
+         (lambda ((int res) (int e)) (+ res e))
+         0
+         0to10
+      )
+      (foldr
+         (lambda ((int res) (int e)) (+ res e))
+         0
+         0to10
+      )
+   )
+   [FAILED] (var test_name) Failed sum.
+   (newline)
+   foldl yielded:
+   (foldl
+      (lambda ((int res) (int e)) (+ res e))
+      0
+      0to10
+   )
+   (newline)
+   foldr yielded:
+   (foldr
+      (lambda ((int res) (int e)) (+ res e))
+      0
+      0to10
+   )
+)
+
+(global (list string) ls)
+
+(local int i)
+(for (set i 0) (=< i 10) (set i (+ i 1))
+   (add! (cast string (var i)) ls)
+)
+
+foldl:
+(foldl
+   (lambda ((text res) (string e)) (text (var res) (var e)))
+   (default text)
+   ls
+)
+(newline)
+foldr:
+(foldr
+   (lambda ((text res) (string e)) (text (var res) (var e)))
+   (default text)
+   ls
+)
+
+[COMPLETED] (var test_name)
+
+(end)

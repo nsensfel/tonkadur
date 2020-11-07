@@ -29,7 +29,6 @@ public class FilterLambda
    /* Utility Class */
    private FilterLambda () {}
 
-   /* Uses Durstenfeld's shuffling algorithm */
    public static Instruction generate
    (
       final RegisterManager registers,
@@ -125,15 +124,6 @@ public class FilterLambda
                iterator.get_address(),
                Operation.plus(iterator.get_value(), Constant.ONE)
             )
-         )
-      );
-
-      while_body.add
-      (
-         new SetValue
-         (
-            iterator.get_address(),
-            Operation.plus(iterator.get_value(), Constant.ONE)
          )
       );
 

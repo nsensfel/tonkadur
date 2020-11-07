@@ -1,0 +1,292 @@
+(fate_version 1)
+
+(global string test_name)
+
+(set test_name ( FILTER ))
+
+(global (list int) 0to10)
+(global (list int) 0to10odd)
+(global (list int) 0to10even)
+
+(set 0to10 (range 0 10 1))
+
+(set 0to10odd
+   (filter
+      (lambda ((int i) (int two) (int one)) (= (mod i two) (var one)))
+      0to10
+      2
+      1
+   )
+)
+
+(local (lambda bool (int)) filter_fun)
+
+(set filter_fun (lambda ((int i)) (= (mod i 2) 0)))
+(set 0to10even
+   (filter filter_fun 0to10)
+)
+
+(assert
+   (= 0 (var 0to10even.0))
+   [FAILED] (var test_name) Failed 0to10even.0: (var 0to10even.0).
+)
+
+(assert
+   (= 1 (var 0to10odd.0))
+   [FAILED] (var test_name) Failed 0to10odd.0: (var 0to10odd.0).
+)
+
+(assert
+   (= 2 (var 0to10even.1))
+   [FAILED] (var test_name) Failed 0to10even.1: (var 0to10even.1).
+)
+
+(assert
+   (= 3 (var 0to10odd.1))
+   [FAILED] (var test_name) Failed 0to10odd.1: (var 0to10odd.1).
+)
+
+(assert
+   (= 4 (var 0to10even.2))
+   [FAILED] (var test_name) Failed 0to10even.2: (var 0to10even.2).
+)
+
+(assert
+   (= 5 (var 0to10odd.2))
+   [FAILED] (var test_name) Failed 0to10odd.2: (var 0to10odd.2).
+)
+
+(assert
+   (= 6 (var 0to10even.3))
+   [FAILED] (var test_name) Failed 0to10even.3: (var 0to10even.3).
+)
+
+(assert
+   (= 7 (var 0to10odd.3))
+   [FAILED] (var test_name) Failed 0to10odd.3: (var 0to10odd.3).
+)
+
+(assert
+   (= 8 (var 0to10even.4))
+   [FAILED] (var test_name) Failed 0to10even.4: (var 0to10even.4).
+)
+
+(assert
+   (= 9 (var 0to10odd.4))
+   [FAILED] (var test_name) Failed 0to10odd.4: (var 0to10odd.4).
+)
+
+(assert
+   (= 10 (var 0to10even.5))
+   [FAILED] (var test_name) Failed 0to10even.5: (var 0to10even.5).
+)
+
+(global (list int) 0to10odd2)
+(global (list int) 0to10even2)
+
+(set 0to10odd2 (var 0to10))
+(set 0to10even2 (var 0to10))
+
+(filter!
+   (lambda ((int i) (int two) (int one)) (= (mod i two) (var one)))
+   0to10odd2
+   2
+   1
+)
+
+(filter! filter_fun 0to10even2)
+
+(assert
+   (= 0 (var 0to10even2.0))
+   [FAILED] (var test_name) Failed 0to10even2.0: (var 0to10even2.0).
+)
+
+(assert
+   (= 1 (var 0to10odd2.0))
+   [FAILED] (var test_name) Failed 0to10odd2.0: (var 0to10odd2.0).
+)
+
+(assert
+   (= 2 (var 0to10even2.1))
+   [FAILED] (var test_name) Failed 0to10even2.1: (var 0to10even2.1).
+)
+
+(assert
+   (= 3 (var 0to10odd2.1))
+   [FAILED] (var test_name) Failed 0to10odd2.1: (var 0to10odd2.1).
+)
+
+(assert
+   (= 4 (var 0to10even2.2))
+   [FAILED] (var test_name) Failed 0to10even2.2: (var 0to10even2.2).
+)
+
+(assert
+   (= 5 (var 0to10odd2.2))
+   [FAILED] (var test_name) Failed 0to10odd2.2: (var 0to10odd2.2).
+)
+
+(assert
+   (= 6 (var 0to10even2.3))
+   [FAILED] (var test_name) Failed 0to10even2.3: (var 0to10even2.3).
+)
+
+(assert
+   (= 7 (var 0to10odd2.3))
+   [FAILED] (var test_name) Failed 0to10odd2.3: (var 0to10odd2.3).
+)
+
+(assert
+   (= 8 (var 0to10even2.4))
+   [FAILED] (var test_name) Failed 0to10even2.4: (var 0to10even2.4).
+)
+
+(assert
+   (= 9 (var 0to10odd2.4))
+   [FAILED] (var test_name) Failed 0to10odd2.4: (var 0to10odd2.4).
+)
+
+(assert
+   (= 10 (var 0to10even2.5))
+   [FAILED] (var test_name) Failed 0to10even2.5: (var 0to10even2.5).
+)
+
+(set 0to10odd
+   (indexed_filter
+      (lambda ((int ix) (int i) (int two) (int one)) (= (mod i two) (var one)))
+      0to10
+      2
+      1
+   )
+)
+
+(local (lambda bool (int int)) indexed_filter_fun)
+
+(set indexed_filter_fun (lambda ((int ix) (int i)) (= (mod i 2) 0)))
+(set 0to10even (indexed_filter indexed_filter_fun 0to10))
+
+(assert
+   (= 0 (var 0to10even.0))
+   [FAILED] (var test_name) Failed indexed 0to10even.0: (var 0to10even.0).
+)
+
+(assert
+   (= 1 (var 0to10odd.0))
+   [FAILED] (var test_name) Failed indexed 0to10odd.0: (var 0to10odd.0).
+)
+
+(assert
+   (= 2 (var 0to10even.1))
+   [FAILED] (var test_name) Failed indexed 0to10even.1: (var 0to10even.1).
+)
+
+(assert
+   (= 3 (var 0to10odd.1))
+   [FAILED] (var test_name) Failed indexed 0to10odd.1: (var 0to10odd.1).
+)
+
+(assert
+   (= 4 (var 0to10even.2))
+   [FAILED] (var test_name) Failed indexed 0to10even.2: (var 0to10even.2).
+)
+
+(assert
+   (= 5 (var 0to10odd.2))
+   [FAILED] (var test_name) Failed indexed 0to10odd.2: (var 0to10odd.2).
+)
+
+(assert
+   (= 6 (var 0to10even.3))
+   [FAILED] (var test_name) Failed indexed 0to10even.3: (var 0to10even.3).
+)
+
+(assert
+   (= 7 (var 0to10odd.3))
+   [FAILED] (var test_name) Failed indexed 0to10odd.3: (var 0to10odd.3).
+)
+
+(assert
+   (= 8 (var 0to10even.4))
+   [FAILED] (var test_name) Failed indexed 0to10even.4: (var 0to10even.4).
+)
+
+(assert
+   (= 9 (var 0to10odd.4))
+   [FAILED] (var test_name) Failed indexed 0to10odd.4: (var 0to10odd.4).
+)
+
+(assert
+   (= 10 (var 0to10even.5))
+   [FAILED] (var test_name) Failed indexed 0to10even.5: (var 0to10even.5).
+)
+
+(set 0to10odd2 (var 0to10))
+(set 0to10even2 (var 0to10))
+
+(indexed_filter!
+   (lambda ((int ix) (int i) (int two) (int one)) (= (mod i two) (var one)))
+   0to10odd2
+   2
+   1
+)
+
+(indexed_filter! indexed_filter_fun 0to10even2)
+
+(assert
+   (= 0 (var 0to10even2.0))
+   [FAILED] (var test_name) Failed indexed 0to10even2.0: (var 0to10even2.0).
+)
+
+(assert
+   (= 1 (var 0to10odd2.0))
+   [FAILED] (var test_name) Failed indexed 0to10odd2.0: (var 0to10odd2.0).
+)
+
+(assert
+   (= 2 (var 0to10even2.1))
+   [FAILED] (var test_name) Failed indexed 0to10even2.1: (var 0to10even2.1).
+)
+
+(assert
+   (= 3 (var 0to10odd2.1))
+   [FAILED] (var test_name) Failed indexed 0to10odd2.1: (var 0to10odd2.1).
+)
+
+(assert
+   (= 4 (var 0to10even2.2))
+   [FAILED] (var test_name) Failed indexed 0to10even2.2: (var 0to10even2.2).
+)
+
+(assert
+   (= 5 (var 0to10odd2.2))
+   [FAILED] (var test_name) Failed indexed 0to10odd2.2: (var 0to10odd2.2).
+)
+
+(assert
+   (= 6 (var 0to10even2.3))
+   [FAILED] (var test_name) Failed indexed 0to10even2.3: (var 0to10even2.3).
+)
+
+(assert
+   (= 7 (var 0to10odd2.3))
+   [FAILED] (var test_name) Failed indexed 0to10odd2.3: (var 0to10odd2.3).
+)
+
+(assert
+   (= 8 (var 0to10even2.4))
+   [FAILED] (var test_name) Failed indexed 0to10even2.4: (var 0to10even2.4).
+)
+
+(assert
+   (= 9 (var 0to10odd2.4))
+   [FAILED] (var test_name) Failed indexed 0to10odd2.4: (var 0to10odd2.4).
+)
+
+(assert
+   (= 10 (var 0to10even2.5))
+   [FAILED] (var test_name) Failed indexed 0to10even2.5: (var 0to10even2.5).
+)
+
+[COMPLETED] (var test_name)
+
+(end)
