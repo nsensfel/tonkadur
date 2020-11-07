@@ -1,0 +1,103 @@
+(fate_version 1)
+
+(global string test_name)
+
+(set test_name ( CAST ))
+
+(global int i)
+(global float f)
+(global string s)
+
+(set i (cast int ( 42 )))
+
+(assert (= (var i) 42) [FAILED] (var test_name) equality 1: (var i).)
+
+(set f (cast float ( 42.57 )))
+
+(assert (= (var f) 42.57) [FAILED] (var test_name) equality 2: (var f).)
+
+(assert (= (var i) 42 (cast int (var f))) [FAILED] (var test_name) equality 3: (cast int (var f)).)
+
+
+;; TO INT
+(assert (= 42 (cast int 42.72)) [FAILED] (var test_name) float->int: (cast int 42.72).)
+(assert (= 42 (cast int (+ 40.70 2.02))) [FAILED] (var test_name) extra float->int: (cast int (+ 40.70 2.02)).)
+(assert (= 42 (cast int 42)) [FAILED] (var test_name) int->int: (cast int 42).)
+(assert (= 42 (cast int (+ 40 2))) [FAILED] (var test_name) extra int->int: (cast int (+ 40 2)).)
+(assert (= 42 (cast int ( 42 ))) [FAILED] (var test_name) string->int: (cast int ( 42 )).)
+
+;; TO FLOAT
+(assert
+   (>
+      0.05
+      (abs
+         (-
+            (cast float 42.72)
+            42.72
+         )
+      )
+   )
+   [FAILED] (var test_name) float->float: (cast float 42.72).
+)
+(assert
+   (> 0.05
+      (abs
+         (-
+            (cast float (+ 40.70 2.02))
+            42.72
+         )
+      )
+   )
+   [FAILED] (var test_name) extra float->float: (cast float (+ 40.70 2.02)).
+)
+(assert (= 42.0 (cast float 42)) [FAILED] (var test_name) int->float: (cast float 42).)
+(assert (= 42.0 (cast float (+ 40 2))) [FAILED] (var test_name) extra float->float: (cast float (+ 40 2)).)
+(assert
+   (> 0.05
+      (abs
+         (-
+            (cast float ( 42.72 ))
+            42.72
+         )
+      )
+   )
+   [FAILED] (var test_name) string->float: (cast float ( 42.72 )).
+)
+
+;; TO BOOL
+(assert (= (true) (cast bool (true))) [FAILED] (var test_name) bool->bool: (cast bool (true)).)
+(assert (= (true) (cast bool (or (true) (false)))) [FAILED] (var test_name) extra bool->bool: (cast bool (or (true) (false))).)
+(assert (= (true) (cast bool ( true ))) [FAILED] (var test_name) string->bool: (cast bool ( true )).)
+
+;; TO STRING
+(assert (= ( 42 ) (cast string 42)) [FAILED] (var test_name) int->string: (cast string 42).)
+(assert (= ( 42 ) (cast string (+ 40 2))) [FAILED] (var test_name) extra int->string: (cast string (+ 40 2)).)
+(assert
+   (> 0.05
+      (abs
+         (-
+            (cast float (cast string 42.72))
+            42.72
+         )
+      )
+   )
+   [FAILED] (var test_name) float->string: (cast string 42.72).
+)
+(assert
+   (> 0.05
+      (abs
+         (-
+            (cast float (cast string (+ 40.7 2.02)))
+            42.72
+         )
+      )
+   )
+   [FAILED] (var test_name) extra float->string: (cast string (+ 40.7 2.02)).
+)
+(assert (= ( true ) (cast string (true))) [FAILED] (var test_name) bool->string: (cast string (true)).)
+(assert (= ( true ) (cast string (or (true) (false)))) [FAILED] (var test_name) extra bool->string: (cast string (true)).)
+(assert (= ( something ) (cast string ( something ))) [FAILED] (var test_name) string->string: (cast string ( something )).)
+
+[COMPLETED] (var test_name)
+
+(end)

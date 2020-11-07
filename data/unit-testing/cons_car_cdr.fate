@@ -1,0 +1,51 @@
+(fate_version 1)
+
+(global string test_name)
+
+(set test_name ( CONS CAR CDR ))
+
+(assert (= (car (cons 1 (cons 2 (cons 3 (cons 4 5))))) 1)
+   [FAILED] (var test_name) test 1: (car (cons 1 (cons 2 (cons 3 (cons 4 5))))).
+)
+
+(assert (= (car (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))) 2)
+   [FAILED] (var test_name) test 2:
+   (car (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))).
+)
+
+(assert (= (car (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5))))))) 3)
+   [FAILED] (var test_name) test 3:
+   (car (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5))))))).
+)
+
+(assert (= (car (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))))) 4)
+   [FAILED] (var test_name) test 4:
+   (car (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))))).
+)
+
+(assert (= (cdr (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))))) 5)
+   [FAILED] (var test_name) test 5:
+   (cdr (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))))).
+)
+
+(assert (= (car (cons test 0)) test)
+   [FAILED] (var test_name) test string:
+   (car (cons test 0))
+)
+
+(global (cons float string) cfs)
+(global (cons float string) cfs2)
+
+(set cfs (cons 3.14 pi))
+
+(assert (= (car cfs) 3.14) [FAILED] (var test_name) test 3.14: (car cfs).)
+(assert (= (cdr cfs) pi) [FAILED] (var test_name) test pi: (cdr cfs).)
+
+
+(set cfs2 (cons (car cfs) (cdr cfs)))
+
+(assert (= (var cfs2) (var cfs)) [FAILED] (var test_name) equality.)
+
+[COMPLETED] (var test_name)
+
+(end)

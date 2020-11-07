@@ -1,0 +1,179 @@
+(fate_version 1)
+
+(global string test_name)
+
+(set test_name ( COND ))
+
+(global bool test)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; INSTRUCTION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(cond
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 0.)
+   )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(set test (false))
+
+(cond
+   ((true)
+      (set test (true))
+   )
+)
+
+(assert test [FAILED] (var test_name) Ignored correct branch 0.)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(set test (false))
+
+(cond
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 1.)
+   )
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 2.)
+   )
+   ((true)
+      (set test (true))
+   )
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 3.)
+   )
+)
+
+(assert test [FAILED] (var test_name) Ignored correct branch 1.)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(set test (false))
+
+(cond
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 4.)
+   )
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 5.)
+   )
+   ((true)
+      (set test (true))
+   )
+   ((true)
+      (assert (false) [FAILED] (var test_name) Reached dead code 6.)
+   )
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 7.)
+   )
+)
+
+(assert test [FAILED] (var test_name) Ignored correct branch 2.)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(set test (false))
+
+(cond
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 8.)
+   )
+   ((false)
+      (assert (false) [FAILED] (var test_name) Reached dead code 9.)
+   )
+   ((true)
+      (set test (true))
+   )
+   ((true)
+      (assert (false) [FAILED] (var test_name) Reached dead code 10.)
+   )
+)
+
+(assert test [FAILED] (var test_name) Ignored correct branch 3.)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(set test (false))
+
+(cond
+   ((false)
+      (cond
+         ((true)
+            (assert (false) [FAILED] (var test_name) Reached dead code 11.)
+         )
+      )
+   )
+   ((false)
+      (cond
+         ((true)
+            (assert (false) [FAILED] (var test_name) Reached dead code 12.)
+         )
+      )
+   )
+   ((true)
+      (cond
+         ((true)
+            (set test (true))
+         )
+         ((false)
+            (assert (false) [FAILED] (var test_name) Reached dead code 13.)
+         )
+      )
+   )
+   ((true)
+      (cond
+         ((true)
+            (assert (false) [FAILED] (var test_name) Reached dead code 14.)
+         )
+      )
+   )
+)
+
+(assert test [FAILED] (var test_name) Ignored correct branch 4.)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; COMPUTATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(assert
+   (cond ((false) (true)))
+   [FAILED] (var test_name) Questionable default value.
+)
+
+(assert
+   (cond ((true) (true)))
+   [FAILED] (var test_name) Simple computation test 0.
+)
+
+(assert
+   (cond
+      ((false) (true))
+      ((true) (true))
+   )
+   [FAILED] (var test_name) Simple computation test 1.
+)
+
+(assert
+   (cond
+      ((true) (true))
+      ((false) (true))
+   )
+   [FAILED] (var test_name) Simple computation test 2.
+)
+
+(assert
+   (cond
+      (
+         (cond
+            ((false) (false))
+            ((false) (false))
+            ((true) (true))
+            ((true) (false))
+         )
+         (true)
+      )
+      ((false) (true))
+   )
+   [FAILED] (var test_name) Obtuse computation test.
+)
+
+[COMPLETED] (var test_name)
+
+(end)

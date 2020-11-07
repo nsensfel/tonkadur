@@ -1,0 +1,62 @@
+(fate_version 1)
+
+(global string test_name)
+
+(set test_name ( ADD ELEMENTS OF ))
+
+(global (list int) li0)
+(global (list int) li1)
+
+(set li0
+   (add_all (range 8 10 1)
+      (add_all (range 4 7 1)
+         (add_all (range 0 3 1)
+            (default (list int))
+         )
+      )
+   )
+)
+
+(add_all! (range 0 3 1) li1)
+(add_all! (range 4 7 1) (at (ptr li1)))
+(add_all! (range 8 10 1) li1)
+
+(assert (= (var li0) (var li1)) [FAILED] (var test_name) equality.)
+
+(assert (= (var li0.0) (var li1.0) 0) [FAILED] (var test_name) at 0: (var li0.1), (var li1.0).)
+(assert (= (var li0.1) (var li1.1) 1) [FAILED] (var test_name) at 1: (var li0.1), (var li1.1).)
+(assert (= (var li0.2) (var li1.2) 2) [FAILED] (var test_name) at 2: (var li0.2), (var li1.2).)
+(assert (= (var li0.3) (var li1.3) 3) [FAILED] (var test_name) at 3: (var li0.3), (var li1.3).)
+(assert (= (var li0.4) (var li1.4) 4) [FAILED] (var test_name) at 4: (var li0.4), (var li1.4).)
+(assert (= (var li0.5) (var li1.5) 5) [FAILED] (var test_name) at 5: (var li0.5), (var li1.5).)
+(assert (= (var li0.6) (var li1.6) 6) [FAILED] (var test_name) at 6: (var li0.6), (var li1.6).)
+(assert (= (var li0.7) (var li1.7) 7) [FAILED] (var test_name) at 7: (var li0.7), (var li1.7).)
+
+(add_all! (range 11 20 1) li0)
+(add_all! (range 11 20 1) li1)
+
+(global (set int) si0)
+(global (set int) si1)
+
+(set si0
+   (add_all (range 0 10 2)
+      (add_all (range 11 20 2)
+         (add_all (range 1 10 2)
+            (add_all (range 12 20 2)
+               (default (set int))
+            )
+         )
+      )
+   )
+)
+
+(add_all! (range 0 10 2) si1)
+(add_all! (range 11 20 2) (at (ptr si1)))
+(add_all! (range 1 10 2) si1)
+(add_all! (range 12 20 2) si1)
+
+(assert (= (var li0) (var li1) (var si0) (var si1)) [FAILED] (var test_name) equality 2.)
+
+[COMPLETED] (var test_name)
+
+(end)

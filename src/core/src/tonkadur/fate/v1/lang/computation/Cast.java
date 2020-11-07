@@ -3,6 +3,7 @@ package tonkadur.fate.v1.lang.computation;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,55 +25,41 @@ public class Cast extends Computation
 
    static
    {
+      Set allowed_targets;
+
       allowed_type_changes = new HashMap<Type,Set<Type>>();
 
-      allowed_type_changes.put
-      (
-         Type.INT,
-         Type.NUMBER_TYPES
-      );
+      /** INT to ... **********************************************************/
+      allowed_targets = new HashSet<Type>();
+      allowed_targets.add(Type.FLOAT);
+      allowed_targets.add(Type.INT);
+      allowed_targets.add(Type.STRING);
 
-      allowed_type_changes.put
-      (
-         Type.FLOAT,
-         Type.NUMBER_TYPES
-      );
+      allowed_type_changes.put(Type.INT, allowed_targets);
 
-      allowed_type_changes.put
-      (
-         Type.DICT,
-         Collections.emptySet()
-      );
+      /** FLOAT to ... ********************************************************/
+      allowed_targets = new HashSet<Type>();
+      allowed_targets.add(Type.FLOAT);
+      allowed_targets.add(Type.INT);
+      allowed_targets.add(Type.STRING);
 
-      allowed_type_changes.put
-      (
-         Type.SET,
-         Collections.emptySet()
-      );
+      allowed_type_changes.put(Type.FLOAT, allowed_targets);
 
-      allowed_type_changes.put
-      (
-         Type.LIST,
-         Collections.emptySet()
-      );
+      /** BOOL to ... *********************************************************/
+      allowed_targets = new HashSet<Type>();
+      allowed_targets.add(Type.BOOL);
+      allowed_targets.add(Type.STRING);
 
-      allowed_type_changes.put
-      (
-         Type.BOOL,
-         Collections.emptySet()
-      );
+      allowed_type_changes.put(Type.BOOL, allowed_targets);
 
-      allowed_type_changes.put
-      (
-         Type.ANY,
-         Collections.singleton(Type.ANY)
-      );
+      /** BOOL to ... *********************************************************/
+      allowed_targets = new HashSet<Type>();
+      allowed_targets.add(Type.BOOL);
+      allowed_targets.add(Type.INT);
+      allowed_targets.add(Type.FLOAT);
+      allowed_targets.add(Type.STRING);
 
-      allowed_type_changes.put
-      (
-         Type.STRING,
-         Type.COMPARABLE_TYPES
-      );
+      allowed_type_changes.put(Type.STRING, allowed_targets);
    }
 
    public static Collection<Type> get_allowed_casts_to (final Type t)
@@ -125,14 +112,15 @@ public class Cast extends Computation
          (value.get_type().can_be_used_as(to))
          ||
          (
-            (to.is_base_type())
-            &&
+            allowed_type_changes.containsKey
             (
-               allowed_type_changes.get(to).contains
-               (
-                  value.get_type().get_act_as_type()
-               )
+               value.get_type().get_act_as_type().get_base_type()
             )
+            &&
+            allowed_type_changes.get
+            (
+               value.get_type().get_act_as_type().get_base_type()
+            ).contains(to.get_act_as_type())
          )
       )
       {
