@@ -59,6 +59,7 @@ FALSE_KW: L_PAREN 'false)';
 IGNORE_ERROR_KW: L_PAREN 'ignore'US('error'|'warning') SEP+;
 FATE_VERSION_KW: L_PAREN 'fate'US'version' SEP+;
 FIELD_KW: L_PAREN 'field' SEP+;
+FIELD_ACCESS_KW: L_PAREN (('get'US'field')|('field'US'access')) SEP+;
 FILTER_KW: L_PAREN 'filter' SEP+;
 INDEXED_FILTER_KW: L_PAREN 'indexed'US'filter' SEP+;
 IMP_FILTER_KW: L_PAREN 'filter!' SEP+;

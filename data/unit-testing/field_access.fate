@@ -1,0 +1,90 @@
+(fate_version 1)
+
+(global string test_name)
+
+(set test_name ( FIELD ACCESS ))
+
+(declare_structure test_struct_type0
+   (int i)
+   (int j)
+   (int k)
+   ((list int) li)
+)
+
+(declare_structure test_struct_type1
+   (int i)
+   (test_struct_type0 ts0)
+   ((list test_struct_type0) lts)
+)
+
+(declare_structure test_struct_type2
+   (int i)
+   (test_struct_type0 ts0)
+   (test_struct_type1 ts1)
+)
+
+(local test_struct_type0 ts0_0)
+(local test_struct_type0 ts0_1)
+(local test_struct_type1 ts1_0)
+(local test_struct_type1 ts1_1)
+(local test_struct_type2 ts2_0)
+
+
+(set_fields! ts0_0
+   (i 42)
+   (j 69)
+   (k 420)
+   (li (range 0 10 1))
+)
+
+(set_fields! ts0_1
+   (i 42)
+   (j 69)
+   (k 420)
+   (k 42)
+   (j 69)
+   (i 420)
+   (li (range 11 20 1))
+)
+
+(set_fields! ts1_0
+   (i 1337)
+   (ts0 (var ts0_0))
+   (lts (add (var ts0_1) (add (var ts0_0) (default (list test_struct_type0)))))
+)
+
+(set_fields! ts1_1
+   (i 1337)
+   (ts0 (var ts0_1))
+   (lts (add (var ts0_0) (add (var ts0_1) (default (list test_struct_type0)))))
+)
+
+(set ts2_0
+   (set_fields (default test_struct_type2)
+      (i -1337)
+      (ts0 (var ts0_0))
+      (ts1 (var ts1_1))
+   )
+)
+
+(assert
+   (= (get_field ts0_0 i) (var ts0_0.i) (get_field ts0_1 k) (var ts0_1.k) 42)
+   [FAILED] (var test_name) Test 0.
+   (newline)
+   ts0_0.i = (var ts0_0.i)
+   (newline)
+   ts0_1.k = (var ts0_1.k)
+)
+
+(assert
+   (= (get_field ts0_1 i) (var ts0_1.i) (get_field ts0_0 k) (var ts0_0.k) 420)
+   [FAILED] (var test_name) Test 1.
+   (newline)
+   ts0_0.k = (var ts0_0.k)
+   (newline)
+   ts0_1.i = (var ts0_1.i)
+)
+
+[COMPLETED] (var test_name)
+
+(end)

@@ -2501,7 +2501,7 @@ returns [RichTextNode result]:
    | ENABLE_TEXT_EFFECT_KW
       L_PAREN
          WORD WS+
-         value_list
+         value_list WS*
       R_PAREN WS+
       paragraph WS*
       R_PAREN
@@ -3446,7 +3446,7 @@ returns [Computation result]:
          );
    }
 
-   | COUNT_KW value WS+ value_reference WS* R_PAREN
+   | COUNT_KW value WS+ non_text_value WS* R_PAREN
    {
       $result =
          CountOperator.build
@@ -3457,7 +3457,7 @@ returns [Computation result]:
                ($COUNT_KW.getCharPositionInLine())
             ),
             ($value.result),
-            ($value_reference.result)
+            ($non_text_value.result)
          );
    }
 ;
@@ -3538,7 +3538,7 @@ returns [Computation result]
    | ENABLE_TEXT_EFFECT_KW
       L_PAREN
          WORD WS+
-         value_list
+         value_list WS*
       R_PAREN WS+
       paragraph WS*
       R_PAREN
@@ -3667,7 +3667,7 @@ returns [Computation result]
          );
    }
 
-   | ACCESS_KW collection=non_text_value WS+ index=non_text_value R_PAREN
+   | ACCESS_KW collection=non_text_value WS+ index=non_text_value WS* R_PAREN
    {
       $result =
          Access.build
@@ -3682,7 +3682,7 @@ returns [Computation result]
          );
    }
 
-   | ACCESS_POINTER_KW value_reference WS+ non_text_value R_PAREN
+   | ACCESS_POINTER_KW value_reference WS+ non_text_value WS* R_PAREN
    {
       $result =
          AccessPointer.build
@@ -3694,6 +3694,21 @@ returns [Computation result]
             ),
             ($value_reference.result),
             ($non_text_value.result)
+         );
+   }
+
+   | FIELD_ACCESS_KW non_text_value WS+ WORD WS* R_PAREN
+   {
+      $result =
+         FieldAccess.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FIELD_ACCESS_KW.getLine()),
+               ($FIELD_ACCESS_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($WORD.text)
          );
    }
 

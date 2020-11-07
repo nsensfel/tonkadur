@@ -503,6 +503,37 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_field_access
+   (
+      final tonkadur.fate.v1.lang.computation.FieldAccess n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler n_cc;
+
+      n_cc = new ComputationCompiler(compiler);
+
+      n.get_parent().get_visited_by(n_cc);
+
+      assimilate(n_cc);
+
+      result_as_address =
+         new RelativeAddress
+         (
+            n_cc.get_address(),
+            new Constant(Type.STRING, n.get_field_name()),
+            TypeCompiler.compile
+            (
+               compiler,
+               (
+                  (tonkadur.fate.v1.lang.type.DictType)
+                     n.get_parent().get_type()
+               ).get_field_type(null, n.get_field_name())
+            )
+         );
+   }
+
+   @Override
    public void visit_if_else_value
    (
       final tonkadur.fate.v1.lang.computation.IfElseValue n
@@ -1188,8 +1219,25 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       )
       {
+         final Iterator<Computation> operands_it;
+         final Computation first_elem;
+
+         operands_it = operands.iterator();
+
+         first_elem = operands_it.next();
+
          result_as_computation =
-            Operation.equals(operands.get(0), operands.get(1));
+            Operation.equals(first_elem, operands_it.next());
+
+         while (operands_it.hasNext())
+         {
+            result_as_computation =
+               Operation.and
+               (
+                  result_as_computation,
+                  Operation.equals(first_elem, operands_it.next())
+               );
+         }
       }
       else if
       (

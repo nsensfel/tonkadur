@@ -13,6 +13,9 @@ public interface ComputationVisitor
    public void visit_access_pointer (final AccessPointer n)
    throws Throwable;
 
+   public void visit_field_access (final FieldAccess n)
+   throws Throwable;
+
    public void visit_access_as_reference (final AccessAsReference n)
    throws Throwable;
 
