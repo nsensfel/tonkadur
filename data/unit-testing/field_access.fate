@@ -23,11 +23,11 @@
    (test_struct_type1 ts1)
 )
 
-(local test_struct_type0 ts0_0)
-(local test_struct_type0 ts0_1)
-(local test_struct_type1 ts1_0)
-(local test_struct_type1 ts1_1)
-(local test_struct_type2 ts2_0)
+(global test_struct_type0 ts0_0)
+(global test_struct_type0 ts0_1)
+(global test_struct_type1 ts1_0)
+(global test_struct_type1 ts1_1)
+(global test_struct_type2 ts2_0)
 
 
 (set_fields! ts0_0

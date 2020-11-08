@@ -2,7 +2,7 @@
 
 (global string test_name)
 
-(set test_name ( FILTER ))
+(set test_name ( FOLD ))
 
 (global (list int) 0to10)
 
@@ -38,25 +38,184 @@
    )
 )
 
-(global (list string) ls)
+(global (list int) 10to0_0)
+(global (list int) 10to0_1)
 
-(local int i)
-(for (set i 0) (=< i 10) (set i (+ i 1))
-   (add! (cast string (var i)) ls)
+(set 10to0_0
+   (foldr
+      (lambda (((list int) res) (int e))
+         (add (- e 10) res)
+      )
+      (default (list int))
+      (range 10 20 1)
+   )
 )
 
-foldl:
-(foldl
-   (lambda ((text res) (string e)) (text (var res) (var e)))
-   (default text)
-   ls
+(set 10to0_1
+   (foldr
+      (lambda (((list int) res) (int e) (int mod))
+         (add (- e mod) res)
+      )
+      (default (list int))
+      (range 10 20 1)
+      10
+   )
 )
-(newline)
-foldr:
-(foldr
-   (lambda ((text res) (string e)) (text (var res) (var e)))
-   (default text)
-   ls
+
+(assert
+   (= 10 (var 10to0_0.0) (var 10to0_1.0))
+   [FAILED] (var test_name) 10to0.0:(newline)
+   (var 10to0_0.0), (var 10to0_1.0)
+)
+
+(assert
+   (= 9 (var 10to0_0.1) (var 10to0_1.1))
+   [FAILED] (var test_name) 10to0.1:(newline)
+   (var 10to0_0.1), (var 10to0_1.1)
+)
+
+(assert
+   (= 8 (var 10to0_0.2) (var 10to0_1.2))
+   [FAILED] (var test_name) 10to0.2:(newline)
+   (var 10to0_0.2), (var 10to0_1.2)
+)
+
+(assert
+   (= 7 (var 10to0_0.3) (var 10to0_1.3))
+   [FAILED] (var test_name) 10to0.3:(newline)
+   (var 10to0_0.3), (var 10to0_1.3)
+)
+
+(assert
+   (= 6 (var 10to0_0.4) (var 10to0_1.4))
+   [FAILED] (var test_name) 10to0.4:(newline)
+   (var 10to0_0.4), (var 10to0_1.4)
+)
+
+(assert
+   (= 5 (var 10to0_0.5) (var 10to0_1.5))
+   [FAILED] (var test_name) 10to0.5:(newline)
+   (var 10to0_0.5), (var 10to0_1.5)
+)
+
+(assert
+   (= 4 (var 10to0_0.6) (var 10to0_1.6))
+   [FAILED] (var test_name) 10to0.6:(newline)
+   (var 10to0_0.6), (var 10to0_1.6)
+)
+
+(assert
+   (= 3 (var 10to0_0.7) (var 10to0_1.7))
+   [FAILED] (var test_name) 10to0.7:(newline)
+   (var 10to0_0.7), (var 10to0_1.7)
+)
+
+(assert
+   (= 2 (var 10to0_0.8) (var 10to0_1.8))
+   [FAILED] (var test_name) 10to0.8:(newline)
+   (var 10to0_0.8), (var 10to0_1.8)
+)
+
+(assert
+   (= 1 (var 10to0_0.9) (var 10to0_1.9))
+   [FAILED] (var test_name) 10to0.9:(newline)
+   (var 10to0_0.9), (var 10to0_1.9)
+)
+
+(assert
+   (= 0 (var 10to0_0.10) (var 10to0_1.10))
+   [FAILED] (var test_name) 10to0.10:(newline)
+   (var 10to0_0.10), (var 10to0_1.10)
+)
+
+(global (list int) 10to20_0)
+(global (list int) 10to20_1)
+
+(set 10to20_0
+   (foldl
+      (lambda (((list int) res) (int e))
+         (add (- e 10) res)
+      )
+      (default (list int))
+      (range 20 30 1)
+   )
+)
+
+(set 10to20_1
+   (foldl
+      (lambda (((list int) res) (int e) (int mod))
+         (add (- e mod) res)
+      )
+      (default (list int))
+      (range 20 30 1)
+      10
+   )
+)
+
+(assert
+   (= 10 (var 10to20_0.0) (var 10to20_1.0))
+   [FAILED] (var test_name) 10to20.0: (newline)
+   (var 10to20_0.0), (var 10to20_1.0)
+)
+
+(assert
+   (= 11 (var 10to20_0.1) (var 10to20_1.1))
+   [FAILED] (var test_name) 10to20.1: (newline)
+   (var 10to20_0.1), (var 10to20_1.1)
+)
+
+(assert
+   (= 12 (var 10to20_0.2) (var 10to20_1.2))
+   [FAILED] (var test_name) 10to20.2: (newline)
+   (var 10to20_0.2), (var 10to20_1.2)
+)
+
+(assert
+   (= 13 (var 10to20_0.3) (var 10to20_1.3))
+   [FAILED] (var test_name) 10to20.3: (newline)
+   (var 10to20_0.3), (var 10to20_1.3)
+)
+
+(assert
+   (= 14 (var 10to20_0.4) (var 10to20_1.4))
+   [FAILED] (var test_name) 10to20.4: (newline)
+   (var 10to20_0.4), (var 10to20_1.4)
+)
+
+(assert
+   (= 15 (var 10to20_0.5) (var 10to20_1.5))
+   [FAILED] (var test_name) 10to20.5: (newline)
+   (var 10to20_0.5), (var 10to20_1.5)
+)
+
+(assert
+   (= 16 (var 10to20_0.6) (var 10to20_1.6))
+   [FAILED] (var test_name) 10to20.6: (newline)
+   (var 10to20_0.6), (var 10to20_1.6)
+)
+
+(assert
+   (= 17 (var 10to20_0.7) (var 10to20_1.7))
+   [FAILED] (var test_name) 10to20.7: (newline)
+   (var 10to20_0.7), (var 10to20_1.7)
+)
+
+(assert
+   (= 18 (var 10to20_0.8) (var 10to20_1.8))
+   [FAILED] (var test_name) 10to20.8: (newline)
+   (var 10to20_0.8), (var 10to20_1.8)
+)
+
+(assert
+   (= 19 (var 10to20_0.9) (var 10to20_1.9))
+   [FAILED] (var test_name) 10to20.9: (newline)
+   (var 10to20_0.9), (var 10to20_1.9)
+)
+
+(assert
+   (= 20 (var 10to20_0.10) (var 10to20_1.10))
+   [FAILED] (var test_name) 10to20.10: (newline)
+   (var 10to20_0.10), (var 10to20_1.10)
 )
 
 [COMPLETED] (var test_name)

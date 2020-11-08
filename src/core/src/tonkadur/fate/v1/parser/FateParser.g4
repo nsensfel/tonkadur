@@ -3715,7 +3715,7 @@ returns [Computation result]
    | FOLDL_KW
          fun=non_text_value WS+
          init=value WS+
-         inr=value_reference WS*
+         inr=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3737,7 +3737,7 @@ returns [Computation result]
    | FOLDL_KW
          fun=non_text_value WS+
          init=value WS+
-         inr=value_reference WS+
+         inr=non_text_value WS+
          value_list WS*
       R_PAREN
    {
@@ -3760,7 +3760,7 @@ returns [Computation result]
    | FOLDR_KW
          fun=non_text_value WS+
          init=value WS+
-         inr=value_reference WS*
+         inr=non_text_value WS*
       R_PAREN
    {
       $result =
@@ -3782,7 +3782,7 @@ returns [Computation result]
    | FOLDR_KW
          fun=non_text_value WS+
          init=value WS+
-         inr=value_reference WS+
+         inr=non_text_value WS+
          value_list WS*
       R_PAREN
    {

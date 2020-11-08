@@ -41,17 +41,20 @@ public class IndexedFilterLambda
    {
       final List<Instruction> result, while_body, remove_instructions;
       final Register iterator, index_storage, collection_size, storage;
+      final Register index_counter;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
       remove_instructions = new ArrayList<Instruction>();
 
       iterator = registers.reserve(Type.INT, result);
+      index_counter = registers.reserve(Type.INT, result);
       index_storage = registers.reserve(Type.INT, result);
       collection_size = registers.reserve(Type.INT, result);
       storage = registers.reserve(Type.BOOL, result);
 
       result.add(new SetValue(iterator.get_address(), Constant.ZERO));
+      result.add(new SetValue(index_counter.get_address(), Constant.ZERO));
       result.add
       (
          new SetValue(collection_size.get_address(), new Size(collection))
@@ -71,7 +74,7 @@ public class IndexedFilterLambda
          )
       );
 
-      extra_params.add(0, iterator.get_value());
+      extra_params.add(0, index_counter.get_value());
 
       remove_instructions.add
       (
@@ -130,6 +133,15 @@ public class IndexedFilterLambda
          )
       );
 
+      while_body.add
+      (
+         new SetValue
+         (
+            index_counter.get_address(),
+            Operation.plus(index_counter.get_value(), Constant.ONE)
+         )
+      );
+
       result.add
       (
          While.generate
@@ -147,6 +159,7 @@ public class IndexedFilterLambda
 
       registers.release(iterator, result);
       registers.release(index_storage, result);
+      registers.release(index_counter, result);
       registers.release(collection_size, result);
       registers.release(storage, result);
 

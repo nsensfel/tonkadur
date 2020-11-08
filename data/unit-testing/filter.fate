@@ -287,6 +287,85 @@
    [FAILED] (var test_name) Failed indexed 0to10even2.5: (var 0to10even2.5).
 )
 
+(global (list int) oli0)
+(global (list int) oli1)
+
+(set oli0 (range -10 10 1))
+(set oli1 (var oli0))
+
+(set oli0
+   (indexed_filter
+      (lambda ((int ix) (int i))
+         (exactly_one
+            (> i 0)
+            (= (mod ix 2) 1)
+         )
+      )
+      oli0
+   )
+)
+
+(indexed_filter!
+   (lambda ((int ix) (int i) ((list int) o))
+      (exactly_one
+         (> i 0)
+         (is_member (var ix) o)
+      )
+   )
+   oli1
+   (range 1 21 2)
+)
+
+(assert
+   (= -9 (var oli0.0) (var oli1.0))
+   [FAILED] (var test_name) Failed indexed filter -9: (var oli0.0), (var oli1.0)
+)
+
+(assert
+   (= -7 (var oli0.1) (var oli1.1))
+   [FAILED] (var test_name) Failed indexed filter -7: (var oli0.1), (var oli1.1)
+)
+
+(assert
+   (= -5 (var oli0.2) (var oli1.2))
+   [FAILED] (var test_name) Failed indexed filter -5: (var oli0.2), (var oli1.2)
+)
+
+(assert
+   (= -3 (var oli0.3) (var oli1.3))
+   [FAILED] (var test_name) Failed indexed filter -3: (var oli0.3), (var oli1.3)
+)
+
+(assert
+   (= -1 (var oli0.4) (var oli1.4))
+   [FAILED] (var test_name) Failed indexed filter -1: (var oli0.4), (var oli1.4)
+)
+
+(assert
+   (= 2 (var oli0.5) (var oli1.5))
+   [FAILED] (var test_name) Failed indexed filter 2: (var oli0.5), (var oli1.5)
+)
+
+(assert
+   (= 4 (var oli0.6) (var oli1.6))
+   [FAILED] (var test_name) Failed indexed filter 4: (var oli0.6), (var oli1.6)
+)
+
+(assert
+   (= 6 (var oli0.7) (var oli1.7))
+   [FAILED] (var test_name) Failed indexed filter 6: (var oli0.7), (var oli1.7)
+)
+
+(assert
+   (= 8 (var oli0.8) (var oli1.8))
+   [FAILED] (var test_name) Failed indexed filter 8: (var oli0.8), (var oli1.8)
+)
+
+(assert
+   (= 10 (var oli0.9) (var oli1.9))
+   [FAILED] (var test_name) Failed indexed filter 9: (var oli0.9), (var oli1.9)
+)
+
 [COMPLETED] (var test_name)
 
 (end)
