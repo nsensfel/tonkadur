@@ -890,10 +890,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* TODO: handle default values. */
       /* This is one dangerous operation to do in-place, so we don't. */
 
-      if (n.get_default_a() == null)
+      if (n.get_default_a() != null)
       {
          visit_merge_with_defaults(n);
          return;
@@ -937,6 +936,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       (
          new SetValue(holder.get_address(), collection_cc.get_computation())
       );
+
+      result.add
+      (
+         Clear.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            collection_cc.get_address()
+         )
+      );
+
 
       in_collection_b_cc = new ComputationCompiler(compiler);
 

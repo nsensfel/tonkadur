@@ -1044,7 +1044,7 @@ returns [Instruction result]
          );
    }
 
-   | IMP_MERGE_KW
+   | SAFE_IMP_MERGE_KW
       fun=non_text_value WS+
       def0=value WS+
       value_reference WS+
@@ -1057,8 +1057,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($IMP_MERGE_KW.getLine()),
-               ($IMP_MERGE_KW.getCharPositionInLine())
+               ($SAFE_IMP_MERGE_KW.getLine()),
+               ($SAFE_IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($value_reference.result),
@@ -1069,7 +1069,7 @@ returns [Instruction result]
          );
    }
 
-   | IMP_MERGE_KW
+   | SAFE_IMP_MERGE_KW
       fun=non_text_value WS+
       def0=value WS+
       value_reference WS+
@@ -1083,8 +1083,8 @@ returns [Instruction result]
          (
             CONTEXT.get_origin_at
             (
-               ($IMP_MERGE_KW.getLine()),
-               ($IMP_MERGE_KW.getCharPositionInLine())
+               ($SAFE_IMP_MERGE_KW.getLine()),
+               ($SAFE_IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($value_reference.result),
@@ -4392,7 +4392,7 @@ returns [Computation result]
          );
    }
 
-   | MERGE_TO_LIST_KW
+   | SAFE_MERGE_TO_LIST_KW
          fun=non_text_value WS+
          def0=value WS+
          inv0=non_text_value WS+
@@ -4405,8 +4405,8 @@ returns [Computation result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_TO_LIST_KW.getLine()),
-               ($MERGE_TO_LIST_KW.getCharPositionInLine())
+               ($SAFE_MERGE_TO_LIST_KW.getLine()),
+               ($SAFE_MERGE_TO_LIST_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($inv0.result),
@@ -4418,7 +4418,7 @@ returns [Computation result]
          );
    }
 
-   | MERGE_TO_LIST_KW
+   | SAFE_MERGE_TO_LIST_KW
          fun=non_text_value WS+
          def0=value WS+
          inv0=non_text_value WS+
@@ -4432,8 +4432,8 @@ returns [Computation result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_TO_LIST_KW.getLine()),
-               ($MERGE_TO_LIST_KW.getCharPositionInLine())
+               ($SAFE_MERGE_TO_LIST_KW.getLine()),
+               ($SAFE_MERGE_TO_LIST_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($inv0.result),
@@ -4539,7 +4539,7 @@ returns [Computation result]
          );
    }
 
-   | MERGE_TO_SET_KW
+   | SAFE_MERGE_TO_SET_KW
          fun=non_text_value WS+
          def0=value WS+
          inv0=non_text_value WS+
@@ -4552,8 +4552,8 @@ returns [Computation result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_TO_SET_KW.getLine()),
-               ($MERGE_TO_SET_KW.getCharPositionInLine())
+               ($SAFE_MERGE_TO_SET_KW.getLine()),
+               ($SAFE_MERGE_TO_SET_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($inv0.result),
@@ -4565,7 +4565,7 @@ returns [Computation result]
          );
    }
 
-   | MERGE_TO_SET_KW
+   | SAFE_MERGE_TO_SET_KW
          fun=non_text_value WS+
          def0=value WS+
          inv0=non_text_value WS+
@@ -4579,8 +4579,8 @@ returns [Computation result]
          (
             CONTEXT.get_origin_at
             (
-               ($MERGE_TO_SET_KW.getLine()),
-               ($MERGE_TO_SET_KW.getCharPositionInLine())
+               ($SAFE_MERGE_TO_SET_KW.getLine()),
+               ($SAFE_MERGE_TO_SET_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($inv0.result),

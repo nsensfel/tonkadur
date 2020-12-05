@@ -2951,7 +2951,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      if (n.get_default_a() == null)
+      if (n.get_default_a() != null)
       {
          visit_merge_with_defaults(n);
 
