@@ -11,7 +11,11 @@
 ;;; BASIC TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global (list int) li0)
+(global (list int) li0oa)
+(global (list int) li0ob)
 (global (list int) li1)
+(global (list int) li1oa)
+(global (list int) li1ob)
 
 (set li0
    (merge_to_list
@@ -27,7 +31,37 @@
    )
 )
 
+(set li0oa
+   (merge_to_list
+      (lambda
+         (
+            (int a)
+            (int b)
+         )
+         (- a b)
+      )
+      (range 10 70 1)
+      (range 0 60 2)
+   )
+)
+
+(set li0ob
+   (merge_to_list
+      (lambda
+         (
+            (int a)
+            (int b)
+         )
+         (- a b)
+      )
+      (range 10 40 1)
+      (range 0 80 2)
+   )
+)
+
 (set li1 (range 10 40 1))
+(set li1oa (range 10 60 1))
+(set li1ob (range 10 40 1))
 
 (merge!
    (lambda
@@ -41,18 +75,54 @@
    (range 0 60 2)
 )
 
+(merge!
+   (lambda
+      (
+         (int a)
+         (int b)
+      )
+      (- a b)
+   )
+   li1oa
+   (range 0 60 2)
+)
+
+(merge!
+   (lambda
+      (
+         (int a)
+         (int b)
+      )
+      (- a b)
+   )
+   li1ob
+   (range 0 160 2)
+)
+
 (assert
-   (= (var li1) (var li0))
+   (= (var li1) (var li0) (var li0oa) (var li0ob) (var li1oa) (var li1ob))
    [FAILED] (var test_name) Equality test 0.
 )
 
 (for (set i 0) (=< i 30) (set i (+ i 1))
    (assert
-      (= (access li1 i) (access li0 i) (- (+ 10 i) (* 2 i)))
+      (=
+         (- (+ 10 i) (* 2 i))
+         (access li0 i)
+         (access li0oa i)
+         (access li0ob i)
+         (access li1 i)
+         (access li1oa i)
+         (access li1ob i)
+      )
       [FAILED] (var test_name) Basic test 0, index (var i), values:
+      Expected: (- (+ 10 i) (* 2 i));
       li0: (access li0 i);
+      li0oa: (access li0oa i);
+      li0ob: (access li0ob i);
       li1: (access li1 i);
-      Expected: (- (+ 10 i) (* 2 i))
+      li1oa: (access li1oa i);
+      li1ob: (access li1ob i)
    )
 )
 
@@ -60,7 +130,11 @@
 ;;; BASIC TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global (set int) si0)
+(global (set int) si0oa)
+(global (set int) si0ob)
 (global (set int) si1)
+(global (set int) si1oa)
+(global (set int) si1ob)
 
 (set si0
    (merge_to_set
@@ -76,7 +150,37 @@
    )
 )
 
+(set si0oa
+   (merge_to_set
+      (lambda
+         (
+            (int a)
+            (int b)
+         )
+         (- a b)
+      )
+      (range 10 70 1)
+      (range 0 60 2)
+   )
+)
+
+(set si0ob
+   (merge_to_set
+      (lambda
+         (
+            (int a)
+            (int b)
+         )
+         (- a b)
+      )
+      (range 10 40 1)
+      (range 0 80 2)
+   )
+)
+
 (add_all! (range 10 40 1) si1)
+(add_all! (range 10 60 1) si1oa)
+(add_all! (range 10 40 1) si1ob)
 
 (merge!
    (lambda
@@ -90,8 +194,32 @@
    (range 0 60 2)
 )
 
+(merge!
+   (lambda
+      (
+         (int a)
+         (int b)
+      )
+      (- a b)
+   )
+   si1oa
+   (range 0 60 2)
+)
+
+(merge!
+   (lambda
+      (
+         (int a)
+         (int b)
+      )
+      (- a b)
+   )
+   si1ob
+   (range 0 80 2)
+)
+
 (assert
-   (= (var si1) (var si0))
+   (= (var si0) (var si0oa) (var si0ob) (var si1) (var si1oa) (var si1ob))
    [FAILED] (var test_name) Equality test 1.
 )
 
@@ -106,11 +234,23 @@
       (set j (- j 1))
    )
    (assert
-      (= (access si1 i) (access si0 i) (- (+ 10 j) (* 2 j)))
+      (=
+         (- (+ 10 j) (* 2 j))
+         (access si0 i)
+         (access si0oa i)
+         (access si0ob i)
+         (access si1 i)
+         (access si1oa i)
+         (access si1ob i)
+      )
       [FAILED] (var test_name) Basic test 1, index (var i), values:
+      Expected: (- (+ 10 j) (* 2 j));
       si0: (access si0 i);
+      si0oa: (access si0oa i);
+      si0ob: (access si0ob i);
       si1: (access si1 i);
-      Expected: (- (+ 10 j) (* 2 j))
+      si1oa: (access si1oa i);
+      si1ob: (access si1ob i);
    )
 )
 
@@ -118,7 +258,11 @@
 ;;; BASIC TEST 2 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global (set int) si2)
+(global (set int) si2oa)
+(global (set int) si2ob)
 (global (set int) si3)
+(global (set int) si3oa)
+(global (set int) si3ob)
 
 (set si2
    (merge_to_set
@@ -136,7 +280,41 @@
    )
 )
 
+(set si2oa
+   (merge_to_set
+      (lambda
+         (
+            (int a)
+            (int b)
+            (int mod)
+         )
+         (* (- a b) mod)
+      )
+      (range 10 80 1)
+      (range 0 60 2)
+      -1
+   )
+)
+
+(set si2ob
+   (merge_to_set
+      (lambda
+         (
+            (int a)
+            (int b)
+            (int mod)
+         )
+         (* (- a b) mod)
+      )
+      (range 10 40 1)
+      (range 0 80 2)
+      -1
+   )
+)
+
 (add_all! (range 10 40 1) si3)
+(add_all! (range 10 80 1) si3oa)
+(add_all! (range 10 40 1) si3ob)
 
 (merge!
    (lambda
@@ -152,62 +330,109 @@
    -1
 )
 
+(merge!
+   (lambda
+      (
+         (int a)
+         (int b)
+         (int mod)
+      )
+      (* (- a b) mod)
+   )
+   si3oa
+   (range 0 60 2)
+   -1
+)
+
+(merge!
+   (lambda
+      (
+         (int a)
+         (int b)
+         (int mod)
+      )
+      (* (- a b) mod)
+   )
+   si3ob
+   (range 0 90 2)
+   -1
+)
+
 (assert
-   (= (var si3) (var si2))
-   [FAILED] (var test_name) Equality test 0.
+   (= (var si2) (var si2oa) (var si2ob) (var si3) (var si3oa) (var si3ob))
+   [FAILED] (var test_name) Equality test 2.
 )
 
 (for
-   (
-      (set i 0)
-      (set j 30)
-   )
+   (set i 0)
    (=< i 30)
-   (
-      (set i (+ i 1))
-      (set j (- j 1))
-   )
+   (set i (+ i 1))
    (assert
-      (= (access si3 i) (access si2 i) (* (- (+ 10 i) (* 2 i)) -1))
+      (=
+         (* (- (+ 10 i) (* 2 i)) -1)
+         (access si2 i)
+         (access si2oa i)
+         (access si2ob i)
+         (access si3 i)
+         (access si3oa i)
+         (access si3ob i)
+      )
       [FAILED] (var test_name) Basic test 2, index (var i), values:
+      Expected: (* (- (+ 10 i) (* 2 i)) -1);
       si2: (access si2 i);
+      si2oa: (access si2oa i);
+      si2ob: (access si2ob i);
       si3: (access si3 i);
-      Expected: (* (- (+ 10 i) (* 2 i)) -1)
+      si3oa: (access si3oa i);
+      si3ob: (access si3ob i)
    )
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INDEXED TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TODO
+(global (list int) ili0)
+(global (list int) ili0oa)
+(global (list int) ili0ob)
+(global (list int) ili1)
+(global (list int) ili1oa)
+(global (list int) ili1ob)
+
+
+;; Why have the index twice? It's not useful when you don't have the possibility
+;; of these indices being different.
+(set ili0
+   (indexed_merge_to_list
+      (lambda
+         (
+            (int i_a)
+            (int a)
+            (int i_b)
+            (int b)
+         )
+         (- a b)
+      )
+      (range 10 40 1)
+      (range 0 60 2)
+   )
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; BASIC TEST 3 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INDEXED TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TODO
+(global (set int) isi0)
+(global (set int) isi0oa)
+(global (set int) isi0ob)
+(global (set int) isi1)
+(global (set int) isi1oa)
+(global (set int) isi1ob)
 
-;;(clear li0)
-;;(clear li1)
-;;
-;;(set li0
-;;   (indexed_map
-;;      (lambda ((int ix) (int i)) (+ (* i ix) 1000))
-;;      (range 10 20 1)
-;;   )
-;;)
-;;
-;;(set li1 (range 10 20 1))
-;;
-;;(indexed_map!
-;;   (lambda ((int ix) (int i)) (+ (* i ix) 1000))
-;;   li1
-;;)
-;;
-;;(for (set i 0) (=< i 10) (set i (+ i 1))
-;;   (assert
-;;      (=
-;;         (access li1 i) (access li0 i) (access li2 i) (access li3 i)
-;;         (+ (* i (+ 10 i)) 1000)
-;;      )
-;;      [FAILED] (var test_name) Indexed map at (var i):
-;;      (access li1 i), (access li0 i), (access li2 i), (access li3 i)
-;;   )
-;;)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; DEFAULT_VALUES TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TODO
 
 [COMPLETED] (var test_name)
 

@@ -1010,6 +1010,147 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       }
    }
 
+   private void visit_indexed_merge_with_defaults
+   (
+      final tonkadur.fate.v1.lang.instruction.IndexedMerge n
+   )
+   throws Throwable
+   {
+      final Register holder;
+      final ComputationCompiler lambda_cc, default_a_cc, default_b_cc;
+      final List<Computation> params;
+      final List<ComputationCompiler> param_cc_list;
+      final ComputationCompiler collection_cc, in_collection_b_cc;
+
+      params = new ArrayList<Computation>();
+      param_cc_list = new ArrayList<ComputationCompiler>();
+
+      lambda_cc = new ComputationCompiler(compiler);
+      default_a_cc = new ComputationCompiler(compiler);
+      default_b_cc = new ComputationCompiler(compiler);
+
+      n.get_lambda_function().get_visited_by(lambda_cc);
+
+      if (lambda_cc.has_init())
+      {
+         result.add(lambda_cc.get_init());
+      }
+
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_collection().get_visited_by(collection_cc);
+
+      if (collection_cc.has_init())
+      {
+         result.add(collection_cc.get_init());
+      }
+
+      n.get_default_a().get_visited_by(default_a_cc);
+
+      default_a_cc.generate_address();
+
+      if (default_a_cc.has_init())
+      {
+         result.add(default_a_cc.get_init());
+      }
+
+      n.get_default_b().get_visited_by(default_b_cc);
+
+      default_b_cc.generate_address();
+
+      if (default_b_cc.has_init())
+      {
+         result.add(default_b_cc.get_init());
+      }
+
+      holder =
+         compiler.registers().reserve
+         (
+            collection_cc.get_computation().get_type(),
+            result
+         );
+
+      result.add
+      (
+         new SetValue(holder.get_address(), collection_cc.get_computation())
+      );
+
+      result.add
+      (
+         Clear.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            collection_cc.get_address()
+         )
+      );
+
+      in_collection_b_cc = new ComputationCompiler(compiler);
+
+      n.get_collection_in_b().get_visited_by(in_collection_b_cc);
+
+      if (in_collection_b_cc.has_init())
+      {
+         result.add(in_collection_b_cc.get_init());
+      }
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            n.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         /* Let's not re-compute the parameters on every iteration. */
+         param_cc.generate_address();
+
+         if (param_cc.has_init())
+         {
+            result.add(param_cc.get_init());
+         }
+
+         param_cc_list.add(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      result.add
+      (
+         IndexedMergeLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            default_a_cc.get_computation(),
+            holder.get_address(),
+            default_b_cc.get_computation(),
+            in_collection_b_cc.get_address(),
+            collection_cc.get_address(),
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               n.get_collection().get_type()
+            ).is_set(),
+            params
+         )
+      );
+
+      collection_cc.release_registers(result);
+      in_collection_b_cc.release_registers(result);
+      default_a_cc.release_registers(result);
+      default_b_cc.release_registers(result);
+      compiler.registers().release(holder, result);
+
+      for (final ComputationCompiler cc: param_cc_list)
+      {
+         cc.release_registers(result);
+      }
+   }
+
    @Override
    public void visit_indexed_merge
    (
@@ -1017,6 +1158,12 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
+      if (n.get_default_a() != null)
+      {
+         visit_indexed_merge_with_defaults(n);
+         return;
+      }
+
       /* This is one dangerous operation to do in-place, so we don't. */
       final Register holder;
       final ComputationCompiler lambda_cc;

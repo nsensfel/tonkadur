@@ -23,7 +23,9 @@ public class IndexedMergeComputation extends Computation
    protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection_in_a;
+   protected final Computation default_a;
    protected final Computation collection_in_b;
+   protected final Computation default_b;
    protected final boolean to_set;
 
    /***************************************************************************/
@@ -35,7 +37,9 @@ public class IndexedMergeComputation extends Computation
       final Origin origin,
       final Computation lambda_function,
       final Computation collection_in_a,
+      final Computation default_a,
       final Computation collection_in_b,
+      final Computation default_b,
       final boolean to_set,
       final List<Computation> extra_params,
       final Type output_type
@@ -45,7 +49,9 @@ public class IndexedMergeComputation extends Computation
 
       this.lambda_function = lambda_function;
       this.collection_in_a = collection_in_a;
+      this.default_a = default_a;
       this.collection_in_b = collection_in_b;
+      this.default_b = default_b;
       this.to_set = to_set;
       this.extra_params = extra_params;
    }
@@ -59,7 +65,9 @@ public class IndexedMergeComputation extends Computation
       final Origin origin,
       final Computation lambda_function,
       final Computation collection_in_a,
+      final Computation default_a,
       final Computation collection_in_b,
+      final Computation default_b,
       final boolean to_set,
       final List<Computation> extra_params
    )
@@ -69,8 +77,23 @@ public class IndexedMergeComputation extends Computation
 
       types_in = new ArrayList<Type>();
 
-      RecurrentChecks.assert_is_a_collection(collection_in_a);
-      RecurrentChecks.assert_is_a_collection(collection_in_b);
+      if (default_a == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection_in_a);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection_in_a, default_a);
+      }
+
+      if (default_b == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection_in_b);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
+      }
 
       types_in.add(Type.INT);
 
@@ -78,6 +101,15 @@ public class IndexedMergeComputation extends Computation
       (
          ((CollectionType) collection_in_a.get_type()).get_content_type()
       );
+
+      if (default_b != null)
+      {
+         /*
+          * Safe-Mode: two indices.
+          * Unsafe-Mode: only one index, since out-of-bound means stopping.
+          */
+         types_in.add(Type.INT);
+      }
 
       types_in.add
       (
@@ -97,7 +129,9 @@ public class IndexedMergeComputation extends Computation
             origin,
             lambda_function,
             collection_in_a,
+            default_a,
             collection_in_b,
+            default_b,
             to_set,
             extra_params,
             CollectionType.build
@@ -128,9 +162,19 @@ public class IndexedMergeComputation extends Computation
       return collection_in_a;
    }
 
+   public Computation get_default_a ()
+   {
+      return default_a;
+   }
+
    public Computation get_collection_in_b ()
    {
       return collection_in_b;
+   }
+
+   public Computation get_default_b ()
+   {
+      return default_b;
    }
 
    public List<Computation> get_extra_parameters ()
@@ -163,7 +207,27 @@ public class IndexedMergeComputation extends Computation
       sb.append(collection_in_a.toString());
       sb.append(" ");
 
+      if (default_a == null)
+      {
+         sb.append("null");
+      }
+      else
+      {
+         sb.append(default_a.toString());
+      }
+
+      sb.append(" ");
       sb.append(collection_in_b.toString());
+      sb.append(" ");
+
+      if (default_b == null)
+      {
+         sb.append("null");
+      }
+      else
+      {
+         sb.append(default_b.toString());
+      }
 
       for (final Computation c: extra_params)
       {

@@ -23,7 +23,9 @@ public class IndexedMerge extends Instruction
    protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Reference collection;
+   protected final Computation default_a;
    protected final Computation collection_in_b;
+   protected final Computation default_b;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -34,7 +36,9 @@ public class IndexedMerge extends Instruction
       final Origin origin,
       final Computation lambda_function,
       final Reference collection,
+      final Computation default_a,
       final Computation collection_in_b,
+      final Computation default_b,
       final List<Computation> extra_params
    )
    {
@@ -42,7 +46,9 @@ public class IndexedMerge extends Instruction
 
       this.lambda_function = lambda_function;
       this.collection = collection;
+      this.default_a = default_a;
       this.collection_in_b = collection_in_b;
+      this.default_b = default_b;
       this.extra_params = extra_params;
    }
 
@@ -55,7 +61,9 @@ public class IndexedMerge extends Instruction
       final Origin origin,
       final Computation lambda_function,
       final Reference collection,
+      final Computation default_a,
       final Computation collection_in_b,
+      final Computation default_b,
       final List<Computation> extra_params
    )
    throws Throwable
@@ -64,14 +72,34 @@ public class IndexedMerge extends Instruction
 
       types_in = new ArrayList<Type>();
 
-      RecurrentChecks.assert_is_a_collection(collection);
-      RecurrentChecks.assert_is_a_collection(collection_in_b);
+      if (default_a == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection, default_a);
+      }
+
+      if (default_b == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection_in_b);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
+      }
 
       types_in.add(Type.INT);
       types_in.add
       (
          ((CollectionType) collection.get_type()).get_content_type()
       );
+
+      if (default_b != null)
+      {
+         types_in.add(Type.INT);
+      }
 
       types_in.add
       (
@@ -96,7 +124,9 @@ public class IndexedMerge extends Instruction
             origin,
             lambda_function,
             collection,
+            default_a,
             collection_in_b,
+            default_b,
             extra_params
          );
    }
@@ -114,9 +144,19 @@ public class IndexedMerge extends Instruction
       return lambda_function;
    }
 
+   public Computation get_default_a ()
+   {
+      return default_a;
+   }
+
    public Computation get_collection_in_b ()
    {
       return collection_in_b;
+   }
+
+   public Computation get_default_b ()
+   {
+      return default_b;
    }
 
    public Reference get_collection ()
@@ -139,9 +179,29 @@ public class IndexedMerge extends Instruction
       sb.append(lambda_function.toString());
       sb.append(" ");
       sb.append(collection.toString());
+      sb.append(" ");
+
+      if (default_a == null)
+      {
+         sb.append("null");
+      }
+      else
+      {
+         sb.append(default_a.toString());
+      }
 
       sb.append(" ");
       sb.append(collection_in_b.toString());
+      sb.append(" ");
+
+      if (default_b == null)
+      {
+         sb.append("null");
+      }
+      else
+      {
+         sb.append(default_b.toString());
+      }
 
       for (final Computation c: extra_params)
       {

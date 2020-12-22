@@ -1017,7 +1017,9 @@ returns [Instruction result]
             ),
             ($fun.result),
             ($value_reference.result),
+            null,
             ($inv1.result),
+            null,
             new ArrayList()
          );
    }
@@ -1039,7 +1041,9 @@ returns [Instruction result]
             ),
             ($fun.result),
             ($value_reference.result),
+            null,
             ($inv1.result),
+            null,
             ($value_list.result)
          );
    }
@@ -1085,6 +1089,57 @@ returns [Instruction result]
             (
                ($SAFE_IMP_MERGE_KW.getLine()),
                ($SAFE_IMP_MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($value_reference.result),
+            ($def0.result),
+            ($inv1.result),
+            ($def1.result),
+            ($value_list.result)
+         );
+   }
+
+   | SAFE_IMP_INDEXED_MERGE_KW
+      fun=non_text_value WS+
+      def0=value WS+
+      value_reference WS+
+      def1=value WS+
+      inv1=non_text_value WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMerge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SAFE_IMP_INDEXED_MERGE_KW.getLine()),
+               ($SAFE_IMP_INDEXED_MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($value_reference.result),
+            ($def0.result),
+            ($inv1.result),
+            ($def1.result),
+            new ArrayList()
+         );
+   }
+
+   | SAFE_IMP_INDEXED_MERGE_KW
+      fun=non_text_value WS+
+      def0=value WS+
+      value_reference WS+
+      def1=value WS+
+      inv1=non_text_value WS+
+      value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMerge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SAFE_IMP_INDEXED_MERGE_KW.getLine()),
+               ($SAFE_IMP_INDEXED_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
             ($value_reference.result),
@@ -4314,7 +4369,9 @@ returns [Computation result]
             ),
             ($fun.result),
             ($inv0.result),
+            null,
             ($inv1.result),
+            null,
             false,
             new ArrayList()
          );
@@ -4337,7 +4394,62 @@ returns [Computation result]
             ),
             ($fun.result),
             ($inv0.result),
+            null,
             ($inv1.result),
+            null,
+            false,
+            ($value_list.result)
+         );
+   }
+
+   | SAFE_INDEXED_MERGE_TO_LIST_KW
+         fun=non_text_value WS+
+         def0=value WS+
+         inv0=non_text_value WS+
+         def1=value WS+
+         inv1=non_text_value WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getLine()),
+               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($def0.result),
+            ($inv1.result),
+            ($def1.result),
+            false,
+            new ArrayList()
+         );
+   }
+
+   | SAFE_INDEXED_MERGE_TO_LIST_KW
+         fun=non_text_value WS+
+         def0=value WS+
+         inv0=non_text_value WS+
+         def1=value WS+
+         inv1=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getLine()),
+               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($def0.result),
+            ($inv1.result),
+            ($def1.result),
             false,
             ($value_list.result)
          );
@@ -4461,7 +4573,9 @@ returns [Computation result]
             ),
             ($fun.result),
             ($inv0.result),
+            null,
             ($inv1.result),
+            null,
             true,
             new ArrayList()
          );
@@ -4484,7 +4598,62 @@ returns [Computation result]
             ),
             ($fun.result),
             ($inv0.result),
+            null,
             ($inv1.result),
+            null,
+            true,
+            ($value_list.result)
+         );
+   }
+
+   | SAFE_INDEXED_MERGE_TO_SET_KW
+         fun=non_text_value WS+
+         def0=value WS+
+         inv0=non_text_value WS+
+         def1=value WS+
+         inv1=non_text_value WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SAFE_INDEXED_MERGE_TO_SET_KW.getLine()),
+               ($SAFE_INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($def0.result),
+            ($inv1.result),
+            ($def1.result),
+            true,
+            new ArrayList()
+         );
+   }
+
+   | SAFE_INDEXED_MERGE_TO_SET_KW
+         fun=non_text_value WS+
+         def0=value WS+
+         inv0=non_text_value WS+
+         def1=value WS+
+         inv1=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      $result =
+         IndexedMergeComputation.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($SAFE_INDEXED_MERGE_TO_SET_KW.getLine()),
+               ($SAFE_INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv0.result),
+            ($def0.result),
+            ($inv1.result),
+            ($def1.result),
             true,
             ($value_list.result)
          );
