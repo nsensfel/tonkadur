@@ -391,7 +391,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; INDEXED TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TODO
 (global (list int) ili0)
 (global (list int) ili0oa)
 (global (list int) ili0ob)
@@ -399,35 +398,399 @@
 (global (list int) ili1oa)
 (global (list int) ili1ob)
 
-
-;; Why have the index twice? It's not useful when you don't have the possibility
-;; of these indices being different.
 (set ili0
    (indexed_merge_to_list
       (lambda
          (
-            (int i_a)
+            (int i)
             (int a)
-            (int i_b)
             (int b)
          )
-         (- a b)
+         (* (- a b) i)
       )
       (range 10 40 1)
       (range 0 60 2)
    )
 )
 
+(set ili0oa
+   (indexed_merge_to_list
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+         )
+         (* (- a b) i)
+      )
+      (range 10 70 1)
+      (range 0 60 2)
+   )
+)
+
+(set ili0ob
+   (indexed_merge_to_list
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+         )
+         (* (- a b) i)
+      )
+      (range 10 40 1)
+      (range 0 80 2)
+   )
+)
+
+(set ili1 (range 10 40 1))
+(set ili1oa (range 10 60 1))
+(set ili1ob (range 10 40 1))
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+      )
+      (* (- a b) i)
+   )
+   ili1
+   (range 0 60 2)
+)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+      )
+      (* (- a b) i)
+   )
+   ili1oa
+   (range 0 60 2)
+)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+      )
+      (* (- a b) i)
+   )
+   ili1ob
+   (range 0 160 2)
+)
+
+(assert
+   (= (var ili1) (var ili0) (var ili0oa) (var ili0ob) (var ili1oa) (var ili1ob))
+   [FAILED] (var test_name) Equality test indexed 0.
+)
+
+(for (set i 0) (=< i 30) (set i (+ i 1))
+   (assert
+      (=
+         (* (- (+ 10 i) (* 2 i)) i)
+         (access ili0 i)
+         (access ili0oa i)
+         (access ili0ob i)
+         (access ili1 i)
+         (access ili1oa i)
+         (access ili1ob i)
+      )
+      [FAILED] (var test_name) Indexed test 0, index (var i), values:
+      Expected: (* (- (+ 10 i) (* 2 i)) i);
+      ili0: (access ili0 i);
+      ili0oa: (access ili0oa i);
+      ili0ob: (access ili0ob i);
+      ili1: (access ili1 i);
+      ili1oa: (access ili1oa i);
+      ili1ob: (access ili1ob i)
+   )
+)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; INDEXED TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INDEXED TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TODO
 (global (set int) isi0)
 (global (set int) isi0oa)
 (global (set int) isi0ob)
 (global (set int) isi1)
 (global (set int) isi1oa)
 (global (set int) isi1ob)
+
+(set isi0
+   (indexed_merge_to_set
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+         )
+         (* (- a b) (+ i 1))
+      )
+      (range 10 40 1)
+      (range 0 60 2)
+   )
+)
+
+(set isi0oa
+   (indexed_merge_to_set
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+         )
+         (* (- a b) (+ i 1))
+      )
+      (range 10 70 1)
+      (range 0 60 2)
+   )
+)
+
+(set isi0ob
+   (indexed_merge_to_set
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+         )
+         (* (- a b) (+ i 1))
+      )
+      (range 10 40 1)
+      (range 0 80 2)
+   )
+)
+
+(add_all! (range 10 40 1) isi1)
+(add_all! (range 10 60 1) isi1oa)
+(add_all! (range 10 40 1) isi1ob)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+      )
+      (* (- a b) (+ i 1))
+   )
+   isi1
+   (range 0 60 2)
+)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+      )
+      (* (- a b) (+ i 1))
+   )
+   isi1oa
+   (range 0 60 2)
+)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+      )
+      (* (- a b) (+ i 1))
+   )
+   isi1ob
+   (range 0 80 2)
+)
+
+(assert
+   (= (var isi0) (var isi0oa) (var isi0ob) (var isi1) (var isi1oa) (var isi1ob))
+   [FAILED] (var test_name) Equality test indexed 1.
+)
+
+For reference, the values found in the sets are:
+(for (set i 0) (=< i 30) (set i (+ i 1))
+   (* (- (+ 10 i) (* 2 i)) (+ j i)) (newline)
+)
+
+(for
+   (
+      (set i 0)
+      (set j 25)
+   )
+   (=< i 25)
+   (
+      (set i (+ i 1))
+      (set j (- j 1))
+   )
+   (assert
+      (=
+         (* (- (+ 10 j) (* 2 j)) (+ j 1))
+         (access isi0 i)
+         (access isi0oa i)
+         (access isi0ob i)
+         (access isi1 i)
+         (access isi1oa i)
+         (access isi1ob i)
+      )
+      [FAILED] (var test_name) Indexed test 1, index (var i), values:
+      Expected: (* (- (+ 10 j) (* 2 j)) (+ j 1));
+      isi0: (access isi0 i);
+      isi0oa: (access isi0oa i);
+      isi0ob: (access isi0ob i);
+      isi1: (access isi1 i);
+      isi1oa: (access isi1oa i);
+      isi1ob: (access isi1ob i);
+   )
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INDEXED TEST 2 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(global (set int) isi2)
+(global (set int) isi2oa)
+(global (set int) isi2ob)
+(global (set int) isi3)
+(global (set int) isi3oa)
+(global (set int) isi3ob)
+
+(set isi2
+   (indexed_merge_to_set
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+            (int mod)
+         )
+         (* (* (- a b) mod) (+ i 1))
+      )
+      (range 10 40 1)
+      (range 0 60 2)
+      -1
+   )
+)
+
+(set isi2oa
+   (indexed_merge_to_set
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+            (int mod)
+         )
+         (* (* (- a b) mod) (+ i 1))
+      )
+      (range 10 80 1)
+      (range 0 60 2)
+      -1
+   )
+)
+
+(set isi2ob
+   (indexed_merge_to_set
+      (lambda
+         (
+            (int i)
+            (int a)
+            (int b)
+            (int mod)
+         )
+         (* (- a b) mod (+ i 1))
+      )
+      (range 10 40 1)
+      (range 0 80 2)
+      -1
+   )
+)
+
+(add_all! (range 10 40 1) isi3)
+(add_all! (range 10 80 1) isi3oa)
+(add_all! (range 10 40 1) isi3ob)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+         (int mod)
+      )
+      (* (- a b) mod (+ i 1))
+   )
+   isi3
+   (range 0 60 2)
+   -1
+)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+         (int mod)
+      )
+      (* (- a b) mod (+ i 1))
+   )
+   isi3oa
+   (range 0 60 2)
+   -1
+)
+
+(indexed_merge!
+   (lambda
+      (
+         (int i)
+         (int a)
+         (int b)
+         (int mod)
+      )
+      (* (- a b) mod (+ i 1))
+   )
+   isi3ob
+   (range 0 90 2)
+   -1
+)
+
+(assert
+   (= (var isi2) (var isi2oa) (var isi2ob) (var isi3) (var isi3oa) (var isi3ob))
+   [FAILED] (var test_name) Equality test indexed 2.
+)
+
+(for
+   (set i 0)
+   (=< i 25)
+   (set i (+ i 1))
+   (assert
+      (=
+         (* (* (- (+ 10 i) (* 2 i)) -1) (+ i 1))
+         (access isi2 i)
+         (access isi2oa i)
+         (access isi2ob i)
+         (access isi3 i)
+         (access isi3oa i)
+         (access isi3ob i)
+      )
+      [FAILED] (var test_name) Indexed test 2, index (var i), values:
+      Expected: (* (* (- (+ 10 i) (* 2 i)) -1) (+ i 1));
+      isi2: (access isi2 i);
+      isi2oa: (access isi2oa i);
+      isi2ob: (access isi2ob i);
+      isi3: (access isi3 i);
+      isi3oa: (access isi3oa i);
+      isi3ob: (access isi3ob i)
+   )
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DEFAULT_VALUES TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

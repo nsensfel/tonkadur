@@ -655,18 +655,39 @@ returns [Instruction result]
          );
    }
 
-   | IMP_ADD_KW value WS+ value_reference WS* R_PAREN
+   | IMP_ADD_KW value_list WS+ value_reference WS* R_PAREN
    {
+      final List<Instruction> add_instrs;
+
+      add_instrs = new ArrayList<Instruction>();
+
+
+      for (final Computation value: ($value_list.result))
+      {
+         add_instrs.add
+         (
+            AddElement.build
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($IMP_ADD_KW.getLine()),
+                  ($IMP_ADD_KW.getCharPositionInLine())
+               ),
+               value,
+               ($value_reference.result)
+            )
+         );
+      }
+
       $result =
-         AddElement.build
+         new InstructionList
          (
             CONTEXT.get_origin_at
             (
                ($IMP_ADD_KW.getLine()),
                ($IMP_ADD_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            add_instrs
          );
    }
 
@@ -4111,19 +4132,24 @@ returns [Computation result]
          );
    }
 
-   | ADD_KW val=value WS+ coll=non_text_value WS* R_PAREN
+   | ADD_KW vall=value_list WS+ coll=non_text_value WS* R_PAREN
    {
-      $result =
-         AddElementComputation.build
-         (
-            CONTEXT.get_origin_at
+      $result = ($coll.result);
+
+      for (final Computation value: ($vall.result))
+      {
+         $result =
+            AddElementComputation.build
             (
-               ($ADD_KW.getLine()),
-               ($ADD_KW.getCharPositionInLine())
-            ),
-            ($val.result),
-            ($coll.result)
-         );
+               CONTEXT.get_origin_at
+               (
+                  ($ADD_KW.getLine()),
+                  ($ADD_KW.getCharPositionInLine())
+               ),
+               value,
+               $result
+            );
+      }
    }
 
    | ADD_AT_KW

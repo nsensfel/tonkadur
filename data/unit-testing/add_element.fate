@@ -11,17 +11,13 @@
 (set li0 (add_element 0 li0))
 (set li0 (add_element 1 li0))
 (set li0 (add_element 2 li0))
-(set li0 (add_element 3 li0))
-(set li0 (add_element 4 li0))
-(set li0 (add_element 5 li0))
+(set li0 (add_element 3 4 5 li0))
 (set li0 (add_element 6 li0))
 
 (add_element! -1 li1)
 (add_element! 0 li1)
 (add_element! 1 li1)
-(add_element! 2 li1)
-(add_element! 3 li1)
-(add_element! 4 li1)
+(add_element! 2 3 4 li1)
 (add_element! 5 li1)
 (add_element! 6 li1)
 
@@ -44,13 +40,9 @@
    (add_element 6
       (add_element 5
          (add_element 4
-            (add_element 3
-               (add_element 2
-                  (add_element 1
-                     (add_element 0
-                        (add_element -1 ali1)
-                     )
-                  )
+            (add_element 1 2 3
+               (add_element 0
+                  (add_element -1 ali1)
                )
             )
          )
@@ -68,18 +60,14 @@
 
 (set si0 (add_element 6 si0))
 (set si0 (add_element 0 si0))
-(set si0 (add_element 1 si0))
-(set si0 (add_element 4 si0))
-(set si0 (add_element -1 si0))
+(set si0 (add_element 1 4 -1 si0))
 (set si0 (add_element 5 si0))
 (set si0 (add_element 3 si0))
 (set si0 (add_element 2 si0))
 
 (add_element! 4 si1)
 (add_element! 0 (at (ptr si1)))
-(add_element! 3 si1)
-(add_element! -1 si1)
-(add_element! 2 si1)
+(add_element! 3 -1 2 si1)
 (add_element! 6 si1)
 (add_element! 1 (at si_ptr))
 (add_element! 5 si1)
@@ -88,17 +76,13 @@
 
 (set si0 (add_element 0 si0))
 (set si0 (add_element 4 si0))
-(set si0 (add_element 6 si0))
-(set si0 (add_element 5 si0))
-(set si0 (add_element 3 si0))
+(set si0 (add_element 6 5 3 si0))
 (set si0 (add_element -1 si0))
 (set si0 (add_element 2 si0))
 (set si0 (add_element 1 si0))
 
 (add_element! 4 si1)
-(add_element! 1 si1)
-(add_element! 0 si1)
-(add_element! 6 si1)
+(add_element! 1 0 6 si1)
 (add_element! -1 si1)
 (add_element! 3 si1)
 (add_element! 2 si1)

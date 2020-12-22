@@ -1204,6 +1204,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          new SetValue(holder.get_address(), collection_cc.get_computation())
       );
 
+      result.add
+      (
+         Clear.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            collection_cc.get_address()
+         )
+      );
+
       in_collection_b_cc = new ComputationCompiler(compiler);
 
       n.get_collection_in_b().get_visited_by(in_collection_b_cc);
