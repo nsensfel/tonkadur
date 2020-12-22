@@ -7,6 +7,8 @@
 (local int i)
 (local int j)
 
+(local (set int) oracle_set)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; BASIC TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -516,6 +518,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; INDEXED TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+For reference, the values found in the sets are:
+(for (set i 0) (=< i 30) (set i (+ i 1))
+   (local int o)
+   (set o (* (- (+ 10 i) (* 2 i)) (+ i 1)))
+   (var o) (newline)
+   (add! (var o) oracle_set)
+)
+
 (global (set int) isi0)
 (global (set int) isi0oa)
 (global (set int) isi0ob)
@@ -616,24 +626,10 @@
    [FAILED] (var test_name) Equality test indexed 1.
 )
 
-For reference, the values found in the sets are:
-(for (set i 0) (=< i 30) (set i (+ i 1))
-   (* (- (+ 10 i) (* 2 i)) (+ j i)) (newline)
-)
-
-(for
-   (
-      (set i 0)
-      (set j 25)
-   )
-   (=< i 25)
-   (
-      (set i (+ i 1))
-      (set j (- j 1))
-   )
+(for (set i (- (size oracle_set) 1)) (>= i 0) (set i (- i 1))
    (assert
       (=
-         (* (- (+ 10 j) (* 2 j)) (+ j 1))
+         (access oracle_set i)
          (access isi0 i)
          (access isi0oa i)
          (access isi0ob i)
@@ -642,7 +638,7 @@ For reference, the values found in the sets are:
          (access isi1ob i)
       )
       [FAILED] (var test_name) Indexed test 1, index (var i), values:
-      Expected: (* (- (+ 10 j) (* 2 j)) (+ j 1));
+      Expected: (access oracle_set i);
       isi0: (access isi0 i);
       isi0oa: (access isi0oa i);
       isi0ob: (access isi0ob i);
@@ -652,9 +648,20 @@ For reference, the values found in the sets are:
    )
 )
 
+(clear oracle_set)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; INDEXED TEST 2 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+For reference, the values found in the sets are:
+(for (set i 0) (=< i 30) (set i (+ i 1))
+   (local int o)
+   (set o (* (- (+ 10 i) (* 2 i)) -1 (+ i 1)))
+   (var o) (newline)
+   (add! (var o) oracle_set)
+)
+
 (global (set int) isi2)
 (global (set int) isi2oa)
 (global (set int) isi2ob)
@@ -767,13 +774,10 @@ For reference, the values found in the sets are:
    [FAILED] (var test_name) Equality test indexed 2.
 )
 
-(for
-   (set i 0)
-   (=< i 25)
-   (set i (+ i 1))
+(for (set i (- (size oracle_set) 1)) (>= i 0) (set i (- i 1))
    (assert
       (=
-         (* (* (- (+ 10 i) (* 2 i)) -1) (+ i 1))
+         (access oracle_set i)
          (access isi2 i)
          (access isi2oa i)
          (access isi2ob i)
@@ -782,7 +786,7 @@ For reference, the values found in the sets are:
          (access isi3ob i)
       )
       [FAILED] (var test_name) Indexed test 2, index (var i), values:
-      Expected: (* (* (- (+ 10 i) (* 2 i)) -1) (+ i 1));
+      Expected: (access oracle_set i);
       isi2: (access isi2 i);
       isi2oa: (access isi2oa i);
       isi2ob: (access isi2ob i);
