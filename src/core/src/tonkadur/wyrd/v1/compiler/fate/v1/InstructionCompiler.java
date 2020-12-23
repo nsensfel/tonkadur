@@ -749,17 +749,18 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    throws Throwable
    {
       final Register holder;
-      final ComputationCompiler lambda_cc, default_a_cc, default_b_cc;
+      final ComputationCompiler lambda_cc;
+      final ComputationCompiler main_default_cc, secondary_default_cc;
       final List<Computation> params;
       final List<ComputationCompiler> param_cc_list;
-      final ComputationCompiler collection_cc, in_collection_b_cc;
+      final ComputationCompiler main_collection_cc, secondary_collection_cc;
 
       params = new ArrayList<Computation>();
       param_cc_list = new ArrayList<ComputationCompiler>();
 
       lambda_cc = new ComputationCompiler(compiler);
-      default_a_cc = new ComputationCompiler(compiler);
-      default_b_cc = new ComputationCompiler(compiler);
+      main_default_cc = new ComputationCompiler(compiler);
+      secondary_default_cc = new ComputationCompiler(compiler);
 
       n.get_lambda_function().get_visited_by(lambda_cc);
 
@@ -768,43 +769,47 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(lambda_cc.get_init());
       }
 
-      collection_cc = new ComputationCompiler(compiler);
+      main_collection_cc = new ComputationCompiler(compiler);
 
-      n.get_collection().get_visited_by(collection_cc);
+      n.get_main_collection().get_visited_by(main_collection_cc);
 
-      if (collection_cc.has_init())
+      if (main_collection_cc.has_init())
       {
-         result.add(collection_cc.get_init());
+         result.add(main_collection_cc.get_init());
       }
 
-      n.get_default_a().get_visited_by(default_a_cc);
+      n.get_main_default().get_visited_by(main_default_cc);
 
-      default_a_cc.generate_address();
+      main_default_cc.generate_address();
 
-      if (default_a_cc.has_init())
+      if (main_default_cc.has_init())
       {
-         result.add(default_a_cc.get_init());
+         result.add(main_default_cc.get_init());
       }
 
-      n.get_default_b().get_visited_by(default_b_cc);
+      n.get_secondary_default().get_visited_by(secondary_default_cc);
 
-      default_b_cc.generate_address();
+      secondary_default_cc.generate_address();
 
-      if (default_b_cc.has_init())
+      if (secondary_default_cc.has_init())
       {
-         result.add(default_b_cc.get_init());
+         result.add(secondary_default_cc.get_init());
       }
 
       holder =
          compiler.registers().reserve
          (
-            collection_cc.get_computation().get_type(),
+            main_collection_cc.get_computation().get_type(),
             result
          );
 
       result.add
       (
-         new SetValue(holder.get_address(), collection_cc.get_computation())
+         new SetValue
+         (
+            holder.get_address(),
+            main_collection_cc.get_computation()
+         )
       );
 
       result.add
@@ -813,17 +818,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers(),
             compiler.assembler(),
-            collection_cc.get_address()
+            main_collection_cc.get_address()
          )
       );
 
-      in_collection_b_cc = new ComputationCompiler(compiler);
+      secondary_collection_cc = new ComputationCompiler(compiler);
 
-      n.get_collection_in_b().get_visited_by(in_collection_b_cc);
+      n.get_secondary_collection().get_visited_by(secondary_collection_cc);
 
-      if (in_collection_b_cc.has_init())
+      if (secondary_collection_cc.has_init())
       {
-         result.add(in_collection_b_cc.get_init());
+         result.add(secondary_collection_cc.get_init());
       }
 
       for
@@ -858,23 +863,23 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             compiler.registers(),
             compiler.assembler(),
             lambda_cc.get_computation(),
-            default_a_cc.get_computation(),
+            secondary_default_cc.get_computation(),
+            secondary_collection_cc.get_address(),
+            main_default_cc.get_computation(),
             holder.get_address(),
-            default_b_cc.get_computation(),
-            in_collection_b_cc.get_address(),
-            collection_cc.get_address(),
+            main_collection_cc.get_address(),
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
-               n.get_collection().get_type()
+               n.get_main_collection().get_type()
             ).is_set(),
             params
          )
       );
 
-      collection_cc.release_registers(result);
-      in_collection_b_cc.release_registers(result);
-      default_a_cc.release_registers(result);
-      default_b_cc.release_registers(result);
+      main_collection_cc.release_registers(result);
+      secondary_collection_cc.release_registers(result);
+      main_default_cc.release_registers(result);
+      secondary_default_cc.release_registers(result);
       compiler.registers().release(holder, result);
 
       for (final ComputationCompiler cc: param_cc_list)
@@ -892,7 +897,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    {
       /* This is one dangerous operation to do in-place, so we don't. */
 
-      if (n.get_default_a() != null)
+      if (n.get_main_default() != null)
       {
          visit_merge_with_defaults(n);
          return;
@@ -902,7 +907,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler lambda_cc;
       final List<Computation> params;
       final List<ComputationCompiler> param_cc_list;
-      final ComputationCompiler collection_cc, in_collection_b_cc;
+      final ComputationCompiler main_collection_cc, secondary_collection_cc;
 
       params = new ArrayList<Computation>();
       param_cc_list = new ArrayList<ComputationCompiler>();
@@ -916,25 +921,29 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(lambda_cc.get_init());
       }
 
-      collection_cc = new ComputationCompiler(compiler);
+      main_collection_cc = new ComputationCompiler(compiler);
 
-      n.get_collection().get_visited_by(collection_cc);
+      n.get_main_collection().get_visited_by(main_collection_cc);
 
-      if (collection_cc.has_init())
+      if (main_collection_cc.has_init())
       {
-         result.add(collection_cc.get_init());
+         result.add(main_collection_cc.get_init());
       }
 
       holder =
          compiler.registers().reserve
          (
-            collection_cc.get_computation().get_type(),
+            main_collection_cc.get_computation().get_type(),
             result
          );
 
       result.add
       (
-         new SetValue(holder.get_address(), collection_cc.get_computation())
+         new SetValue
+         (
+            holder.get_address(),
+            main_collection_cc.get_computation()
+         )
       );
 
       result.add
@@ -943,18 +952,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers(),
             compiler.assembler(),
-            collection_cc.get_address()
+            main_collection_cc.get_address()
          )
       );
 
+      secondary_collection_cc = new ComputationCompiler(compiler);
 
-      in_collection_b_cc = new ComputationCompiler(compiler);
+      n.get_secondary_collection().get_visited_by(secondary_collection_cc);
 
-      n.get_collection_in_b().get_visited_by(in_collection_b_cc);
-
-      if (in_collection_b_cc.has_init())
+      if (secondary_collection_cc.has_init())
       {
-         result.add(in_collection_b_cc.get_init());
+         result.add(secondary_collection_cc.get_init());
       }
 
       for
@@ -989,19 +997,19 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             compiler.registers(),
             compiler.assembler(),
             lambda_cc.get_computation(),
+            secondary_collection_cc.get_address(),
             holder.get_address(),
-            in_collection_b_cc.get_address(),
-            collection_cc.get_address(),
+            main_collection_cc.get_address(),
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
-               n.get_collection().get_type()
+               n.get_main_collection().get_type()
             ).is_set(),
             params
          )
       );
 
-      collection_cc.release_registers(result);
-      in_collection_b_cc.release_registers(result);
+      main_collection_cc.release_registers(result);
+      secondary_collection_cc.release_registers(result);
       compiler.registers().release(holder, result);
 
       for (final ComputationCompiler cc: param_cc_list)
@@ -1017,17 +1025,18 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    throws Throwable
    {
       final Register holder;
-      final ComputationCompiler lambda_cc, default_a_cc, default_b_cc;
+      final ComputationCompiler lambda_cc;
+      final ComputationCompiler main_default_cc, secondary_default_cc;
       final List<Computation> params;
       final List<ComputationCompiler> param_cc_list;
-      final ComputationCompiler collection_cc, in_collection_b_cc;
+      final ComputationCompiler main_collection_cc, secondary_collection_cc;
 
       params = new ArrayList<Computation>();
       param_cc_list = new ArrayList<ComputationCompiler>();
 
       lambda_cc = new ComputationCompiler(compiler);
-      default_a_cc = new ComputationCompiler(compiler);
-      default_b_cc = new ComputationCompiler(compiler);
+      main_default_cc = new ComputationCompiler(compiler);
+      secondary_default_cc = new ComputationCompiler(compiler);
 
       n.get_lambda_function().get_visited_by(lambda_cc);
 
@@ -1036,43 +1045,47 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(lambda_cc.get_init());
       }
 
-      collection_cc = new ComputationCompiler(compiler);
+      main_collection_cc = new ComputationCompiler(compiler);
 
-      n.get_collection().get_visited_by(collection_cc);
+      n.get_main_collection().get_visited_by(main_collection_cc);
 
-      if (collection_cc.has_init())
+      if (main_collection_cc.has_init())
       {
-         result.add(collection_cc.get_init());
+         result.add(main_collection_cc.get_init());
       }
 
-      n.get_default_a().get_visited_by(default_a_cc);
+      n.get_main_default().get_visited_by(main_default_cc);
 
-      default_a_cc.generate_address();
+      main_default_cc.generate_address();
 
-      if (default_a_cc.has_init())
+      if (main_default_cc.has_init())
       {
-         result.add(default_a_cc.get_init());
+         result.add(main_default_cc.get_init());
       }
 
-      n.get_default_b().get_visited_by(default_b_cc);
+      n.get_secondary_default().get_visited_by(secondary_default_cc);
 
-      default_b_cc.generate_address();
+      secondary_default_cc.generate_address();
 
-      if (default_b_cc.has_init())
+      if (secondary_default_cc.has_init())
       {
-         result.add(default_b_cc.get_init());
+         result.add(secondary_default_cc.get_init());
       }
 
       holder =
          compiler.registers().reserve
          (
-            collection_cc.get_computation().get_type(),
+            main_collection_cc.get_computation().get_type(),
             result
          );
 
       result.add
       (
-         new SetValue(holder.get_address(), collection_cc.get_computation())
+         new SetValue
+         (
+            holder.get_address(),
+            main_collection_cc.get_computation()
+         )
       );
 
       result.add
@@ -1081,17 +1094,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers(),
             compiler.assembler(),
-            collection_cc.get_address()
+            main_collection_cc.get_address()
          )
       );
 
-      in_collection_b_cc = new ComputationCompiler(compiler);
+      secondary_collection_cc = new ComputationCompiler(compiler);
 
-      n.get_collection_in_b().get_visited_by(in_collection_b_cc);
+      n.get_secondary_collection().get_visited_by(secondary_collection_cc);
 
-      if (in_collection_b_cc.has_init())
+      if (secondary_collection_cc.has_init())
       {
-         result.add(in_collection_b_cc.get_init());
+         result.add(secondary_collection_cc.get_init());
       }
 
       for
@@ -1126,23 +1139,23 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             compiler.registers(),
             compiler.assembler(),
             lambda_cc.get_computation(),
-            default_a_cc.get_computation(),
+            secondary_default_cc.get_computation(),
+            secondary_collection_cc.get_address(),
+            main_default_cc.get_computation(),
             holder.get_address(),
-            default_b_cc.get_computation(),
-            in_collection_b_cc.get_address(),
-            collection_cc.get_address(),
+            main_collection_cc.get_address(),
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
-               n.get_collection().get_type()
+               n.get_main_collection().get_type()
             ).is_set(),
             params
          )
       );
 
-      collection_cc.release_registers(result);
-      in_collection_b_cc.release_registers(result);
-      default_a_cc.release_registers(result);
-      default_b_cc.release_registers(result);
+      main_collection_cc.release_registers(result);
+      secondary_collection_cc.release_registers(result);
+      main_default_cc.release_registers(result);
+      secondary_default_cc.release_registers(result);
       compiler.registers().release(holder, result);
 
       for (final ComputationCompiler cc: param_cc_list)
@@ -1158,7 +1171,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      if (n.get_default_a() != null)
+      if (n.get_main_default() != null)
       {
          visit_indexed_merge_with_defaults(n);
          return;
@@ -1169,7 +1182,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       final ComputationCompiler lambda_cc;
       final List<Computation> params;
       final List<ComputationCompiler> param_cc_list;
-      final ComputationCompiler collection_cc, in_collection_b_cc;
+      final ComputationCompiler main_collection_cc, secondary_collection_cc;
 
       params = new ArrayList<Computation>();
       param_cc_list = new ArrayList<ComputationCompiler>();
@@ -1183,25 +1196,29 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(lambda_cc.get_init());
       }
 
-      collection_cc = new ComputationCompiler(compiler);
+      main_collection_cc = new ComputationCompiler(compiler);
 
-      n.get_collection().get_visited_by(collection_cc);
+      n.get_main_collection().get_visited_by(main_collection_cc);
 
-      if (collection_cc.has_init())
+      if (main_collection_cc.has_init())
       {
-         result.add(collection_cc.get_init());
+         result.add(main_collection_cc.get_init());
       }
 
       holder =
          compiler.registers().reserve
          (
-            collection_cc.get_computation().get_type(),
+            main_collection_cc.get_computation().get_type(),
             result
          );
 
       result.add
       (
-         new SetValue(holder.get_address(), collection_cc.get_computation())
+         new SetValue
+         (
+            holder.get_address(),
+            main_collection_cc.get_computation()
+         )
       );
 
       result.add
@@ -1210,17 +1227,17 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          (
             compiler.registers(),
             compiler.assembler(),
-            collection_cc.get_address()
+            main_collection_cc.get_address()
          )
       );
 
-      in_collection_b_cc = new ComputationCompiler(compiler);
+      secondary_collection_cc = new ComputationCompiler(compiler);
 
-      n.get_collection_in_b().get_visited_by(in_collection_b_cc);
+      n.get_secondary_collection().get_visited_by(secondary_collection_cc);
 
-      if (in_collection_b_cc.has_init())
+      if (secondary_collection_cc.has_init())
       {
-         result.add(in_collection_b_cc.get_init());
+         result.add(secondary_collection_cc.get_init());
       }
 
       for
@@ -1255,19 +1272,19 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             compiler.registers(),
             compiler.assembler(),
             lambda_cc.get_computation(),
+            secondary_collection_cc.get_address(),
             holder.get_address(),
-            in_collection_b_cc.get_address(),
-            collection_cc.get_address(),
+            main_collection_cc.get_address(),
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
-               n.get_collection().get_type()
+               n.get_main_collection().get_type()
             ).is_set(),
             params
          )
       );
 
-      collection_cc.release_registers(result);
-      in_collection_b_cc.release_registers(result);
+      main_collection_cc.release_registers(result);
+      secondary_collection_cc.release_registers(result);
       compiler.registers().release(holder, result);
 
       for (final ComputationCompiler cc: param_cc_list)

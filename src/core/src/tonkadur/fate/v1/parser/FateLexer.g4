@@ -8,6 +8,7 @@ lexer grammar FateLexer;
 fragment SEP: [ \t\r\n]+;
 fragment US: '_'?;
 
+
 WS: SEP;
 
 L_PAREN: '(';
@@ -162,6 +163,9 @@ VISIT_KW: L_PAREN ('call'|'visit')(US(('seq'('uence'?))|('proc'('edure'?))))? SE
 CONTINUE_AS_KW: L_PAREN (('continue'US('as'|'to'|'with'))|('jump'(US'to')?)|('go'US'to')|'exec')(US(('seq'('uence'?))|('proc'('edure'?))))? SEP+;
 WHILE_KW: L_PAREN 'while' SEP+;
 
-WORD: (~([ \t\r\n()])|'\\)'|'\\(')+;
+WORD: ((~([ \t\r\n()]))|'(lp)'|'(rp)')+
+   {
+      setText(getText().replaceAll("\\(lp\\)", "(").replaceAll("\\(rp\\)", ")"));
+   };
 
 COMMENT: WS* ';' .*? '\n' -> channel(HIDDEN);

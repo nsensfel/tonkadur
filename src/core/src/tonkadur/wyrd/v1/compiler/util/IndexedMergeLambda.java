@@ -201,16 +201,21 @@ public class IndexedMergeLambda
       final List<Computation> extra_params
    )
    {
-      final List<Instruction> result, while_body;
-      final Register iterator_a, iterator_b;
+      final List<Instruction> result, while_body, oob_a_body, oob_b_body;
+      final Register iterator_a, iterator_b, oob_a, oob_b;
       final Register collection_a_size, collection_b_size;
       final Register storage;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
+      oob_a_body = new ArrayList<Instruction>();
+      oob_b_body = new ArrayList<Instruction>();
 
       iterator_a = registers.reserve(Type.INT, result);
       iterator_b = registers.reserve(Type.INT, result);
+
+      oob_a = registers.reserve(Type.BOOL, result);
+      oob_b = registers.reserve(Type.BOOL, result);
 
       collection_a_size = registers.reserve(Type.INT, result);
       collection_b_size = registers.reserve(Type.INT, result);
@@ -243,16 +248,39 @@ public class IndexedMergeLambda
          )
       );
 
+      result.add
+      (
+         new SetValue
+         (
+            oob_a.get_address(),
+            Operation.greater_equal_than
+            (
+               iterator_a.get_value(),
+               collection_a_size.get_value()
+            )
+         )
+      );
+
+      result.add
+      (
+         new SetValue
+         (
+            oob_b.get_address(),
+            Operation.greater_equal_than
+            (
+               iterator_b.get_value(),
+               collection_b_size.get_value()
+            )
+         )
+      );
+
       extra_params.add
       (
          0,
          new IfElseComputation
          (
-            Operation.less_than
-            (
-               iterator_b.get_value(),
-               collection_b_size.get_value()
-            ),
+            oob_b.get_value(),
+            default_b,
             new ValueOf
             (
                new RelativeAddress
@@ -263,8 +291,7 @@ public class IndexedMergeLambda
                      (MapType) collection_in_b.get_target_type()
                   ).get_member_type()
                )
-            ),
-            default_b
+            )
          )
       );
 
@@ -275,11 +302,8 @@ public class IndexedMergeLambda
          0,
          new IfElseComputation
          (
-            Operation.less_than
-            (
-               iterator_a.get_value(),
-               collection_a_size.get_value()
-            ),
+            oob_a.get_value(),
+            default_a,
             new ValueOf
             (
                new RelativeAddress
@@ -290,8 +314,7 @@ public class IndexedMergeLambda
                      (MapType) collection_in_a.get_target_type()
                   ).get_member_type()
                )
-            ),
-            default_a
+            )
          )
       );
 
@@ -324,7 +347,7 @@ public class IndexedMergeLambda
          )
       );
 
-      while_body.add
+      oob_a_body.add
       (
          new SetValue
          (
@@ -333,12 +356,60 @@ public class IndexedMergeLambda
          )
       );
 
-      while_body.add
+      oob_a_body.add
+      (
+         new SetValue
+         (
+            oob_a.get_address(),
+            Operation.greater_equal_than
+            (
+               iterator_a.get_value(),
+               collection_a_size.get_value()
+            )
+         )
+      );
+
+      oob_b_body.add
       (
          new SetValue
          (
             iterator_b.get_address(),
             Operation.plus(iterator_b.get_value(), Constant.ONE)
+         )
+      );
+
+      oob_b_body.add
+      (
+         new SetValue
+         (
+            oob_b.get_address(),
+            Operation.greater_equal_than
+            (
+               iterator_b.get_value(),
+               collection_b_size.get_value()
+            )
+         )
+      );
+
+      while_body.add
+      (
+         If.generate
+         (
+            registers,
+            assembler,
+            Operation.not(oob_a.get_value()),
+            assembler.merge(oob_a_body)
+         )
+      );
+
+      while_body.add
+      (
+         If.generate
+         (
+            registers,
+            assembler,
+            Operation.not(oob_b.get_value()),
+            assembler.merge(oob_b_body)
          )
       );
 
@@ -348,25 +419,15 @@ public class IndexedMergeLambda
          (
             registers,
             assembler,
-            Operation.or
-            (
-               Operation.less_than
-               (
-                  iterator_a.get_value(),
-                  collection_a_size.get_value()
-               ),
-               Operation.less_than
-               (
-                  iterator_b.get_value(),
-                  collection_b_size.get_value()
-               )
-            ),
+            Operation.not(Operation.and(oob_a.get_value(), oob_b.get_value())),
             assembler.merge(while_body)
          )
       );
 
       registers.release(iterator_a, result);
       registers.release(iterator_b, result);
+      registers.release(oob_a, result);
+      registers.release(oob_b, result);
       registers.release(collection_a_size, result);
       registers.release(collection_b_size, result);
       registers.release(storage, result);

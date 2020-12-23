@@ -68,7 +68,7 @@
 )
 
 (assert
-   (= (get_field ts0_0 i) (var ts0_0.i) (get_field ts0_1 k) (var ts0_1.k) 42)
+   (= (get_field i ts0_0) (var ts0_0.i) (get_field k ts0_1) (var ts0_1.k) 42)
    [FAILED] (var test_name) Test 0.
    (newline)
    ts0_0.i = (var ts0_0.i)
@@ -77,7 +77,7 @@
 )
 
 (assert
-   (= (get_field ts0_1 i) (var ts0_1.i) (get_field ts0_0 k) (var ts0_0.k) 420)
+   (= (get_field i ts0_1) (var ts0_1.i) (get_field k ts0_0) (var ts0_0.k) 420)
    [FAILED] (var test_name) Test 1.
    (newline)
    ts0_0.k = (var ts0_0.k)
@@ -87,9 +87,9 @@
 
 (assert
    (=
-      (field ts0_1 i)
-      (get_field (set_fields ts1_0 (i 420)) i)
-      (get_field (field (field ts2_0 ts1) ts0) i)
+      (field i ts0_1)
+      (get_field i (set_fields ts1_0 (i 420)))
+      (get_field i (field ts0 (field ts1 ts2_0)))
       420
    )
    [FAILED] (var test_name) Test 2.

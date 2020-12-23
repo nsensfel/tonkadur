@@ -136,11 +136,11 @@
 (for (set i 0) (=< i 10) (set i (+ i 1))
    (assert
       (=
-         (access li1 i) (access li0 i) (access li2 i) (access li3 i)
+         (access i li1) (access i li0) (access i li2) (access i li3)
          (+ (* i (+ 10 i)) 1000)
       )
       [FAILED] (var test_name) Indexed map at (var i):
-      (access li1 i), (access li0 i), (access li2 i), (access li3 i)
+      (access i li1), (access i li0), (access i li2), (access i li3)
    )
 )
 

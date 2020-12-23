@@ -35,10 +35,10 @@ public class Merge extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection,
-      final Computation default_a,
       final Computation collection_in_b,
       final Computation default_b,
+      final Reference collection,
+      final Computation default_a,
       final List<Computation> extra_params
    )
    {
@@ -60,10 +60,10 @@ public class Merge extends Instruction
    (
       final Origin origin,
       final Computation lambda_function,
-      final Reference collection,
-      final Computation default_a,
       final Computation collection_in_b,
       final Computation default_b,
+      final Reference collection,
+      final Computation default_a,
       final List<Computation> extra_params
    )
    throws Throwable
@@ -117,10 +117,10 @@ public class Merge extends Instruction
          (
             origin,
             lambda_function,
-            collection,
-            default_a,
             collection_in_b,
             default_b,
+            collection,
+            default_a,
             extra_params
          );
    }
@@ -138,22 +138,22 @@ public class Merge extends Instruction
       return lambda_function;
    }
 
-   public Computation get_default_a ()
+   public Computation get_main_default ()
    {
       return default_a;
    }
 
-   public Computation get_collection_in_b ()
+   public Computation get_secondary_collection ()
    {
       return collection_in_b;
    }
 
-   public Computation get_default_b ()
+   public Computation get_secondary_default ()
    {
       return default_b;
    }
 
-   public Reference get_collection ()
+   public Reference get_main_collection ()
    {
       return collection;
    }

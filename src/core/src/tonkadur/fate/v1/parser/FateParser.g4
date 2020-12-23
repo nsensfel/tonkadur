@@ -977,8 +977,8 @@ returns [Instruction result]
 
    | IMP_MERGE_KW
          fun=non_text_value WS+
-         value_reference WS+
-         inv1=non_text_value WS*
+         inv1=non_text_value WS+
+         value_reference WS*
       R_PAREN
    {
       $result =
@@ -990,9 +990,9 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            null,
             ($inv1.result),
+            null,
+            ($value_reference.result),
             null,
             new ArrayList()
          );
@@ -1000,8 +1000,8 @@ returns [Instruction result]
 
    | IMP_MERGE_KW
          fun=non_text_value WS+
-         value_reference WS+
          inv1=non_text_value WS+
+         value_reference WS+
          value_list WS*
       R_PAREN
    {
@@ -1014,9 +1014,9 @@ returns [Instruction result]
                ($IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            null,
             ($inv1.result),
+            null,
+            ($value_reference.result),
             null,
             ($value_list.result)
          );
@@ -1024,8 +1024,8 @@ returns [Instruction result]
 
    | IMP_INDEXED_MERGE_KW
          fun=non_text_value WS+
-         value_reference WS+
-         inv1=non_text_value WS*
+         inv1=non_text_value WS+
+         value_reference WS*
       R_PAREN
    {
       $result =
@@ -1037,9 +1037,9 @@ returns [Instruction result]
                ($IMP_INDEXED_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            null,
             ($inv1.result),
+            null,
+            ($value_reference.result),
             null,
             new ArrayList()
          );
@@ -1047,8 +1047,8 @@ returns [Instruction result]
 
    | IMP_INDEXED_MERGE_KW
          fun=non_text_value WS+
-         value_reference WS+
          inv1=non_text_value WS+
+         value_reference WS+
          value_list WS*
       R_PAREN
    {
@@ -1061,9 +1061,9 @@ returns [Instruction result]
                ($IMP_INDEXED_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            null,
             ($inv1.result),
+            null,
+            ($value_reference.result),
             null,
             ($value_list.result)
          );
@@ -1071,10 +1071,10 @@ returns [Instruction result]
 
    | SAFE_IMP_MERGE_KW
       fun=non_text_value WS+
-      def0=value WS+
-      value_reference WS+
       def1=value WS+
-      inv1=non_text_value WS*
+      inv1=non_text_value WS+
+      def0=value WS+
+      value_reference WS*
       R_PAREN
    {
       $result =
@@ -1086,20 +1086,20 @@ returns [Instruction result]
                ($SAFE_IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            ($def0.result),
             ($inv1.result),
             ($def1.result),
+            ($value_reference.result),
+            ($def0.result),
             new ArrayList()
          );
    }
 
    | SAFE_IMP_MERGE_KW
       fun=non_text_value WS+
-      def0=value WS+
-      value_reference WS+
       def1=value WS+
       inv1=non_text_value WS+
+      def0=value WS+
+      value_reference WS+
       value_list WS*
       R_PAREN
    {
@@ -1112,20 +1112,20 @@ returns [Instruction result]
                ($SAFE_IMP_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            ($def0.result),
             ($inv1.result),
             ($def1.result),
+            ($value_reference.result),
+            ($def0.result),
             ($value_list.result)
          );
    }
 
    | SAFE_IMP_INDEXED_MERGE_KW
       fun=non_text_value WS+
-      def0=value WS+
-      value_reference WS+
       def1=value WS+
-      inv1=non_text_value WS*
+      inv1=non_text_value WS+
+      def0=value WS+
+      value_reference WS*
       R_PAREN
    {
       $result =
@@ -1137,20 +1137,20 @@ returns [Instruction result]
                ($SAFE_IMP_INDEXED_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            ($def0.result),
             ($inv1.result),
             ($def1.result),
+            ($value_reference.result),
+            ($def0.result),
             new ArrayList()
          );
    }
 
    | SAFE_IMP_INDEXED_MERGE_KW
       fun=non_text_value WS+
-      def0=value WS+
-      value_reference WS+
       def1=value WS+
       inv1=non_text_value WS+
+      def0=value WS+
+      value_reference WS+
       value_list WS*
       R_PAREN
    {
@@ -1163,10 +1163,10 @@ returns [Instruction result]
                ($SAFE_IMP_INDEXED_MERGE_KW.getCharPositionInLine())
             ),
             ($fun.result),
-            ($value_reference.result),
-            ($def0.result),
             ($inv1.result),
             ($def1.result),
+            ($value_reference.result),
+            ($def0.result),
             ($value_list.result)
          );
    }
@@ -3743,7 +3743,7 @@ returns [Computation result]
          );
    }
 
-   | ACCESS_KW collection=non_text_value WS+ index=non_text_value WS* R_PAREN
+   | ACCESS_KW index=non_text_value WS+ collection=non_text_value WS* R_PAREN
    {
       $result =
          Access.build
@@ -3758,7 +3758,7 @@ returns [Computation result]
          );
    }
 
-   | ACCESS_POINTER_KW value_reference WS+ non_text_value WS* R_PAREN
+   | ACCESS_POINTER_KW non_text_value WS+ value_reference WS* R_PAREN
    {
       $result =
          AccessPointer.build
@@ -3773,7 +3773,7 @@ returns [Computation result]
          );
    }
 
-   | FIELD_ACCESS_KW non_text_value WS+ WORD WS* R_PAREN
+   | FIELD_ACCESS_KW WORD WS+ non_text_value WS* R_PAREN
    {
       $result =
          FieldAccess.build
@@ -5115,7 +5115,7 @@ returns [Reference result]
          );
    }
 
-   | FIELD_KW value_reference WS+ WORD WS* R_PAREN
+   | FIELD_KW WORD WS+ value_reference WS* R_PAREN
    {
       $result =
          FieldReference.build
