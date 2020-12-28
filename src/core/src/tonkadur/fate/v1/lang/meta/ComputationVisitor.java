@@ -79,6 +79,9 @@ public interface ComputationVisitor
    public void visit_operation (final Operation n)
    throws Throwable;
 
+   public void visit_sequence_reference (final SequenceReference n)
+   throws Throwable;
+
    public void visit_paragraph (final Paragraph n)
    throws Throwable;
 

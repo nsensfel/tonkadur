@@ -68,6 +68,11 @@ public class TypeCompiler
          return Type.INT;
       }
 
+      if (fate_type instanceof tonkadur.fate.v1.lang.type.SequenceType)
+      {
+         return Type.INT;
+      }
+
       fate_type = fate_type.get_base_type();
 
       if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.BOOL))
@@ -177,6 +182,11 @@ public class TypeCompiler
       }
 
       if (fate_content_type instanceof tonkadur.fate.v1.lang.type.LambdaType)
+      {
+         return MapType.MAP_TO_INT;
+      }
+
+      if (fate_content_type instanceof tonkadur.fate.v1.lang.type.SequenceType)
       {
          return MapType.MAP_TO_INT;
       }

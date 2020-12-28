@@ -22,9 +22,13 @@ import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
 import tonkadur.fate.v1.lang.meta.ExtensionInstruction;
 import tonkadur.fate.v1.lang.meta.ExtensionComputation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.SequenceType;
+
+import tonkadur.fate.v1.lang.computation.SequenceReference;
 
 public class World
 {
@@ -36,6 +40,7 @@ public class World
 
    protected final Map<String, List<Cons<Origin, List<Computation>>>>
       sequence_uses;
+   protected final Map<String, List<SequenceReference>> sequence_variables;
    protected final Map<String, ExtensionComputation> extension_value_nodes;
    protected final Map<String, ExtensionInstruction> extension_instructions;
    protected final Map<String, ExtensionInstruction>
@@ -62,6 +67,8 @@ public class World
 
       sequence_uses =
          new HashMap<String, List<Cons<Origin, List<Computation>>>>();
+
+      sequence_variables = new HashMap<String, List<SequenceReference>>();
 
       extension_value_nodes = new HashMap<String, ExtensionComputation>();
       extension_instructions = new HashMap<String, ExtensionInstruction>();
@@ -141,6 +148,22 @@ public class World
       list_of_uses.add(new Cons(origin, parameters));
    }
 
+   public void add_sequence_variable (final SequenceReference sr)
+   {
+      List<SequenceReference> list_of_variables;
+
+      list_of_variables = sequence_variables.get(sr.get_sequence_name());
+
+      if (list_of_variables == null)
+      {
+         list_of_variables = new ArrayList<SequenceReference>();
+
+         sequence_variables.put(sr.get_sequence_name(), list_of_variables);
+      }
+
+      list_of_variables.add(sr);
+   }
+
    /**** Extension Stuff ****/
    public Map<String, ExtensionInstruction> extension_instructions ()
    {
@@ -209,6 +232,7 @@ public class World
       is_sane = true;
 
       is_sane = assert_sane_sequence_uses() & is_sane;
+      is_sane = assert_sane_sequence_variables() & is_sane;
 
       return is_sane;
    }
@@ -359,6 +383,76 @@ public class World
                {
                   is_sane = false;
                }
+            }
+         }
+      }
+
+      return is_sane;
+   }
+
+   protected boolean assert_sane_sequence_variables ()
+   throws Throwable
+   {
+      Sequence seq;
+
+      boolean is_sane;
+
+      is_sane = true;
+
+      for
+      (
+         final Map.Entry<String, List<SequenceReference>> entry:
+            sequence_variables.entrySet()
+      )
+      {
+         seq = sequences().get_or_null(entry.getKey());
+
+         if (seq == null)
+         {
+            final List<SequenceReference> variables;
+
+            variables = entry.getValue();
+
+            if (variables.isEmpty())
+            {
+               continue;
+            }
+
+            is_sane = false;
+
+            ErrorManager.handle
+            (
+               new UnknownSequenceException
+               (
+                  entry.getKey(),
+                  ((variables.size() == 1) ? null : variables)
+               )
+            );
+         }
+         else
+         {
+            final List<Type> signature_types;
+
+            signature_types = new ArrayList<Type>();
+
+            for (final Variable v: seq.get_signature())
+            {
+               signature_types.add(v.get_type());
+            }
+
+            for (final SequenceReference sr: entry.getValue())
+            {
+               ((SequenceType) sr.get_type()).propose_signature
+               (
+                  signature_types
+               );
+
+               RecurrentChecks.assert_types_matches_signature
+               (
+                  sr.get_origin(),
+                  ((SequenceType) sr.get_type()).get_signature(),
+                  signature_types
+               );
             }
          }
       }

@@ -516,7 +516,7 @@
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; INDEXED TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; INDEXED TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 For reference, the values found in the sets are:
 (for (set i 0) (=< i 30) (set i (+ i 1))
@@ -797,10 +797,56 @@ For reference, the values found in the sets are:
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; SAFE TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; SAFE TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(global (list int) sli0)
+(global (list int) sli1)
+(global (list int) sli2)
+(global (list int) sli3)
 
-(assert (false) [FAILED] TODO: safe merge tests.)
+(set sli0
+   (safe_merge_to_list
+      (lambda
+         (
+            (int a)
+            (int b)
+         )
+         (- a b)
+      )
+      999
+      (range 0 10 1)
+      1
+      (default (list int))
+   )
+)
+
+(set sli1
+   (safe_merge_to_list
+      (lambda
+         (
+            (int a)
+            (int b)
+         )
+         (- b a)
+      )
+      1
+      (default (list int))
+      999
+      (range 0 10 1)
+   )
+)
+
+(for (set i 0) (=< i 10) (set i (+ i 1))
+   (assert
+      (= (access i sli0) (access i sli1) (- i 1))
+      [FAILED] (var test_name) Equality test safe 0.
+   )
+)
+
+(assert
+   (= (var sli0) (var sli1))
+   [FAILED] (var test_name) Equality test safe 0.
+)
 
 [COMPLETED] (var test_name)
 

@@ -3514,6 +3514,79 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
+   public void visit_sequence_variable_call
+   (
+      final tonkadur.fate.v1.lang.instruction.SequenceVariableCall n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler sequence_cc;
+      final List<ComputationCompiler> parameter_ccs;
+      final List<Computation> parameters;
+
+      final String return_to_label;
+
+      return_to_label =
+         compiler.assembler().generate_label("<seq_call#return_to>");
+
+      sequence_cc = new ComputationCompiler(compiler);
+      parameter_ccs = new ArrayList<ComputationCompiler>();
+      parameters = new ArrayList<Computation>();
+
+      n.get_sequence().get_visited_by(sequence_cc);
+
+      if (sequence_cc.has_init())
+      {
+         result.add(sequence_cc.get_init());
+      }
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         param.get_visited_by(cc);
+
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
+
+         parameters.add(cc.get_computation());
+         parameter_ccs.add(cc);
+      }
+
+      result.addAll(compiler.registers().store_parameters(parameters));
+
+      result.add
+      (
+         compiler.assembler().mark_after
+         (
+            compiler.assembler().merge
+            (
+               compiler.registers().get_visit_context_instructions
+               (
+                  sequence_cc.get_computation(),
+                  compiler.assembler().get_label_constant(return_to_label)
+               )
+            ),
+            return_to_label
+         )
+      );
+
+      sequence_cc.release_registers(result);
+
+      for (final ComputationCompiler cc: parameter_ccs)
+      {
+         cc.release_registers(result);
+      }
+   }
+
+   @Override
    public void visit_sequence_jump
    (
       final tonkadur.fate.v1.lang.instruction.SequenceJump n
@@ -3571,6 +3644,72 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             )
          )
       );
+   }
+
+   @Override
+   public void visit_sequence_variable_jump
+   (
+      final tonkadur.fate.v1.lang.instruction.SequenceVariableJump n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler sequence_cc;
+      final List<ComputationCompiler> parameter_ccs;
+      final List<Computation> parameters;
+
+      sequence_cc = new ComputationCompiler(compiler);
+      parameter_ccs = new ArrayList<ComputationCompiler>();
+      parameters = new ArrayList<Computation>();
+
+      n.get_sequence().get_visited_by(sequence_cc);
+
+      if (sequence_cc.has_init())
+      {
+         result.add(sequence_cc.get_init());
+      }
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation param: n.get_parameters()
+      )
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler(compiler);
+
+         param.get_visited_by(cc);
+
+         if (cc.has_init())
+         {
+            result.add(cc.get_init());
+         }
+
+         parameters.add(cc.get_computation());
+         parameter_ccs.add(cc);
+      }
+
+      result.addAll(compiler.registers().store_parameters(parameters));
+
+      for (final ComputationCompiler cc: parameter_ccs)
+      {
+         cc.release_registers(result);
+      }
+
+      /* Terminate current context */
+      result.addAll
+      (
+         compiler.registers().get_finalize_context_instructions()
+      );
+
+      result.addAll
+      (
+         compiler.registers().get_jump_to_context_instructions
+         (
+            sequence_cc.get_computation()
+         )
+      );
+
+      sequence_cc.release_registers(result);
    }
 
    @Override

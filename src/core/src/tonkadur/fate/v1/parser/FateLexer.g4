@@ -154,6 +154,7 @@ SUB_LIST_KW: L_PAREN 'sub'US'list' SEP+;
 IMP_SUB_LIST_KW: L_PAREN 'sub'US'list!' SEP+;
 LIST_KW: L_PAREN 'list' SEP+;
 SIZE_KW: L_PAREN 'size' SEP+;
+SEQUENCE_KW: L_PAREN ('seq'|'sequence') SEP+;
 SWITCH_KW: L_PAREN 'switch' SEP+;
 TIMES_KW: L_PAREN ('times'|'*') SEP+;
 TRUE_KW: L_PAREN 'true)';

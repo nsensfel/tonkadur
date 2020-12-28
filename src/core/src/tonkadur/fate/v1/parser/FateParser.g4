@@ -1801,6 +1801,86 @@ returns [Instruction result]
       $result = new SequenceJump(origin, sequence_name, params);
    }
 
+   | VISIT_KW value WS+ value_list WS* R_PAREN
+   {
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($VISIT_KW.getLine()),
+            ($VISIT_KW.getCharPositionInLine())
+         );
+
+      $result =
+         SequenceVariableCall.build
+         (
+            origin,
+            ($value.result),
+            ($value_list.result)
+         );
+   }
+
+   | VISIT_KW value WS* R_PAREN
+   {
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($VISIT_KW.getLine()),
+            ($VISIT_KW.getCharPositionInLine())
+         );
+
+      $result =
+         SequenceVariableCall.build
+         (
+            origin,
+            ($value.result),
+            new ArrayList<Computation>()
+         );
+   }
+
+   | CONTINUE_AS_KW value WS+ value_list WS* R_PAREN
+   {
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($CONTINUE_AS_KW.getLine()),
+            ($CONTINUE_AS_KW.getCharPositionInLine())
+         );
+
+      $result =
+         SequenceVariableJump.build
+         (
+            origin,
+            ($value.result),
+            ($value_list.result)
+         );
+   }
+
+   | CONTINUE_AS_KW value WS* R_PAREN
+   {
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($CONTINUE_AS_KW.getLine()),
+            ($CONTINUE_AS_KW.getCharPositionInLine())
+         );
+
+      $result =
+         SequenceVariableJump.build
+         (
+            origin,
+            ($value.result),
+            new ArrayList<Computation>()
+         );
+   }
+
    | ASSERT_KW non_text_value WS+ paragraph WS* R_PAREN
    {
       $result =
@@ -2794,6 +2874,26 @@ returns [Type result]
          (
             start_origin,
             ($type.result),
+            "auto_generated",
+            ($type_list.result)
+         );
+   }
+
+   | SEQUENCE_KW type_list WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($SEQUENCE_KW.getLine()),
+            ($SEQUENCE_KW.getCharPositionInLine())
+         );
+
+      $result =
+         new SequenceType
+         (
+            start_origin,
             "auto_generated",
             ($type_list.result)
          );
@@ -4090,6 +4190,24 @@ returns [Computation result]
                ($value_list.result)
             );
       }
+   }
+
+   | SEQUENCE_KW WORD WS* R_PAREN
+   {
+      final SequenceReference sr;
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($SEQUENCE_KW.getLine()),
+            ($SEQUENCE_KW.getCharPositionInLine())
+         );
+
+      sr = new SequenceReference(origin, ($WORD.text));
+      $result = sr;
+
+      WORLD.add_sequence_variable(sr);
    }
 
    | EVAL_KW value_reference WS* R_PAREN

@@ -140,6 +140,12 @@ public interface InstructionVisitor
    public void visit_sequence_jump (final SequenceJump n)
    throws Throwable;
 
+   public void visit_sequence_variable_call (final SequenceVariableCall n)
+   throws Throwable;
+
+   public void visit_sequence_variable_jump (final SequenceVariableJump n)
+   throws Throwable;
+
    public void visit_local_variable (final LocalVariable n)
    throws Throwable;
 

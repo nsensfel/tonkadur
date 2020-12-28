@@ -1,6 +1,8 @@
 package tonkadur.fate.v1.error;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import tonkadur.functional.Cons;
@@ -11,6 +13,8 @@ import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.Computation;
+
+import tonkadur.fate.v1.lang.computation.SequenceReference;
 
 public class UnknownSequenceException extends ParsingError
 {
@@ -39,6 +43,32 @@ public class UnknownSequenceException extends ParsingError
 
       this.sequence_name = sequence_name;
       this.all_occurrences = all_occurrences;
+   }
+
+   public UnknownSequenceException
+   (
+      final String sequence_name,
+      final Collection<SequenceReference> all_occurrences
+   )
+   {
+      super
+      (
+         ErrorLevel.ERROR,
+         ErrorCategory.UNKNOWN,
+         all_occurrences.iterator().next().get_origin()
+      );
+
+      this.sequence_name = sequence_name;
+
+      this.all_occurrences = new ArrayList<Cons<Origin, List<Computation>>>();
+
+      for (final SequenceReference occ: all_occurrences)
+      {
+         this.all_occurrences.add
+         (
+            new Cons(occ.get_origin(), Collections.singleton(occ))
+         );
+      }
    }
 
    @Override

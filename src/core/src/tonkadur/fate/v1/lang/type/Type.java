@@ -29,6 +29,7 @@ public class Type extends DeclaredEntity
    public static final Type LIST;
    public static final Type REF;
    public static final Type RICH_TEXT;
+   public static final Type SEQUENCE;
    public static final Type SET;
    public static final Type STRING;
 
@@ -57,6 +58,7 @@ public class Type extends DeclaredEntity
       LIST = new Type(base, null, "list");
       REF = new Type(base, null, "ref");
       RICH_TEXT = new Type(base, null, "text");
+      SEQUENCE = new Type(base, null, "sequence");
       SET = new Type(base, null, "set");
       STRING = new Type(base, null, "string");
 
@@ -71,6 +73,7 @@ public class Type extends DeclaredEntity
       ALL_TYPES.add(LIST);
       ALL_TYPES.add(REF);
       ALL_TYPES.add(RICH_TEXT);
+      ALL_TYPES.add(SEQUENCE);
       ALL_TYPES.add(SET);
       ALL_TYPES.add(STRING);
 
@@ -83,6 +86,7 @@ public class Type extends DeclaredEntity
 
       COMPARABLE_TYPES.add(FLOAT);
       COMPARABLE_TYPES.add(INT);
+      COMPARABLE_TYPES.add(SEQUENCE);
       COMPARABLE_TYPES.add(LAMBDA);
       COMPARABLE_TYPES.add(STRING);
       COMPARABLE_TYPES.add(BOOL);

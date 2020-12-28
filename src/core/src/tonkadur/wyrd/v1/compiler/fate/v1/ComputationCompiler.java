@@ -3955,4 +3955,18 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          cc.release_registers(init_instructions);
       }
    }
+
+   @Override
+   public void visit_sequence_reference
+   (
+      final tonkadur.fate.v1.lang.computation.SequenceReference n
+   )
+   throws Throwable
+   {
+      result_as_computation =
+         compiler.assembler().get_label_constant
+         (
+            n.get_sequence_name()
+         );
+   }
 }
