@@ -87,6 +87,7 @@ LET_KW: L_PAREN 'let' SEP+;
 MINUS_KW: L_PAREN ('minus'|'-') SEP+;
 MIN_KW: L_PAREN ('min'('imum'?)) SEP+;
 MAP_KW: L_PAREN 'map' SEP+;
+STRING_KW: L_PAREN 'string' SEP+;
 IMP_MAP_KW: L_PAREN 'map!' SEP+;
 MAX_KW: L_PAREN ('max'('imum'?)) SEP+;
 LAMBDA_KW: L_PAREN 'lambda' SEP+;
@@ -164,9 +165,24 @@ VISIT_KW: L_PAREN ('call'|'visit')(US(('seq'('uence'?))|('proc'('edure'?))))? SE
 CONTINUE_AS_KW: L_PAREN (('continue'US('as'|'to'|'with'))|('jump'(US'to')?)|('go'US'to')|'exec')(US(('seq'('uence'?))|('proc'('edure'?))))? SEP+;
 WHILE_KW: L_PAREN 'while' SEP+;
 
-WORD: ((~([ \t\r\n()]))|'(lp)'|'(rp)')+
+WORD: ((~([ \t\r\n()]))|'(lp)'|'(rp)'|'(sp)')+
    {
-      setText(getText().replaceAll("\\(lp\\)", "(").replaceAll("\\(rp\\)", ")"));
+      setText
+      (
+         getText().replaceAll
+         (
+            "\\(sp\\)",
+            " "
+         ).replaceAll
+         (
+            "\\(lp\\)",
+            "("
+         ).replaceAll
+         (
+            "\\(rp\\)",
+            ")"
+         )
+      );
    };
 
 COMMENT: WS* ';' .*? '\n' -> channel(HIDDEN);

@@ -16,4 +16,12 @@
    لا يهم. يمكنني فقط استخدام الأرقام للعد حتى: (var ﻢﺘﻐﻳﺭ)
 )
 
+(local text txt)
+(local string str)
+
+(set txt (text testing (lp)(var ﻢﺘﻐﻳﺭ)(rp)     ))
+(set str (string also that              ))
+(var txt) (var str).
+(set str (string what (lp)about(rp) (sp)(sp)(sp)(sp)(sp)(sp)))
+(var txt) (var str).
 (end)

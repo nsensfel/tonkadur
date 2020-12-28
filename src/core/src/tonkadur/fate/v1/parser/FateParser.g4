@@ -2726,7 +2726,12 @@ returns [Computation result]
    final StringBuilder string_builder = new StringBuilder();
 }
 :
+   STRING_KW sentence WS* R_PAREN
+   {
+      $result = ($sentence.result);
+   }
 
+   |
    first_word=WORD
    {
       string_builder.append(($first_word.text));
@@ -3670,6 +3675,11 @@ returns [Computation result]
    {
       $result = ($value.result);
       /* TODO: temporarily disable an compiler error category */
+   }
+
+   | STRING_KW sentence WS* R_PAREN
+   {
+      $result = ($sentence.result);
    }
 
    | L_PAREN WS+ sentence WS* R_PAREN
