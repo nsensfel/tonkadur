@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
-public class Newline extends RichText
+public class Newline extends Text
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/

@@ -8,6 +8,9 @@ public interface InstructionVisitor
    public void visit_add_element (final AddElement n)
    throws Throwable;
 
+   public void visit_extra_instruction (final ExtraInstructionInstance n)
+   throws Throwable;
+
    public void visit_add_element_at (final AddElementAt n)
    throws Throwable;
 
@@ -99,9 +102,6 @@ public interface InstructionVisitor
    throws Throwable;
 
    public void visit_display (final Display n)
-   throws Throwable;
-
-   public void visit_event_call (final EventCall n)
    throws Throwable;
 
    public void visit_if_else_instruction (final IfElseInstruction n)

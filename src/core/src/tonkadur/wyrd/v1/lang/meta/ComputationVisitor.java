@@ -4,7 +4,10 @@ import tonkadur.wyrd.v1.lang.computation.*;
 
 public interface ComputationVisitor
 {
-   public void visit_add_rich_text_effect (final AddRichTextEffect n)
+   public void visit_extra_computation (final ExtraComputation n)
+   throws Throwable;
+
+   public void visit_add_text_effect (final AddTextEffect n)
    throws Throwable;
 
    public void visit_cast (final Cast n)
@@ -34,7 +37,7 @@ public interface ComputationVisitor
    public void visit_get_last_choice_index (final GetLastChoiceIndex n)
    throws Throwable;
 
-   public void visit_rich_text (final RichText n)
+   public void visit_text (final Text n)
    throws Throwable;
 
    public void visit_size (final Size n)

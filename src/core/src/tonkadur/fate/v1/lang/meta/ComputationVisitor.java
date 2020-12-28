@@ -4,6 +4,9 @@ import tonkadur.fate.v1.lang.computation.*;
 
 public interface ComputationVisitor
 {
+   public void visit_extra_computation (final ExtraComputationInstance n)
+   throws Throwable;
+
    public void visit_at_reference (final AtReference n)
    throws Throwable;
 

@@ -13,7 +13,7 @@ import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-public class TextEffect extends Event
+public class TextEffect extends DeclaredEntity
 {
    protected static final TextEffect ANY;
 
@@ -47,6 +47,7 @@ public class TextEffect extends Event
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
+   protected final List<Type> signature;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -92,6 +93,11 @@ public class TextEffect extends Event
          }.merge(signature, e.signature);
 
       return new TextEffect(origin, new_signature, name);
+   }
+
+   public List<Type> get_signature ()
+   {
+      return signature;
    }
 
    /**** Misc. ****************************************************************/

@@ -7,35 +7,47 @@ import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
-public class RichText extends Computation
+public class AddTextEffect extends Text
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> content;
+   protected final String effect_name;
+   protected final List<Computation> effect_parameters;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public RichText (final List<Computation> content)
+   public AddTextEffect
+   (
+      final String effect_name,
+      final List<Computation> effect_parameters,
+      final List<Computation> content
+   )
    {
-      super(Type.RICH_TEXT);
+      super(content);
 
-      this.content = content;
+      this.effect_name = effect_name;
+      this.effect_parameters = effect_parameters;
    }
 
    /**** Accessors ************************************************************/
-   public List<Computation> get_content ()
+   public String get_effect_name ()
    {
-      return content;
+      return effect_name;
+   }
+
+   public List<Computation> get_effect_parameters ()
+   {
+      return effect_parameters;
    }
 
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_rich_text(this);
+      cv.visit_add_text_effect(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -46,18 +58,21 @@ public class RichText extends Computation
 
       sb = new StringBuilder();
 
-      sb.append("(RichText ");
+      sb.append("(AddTextEffect (");
+      sb.append(effect_name);
+
+      for (final Computation param: effect_parameters)
+      {
+         sb.append(" ");
+         sb.append(param.toString());
+      }
+
+      sb.append(")");
 
       for (final Computation text: content)
       {
-         if (text == null)
-         {
-            sb.append("<null?!>");
-         }
-         else
-         {
-            sb.append(text.toString());
-         }
+         sb.append(" ");
+         sb.append(text.toString());
       }
 
       sb.append(")");

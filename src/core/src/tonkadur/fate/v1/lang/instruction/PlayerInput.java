@@ -6,7 +6,7 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.InputEvent;
+import tonkadur.fate.v1.lang.Event;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -20,7 +20,7 @@ public class PlayerInput extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final InputEvent input_event;
+   protected final Event input_event;
    protected final List<Computation> params;
    protected final List<Instruction> effects;
 
@@ -31,7 +31,7 @@ public class PlayerInput extends Instruction
    protected PlayerInput
    (
       final Origin origin,
-      final InputEvent input_event,
+      final Event input_event,
       final List<Computation> params,
       final List<Instruction> effects
    )
@@ -50,7 +50,7 @@ public class PlayerInput extends Instruction
    public PlayerInput
    (
       final Origin origin,
-      final InputEvent input_event,
+      final Event input_event,
       final List<Instruction> effects
    )
    {
@@ -64,7 +64,7 @@ public class PlayerInput extends Instruction
    public static PlayerInput build
    (
       final Origin origin,
-      final InputEvent event,
+      final Event event,
       final List<Computation> parameters,
       final List<Instruction> effects
    )
@@ -88,7 +88,7 @@ public class PlayerInput extends Instruction
       iv.visit_player_input(this);
    }
 
-   public InputEvent get_input_event ()
+   public Event get_input_event ()
    {
       return input_event;
    }

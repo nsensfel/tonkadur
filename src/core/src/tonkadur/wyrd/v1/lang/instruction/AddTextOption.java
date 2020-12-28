@@ -1,45 +1,36 @@
 package tonkadur.wyrd.v1.lang.instruction;
 
-import java.util.List;
-
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 import tonkadur.wyrd.v1.lang.meta.InstructionVisitor;
 
-public class AddEventInput extends Instruction
+public class AddTextOption extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final String name;
-   protected final List<Computation> parameters;
+   protected final Computation label;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public AddEventInput (final String name, final List<Computation> parameters)
+   public AddTextOption (final Computation label)
    {
-      this.name = name;
-      this.parameters = parameters;
+      this.label = label;
    }
 
    /**** Accessors ************************************************************/
-   public String get_name ()
+   public Computation get_label ()
    {
-      return name;
-   }
-
-   public List<Computation> get_parameters ()
-   {
-      return parameters;
+      return label;
    }
 
    @Override
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_add_event_input(this);
+      iv.visit_add_text_option(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -50,15 +41,8 @@ public class AddEventInput extends Instruction
 
       sb = new StringBuilder();
 
-      sb.append("(AddEventInput ");
-      sb.append(name);
-
-      for (final Computation param: parameters)
-      {
-         sb.append(" ");
-         sb.append(param.toString());
-      }
-
+      sb.append("(AddTextOption ");
+      sb.append(label.toString());
       sb.append(")");
 
       return sb.toString();

@@ -28,17 +28,17 @@ import tonkadur.wyrd.v1.lang.computation.Size;
 import tonkadur.wyrd.v1.lang.computation.GetLastChoiceIndex;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
-import tonkadur.wyrd.v1.lang.instruction.AddChoice;
-import tonkadur.wyrd.v1.lang.instruction.AddEventInput;
+import tonkadur.wyrd.v1.lang.instruction.AddTextOption;
+import tonkadur.wyrd.v1.lang.instruction.AddEventOption;
 import tonkadur.wyrd.v1.lang.instruction.Assert;
 import tonkadur.wyrd.v1.lang.instruction.Display;
 import tonkadur.wyrd.v1.lang.instruction.End;
-import tonkadur.wyrd.v1.lang.instruction.EventCall;
+import tonkadur.wyrd.v1.lang.instruction.ExtraInstruction;
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.PromptInteger;
 import tonkadur.wyrd.v1.lang.instruction.PromptString;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
-import tonkadur.wyrd.v1.lang.instruction.ResolveChoices;
+import tonkadur.wyrd.v1.lang.instruction.ResolveChoice;
 import tonkadur.wyrd.v1.lang.instruction.SetPC;
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
@@ -2594,9 +2594,9 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
-   public void visit_event_call
+   public void visit_extra_instruction
    (
-      final tonkadur.fate.v1.lang.instruction.EventCall n
+      final tonkadur.fate.v1.lang.instruction.ExtraInstructionInstance n
    )
    throws Throwable
    {
@@ -2632,7 +2632,13 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          parameters.add(cc.get_computation());
       }
 
-      result.add(new EventCall(n.get_event().get_name(), parameters));
+      result.add
+      (
+         new ExtraInstruction
+         (
+            n.get_instruction().get_name(), parameters
+         )
+      );
 
       for (final ComputationCompiler cc: cc_list)
       {
@@ -2860,7 +2866,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          result.add(cc.get_init());
       }
 
-      labels_only.add(new AddChoice(cc.get_computation()));
+      labels_only.add(new AddTextOption(cc.get_computation()));
 
       labels_only.add
       (
@@ -3013,7 +3019,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       labels_only.add
       (
-         new AddEventInput(n.get_input_event().get_name(), params)
+         new AddEventOption(n.get_input_event().get_name(), params)
       );
 
       for (final ComputationCompiler cc: params_cc)
@@ -3185,7 +3191,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       compiler.assembler().pop_context_label("choices");
 
-      result.add(new ResolveChoices());
+      result.add(new ResolveChoice());
 
       result.add
       (

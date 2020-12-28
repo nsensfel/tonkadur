@@ -7,47 +7,35 @@ import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
-public class AddRichTextEffect extends RichText
+public class Text extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final String effect_name;
-   protected final List<Computation> effect_parameters;
+   protected final List<Computation> content;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public AddRichTextEffect
-   (
-      final String effect_name,
-      final List<Computation> effect_parameters,
-      final List<Computation> content
-   )
+   public Text (final List<Computation> content)
    {
-      super(content);
+      super(Type.TEXT);
 
-      this.effect_name = effect_name;
-      this.effect_parameters = effect_parameters;
+      this.content = content;
    }
 
    /**** Accessors ************************************************************/
-   public String get_effect_name ()
+   public List<Computation> get_content ()
    {
-      return effect_name;
-   }
-
-   public List<Computation> get_effect_parameters ()
-   {
-      return effect_parameters;
+      return content;
    }
 
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_add_rich_text_effect(this);
+      cv.visit_text(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -58,21 +46,18 @@ public class AddRichTextEffect extends RichText
 
       sb = new StringBuilder();
 
-      sb.append("(AddRichTextEffect (");
-      sb.append(effect_name);
-
-      for (final Computation param: effect_parameters)
-      {
-         sb.append(" ");
-         sb.append(param.toString());
-      }
-
-      sb.append(")");
+      sb.append("(Text ");
 
       for (final Computation text: content)
       {
-         sb.append(" ");
-         sb.append(text.toString());
+         if (text == null)
+         {
+            sb.append("<null?!>");
+         }
+         else
+         {
+            sb.append(text.toString());
+         }
       }
 
       sb.append(")");

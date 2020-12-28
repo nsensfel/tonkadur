@@ -90,9 +90,9 @@ public class TypeCompiler
          return Type.INT;
       }
 
-      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.RICH_TEXT))
+      if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.TEXT))
       {
-         return Type.RICH_TEXT;
+         return Type.TEXT;
       }
 
       if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.STRING))
@@ -176,9 +176,9 @@ public class TypeCompiler
          return MapType.MAP_TO_STRING;
       }
 
-      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.RICH_TEXT))
+      if (fate_content_type.equals(tonkadur.fate.v1.lang.type.Type.TEXT))
       {
-         return MapType.MAP_TO_RICH_TEXT;
+         return MapType.MAP_TO_TEXT;
       }
 
       if (fate_content_type instanceof tonkadur.fate.v1.lang.type.LambdaType)

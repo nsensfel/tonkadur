@@ -4,10 +4,13 @@ import tonkadur.wyrd.v1.lang.instruction.*;
 
 public interface InstructionVisitor
 {
-   public void visit_add_choice (final AddChoice n)
+   public void visit_extra_instruction (final ExtraInstruction n)
    throws Throwable;
 
-   public void visit_add_event_input (final AddEventInput n)
+   public void visit_add_text_option (final AddTextOption n)
+   throws Throwable;
+
+   public void visit_add_event_option (final AddEventOption n)
    throws Throwable;
 
    public void visit_assert (final Assert n)
@@ -19,13 +22,10 @@ public interface InstructionVisitor
    public void visit_end (final End n)
    throws Throwable;
 
-   public void visit_event_call (final EventCall n)
-   throws Throwable;
-
    public void visit_remove (final Remove n)
    throws Throwable;
 
-   public void visit_resolve_choices (final ResolveChoices n)
+   public void visit_resolve_choice (final ResolveChoice n)
    throws Throwable;
 
    public void visit_set_pc (final SetPC n)

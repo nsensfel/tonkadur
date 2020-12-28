@@ -20,8 +20,8 @@ import tonkadur.fate.v1.error.UnknownSequenceException;
 
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
-import tonkadur.fate.v1.lang.meta.ExtensionInstruction;
-import tonkadur.fate.v1.lang.meta.ExtensionComputation;
+import tonkadur.fate.v1.lang.meta.ExtraInstruction;
+import tonkadur.fate.v1.lang.meta.ExtraComputation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
@@ -41,13 +41,10 @@ public class World
    protected final Map<String, List<Cons<Origin, List<Computation>>>>
       sequence_uses;
    protected final Map<String, List<SequenceReference>> sequence_variables;
-   protected final Map<String, ExtensionComputation> extension_value_nodes;
-   protected final Map<String, ExtensionInstruction> extension_instructions;
-   protected final Map<String, ExtensionInstruction>
-      extension_first_level_instructions;
 
+   protected final DeclarationCollection<ExtraInstruction> ei_collection;
+   protected final DeclarationCollection<ExtraComputation> ec_collection;
    protected final DeclarationCollection<Event> event_collection;
-   protected final DeclarationCollection<InputEvent> input_event_collection;
    protected final DeclarationCollection<Sequence> sequence_collection;
    protected final DeclarationCollection<TextEffect> text_effect_collection;
    protected final DeclarationCollection<Type> type_collection;
@@ -70,15 +67,19 @@ public class World
 
       sequence_variables = new HashMap<String, List<SequenceReference>>();
 
-      extension_value_nodes = new HashMap<String, ExtensionComputation>();
-      extension_instructions = new HashMap<String, ExtensionInstruction>();
-      extension_first_level_instructions =
-         new HashMap<String, ExtensionInstruction>();
+      ei_collection =
+         new DeclarationCollection<ExtraInstruction>
+         (
+            ExtraInstruction.value_on_missing()
+         );
+      ec_collection =
+         new DeclarationCollection<ExtraComputation>
+         (
+            ExtraComputation.value_on_missing()
+         );
 
       event_collection =
          new DeclarationCollection<Event>(Event.value_on_missing());
-      input_event_collection =
-         new DeclarationCollection<InputEvent>(InputEvent.value_on_missing());
       sequence_collection = new DeclarationCollection<Sequence>(null);
 
       text_effect_collection =
@@ -164,33 +165,20 @@ public class World
       list_of_variables.add(sr);
    }
 
-   /**** Extension Stuff ****/
-   public Map<String, ExtensionInstruction> extension_instructions ()
-   {
-      return extension_instructions;
-   }
-
-   public Map<String, ExtensionInstruction> extension_first_level_instructions
-   (
-   )
-   {
-      return extension_first_level_instructions;
-   }
-
-   public Map<String, ExtensionComputation> extension_value_nodes ()
-   {
-      return extension_value_nodes;
-   }
-
    /**** Collections ****/
+   public DeclarationCollection<ExtraInstruction> extra_instructions ()
+   {
+      return ei_collection;
+   }
+
+   public DeclarationCollection<ExtraComputation> extra_computations ()
+   {
+      return ec_collection;
+   }
+
    public DeclarationCollection<Event> events ()
    {
       return event_collection;
-   }
-
-   public DeclarationCollection<InputEvent> input_events ()
-   {
-      return input_event_collection;
    }
 
    public DeclarationCollection<Sequence> sequences ()
@@ -267,38 +255,45 @@ public class World
       }
 
       sb.append(System.lineSeparator());
-      sb.append("Events: ");
+      sb.append("Extra Instructions:");
+      sb.append(System.lineSeparator());
+      sb.append(ei_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append(System.lineSeparator());
+      sb.append("Extra Computations:");
+      sb.append(System.lineSeparator());
+      sb.append(ec_collection.toString());
+      sb.append(System.lineSeparator());
+      sb.append(System.lineSeparator());
+
+      sb.append(System.lineSeparator());
+      sb.append("Events:");
       sb.append(System.lineSeparator());
       sb.append(event_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append(System.lineSeparator());
-      sb.append("Input Events: ");
-      sb.append(System.lineSeparator());
-      sb.append(input_event_collection.toString());
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-
-      sb.append("Text Effects: ");
+      sb.append("Text Effects:");
       sb.append(System.lineSeparator());
       sb.append(text_effect_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("Types: ");
+      sb.append("Types:");
       sb.append(System.lineSeparator());
       sb.append(type_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("Variables: ");
+      sb.append("Variables:");
       sb.append(System.lineSeparator());
       sb.append(variable_collection.toString());
       sb.append(System.lineSeparator());
       sb.append(System.lineSeparator());
 
-      sb.append("Sequences: ");
+      sb.append("Sequences:");
       sb.append(System.lineSeparator());
       sb.append(sequence_collection.toString());
       sb.append(System.lineSeparator());

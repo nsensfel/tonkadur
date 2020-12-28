@@ -1,41 +1,32 @@
-package tonkadur.fate.v1.lang.instruction;
+package tonkadur.fate.v1.lang.computation;
 
 import java.util.List;
 
+import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
-import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.Event;
-
-import tonkadur.fate.v1.lang.type.Type;
-
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.RecurrentChecks;
+import tonkadur.fate.v1.lang.meta.ExtraComputation;
 
-public class EventCall extends Instruction
+public class ExtraComputationInstance extends Computation
 {
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final Event event;
+   protected final ExtraComputation computation;
    protected final List<Computation> parameters;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected EventCall
+   protected ExtraComputationInstance
    (
       final Origin origin,
-      final Event event,
+      final ExtraComputation computation,
       final List<Computation> parameters
    )
    {
-      super(origin);
+      super(origin, computation.get_result_type());
 
-      this.event = event;
+      this.computation = computation;
       this.parameters = parameters;
    }
 
@@ -43,10 +34,10 @@ public class EventCall extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static EventCall build
+   public ExtraComputationInstance build
    (
       final Origin origin,
-      final Event event,
+      final ExtraComputation computation,
       final List<Computation> parameters
    )
    throws ParsingError
@@ -55,23 +46,16 @@ public class EventCall extends Instruction
       (
          origin,
          parameters,
-         event.get_signature()
+         computation.get_signature()
       );
 
-      return new EventCall(origin, event, parameters);
+      return new ExtraComputationInstance(origin, computation, parameters);
    }
 
    /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final InstructionVisitor iv)
-   throws Throwable
+   public ExtraComputation get_computation_type ()
    {
-      iv.visit_event_call(this);
-   }
-
-   public Event get_event ()
-   {
-      return event;
+      return computation;
    }
 
    public List<Computation> get_parameters ()
@@ -79,22 +63,31 @@ public class EventCall extends Instruction
       return parameters;
    }
 
+   @Override
+   public void get_visited_by (final ComputationVisitor cv)
+   throws Throwable
+   {
+      cv.visit_extra_computation(this);
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
    {
-      final StringBuilder sb = new StringBuilder();
+      final StringBuilder sb;
 
-      sb.append("(EventCall (");
-      sb.append(event.get_name());
+      sb = new StringBuilder();
 
-      for (final Computation param: parameters)
+      sb.append("(");
+      sb.append(computation.get_name());
+
+      for (final Computation p: parameters)
       {
          sb.append(" ");
-         sb.append(param.toString());
+         sb.append(p.toString());
       }
 
-      sb.append("))");
+      sb.append(")");
 
       return sb.toString();
    }

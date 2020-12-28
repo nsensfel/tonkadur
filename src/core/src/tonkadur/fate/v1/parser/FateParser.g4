@@ -351,50 +351,98 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_EVENT_TYPE_KW new_reference_name WS* R_PAREN
+   | DECLARE_EXTRA_INSTRUCTION_KW new_reference_name WS* R_PAREN
    {
       final Origin start_origin;
-      final Event new_event;
+      final ExtraInstruction extra_instruction;
 
       start_origin =
          CONTEXT.get_origin_at
          (
-            ($DECLARE_EVENT_TYPE_KW.getLine()),
-            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
+            ($DECLARE_EXTRA_INSTRUCTION_KW.getLine()),
+            ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
          );
 
       new_event =
-         new Event
+         new ExtraInstruction
          (
             start_origin,
-            new ArrayList<Type>(),
-            ($new_reference_name.result)
+            ($new_reference_name.result),
+            new ArrayList<Type>()
          );
 
-      WORLD.events().add(new_event);
+      WORLD.extra_instructions().add(extra_instruction);
    }
 
-   | DECLARE_EVENT_TYPE_KW new_reference_name WS+ type_list WS* R_PAREN
+   | DECLARE_EXTRA_INSTRUCTION_KW new_reference_name WS+ type_list WS* R_PAREN
    {
       final Origin start_origin;
-      final Event new_event;
+      final ExtraInstruction extra_instruction;
 
       start_origin =
          CONTEXT.get_origin_at
          (
-            ($DECLARE_EVENT_TYPE_KW.getLine()),
-            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
+            ($DECLARE_EXTRA_INSTRUCTION_KW.getLine()),
+            ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
          );
 
       new_event =
-         new Event
+         new ExtraInstruction
          (
             start_origin,
-            ($type_list.result),
-            ($new_reference_name.result)
+            ($new_reference_name.result),
+            ($type_list.result)
          );
 
-      WORLD.events().add(new_event);
+      WORLD.extra_instructions().add(extra_instruction);
+   }
+
+   | DECLARE_EXTRA_COMPUTATION_KW type WS+ new_reference_name WS+ type_list WS* R_PAREN
+   {
+      final Origin start_origin;
+      final ExtraComputation extra_computation;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_EXTRA_COMPUTATION_KW.getLine()),
+            ($DECLARE_EXTRA_COMPUTATION_KW.getCharPositionInLine())
+         );
+
+      extra_computation =
+         new ExtraComputation
+         (
+            start_origin,
+            ($type.result),
+            ($new_reference_name.result),
+            ($type_list.result)
+         );
+
+      WORLD.extra_computations().add(extra_computation);
+   }
+
+   | DECLARE_EXTRA_COMPUTATION_KW type WS+ new_reference_name WS* R_PAREN
+   {
+      final Origin start_origin;
+      final ExtraComputation extra_computation;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_EXTRA_COMPUTATION_KW.getLine()),
+            ($DECLARE_EXTRA_COMPUTATION_KW.getCharPositionInLine())
+         );
+
+      extra_computation =
+         new ExtraComputation
+         (
+            start_origin,
+            ($type.result),
+            ($new_reference_name.result),
+            new ArrayList<Type>()
+         );
+
+      WORLD.extra_computations().add(extra_computation);
    }
 
    | DECLARE_INPUT_EVENT_TYPE_KW new_reference_name WS* R_PAREN
@@ -1673,48 +1721,50 @@ returns [Instruction result]
       variable_map.remove(($new_reference_name.result));
    }
 
-   | EVENT_KW WORD WS+ value_list WS* R_PAREN
+   | EXTRA_INSTRUCTION_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
-      final Event event;
+      final ExtraInstruction extra_instruction;
 
       origin =
          CONTEXT.get_origin_at
          (
-            ($EVENT_KW.getLine()),
-            ($EVENT_KW.getCharPositionInLine())
+            ($EXTRA_INSTRUCTION_KW.getLine()),
+            ($EXTRA_INSTRUCTION_KW.getCharPositionInLine())
          );
 
-      event = WORLD.events().get(origin, ($WORD.text));
+      extra_instruction = WORLD.extra_instructions().get(origin, ($WORD.text));
 
       $result =
-         EventCall.build
+         extra_instruction.instantiate
          (
+            WORLD,
+            CONTEXT,
             origin,
-            event,
             ($value_list.result)
          );
    }
 
-   | EVENT_KW WORD WS* R_PAREN
+   | EXTRA_INSTRUCTION_KW WORD WS* R_PAREN
    {
       final Origin origin;
-      final Event event;
+      final ExtraInstruction extra_instruction;
 
       origin =
          CONTEXT.get_origin_at
          (
-            ($EVENT_KW.getLine()),
-            ($EVENT_KW.getCharPositionInLine())
+            ($EXTRA_INSTRUCTION_KW.getLine()),
+            ($EXTRA_INSTRUCTION_KW.getCharPositionInLine())
          );
 
-      event = WORLD.events().get(origin, ($WORD.text));
+      extra_instruction = WORLD.extra_instructions().get(origin, ($WORD.text));
 
       $result =
-         EventCall.build
+         extra_instruction.instantiate
          (
+            WORLD,
+            CONTEXT,
             origin,
-            event,
             new ArrayList<Computation>()
          );
    }
@@ -2007,40 +2057,6 @@ returns [Instruction result]
          );
    }
 
-   | EXTENSION_INSTRUCTION_KW WORD WS+ general_fate_sequence WS* R_PAREN
-   {
-      final Origin origin;
-      final ExtensionInstruction instr;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      instr = WORLD.extension_instructions().get(($WORD.text));
-
-      if (instr == null)
-      {
-         ErrorManager.handle
-         (
-            new UnknownExtensionContentException(origin, ($WORD.text))
-         );
-      }
-      else
-      {
-         $result =
-            instr.build
-            (
-               WORLD,
-               CONTEXT,
-               origin,
-               ($general_fate_sequence.result)
-            );
-      }
-   }
-
    | paragraph
    {
       $result =
@@ -2215,7 +2231,7 @@ returns [Instruction result]
          );
    }
 
-   | (EVENT_KW | PLAYER_EVENT_KW)
+   | PLAYER_EVENT_KW
       L_PAREN WS* WORD WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -2251,7 +2267,7 @@ returns [Instruction result]
          );
    }
 
-   | (EVENT_KW | PLAYER_EVENT_KW)
+   | PLAYER_EVENT_KW
       L_PAREN WS* WORD WS+ value_list WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -4168,10 +4184,10 @@ returns [Computation result]
          );
    }
 
-   | EXTENSION_VALUE_KW WORD WS+ value_list WS* R_PAREN
+   | EXTRA_COMPUTATION_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
-      final ExtensionComputation value;
+      final ExtensionComputation extra_computation;
 
       origin =
          CONTEXT.get_origin_at
@@ -4180,26 +4196,40 @@ returns [Computation result]
             ($WORD.getCharPositionInLine())
          );
 
-      value = WORLD.extension_value_nodes().get(($WORD.text));
+      extra_computation = WORLD.extra_computations().get(origin, ($WORD.text));
 
-      if (value == null)
-      {
-         ErrorManager.handle
+      $result =
+         extra_computation.build
          (
-            new UnknownExtensionContentException(origin, ($WORD.text))
+            WORLD,
+            CONTEXT,
+            origin,
+            ($value_list.result)
          );
-      }
-      else
-      {
-         $result =
-            value.build
-            (
-               WORLD,
-               CONTEXT,
-               origin,
-               ($value_list.result)
-            );
-      }
+   }
+
+   | EXTRA_COMPUTATION_KW WORD WS* R_PAREN
+   {
+      final Origin origin;
+      final ExtensionComputation extra_computation;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+
+      extra_computation = WORLD.extra_computations().get(origin, ($WORD.text));
+
+      $result =
+         extra_computation.build
+         (
+            WORLD,
+            CONTEXT,
+            origin,
+            ($value_list.result)
+         );
    }
 
    | SEQUENCE_KW WORD WS* R_PAREN

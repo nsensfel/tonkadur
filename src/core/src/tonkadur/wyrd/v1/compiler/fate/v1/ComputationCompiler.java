@@ -1686,7 +1686,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          content.add(content_cc.get_computation());
       }
 
-      result_as_computation = new RichText(content);
+      result_as_computation = new Text(content);
    }
 
    @Override
@@ -1742,7 +1742,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       }
 
       result_as_computation =
-         new AddRichTextEffect
+         new AddTextEffect
          (
             n.get_effect().get_name(),
             parameters,
@@ -1751,9 +1751,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
-   public void visit_value_to_rich_text
+   public void visit_value_to_text
    (
-      final tonkadur.fate.v1.lang.computation.ValueToRichText n
+      final tonkadur.fate.v1.lang.computation.ValueToText n
    )
    throws Throwable
    {
@@ -1766,7 +1766,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       assimilate(cc);
 
       result_as_computation =
-         new RichText(Collections.singletonList(cc.get_computation()));
+         new Text(Collections.singletonList(cc.get_computation()));
    }
 
    @Override

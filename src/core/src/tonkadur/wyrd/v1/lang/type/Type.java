@@ -5,7 +5,7 @@ public class Type
    public static final Type BOOL;
    public static final Type FLOAT;
    public static final Type INT;
-   public static final Type RICH_TEXT;
+   public static final Type TEXT;
    public static final Type STRING;
 
    static
@@ -13,7 +13,7 @@ public class Type
       BOOL = new Type("bool");
       FLOAT = new Type("float");
       INT = new Type("int");
-      RICH_TEXT = new Type("rich_text");
+      TEXT = new Type("text");
       STRING = new Type("string");
    }
 
