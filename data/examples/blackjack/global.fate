@@ -18,7 +18,7 @@
 (declare_text_effect action_description)
 
 (define_sequence money_acquisition ((int amount))
-   (set player.money (+ player.money  amount))
+   (set player.money (+ player.money amount))
    (if (> amount 0)
       (text_effect action_description
          You acquired (eval coins_word (var amount))!

@@ -30,7 +30,7 @@
                      of (var family)
                   )
                )
-               (score (max 10 number))
+               (score (clamp 1 number 10))
             )
          )
          (range 1 13 1)
