@@ -12,7 +12,7 @@ public class InstructionCompiler implements InstructionVisitor
 {
    protected JSONObject result;
 
-   public void visit_add_choice (final AddChoice n)
+   public void visit_add_text_option (final AddTextOption n)
    throws Throwable
    {
       final ComputationCompiler label_cc;
@@ -23,11 +23,11 @@ public class InstructionCompiler implements InstructionVisitor
 
       result = new JSONObject();
 
-      result.put("category", "add_choice");
+      result.put("category", "add_text_option");
       result.put("label", label_cc.get_result());
    }
 
-   public void visit_add_event_input (final AddEventInput n)
+   public void visit_add_event_option (final AddEventOption n)
    throws Throwable
    {
       final JSONArray params;
@@ -47,7 +47,7 @@ public class InstructionCompiler implements InstructionVisitor
 
       result = new JSONObject();
 
-      result.put("category", "add_event_input");
+      result.put("category", "add_event_option");
       result.put("event", n.get_name());
       result.put("parameters", params);
    }
@@ -93,7 +93,7 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("category", "end");
    }
 
-   public void visit_event_call (final EventCall n)
+   public void visit_extra_instruction (final ExtraInstruction n)
    throws Throwable
    {
       final JSONArray params;
@@ -113,8 +113,8 @@ public class InstructionCompiler implements InstructionVisitor
 
       result = new JSONObject();
 
-      result.put("category", "event_call");
-      result.put("event", n.get_name());
+      result.put("category", "extra_instruction");
+      result.put("name", n.get_name());
       result.put("parameters", params);
    }
 
@@ -133,12 +133,12 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("reference", cc.get_result());
    }
 
-   public void visit_resolve_choices (final ResolveChoices n)
+   public void visit_resolve_choice (final ResolveChoice n)
    throws Throwable
    {
       result = new JSONObject();
 
-      result.put("category", "resolve_choices");
+      result.put("category", "resolve_choice");
    }
 
    public void visit_set_pc (final SetPC n)

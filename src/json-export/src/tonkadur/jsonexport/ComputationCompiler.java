@@ -12,7 +12,7 @@ public class ComputationCompiler implements ComputationVisitor
 {
    protected JSONObject result;
 
-   public void visit_add_rich_text_effect (final AddRichTextEffect n)
+   public void visit_add_text_effect (final AddTextEffect n)
    throws Throwable
    {
       final JSONArray params, content;
@@ -44,7 +44,7 @@ public class ComputationCompiler implements ComputationVisitor
 
       result = new JSONObject();
 
-      result.put("category", "add_rich_text_effect");
+      result.put("category", "add_text_effect");
       result.put("effect", n.get_effect_name());
       result.put("parameters", params);
       result.put("content", content);
@@ -185,7 +185,7 @@ public class ComputationCompiler implements ComputationVisitor
       result.put("extra", param_cc.get_result());
    }
 
-   public void visit_rich_text (final RichText n)
+   public void visit_text (final Text n)
    throws Throwable
    {
       final JSONArray content;
@@ -205,7 +205,7 @@ public class ComputationCompiler implements ComputationVisitor
 
       result = new JSONObject();
 
-      result.put("category", "rich_text");
+      result.put("category", "text");
       result.put("content", content);
    }
 
@@ -222,6 +222,31 @@ public class ComputationCompiler implements ComputationVisitor
 
       result.put("category", "size");
       result.put("reference", cc.get_result());
+   }
+
+   public void visit_extra_computation (final ExtraComputation n)
+   throws Throwable
+   {
+      final JSONArray params;
+
+      params = new JSONArray();
+
+      for (final Computation c: n.get_parameters())
+      {
+         final ComputationCompiler cc;
+
+         cc = new ComputationCompiler();
+
+         c.get_visited_by(cc);
+
+         params.add(cc.get_result());
+      }
+
+      result = new JSONObject();
+
+      result.put("category", "extra_computation");
+      result.put("name", n.get_name());
+      result.put("parameters", params);
    }
 
    public void visit_value_of (final ValueOf n)

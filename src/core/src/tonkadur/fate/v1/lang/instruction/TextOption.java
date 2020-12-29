@@ -8,24 +8,24 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.RichTextNode;
+import tonkadur.fate.v1.lang.meta.TextNode;
 
-public class PlayerOption extends Instruction
+public class TextOption extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final RichTextNode text;
+   protected final TextNode text;
    protected final List<Instruction> effects;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public PlayerOption
+   public TextOption
    (
       final Origin origin,
-      final RichTextNode text,
+      final TextNode text,
       final List<Instruction> effects
    )
    {
@@ -41,10 +41,10 @@ public class PlayerOption extends Instruction
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_player_option(this);
+      iv.visit_text_option(this);
    }
 
-   public RichTextNode get_text ()
+   public TextNode get_text ()
    {
       return text;
    }
@@ -60,7 +60,7 @@ public class PlayerOption extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(PlayerOption (");
+      sb.append("(TextOption (");
       sb.append(System.lineSeparator());
       sb.append(text.toString());
       sb.append(")");

@@ -15,7 +15,7 @@ import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
-public class PlayerInput extends Instruction
+public class EventOption extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -28,7 +28,7 @@ public class PlayerInput extends Instruction
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected PlayerInput
+   protected EventOption
    (
       final Origin origin,
       final Event input_event,
@@ -47,7 +47,7 @@ public class PlayerInput extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public PlayerInput
+   public EventOption
    (
       final Origin origin,
       final Event input_event,
@@ -61,7 +61,7 @@ public class PlayerInput extends Instruction
       this.effects = effects;
    }
 
-   public static PlayerInput build
+   public static EventOption build
    (
       final Origin origin,
       final Event event,
@@ -77,7 +77,7 @@ public class PlayerInput extends Instruction
          event.get_signature()
       );
 
-      return new PlayerInput(origin, event, parameters, effects);
+      return new EventOption(origin, event, parameters, effects);
    }
 
    /**** Accessors ************************************************************/
@@ -85,7 +85,7 @@ public class PlayerInput extends Instruction
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable
    {
-      iv.visit_player_input(this);
+      iv.visit_event_option(this);
    }
 
    public Event get_input_event ()
@@ -109,7 +109,7 @@ public class PlayerInput extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(PlayerInput (");
+      sb.append("(EventOption (");
       sb.append(System.lineSeparator());
       sb.append(input_event.toString());
 

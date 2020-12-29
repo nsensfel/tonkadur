@@ -5,7 +5,7 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.RichTextNode;
+import tonkadur.fate.v1.lang.meta.TextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
@@ -17,7 +17,7 @@ public class Assert extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation condition;
-   protected final RichTextNode message;
+   protected final TextNode message;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -27,7 +27,7 @@ public class Assert extends Instruction
    (
       final Origin origin,
       final Computation condition,
-      final RichTextNode message
+      final TextNode message
    )
    {
       super(origin);
@@ -44,7 +44,7 @@ public class Assert extends Instruction
    (
       final Origin origin,
       final Computation condition,
-      final RichTextNode message
+      final TextNode message
    )
    throws ParsingError
    {
@@ -66,7 +66,7 @@ public class Assert extends Instruction
       return condition;
    }
 
-   public RichTextNode get_message ()
+   public TextNode get_message ()
    {
       return message;
    }

@@ -1,16 +1,52 @@
 package tonkadur.fate.v1.lang.meta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.World;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.computation.ExtraComputationInstance;
+
 public class ExtraComputation extends DeclaredEntity
 {
+   protected static final ExtraComputation ANY;
+
+   static
+   {
+      ANY =
+         new ExtraComputation
+         (
+            Origin.BASE_LANGUAGE,
+            Type.ANY,
+            /*
+             * Use of a space necessary to avoid conflicting with a user created
+             * type.
+             */
+            "undetermined extra_computation",
+            new ArrayList<Type>()
+         );
+   }
+
+   public static ExtraComputation value_on_missing ()
+   {
+      return ANY;
+   }
+
+   @Override
+   public /* static */ String get_type_name ()
+   {
+      return "ExtraComputation";
+   }
+
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
    protected final Type returned_type;
    protected final List<Type> signature;
 

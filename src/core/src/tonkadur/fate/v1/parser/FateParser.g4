@@ -363,7 +363,7 @@ first_level_fate_instr:
             ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
          );
 
-      new_event =
+      extra_instruction =
          new ExtraInstruction
          (
             start_origin,
@@ -386,7 +386,7 @@ first_level_fate_instr:
             ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
          );
 
-      new_event =
+      extra_instruction =
          new ExtraInstruction
          (
             start_origin,
@@ -445,50 +445,50 @@ first_level_fate_instr:
       WORLD.extra_computations().add(extra_computation);
    }
 
-   | DECLARE_INPUT_EVENT_TYPE_KW new_reference_name WS* R_PAREN
+   | DECLARE_EVENT_TYPE_KW new_reference_name WS* R_PAREN
    {
       final Origin start_origin;
-      final InputEvent new_event;
+      final Event new_event;
 
       start_origin =
          CONTEXT.get_origin_at
          (
-            ($DECLARE_INPUT_EVENT_TYPE_KW.getLine()),
-            ($DECLARE_INPUT_EVENT_TYPE_KW.getCharPositionInLine())
+            ($DECLARE_EVENT_TYPE_KW.getLine()),
+            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
          );
 
       new_event =
-         new InputEvent
+         new Event
          (
             start_origin,
             new ArrayList<Type>(),
             ($new_reference_name.result)
          );
 
-      WORLD.input_events().add(new_event);
+      WORLD.events().add(new_event);
    }
 
-   | DECLARE_INPUT_EVENT_TYPE_KW new_reference_name WS+ type_list WS* R_PAREN
+   | DECLARE_EVENT_TYPE_KW new_reference_name WS+ type_list WS* R_PAREN
    {
       final Origin start_origin;
-      final InputEvent new_event;
+      final Event new_event;
 
       start_origin =
          CONTEXT.get_origin_at
          (
-            ($DECLARE_INPUT_EVENT_TYPE_KW.getLine()),
-            ($DECLARE_INPUT_EVENT_TYPE_KW.getCharPositionInLine())
+            ($DECLARE_EVENT_TYPE_KW.getLine()),
+            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
          );
 
       new_event =
-         new InputEvent
+         new Event
          (
             start_origin,
             ($type_list.result),
             ($new_reference_name.result)
          );
 
-      WORLD.input_events().add(new_event);
+      WORLD.events().add(new_event);
    }
 
 
@@ -549,6 +549,7 @@ first_level_fate_instr:
       CONTEXT.pop();
    }
 
+   /*
    | EXTENSION_FIRST_LEVEL_KW WORD WS+ general_fate_sequence WS* R_PAREN
    {
       final Origin origin;
@@ -575,6 +576,7 @@ first_level_fate_instr:
          instr.build(WORLD, CONTEXT, origin, ($general_fate_sequence.result));
       }
    }
+   */
 ;
 catch [final Throwable e]
 {
@@ -2203,7 +2205,7 @@ returns [List<Instruction> result]
 player_choice
 returns [Instruction result]
 :
-   PLAYER_OPTION_KW
+   TEXT_OPTION_KW
       L_PAREN WS* paragraph WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -2219,19 +2221,19 @@ returns [Instruction result]
    R_PAREN
    {
       $result =
-         new PlayerOption
+         new TextOption
          (
             CONTEXT.get_origin_at
             (
-               ($PLAYER_OPTION_KW.getLine()),
-               ($PLAYER_OPTION_KW.getCharPositionInLine())
+               ($TEXT_OPTION_KW.getLine()),
+               ($TEXT_OPTION_KW.getCharPositionInLine())
             ),
             ($paragraph.result),
             ($general_fate_sequence.result)
          );
    }
 
-   | PLAYER_EVENT_KW
+   | EVENT_OPTION_KW
       L_PAREN WS* WORD WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -2247,7 +2249,7 @@ returns [Instruction result]
    R_PAREN
    {
       final Origin origin;
-      final InputEvent event;
+      final Event event;
 
       origin =
          CONTEXT.get_origin_at
@@ -2256,10 +2258,10 @@ returns [Instruction result]
             ($L_PAREN.getCharPositionInLine())
          );
 
-      event = WORLD.input_events().get(origin, ($WORD.text));
+      event = WORLD.events().get(origin, ($WORD.text));
 
       $result =
-         new PlayerInput
+         new EventOption
          (
             origin,
             event,
@@ -2267,7 +2269,7 @@ returns [Instruction result]
          );
    }
 
-   | PLAYER_EVENT_KW
+   | EVENT_OPTION_KW
       L_PAREN WS* WORD WS+ value_list WS* R_PAREN WS+
       {
          HIERARCHICAL_VARIABLES.push(new ArrayList());
@@ -2283,7 +2285,7 @@ returns [Instruction result]
    R_PAREN
    {
       final Origin origin;
-      final InputEvent event;
+      final Event event;
 
       origin =
          CONTEXT.get_origin_at
@@ -2292,10 +2294,10 @@ returns [Instruction result]
             ($L_PAREN.getCharPositionInLine())
          );
 
-      event = WORLD.input_events().get(origin, ($WORD.text));
+      event = WORLD.events().get(origin, ($WORD.text));
 
       $result =
-         PlayerInput.build
+         EventOption.build
          (
             origin,
             event,
@@ -2570,10 +2572,10 @@ catch [final Throwable e]
 }
 
 paragraph
-returns [RichTextNode result]
+returns [TextNode result]
 @init
 {
-   final List<RichTextNode> content = new ArrayList();
+   final List<TextNode> content = new ArrayList();
 }
 :
    first=text
@@ -2587,7 +2589,7 @@ returns [RichTextNode result]
          {
             content.add
             (
-               ValueToRichText.build
+               ValueToText.build
                (
                   Constant.build_string
                   (
@@ -2635,10 +2637,10 @@ catch [final Throwable e]
 }
 
 text
-returns [RichTextNode result]:
+returns [TextNode result]:
    sentence
    {
-      $result = ValueToRichText.build(($sentence.result));
+      $result = ValueToText.build(($sentence.result));
    }
 
    | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
@@ -2720,7 +2722,7 @@ returns [RichTextNode result]:
 
    | non_text_value
    {
-      $result = ValueToRichText.build(($non_text_value.result));
+      $result = ValueToText.build(($non_text_value.result));
    }
 ;
 catch [final Throwable e]
@@ -3703,7 +3705,7 @@ returns [Computation result]
       $result = ($sentence.result);
    }
 
-   | RICH_TEXT_KW paragraph WS* R_PAREN
+   | TEXT_KW paragraph WS* R_PAREN
    {
       $result = ($paragraph.result);
    }
@@ -4187,7 +4189,7 @@ returns [Computation result]
    | EXTRA_COMPUTATION_KW WORD WS+ value_list WS* R_PAREN
    {
       final Origin origin;
-      final ExtensionComputation extra_computation;
+      final ExtraComputation extra_computation;
 
       origin =
          CONTEXT.get_origin_at
@@ -4199,7 +4201,7 @@ returns [Computation result]
       extra_computation = WORLD.extra_computations().get(origin, ($WORD.text));
 
       $result =
-         extra_computation.build
+         extra_computation.instantiate
          (
             WORLD,
             CONTEXT,
@@ -4211,7 +4213,7 @@ returns [Computation result]
    | EXTRA_COMPUTATION_KW WORD WS* R_PAREN
    {
       final Origin origin;
-      final ExtensionComputation extra_computation;
+      final ExtraComputation extra_computation;
 
       origin =
          CONTEXT.get_origin_at
@@ -4223,12 +4225,12 @@ returns [Computation result]
       extra_computation = WORLD.extra_computations().get(origin, ($WORD.text));
 
       $result =
-         extra_computation.build
+         extra_computation.instantiate
          (
             WORLD,
             CONTEXT,
             origin,
-            ($value_list.result)
+            new ArrayList<Computation>()
          );
    }
 

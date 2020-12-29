@@ -94,7 +94,7 @@ public interface ComputationVisitor
    public void visit_text_with_effect (final TextWithEffect n)
    throws Throwable;
 
-   public void visit_value_to_rich_text (final ValueToRichText n)
+   public void visit_value_to_text (final ValueToText n)
    throws Throwable;
 
    public void visit_variable_reference (final VariableReference n)

@@ -318,7 +318,7 @@ public class World
          //type_collection.add(Type.LIST);
          //type_collection.add(Type.SET);
          type_collection.add(Type.STRING);
-         type_collection.add(Type.RICH_TEXT);
+         type_collection.add(Type.TEXT);
       }
       catch (final Throwable t)
       {

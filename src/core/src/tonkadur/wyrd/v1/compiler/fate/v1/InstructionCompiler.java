@@ -2636,7 +2636,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       (
          new ExtraInstruction
          (
-            n.get_instruction().get_name(), parameters
+            n.get_instruction_type().get_name(),
+            parameters
          )
       );
 
@@ -2837,16 +2838,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
-   public void visit_player_option
+   public void visit_text_option
    (
-      final tonkadur.fate.v1.lang.instruction.PlayerOption n
+      final tonkadur.fate.v1.lang.instruction.TextOption n
    )
    throws Throwable
    {
       /*
-       * Fate: (player_choice label i0)
+       * Fate: (text_option label i0)
        *
-       * Wyrd (add_choice label i0)
+       * Wyrd (add_text_option label i0)
        */
       final List<Instruction> to_next, labels_only;
       final ComputationCompiler cc;
@@ -2974,16 +2975,16 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
    @Override
-   public void visit_player_input
+   public void visit_event_option
    (
-      final tonkadur.fate.v1.lang.instruction.PlayerInput n
+      final tonkadur.fate.v1.lang.instruction.EventOption n
    )
    throws Throwable
    {
       /*
-       * Fate: (player_choice label i0)
+       * Fate: (event_option label i0)
        *
-       * Wyrd (add_choice label i0)
+       * Wyrd (add_event_option label i0)
        */
       final List<Instruction> to_next, labels_only;
       final List<ComputationCompiler> params_cc;

@@ -4,9 +4,12 @@ import java.util.List;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.ExtraComputation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class ExtraComputationInstance extends Computation
 {
@@ -24,7 +27,7 @@ public class ExtraComputationInstance extends Computation
       final List<Computation> parameters
    )
    {
-      super(origin, computation.get_result_type());
+      super(origin, computation.get_returned_type());
 
       this.computation = computation;
       this.parameters = parameters;
@@ -34,7 +37,7 @@ public class ExtraComputationInstance extends Computation
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public ExtraComputationInstance build
+   public static ExtraComputationInstance build
    (
       final Origin origin,
       final ExtraComputation computation,

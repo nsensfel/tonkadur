@@ -8,10 +8,10 @@ import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.RichTextNode;
+import tonkadur.fate.v1.lang.meta.TextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class ValueToRichText extends RichTextNode
+public class ValueToText extends TextNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -22,7 +22,7 @@ public class ValueToRichText extends RichTextNode
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected ValueToRichText (final Computation value)
+   protected ValueToText (final Computation value)
    {
       super(value.get_origin());
 
@@ -33,7 +33,7 @@ public class ValueToRichText extends RichTextNode
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static ValueToRichText build (final Computation value)
+   public static ValueToText build (final Computation value)
    throws
       IncompatibleTypeException,
       IncomparableTypeException
@@ -45,14 +45,14 @@ public class ValueToRichText extends RichTextNode
       if
       (
          value_base_type.equals(Type.STRING)
-         || value_base_type.equals(Type.RICH_TEXT)
+         || value_base_type.equals(Type.TEXT)
       )
       {
-         return new ValueToRichText(value);
+         return new ValueToText(value);
       }
 
       return
-         new ValueToRichText
+         new ValueToText
          (
             Cast.build
             (
@@ -69,7 +69,7 @@ public class ValueToRichText extends RichTextNode
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_value_to_rich_text(this);
+      cv.visit_value_to_text(this);
    }
 
    public Computation get_value ()
@@ -83,7 +83,7 @@ public class ValueToRichText extends RichTextNode
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ValueToRichText ");
+      sb.append("(ValueToText ");
       sb.append(value.toString());
       sb.append(")");
 

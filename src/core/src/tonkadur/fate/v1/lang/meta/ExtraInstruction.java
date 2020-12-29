@@ -1,16 +1,51 @@
 package tonkadur.fate.v1.lang.meta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.World;
 
 import tonkadur.fate.v1.lang.type.Type;
 
+import tonkadur.fate.v1.lang.instruction.ExtraInstructionInstance;
+
 public class ExtraInstruction extends DeclaredEntity
 {
+   protected static final ExtraInstruction ANY;
+
+   static
+   {
+      ANY =
+         new ExtraInstruction
+         (
+            Origin.BASE_LANGUAGE,
+            /*
+             * Use of a space necessary to avoid conflicting with a user created
+             * type.
+             */
+            "undetermined extra_instruction",
+            new ArrayList<Type>()
+         );
+   }
+
+   public static ExtraInstruction value_on_missing ()
+   {
+      return ANY;
+   }
+
+   @Override
+   public /* static */ String get_type_name ()
+   {
+      return "ExtraInstruction";
+   }
+
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
    protected final List<Type> signature;
 
    /***************************************************************************/
@@ -52,7 +87,7 @@ public class ExtraInstruction extends DeclaredEntity
       final World world,
       final Context context,
       final Origin origin,
-      final List<Instruction> parameters
+      final List<Computation> parameters
    )
    throws ParsingError
    {

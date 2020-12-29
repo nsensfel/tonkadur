@@ -60,7 +60,9 @@ public class TextEffect extends DeclaredEntity
       final String name
    )
    {
-      super(origin, signature, name);
+      super(origin, name);
+
+      this.signature = signature;
    }
 
    /**** Accessors ************************************************************/

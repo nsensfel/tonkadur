@@ -8,18 +8,18 @@ import tonkadur.parser.ParsingError;
 import tonkadur.fate.v1.lang.TextEffect;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.RichTextNode;
+import tonkadur.fate.v1.lang.meta.TextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
-public class TextWithEffect extends RichTextNode
+public class TextWithEffect extends TextNode
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final TextEffect effect;
    protected final List<Computation> parameters;
-   protected final RichTextNode text;
+   protected final TextNode text;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -30,7 +30,7 @@ public class TextWithEffect extends RichTextNode
       final Origin origin,
       final TextEffect effect,
       final List<Computation> parameters,
-      final RichTextNode text
+      final TextNode text
    )
    {
       super(origin);
@@ -49,7 +49,7 @@ public class TextWithEffect extends RichTextNode
       final Origin origin,
       final TextEffect effect,
       final List<Computation> parameters,
-      final RichTextNode text
+      final TextNode text
    )
    throws ParsingError
    {
@@ -81,7 +81,7 @@ public class TextWithEffect extends RichTextNode
       return parameters;
    }
 
-   public RichTextNode get_text ()
+   public TextNode get_text ()
    {
       return text;
    }

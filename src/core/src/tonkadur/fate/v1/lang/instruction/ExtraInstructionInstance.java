@@ -4,9 +4,13 @@ import java.util.List;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.ExtraInstruction;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class ExtraInstructionInstance extends Instruction
 {
@@ -34,7 +38,7 @@ public class ExtraInstructionInstance extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public ExtraInstructionInstance build
+   public static ExtraInstructionInstance build
    (
       final Origin origin,
       final ExtraInstruction instruction,

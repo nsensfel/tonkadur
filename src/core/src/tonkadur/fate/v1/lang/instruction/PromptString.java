@@ -58,7 +58,7 @@ public class PromptString extends Instruction
    {
       RecurrentChecks.assert_can_be_used_as(min, Type.INT);
       RecurrentChecks.assert_can_be_used_as(max, Type.INT);
-      RecurrentChecks.assert_can_be_used_as(label, Type.RICH_TEXT);
+      RecurrentChecks.assert_can_be_used_as(label, Type.TEXT);
       RecurrentChecks.assert_can_be_used_as
       (
          target,

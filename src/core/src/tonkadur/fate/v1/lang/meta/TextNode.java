@@ -5,15 +5,15 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.lang.type.Type;
 
 
-public abstract class RichTextNode extends Computation
+public abstract class TextNode extends Computation
 {
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected RichTextNode (final Origin origin)
+   protected TextNode (final Origin origin)
    {
-      super(origin, Type.RICH_TEXT);
+      super(origin, Type.TEXT);
    }
 
    /***************************************************************************/
