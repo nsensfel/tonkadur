@@ -1,19 +1,38 @@
 (fate_version 1)
 
 (global int i)
+(global int index_a)
+(global int index_b)
+(global int index_c)
 
 (player_choice
-   (
+   (for
+      (
+         (index_a 0)
+      )
+      (< index_a 10)
+      (
+         (index_a (+ 1 index_a))
+      )
+      (option
+         ( Option at index (var index_a) )
+         You selected option at index (var index_a)
+      )
+   )
+)
+
+(player_choice
+   (option
       ( Wrong Choice 0 )
       (set i 1)
       (assert (false) FAILED: Player Choice A)
    )
-   (
+   (option
       ( Right Choice )
       Took the right choice.
       (set i 2)
    )
-   (
+   (option
       ( Wrong Choice 1 )
       (set i 1)
       (assert (false) FAILED: Player Choice B)
@@ -24,18 +43,18 @@
 
 (player_choice
    (if (false)
-      (
+      (option
          ( Wrong Choice 0 )
          (set i 1)
       )
    )
    (ifelse (false)
-      (
+      (option
          ( Wrong Choice 1 )
          (set i 3)
       )
       (if (true)
-         (
+         (option
             ( Right Choice )
             (set i 6)
          )
@@ -48,7 +67,7 @@
 (global (set int) test_set)
 
 (while (>= (var i) 0)
-   (add (var i) test_set)
+   (add! (var i) test_set)
    (set i (- (var i) 1))
 )
 
@@ -58,21 +77,21 @@
 
 (player_choice
    (if (false)
-      (
+      (option
          ( Wrong Choice -1 )
          (set i 1)
       )
    )
    (foreach test_set e
       (ifelse (= (var e) 3)
-         (
+         (option
             ( Correct Choice (var e) )
             (
                Chosen var e: (var e)
                (set i 653)
             )
          )
-         (
+         (option
             ( Wrong Choice (var e) )
             (
                Chosen var e: (var e)
@@ -82,11 +101,11 @@
       )
    )
    (ifelse (false)
-      (
+      (option
          ( Wrong Choice 1 )
          (set i 3)
       )
-      (
+      (option
          ( Wrong Choice Other )
          (set i 6)
       )
@@ -98,7 +117,7 @@
 (player_choice
    (foreach test_set e
       (if (= (rand 0 1) 1)
-         (
+         (option
             ( Choice (var e) )
             (
                Chosen var e: (var e)

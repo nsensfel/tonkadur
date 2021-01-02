@@ -12,8 +12,10 @@ options
    import java.util.ArrayDeque;
    import java.util.Arrays;
    import java.util.Deque;
+   import java.util.Collection;
    import java.util.Map;
    import java.util.HashMap;
+   import java.util.HashSet;
 
    import tonkadur.Files;
 
@@ -31,6 +33,7 @@ options
    import tonkadur.fate.v1.error.DuplicateLocalVariableException;
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
    import tonkadur.fate.v1.error.InvalidTypeException;
+   import tonkadur.fate.v1.error.UpdatingIllegalVariableFromChoiceException;
    import tonkadur.fate.v1.error.UnknownExtensionContentException;
 
    import tonkadur.fate.v1.lang.*;
@@ -47,6 +50,7 @@ options
    Deque<Map<String, Variable>> LOCAL_VARIABLES;
    Deque<List<String>> HIERARCHICAL_VARIABLES;
    int BREAKABLE_LEVELS;
+   Deque<Collection<String>> CHOICE_LIMITED_VARIABLES;
 }
 
 /******************************************************************************/
@@ -72,6 +76,7 @@ fate_file [Context context,  Deque<Map<String, Variable>> local_variables, World
       BREAKABLE_LEVELS = 0;
 
       HIERARCHICAL_VARIABLES.push(new ArrayList<String>());
+      CHOICE_LIMITED_VARIABLES = new ArrayDeque<Collection<String>>();
    }
    :
    WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
@@ -2045,7 +2050,11 @@ returns [Instruction result]
          );
    }
 
-   | PLAYER_CHOICE_KW player_choice_list WS* R_PAREN
+   | PLAYER_CHOICE_KW
+      {
+         CHOICE_LIMITED_VARIABLES.push(new HashSet<String>());
+      }
+      player_choice_list WS* R_PAREN
    {
       $result =
          new PlayerChoice
@@ -2057,6 +2066,8 @@ returns [Instruction result]
             ),
             ($player_choice_list.result)
          );
+
+      CHOICE_LIMITED_VARIABLES.pop();
    }
 
    | paragraph
@@ -2371,6 +2382,48 @@ returns [Instruction result]
             ($value.result),
             ($player_choice_switch_list.result),
             ($player_choice.result)
+         );
+   }
+
+   | FOR_KW
+      l0=L_PAREN
+      choice_for_variable_list WS*
+      R_PAREN WS*
+      non_text_value WS*
+      l1=L_PAREN
+      choice_for_update_variable_list WS*
+      R_PAREN WS*
+      player_choice_list
+      WS* R_PAREN
+   {
+      $result =
+         For.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($FOR_KW.getLine()),
+               ($FOR_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            new InstructionList
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($l0.getLine()),
+                  ($l0.getCharPositionInLine())
+               ),
+               ($choice_for_variable_list.result)
+            ),
+            ($player_choice_list.result),
+            new InstructionList
+            (
+               CONTEXT.get_origin_at
+               (
+                  ($l1.getLine()),
+                  ($l1.getCharPositionInLine())
+               ),
+               ($choice_for_update_variable_list.result)
+            )
          );
    }
 
@@ -2976,7 +3029,7 @@ returns [List<Cons<Variable, Computation>> result]
       WS*
          (
             (
-               L_PAREN WS* new_reference_name WS+
+               L_PAREN WS* new_reference_name
                {
                   var_name = ($new_reference_name.result);
                }
@@ -3021,6 +3074,172 @@ returns [List<Cons<Variable, Computation>> result]
          variables.put(var_name, v);
 
          $result.add(new Cons(v, ($value.result)));
+      }
+   )*
+   {
+   }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
+
+choice_for_update_variable_list
+returns [List<Instruction> result]
+@init
+{
+   Collection<String> allowed_variables;
+   String var_name;
+   Origin origin;
+
+   allowed_variables = CHOICE_LIMITED_VARIABLES.peek();
+   var_name = null;
+   origin = null;
+
+   $result = new ArrayList<Instruction>();
+}
+:
+   (
+      WS*
+         (
+            (
+               L_PAREN WS* new_reference_name
+               {
+                  var_name = ($new_reference_name.result);
+                  origin =
+                     CONTEXT.get_origin_at
+                     (
+                        ($L_PAREN.getLine()),
+                        ($L_PAREN.getCharPositionInLine())
+                     );
+               }
+            )
+            |
+            (
+               something_else=.
+               {
+                  var_name = ($something_else.text).substring(1).trim();
+                  origin =
+                     CONTEXT.get_origin_at
+                     (
+                        ($something_else.getLine()),
+                        ($something_else.getCharPositionInLine())
+                     );
+               }
+            )
+         )
+         WS+ value WS* R_PAREN
+      {
+         $result.add
+         (
+            SetValue.build
+            (
+               origin,
+               ($value.result),
+               VariableFromWord.generate
+               (
+                  WORLD,
+                  LOCAL_VARIABLES,
+                  origin,
+                  var_name
+               )
+            )
+         );
+
+         if (!allowed_variables.contains(var_name))
+         {
+            ErrorManager.handle
+            (
+               new UpdatingIllegalVariableFromChoiceException(origin, var_name)
+            );
+         }
+      }
+   )*
+   {
+   }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
+
+choice_for_variable_list
+returns [List<Instruction> result]
+@init
+{
+   Collection<String> allowed_variables;
+   String var_name;
+   Origin origin;
+
+   allowed_variables = CHOICE_LIMITED_VARIABLES.peek();
+   var_name = null;
+   origin = null;
+
+   $result = new ArrayList<Instruction>();
+}
+:
+   (
+      WS*
+         (
+            (
+               L_PAREN WS* new_reference_name
+               {
+                  var_name = ($new_reference_name.result);
+                  origin =
+                     CONTEXT.get_origin_at
+                     (
+                        ($L_PAREN.getLine()),
+                        ($L_PAREN.getCharPositionInLine())
+                     );
+               }
+            )
+            |
+            (
+               something_else=.
+               {
+                  var_name = ($something_else.text).substring(1).trim();
+                  origin =
+                     CONTEXT.get_origin_at
+                     (
+                        ($something_else.getLine()),
+                        ($something_else.getCharPositionInLine())
+                     );
+               }
+            )
+         )
+         WS+ value WS* R_PAREN
+      {
+         $result.add
+         (
+            SetValue.build
+            (
+               origin,
+               ($value.result),
+               VariableFromWord.generate
+               (
+                  WORLD,
+                  LOCAL_VARIABLES,
+                  origin,
+                  var_name
+               )
+            )
+         );
+
+         allowed_variables.add(var_name);
       }
    )*
    {
