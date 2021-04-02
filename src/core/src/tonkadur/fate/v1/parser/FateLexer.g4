@@ -107,7 +107,7 @@ SAFE_INDEXED_MERGE_TO_SET_KW : L_PAREN (('safe'US'indexed')|('indexed'US'safe'))
 SAFE_IMP_MERGE_KW : L_PAREN 'safe'US'merge!' SEP+;
 SAFE_IMP_INDEXED_MERGE_KW : L_PAREN (('indexed'US'safe')|('safe'US'indexed'))US'merge!' SEP+;
 NEWLINE_KW: L_PAREN 'newline)';
-NEW_KW: L_PAREN ('new'|'reserve'|'create') SEP+;
+ALLOCATE_KW: L_PAREN (('alloc''ate'?)|'malloc'|'new')'!'? SEP+;
 NOT_KW: L_PAREN ('not'|'~'|'!') SEP+;
 ONE_IN_KW: L_PAREN ('exactly'US)?'one'(US'in')? SEP+;
 OR_KW: L_PAREN ('or'|'\\/') SEP+;
@@ -150,7 +150,7 @@ SORT_KW: L_PAREN 'sort' SEP+;
 IMP_SORT_KW: L_PAREN 'sort!' SEP+;
 SET_FIELDS_KW: L_PAREN 'set'US'fields' SEP+;
 IMP_SET_FIELDS_KW: L_PAREN 'set'US'fields!' SEP+;
-SET_KW: L_PAREN 'set'(US(('val''ue'?)|('var''iable'?)))? SEP+;
+SET_KW: L_PAREN 'set'(US(('val''ue'?)|('var''iable'?)))?'!'? SEP+;
 SUB_LIST_KW: L_PAREN 'sub'US'list' SEP+;
 IMP_SUB_LIST_KW: L_PAREN 'sub'US'list!' SEP+;
 LIST_KW: L_PAREN 'list' SEP+;
@@ -185,4 +185,4 @@ WORD: ((~([ \t\r\n()]))|'(lp)'|'(rp)'|'(sp)')+
       );
    };
 
-COMMENT: WS* ';' .*? '\n' -> channel(HIDDEN);
+COMMENT: WS* ';;' .*? '\n' -> channel(HIDDEN);

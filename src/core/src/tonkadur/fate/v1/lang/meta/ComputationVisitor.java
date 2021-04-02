@@ -22,9 +22,6 @@ public interface ComputationVisitor
    public void visit_access_as_reference (final AccessAsReference n)
    throws Throwable;
 
-   public void visit_new (final New n)
-   throws Throwable;
-
    public void visit_cast (final Cast n)
    throws Throwable;
 

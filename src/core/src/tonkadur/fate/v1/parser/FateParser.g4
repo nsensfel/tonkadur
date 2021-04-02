@@ -1462,6 +1462,21 @@ returns [Instruction result]
          );
    }
 
+   | ALLOCATE_KW value_reference WS* R_PAREN
+   {
+      final Origin origin;
+
+      origin =
+         CONTEXT.get_origin_at
+         (
+            ($ALLOCATE_KW.getLine()),
+            ($ALLOCATE_KW.getCharPositionInLine())
+         );
+
+      $result = Allocate.build(origin, ($value_reference.result));
+   }
+
+
    | FREE_KW value_reference WS* R_PAREN
    {
       $result =
@@ -3665,25 +3680,6 @@ returns [Computation result]:
             ($value_reference.result)
          );
    }
-
-   | NEW_KW WORD WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      $result =
-         new New
-         (
-            origin,
-            WORLD.types().get(origin, ($WORD.text))
-         );
-   }
 ;
 catch [final Throwable e]
 {
@@ -4026,7 +4022,12 @@ catch [final Throwable e]
 non_text_value
 returns [Computation result]
 :
-   IF_ELSE_KW cond=non_text_value WS+
+   STRING_KW sentence WS* R_PAREN
+   {
+      $result = $sentence.result;
+   }
+
+   | IF_ELSE_KW cond=non_text_value WS+
       if_true=value WS+
       if_false=value WS*
    R_PAREN

@@ -1,0 +1,15 @@
+(fate_version 1)
+
+(local (ptr int) p0)
+(allocate p0)
+(set (at p0) 72)
+
+(assert (= (at p0) 72)
+   [FAILED] Test 0
+)
+
+(free (at p0))
+
+[COMPLETED]
+
+(end)

@@ -1404,17 +1404,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
-   public void visit_new
-   (
-      final tonkadur.fate.v1.lang.computation.New n
-   )
-   throws Throwable
-   {
-      result_as_computation =
-         new New(TypeCompiler.compile(compiler, n.get_target_type()));
-   }
-
-   @Override
    public void visit_default
    (
       final tonkadur.fate.v1.lang.computation.Default n

@@ -32,6 +32,9 @@ public interface InstructionVisitor
    public void visit_done (final Done n)
    throws Throwable;
 
+   public void visit_allocate (final Allocate n)
+   throws Throwable;
+
    public void visit_free (final Free n)
    throws Throwable;
 

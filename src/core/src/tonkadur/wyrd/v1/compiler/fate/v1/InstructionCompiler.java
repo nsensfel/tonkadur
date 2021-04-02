@@ -27,6 +27,7 @@ import tonkadur.wyrd.v1.lang.computation.IfElseComputation;
 import tonkadur.wyrd.v1.lang.computation.Size;
 import tonkadur.wyrd.v1.lang.computation.GetLastChoiceIndex;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
+import tonkadur.wyrd.v1.lang.computation.New;
 
 import tonkadur.wyrd.v1.lang.instruction.AddTextOption;
 import tonkadur.wyrd.v1.lang.instruction.AddEventOption;
@@ -2099,6 +2100,49 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       }
 
       result.add(new Remove(target));
+
+      cc.release_registers(result);
+   }
+
+   @Override
+   public void visit_allocate
+   (
+      final tonkadur.fate.v1.lang.instruction.Allocate n
+   )
+   throws Throwable
+   {
+      final ComputationCompiler cc;
+      final Address target;
+
+      cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(cc);
+
+      if (cc.has_init())
+      {
+         result.add(cc.get_init());
+      }
+
+      target = cc.get_address();
+
+      if (target == null)
+      {
+         System.err.println
+         (
+            "[P] Argument in (allocate "
+            + n.get_target()
+            + ") did not compile to a address."
+         );
+      }
+
+      result.add
+      (
+         new SetValue
+         (
+            target,
+            new New(TypeCompiler.compile(compiler, n.get_allocated_type()))
+         )
+      );
 
       cc.release_registers(result);
    }
