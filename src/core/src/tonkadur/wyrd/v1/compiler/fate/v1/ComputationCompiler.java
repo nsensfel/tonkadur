@@ -1308,6 +1308,113 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
+   public void visit_text_join
+   (
+      final tonkadur.fate.v1.lang.computation.TextJoin n
+   )
+   throws Throwable
+   {
+      final Register i, collection_size, accumulator;
+      final List<Instruction> while_body;
+      final List<Computation> next_chain;
+      final ComputationCompiler link_cc, collection_cc;
+
+      link_cc = new ComputationCompiler(compiler);
+      collection_cc = new ComputationCompiler(compiler);
+
+      n.get_link().get_visited_by(link_cc);
+      n.get_text_collection().get_visited_by(collection_cc);
+
+      assimilate(link_cc);
+      assimilate(collection_cc);
+
+      next_chain = new ArrayList<Computation>();
+      while_body = new ArrayList<Instruction>();
+
+      i = reserve(Type.INT);
+      collection_size = reserve(Type.INT);
+      accumulator = reserve(Type.TEXT);
+
+      init_instructions.add
+      (
+         new SetValue(i.get_address(), Constant.ONE)
+      );
+      init_instructions.add
+      (
+         new SetValue
+         (
+            collection_size.get_address(),
+            new Size(collection_cc.get_address())
+         )
+      );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            accumulator.get_address(),
+            new IfElseComputation
+            (
+               Operation.equals(collection_size.get_value(), Constant.ZERO),
+               new Text(new ArrayList<Computation>()),
+               new ValueOf
+               (
+                  new RelativeAddress
+                  (
+                     collection_cc.get_address(),
+                     new Cast(Constant.ZERO, Type.STRING),
+                     Type.TEXT
+                  )
+               )
+            )
+         )
+      );
+
+      next_chain.add(accumulator.get_value());
+      next_chain.add(link_cc.get_computation());
+      next_chain.add
+      (
+         new ValueOf
+         (
+            new RelativeAddress
+            (
+               collection_cc.get_address(),
+               new Cast(i.get_value(), Type.STRING),
+               Type.TEXT
+            )
+         )
+      );
+
+      while_body.add
+      (
+         new SetValue(accumulator.get_address(), new Text(next_chain))
+      );
+
+      while_body.add
+      (
+         new SetValue
+         (
+            i.get_address(),
+            Operation.plus(i.get_value(), Constant.ONE)
+         )
+      );
+
+      init_instructions.add
+      (
+         While.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            Operation.less_than(i.get_value(), collection_size.get_value()),
+            compiler.assembler().merge(while_body)
+         )
+      );
+
+      result_as_computation = accumulator.get_value();
+   }
+
+
+   @Override
    public void visit_extra_computation
    (
       final tonkadur.fate.v1.lang.computation.ExtraComputationInstance n

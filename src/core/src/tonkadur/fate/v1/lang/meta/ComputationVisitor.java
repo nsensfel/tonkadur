@@ -10,6 +10,9 @@ public interface ComputationVisitor
    public void visit_at_reference (final AtReference n)
    throws Throwable;
 
+   public void visit_text_join (final TextJoin n)
+   throws Throwable;
+
    public void visit_access (final Access n)
    throws Throwable;
 

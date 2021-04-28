@@ -2711,6 +2711,21 @@ returns [TextNode result]:
       $result = ValueToText.build(($sentence.result));
    }
 
+   | JOIN_KW value WS+ non_text_value WS* R_PAREN
+   {
+      $result =
+         TextJoin.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($JOIN_KW.getLine()),
+               ($JOIN_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($value.result)
+         );
+   }
+
    | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
    {
       final TextEffect effect;
@@ -3923,6 +3938,21 @@ returns [Computation result]
    | TEXT_KW paragraph WS* R_PAREN
    {
       $result = ($paragraph.result);
+   }
+
+   | JOIN_KW value WS+ non_text_value WS* R_PAREN
+   {
+      $result =
+         TextJoin.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($JOIN_KW.getLine()),
+               ($JOIN_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($value.result)
+         );
    }
 
    | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
