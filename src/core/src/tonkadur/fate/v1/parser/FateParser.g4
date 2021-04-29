@@ -2646,12 +2646,12 @@ returns [TextNode result]
    final List<TextNode> content = new ArrayList();
 }
 :
-   first=text
+   first=text_value
    {
       content.add(($first.result));
    }
    (
-      (WS+ next_a=text)
+      (WS+ next_a=text_value)
       {
          if (!(content.get(content.size() - 1) instanceof Newline))
          {
@@ -2671,7 +2671,7 @@ returns [TextNode result]
          content.add(($next_a.result));
       }
       |
-      (next_b=text)
+      (next_b=text_value)
       {
          content.add(($next_b.result));
       }
@@ -2704,11 +2704,11 @@ catch [final Throwable e]
    }
 }
 
-text
+actual_text_value
 returns [TextNode result]:
-   sentence
+   TEXT_KW paragraph WS* R_PAREN
    {
-      $result = ValueToText.build(($sentence.result));
+      $result = ($paragraph.result);
    }
 
    | JOIN_KW value WS+ non_text_value WS* R_PAREN
@@ -2802,6 +2802,25 @@ returns [TextNode result]:
             )
          );
    }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
+
+value_as_text
+returns [TextNode result]:
+   sentence
+   {
+      $result = ValueToText.build(($sentence.result));
+   }
 
    | non_text_value
    {
@@ -2820,6 +2839,29 @@ catch [final Throwable e]
    }
 }
 
+text_value
+returns [TextNode result]:
+   actual_text_value
+   {
+      $result = $actual_text_value.result;
+   }
+
+   | value_as_text
+   {
+      $result = $value_as_text.result;
+   }
+;
+catch [final Throwable e]
+{
+   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
+   {
+      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
+   }
+   else
+   {
+      throw new ParseCancellationException(e);
+   }
+}
 sentence
 returns [Computation result]
 @init
@@ -3935,101 +3977,9 @@ returns [Computation result]
       $result = ($sentence.result);
    }
 
-   | TEXT_KW paragraph WS* R_PAREN
+   | actual_text_value
    {
-      $result = ($paragraph.result);
-   }
-
-   | JOIN_KW value WS+ non_text_value WS* R_PAREN
-   {
-      $result =
-         TextJoin.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($JOIN_KW.getLine()),
-               ($JOIN_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value.result)
-         );
-   }
-
-   | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
-   {
-      final TextEffect effect;
-
-      effect =
-         WORLD.text_effects().get
-         (
-            CONTEXT.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
-
-      $result =
-         TextWithEffect.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            effect,
-            new ArrayList<Computation>(),
-            ($paragraph.result)
-         );
-   }
-
-   | ENABLE_TEXT_EFFECT_KW
-      L_PAREN
-         WORD WS+
-         value_list WS*
-      R_PAREN WS+
-      paragraph WS*
-      R_PAREN
-   {
-      final TextEffect effect;
-
-      effect =
-         WORLD.text_effects().get
-         (
-            CONTEXT.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
-
-      $result =
-         TextWithEffect.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ENABLE_TEXT_EFFECT_KW.getLine()),
-               ($ENABLE_TEXT_EFFECT_KW.getCharPositionInLine())
-            ),
-            effect,
-            ($value_list.result),
-            ($paragraph.result)
-         );
-   }
-
-   | NEWLINE_KW
-   {
-      $result =
-         new Newline
-         (
-            CONTEXT.get_origin_at
-            (
-               ($NEWLINE_KW.getLine()),
-               ($NEWLINE_KW.getCharPositionInLine())
-            )
-         );
+      $result = ($actual_text_value.result);
    }
 
    | non_text_value

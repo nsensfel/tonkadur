@@ -55,7 +55,7 @@ END_KW: L_PAREN 'end)';
 EQUALS_KW: L_PAREN ('equals'|'='|'=='|'eq') SEP+;
 EXTENSION_FIRST_LEVEL_KW: L_PAREN '@';
 EXTRA_INSTRUCTION_KW: L_PAREN '#';
-JOIN_KW: L_PAREN 'join' SEP+;
+JOIN_KW: L_PAREN ('text'US)? 'join' SEP+;
 EXTRA_COMPUTATION_KW: L_PAREN '$';
 FALSE_KW: L_PAREN 'false)';
 IGNORE_ERROR_KW: L_PAREN 'ignore'US('error'|'warning') SEP+;
