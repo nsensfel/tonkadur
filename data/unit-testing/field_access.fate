@@ -2,7 +2,7 @@
 
 (global string test_name)
 
-(set test_name ( FIELD ACCESS ))
+(set! test_name ( FIELD ACCESS ))
 
 (declare_structure test_struct_type0
    (int i)
@@ -59,7 +59,7 @@
    (lts (add (var ts0_0) (add (var ts0_1) (default (list test_struct_type0)))))
 )
 
-(set ts2_0
+(set! ts2_0
    (set_fields (default test_struct_type2)
       (i -1337)
       (ts0 (var ts0_0))
@@ -67,7 +67,7 @@
    )
 )
 
-(assert
+(assert!
    (= (get_field i ts0_0) (var ts0_0.i) (get_field k ts0_1) (var ts0_1.k) 42)
    [FAILED] (var test_name) Test 0.
    (newline)
@@ -76,7 +76,7 @@
    ts0_1.k = (var ts0_1.k)
 )
 
-(assert
+(assert!
    (= (get_field i ts0_1) (var ts0_1.i) (get_field k ts0_0) (var ts0_0.k) 420)
    [FAILED] (var test_name) Test 1.
    (newline)
@@ -85,7 +85,7 @@
    ts0_1.i = (var ts0_1.i)
 )
 
-(assert
+(assert!
    (=
       (field i ts0_1)
       (get_field i (set_fields ts1_0 (i 420)))
@@ -97,4 +97,4 @@
 
 [COMPLETED] (var test_name)
 
-(end)
+(end!)

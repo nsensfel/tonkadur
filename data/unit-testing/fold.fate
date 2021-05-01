@@ -2,13 +2,13 @@
 
 (global string test_name)
 
-(set test_name ( FOLD ))
+(set! test_name ( FOLD ))
 
 (global (list int) 0to10)
 
-(set 0to10 (range 0 10 1))
+(set! 0to10 (range 0 10 1))
 
-(assert
+(assert!
    (= 55
       (foldl
          (lambda ((int res) (int e)) (+ res e))
@@ -41,7 +41,7 @@
 (global (list int) 10to0_0)
 (global (list int) 10to0_1)
 
-(set 10to0_0
+(set! 10to0_0
    (foldr
       (lambda (((list int) res) (int e))
          (add (- e 10) res)
@@ -51,7 +51,7 @@
    )
 )
 
-(set 10to0_1
+(set! 10to0_1
    (foldr
       (lambda (((list int) res) (int e) (int mod))
          (add (- e mod) res)
@@ -62,67 +62,67 @@
    )
 )
 
-(assert
+(assert!
    (= 10 (var 10to0_0.0) (var 10to0_1.0))
    [FAILED] (var test_name) 10to0.0:(newline)
    (var 10to0_0.0), (var 10to0_1.0)
 )
 
-(assert
+(assert!
    (= 9 (var 10to0_0.1) (var 10to0_1.1))
    [FAILED] (var test_name) 10to0.1:(newline)
    (var 10to0_0.1), (var 10to0_1.1)
 )
 
-(assert
+(assert!
    (= 8 (var 10to0_0.2) (var 10to0_1.2))
    [FAILED] (var test_name) 10to0.2:(newline)
    (var 10to0_0.2), (var 10to0_1.2)
 )
 
-(assert
+(assert!
    (= 7 (var 10to0_0.3) (var 10to0_1.3))
    [FAILED] (var test_name) 10to0.3:(newline)
    (var 10to0_0.3), (var 10to0_1.3)
 )
 
-(assert
+(assert!
    (= 6 (var 10to0_0.4) (var 10to0_1.4))
    [FAILED] (var test_name) 10to0.4:(newline)
    (var 10to0_0.4), (var 10to0_1.4)
 )
 
-(assert
+(assert!
    (= 5 (var 10to0_0.5) (var 10to0_1.5))
    [FAILED] (var test_name) 10to0.5:(newline)
    (var 10to0_0.5), (var 10to0_1.5)
 )
 
-(assert
+(assert!
    (= 4 (var 10to0_0.6) (var 10to0_1.6))
    [FAILED] (var test_name) 10to0.6:(newline)
    (var 10to0_0.6), (var 10to0_1.6)
 )
 
-(assert
+(assert!
    (= 3 (var 10to0_0.7) (var 10to0_1.7))
    [FAILED] (var test_name) 10to0.7:(newline)
    (var 10to0_0.7), (var 10to0_1.7)
 )
 
-(assert
+(assert!
    (= 2 (var 10to0_0.8) (var 10to0_1.8))
    [FAILED] (var test_name) 10to0.8:(newline)
    (var 10to0_0.8), (var 10to0_1.8)
 )
 
-(assert
+(assert!
    (= 1 (var 10to0_0.9) (var 10to0_1.9))
    [FAILED] (var test_name) 10to0.9:(newline)
    (var 10to0_0.9), (var 10to0_1.9)
 )
 
-(assert
+(assert!
    (= 0 (var 10to0_0.10) (var 10to0_1.10))
    [FAILED] (var test_name) 10to0.10:(newline)
    (var 10to0_0.10), (var 10to0_1.10)
@@ -131,7 +131,7 @@
 (global (list int) 10to20_0)
 (global (list int) 10to20_1)
 
-(set 10to20_0
+(set! 10to20_0
    (foldl
       (lambda (((list int) res) (int e))
          (add (- e 10) res)
@@ -141,7 +141,7 @@
    )
 )
 
-(set 10to20_1
+(set! 10to20_1
    (foldl
       (lambda (((list int) res) (int e) (int mod))
          (add (- e mod) res)
@@ -152,67 +152,67 @@
    )
 )
 
-(assert
+(assert!
    (= 10 (var 10to20_0.0) (var 10to20_1.0))
    [FAILED] (var test_name) 10to20.0: (newline)
    (var 10to20_0.0), (var 10to20_1.0)
 )
 
-(assert
+(assert!
    (= 11 (var 10to20_0.1) (var 10to20_1.1))
    [FAILED] (var test_name) 10to20.1: (newline)
    (var 10to20_0.1), (var 10to20_1.1)
 )
 
-(assert
+(assert!
    (= 12 (var 10to20_0.2) (var 10to20_1.2))
    [FAILED] (var test_name) 10to20.2: (newline)
    (var 10to20_0.2), (var 10to20_1.2)
 )
 
-(assert
+(assert!
    (= 13 (var 10to20_0.3) (var 10to20_1.3))
    [FAILED] (var test_name) 10to20.3: (newline)
    (var 10to20_0.3), (var 10to20_1.3)
 )
 
-(assert
+(assert!
    (= 14 (var 10to20_0.4) (var 10to20_1.4))
    [FAILED] (var test_name) 10to20.4: (newline)
    (var 10to20_0.4), (var 10to20_1.4)
 )
 
-(assert
+(assert!
    (= 15 (var 10to20_0.5) (var 10to20_1.5))
    [FAILED] (var test_name) 10to20.5: (newline)
    (var 10to20_0.5), (var 10to20_1.5)
 )
 
-(assert
+(assert!
    (= 16 (var 10to20_0.6) (var 10to20_1.6))
    [FAILED] (var test_name) 10to20.6: (newline)
    (var 10to20_0.6), (var 10to20_1.6)
 )
 
-(assert
+(assert!
    (= 17 (var 10to20_0.7) (var 10to20_1.7))
    [FAILED] (var test_name) 10to20.7: (newline)
    (var 10to20_0.7), (var 10to20_1.7)
 )
 
-(assert
+(assert!
    (= 18 (var 10to20_0.8) (var 10to20_1.8))
    [FAILED] (var test_name) 10to20.8: (newline)
    (var 10to20_0.8), (var 10to20_1.8)
 )
 
-(assert
+(assert!
    (= 19 (var 10to20_0.9) (var 10to20_1.9))
    [FAILED] (var test_name) 10to20.9: (newline)
    (var 10to20_0.9), (var 10to20_1.9)
 )
 
-(assert
+(assert!
    (= 20 (var 10to20_0.10) (var 10to20_1.10))
    [FAILED] (var test_name) 10to20.10: (newline)
    (var 10to20_0.10), (var 10to20_1.10)
@@ -220,4 +220,4 @@
 
 [COMPLETED] (var test_name)
 
-(end)
+(end!)

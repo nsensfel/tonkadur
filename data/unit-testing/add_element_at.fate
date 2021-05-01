@@ -2,19 +2,19 @@
 
 (global string test_name)
 
-(set test_name ( ADD ELEMENT AT ))
+(set! test_name ( ADD ELEMENT AT ))
 
 (global (list int) li0)
 (global (list int) li1)
 
-(set li0 (add_element_at 0 0 li0))
-(set li0 (add_element_at 1 1 li0))
-(set li0 (add_element_at 2 2 li0))
-(set li0 (add_element_at 0 -1 li0))
-(set li0 (add_element_at 0 -3 li0))
-(set li0 (add_element_at 1 -2 li0))
-(set li0 (add_element_at 44 3 li0))
-(set li0 (add_element_at -44 -4 li0))
+(set! li0 (add_element_at 0 0 li0))
+(set! li0 (add_element_at 1 1 li0))
+(set! li0 (add_element_at 2 2 li0))
+(set! li0 (add_element_at 0 -1 li0))
+(set! li0 (add_element_at 0 -3 li0))
+(set! li0 (add_element_at 1 -2 li0))
+(set! li0 (add_element_at 44 3 li0))
+(set! li0 (add_element_at -44 -4 li0))
 
 (add_element_at! 0 0 li1)
 (add_element_at! 1 1 li1)
@@ -25,17 +25,17 @@
 (add_element_at! 44 3 li1)
 (add_element_at! -44 -4 li1)
 
-(assert (= (var li0) (var li1)) [FAILED] (var test_name) equality.)
+(assert! (= (var li0) (var li1)) [FAILED] (var test_name) equality.)
 
-(assert (= (var li0.0) (var li1.0) -4) [FAILED] (var test_name) at 0: (var li0.0), (var li1.0).)
-(assert (= (var li0.1) (var li1.1) -3) [FAILED] (var test_name) at 1: (var li0.1), (var li1.1).)
-(assert (= (var li0.2) (var li1.2) -2) [FAILED] (var test_name) at 2: (var li0.2), (var li1.2).)
-(assert (= (var li0.3) (var li1.3) -1) [FAILED] (var test_name) at 3: (var li0.3), (var li1.3).)
-(assert (= (var li0.4) (var li1.4) 0) [FAILED] (var test_name) at 4: (var li0.4), (var li1.4).)
-(assert (= (var li0.5) (var li1.5) 1) [FAILED] (var test_name) at 5: (var li0.5), (var li1.5).)
-(assert (= (var li0.6) (var li1.6) 2) [FAILED] (var test_name) at 6: (var li0.6), (var li1.6).)
-(assert (= (var li0.7) (var li1.7) 3) [FAILED] (var test_name) at 7: (var li0.7), (var li1.7).)
+(assert! (= (var li0.0) (var li1.0) -4) [FAILED] (var test_name) at 0: (var li0.0), (var li1.0).)
+(assert! (= (var li0.1) (var li1.1) -3) [FAILED] (var test_name) at 1: (var li0.1), (var li1.1).)
+(assert! (= (var li0.2) (var li1.2) -2) [FAILED] (var test_name) at 2: (var li0.2), (var li1.2).)
+(assert! (= (var li0.3) (var li1.3) -1) [FAILED] (var test_name) at 3: (var li0.3), (var li1.3).)
+(assert! (= (var li0.4) (var li1.4) 0) [FAILED] (var test_name) at 4: (var li0.4), (var li1.4).)
+(assert! (= (var li0.5) (var li1.5) 1) [FAILED] (var test_name) at 5: (var li0.5), (var li1.5).)
+(assert! (= (var li0.6) (var li1.6) 2) [FAILED] (var test_name) at 6: (var li0.6), (var li1.6).)
+(assert! (= (var li0.7) (var li1.7) 3) [FAILED] (var test_name) at 7: (var li0.7), (var li1.7).)
 
 [COMPLETED] (var test_name)
 
-(end)
+(end!)

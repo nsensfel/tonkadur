@@ -2,7 +2,7 @@
 
 (global string test_name)
 
-(set test_name ( COND ))
+(set! test_name ( COND ))
 
 (global bool test)
 
@@ -11,138 +11,138 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (cond
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 0.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 0.)
    )
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(set test (false))
+(set! test (false))
 
 (cond
    ((true)
-      (set test (true))
+      (set! test (true))
    )
 )
 
-(assert test [FAILED] (var test_name) Ignored correct branch 0.)
+(assert! test [FAILED] (var test_name) Ignored correct branch 0.)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(set test (false))
+(set! test (false))
 
 (cond
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 1.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 1.)
    )
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 2.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 2.)
    )
    ((true)
-      (set test (true))
+      (set! test (true))
    )
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 3.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 3.)
    )
 )
 
-(assert test [FAILED] (var test_name) Ignored correct branch 1.)
+(assert! test [FAILED] (var test_name) Ignored correct branch 1.)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(set test (false))
+(set! test (false))
 
 (cond
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 4.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 4.)
    )
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 5.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 5.)
    )
    ((true)
-      (set test (true))
+      (set! test (true))
    )
    ((true)
-      (assert (false) [FAILED] (var test_name) Reached dead code 6.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 6.)
    )
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 7.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 7.)
    )
 )
 
-(assert test [FAILED] (var test_name) Ignored correct branch 2.)
+(assert! test [FAILED] (var test_name) Ignored correct branch 2.)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(set test (false))
+(set! test (false))
 
 (cond
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 8.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 8.)
    )
    ((false)
-      (assert (false) [FAILED] (var test_name) Reached dead code 9.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 9.)
    )
    ((true)
-      (set test (true))
+      (set! test (true))
    )
    ((true)
-      (assert (false) [FAILED] (var test_name) Reached dead code 10.)
+      (assert! (false) [FAILED] (var test_name) Reached dead code 10.)
    )
 )
 
-(assert test [FAILED] (var test_name) Ignored correct branch 3.)
+(assert! test [FAILED] (var test_name) Ignored correct branch 3.)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(set test (false))
+(set! test (false))
 
 (cond
    ((false)
       (cond
          ((true)
-            (assert (false) [FAILED] (var test_name) Reached dead code 11.)
+            (assert! (false) [FAILED] (var test_name) Reached dead code 11.)
          )
       )
    )
    ((false)
       (cond
          ((true)
-            (assert (false) [FAILED] (var test_name) Reached dead code 12.)
+            (assert! (false) [FAILED] (var test_name) Reached dead code 12.)
          )
       )
    )
    ((true)
       (cond
          ((true)
-            (set test (true))
+            (set! test (true))
          )
          ((false)
-            (assert (false) [FAILED] (var test_name) Reached dead code 13.)
+            (assert! (false) [FAILED] (var test_name) Reached dead code 13.)
          )
       )
    )
    ((true)
       (cond
          ((true)
-            (assert (false) [FAILED] (var test_name) Reached dead code 14.)
+            (assert! (false) [FAILED] (var test_name) Reached dead code 14.)
          )
       )
    )
 )
 
-(assert test [FAILED] (var test_name) Ignored correct branch 4.)
+(assert! test [FAILED] (var test_name) Ignored correct branch 4.)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; COMPUTATION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(assert
+(assert!
    (cond ((false) (true)))
    [FAILED] (var test_name) Questionable default value.
 )
 
-(assert
+(assert!
    (cond ((true) (true)))
    [FAILED] (var test_name) Simple computation test 0.
 )
 
-(assert
+(assert!
    (cond
       ((false) (true))
       ((true) (true))
@@ -150,7 +150,7 @@
    [FAILED] (var test_name) Simple computation test 1.
 )
 
-(assert
+(assert!
    (cond
       ((true) (true))
       ((false) (true))
@@ -158,7 +158,7 @@
    [FAILED] (var test_name) Simple computation test 2.
 )
 
-(assert
+(assert!
    (cond
       (
          (cond
@@ -176,4 +176,4 @@
 
 [COMPLETED] (var test_name)
 
-(end)
+(end!)

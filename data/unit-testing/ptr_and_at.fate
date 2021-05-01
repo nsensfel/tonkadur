@@ -2,7 +2,7 @@
 
 (global string test_name)
 
-(set test_name ( PTR AND AT ))
+(set! test_name ( PTR AND AT ))
 
 (global int i)
 (global int j)
@@ -39,35 +39,35 @@
 
 (global (list test_struct1) test_struct1_list)
 
-(set i 100)
-(set j 2000)
+(set! i 100)
+(set! j 2000)
 
-(set i_ptr (ptr i))
-(set j_ptr (ptr j))
+(set! i_ptr (ptr i))
+(set! j_ptr (ptr j))
 
-(set int_ptr_ptr (ptr i_ptr))
+(set! int_ptr_ptr (ptr i_ptr))
 
-(assert (= (var i) (at i_ptr) (at (at int_ptr_ptr))) [FAILED] (var test_name) equality 0.)
+(assert! (= (var i) (at i_ptr) (at (at int_ptr_ptr))) [FAILED] (var test_name) equality 0.)
 
-(set i_ptr (ptr j))
+(set! i_ptr (ptr j))
 
-(assert (= (var j) (at i_ptr) (at (at int_ptr_ptr))) [FAILED] (var test_name) equality 1.)
+(assert! (= (var j) (at i_ptr) (at (at int_ptr_ptr))) [FAILED] (var test_name) equality 1.)
 
 (global int b)
 
-(set j_ptr (ptr b))
+(set! j_ptr (ptr b))
 
-(set (at j_ptr) (at (at int_ptr_ptr)))
+(set! (at j_ptr) (at (at int_ptr_ptr)))
 
-(assert (= (var b) (var j) (at i_ptr) (at (at int_ptr_ptr))) [FAILED] (var test_name) equality 2.)
+(assert! (= (var b) (var j) (at i_ptr) (at (at int_ptr_ptr))) [FAILED] (var test_name) equality 2.)
 
 (global (ptr int) b_ptr)
-(set i 100)
-(set j 2000)
-(set i_ptr (ptr i))
-(set j_ptr (ptr j))
-(set b_ptr (ptr b))
-(set int_ptr_ptr (ptr b_ptr))
+(set! i 100)
+(set! j 2000)
+(set! i_ptr (ptr i))
+(set! j_ptr (ptr j))
+(set! b_ptr (ptr b))
+(set! int_ptr_ptr (ptr b_ptr))
 
 (global test_struct0 ts0)
 
@@ -86,12 +86,12 @@
 (add! (var ts0.int_ptr0) ts0.int_ptr_list)
 (add! (var ts0.int_ptr1) ts0.int_ptr_list)
 
-(assert (= (var ts0.int_ptr_list.0) (var i_ptr) (ptr i)) [FAILED] (var test_name) equality 3.)
-(assert (= (var ts0.int_ptr_list.1) (var j_ptr) (ptr j)) [FAILED] (var test_name) equality 4.)
-(assert (= (var ts0.int_ptr_list.2) (var b_ptr) (ptr b)) [FAILED] (var test_name) equality 5.)
-(assert (= (at ts0.int_ptr_list.3) (at ts0.int_ptr0) (at (ptr ts0.int0)) (var ts0.int0)) [FAILED] (var test_name) equality 6.)
-(assert (= (at ts0.int_ptr_list.4) (at ts0.int_ptr1) (at (ptr ts0.int1)) (var ts0.int1)) [FAILED] (var test_name) equality 7.)
+(assert! (= (var ts0.int_ptr_list.0) (var i_ptr) (ptr i)) [FAILED] (var test_name) equality 3.)
+(assert! (= (var ts0.int_ptr_list.1) (var j_ptr) (ptr j)) [FAILED] (var test_name) equality 4.)
+(assert! (= (var ts0.int_ptr_list.2) (var b_ptr) (ptr b)) [FAILED] (var test_name) equality 5.)
+(assert! (= (at ts0.int_ptr_list.3) (at ts0.int_ptr0) (at (ptr ts0.int0)) (var ts0.int0)) [FAILED] (var test_name) equality 6.)
+(assert! (= (at ts0.int_ptr_list.4) (at ts0.int_ptr1) (at (ptr ts0.int1)) (var ts0.int1)) [FAILED] (var test_name) equality 7.)
 
 [COMPLETED] (var test_name)
 
-(end)
+(end!)

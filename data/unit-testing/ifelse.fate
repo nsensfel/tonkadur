@@ -2,50 +2,50 @@
 
 (global string test_name)
 
-(set test_name ( IF ELSE ))
+(set! test_name ( IF ELSE ))
 
 
 (if (false)
-   (assert (false) [FAILED] (var test_name) Executing dead code 0.)
+   (assert! (false) [FAILED] (var test_name) Executing dead code 0.)
 )
 
 (global bool test)
 
-(set test (false))
+(set! test (false))
 
 (ifelse (false)
-   (assert (false) [FAILED] (var test_name) Executing dead code 1.)
-   (set test (true))
+   (assert! (false) [FAILED] (var test_name) Executing dead code 1.)
+   (set! test (true))
 )
 
-(assert test [FAILED] (var test_name) ignored valid branch 0.)
+(assert! test [FAILED] (var test_name) ignored valid branch 0.)
 
 (if (false)
-   (assert (false) [FAILED] (var test_name) Executing dead code 2.)
-   (set test (false))
+   (assert! (false) [FAILED] (var test_name) Executing dead code 2.)
+   (set! test (false))
 )
 
-(assert test [FAILED] (var test_name) Executing dead code 3.)
+(assert! test [FAILED] (var test_name) Executing dead code 3.)
 
-(set test
+(set! test
    (ifelse (false)
       (false)
       (true)
    )
 )
 
-(assert test [FAILED] (var test_name) Executing dead code 4.)
+(assert! test [FAILED] (var test_name) Executing dead code 4.)
 
-(set test
+(set! test
    (ifelse (true)
       (true)
       (false)
    )
 )
 
-(assert test [FAILED] (var test_name) Executing dead code 5.)
+(assert! test [FAILED] (var test_name) Executing dead code 5.)
 
-(assert
+(assert!
    (=
       (ifelse (= 8 (+ 4 4))
          ( valid string )
@@ -58,4 +58,4 @@
 
 [COMPLETED] (var test_name)
 
-(end)
+(end!)

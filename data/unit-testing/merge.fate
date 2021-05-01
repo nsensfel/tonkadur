@@ -2,7 +2,7 @@
 
 (global string test_name)
 
-(set test_name ( MERGE ))
+(set! test_name ( MERGE ))
 
 (local int i)
 (local int j)
@@ -19,7 +19,7 @@
 (global (list int) li1oa)
 (global (list int) li1ob)
 
-(set li0
+(set! li0
    (merge_to_list
       (lambda
          (
@@ -33,7 +33,7 @@
    )
 )
 
-(set li0oa
+(set! li0oa
    (merge_to_list
       (lambda
          (
@@ -47,7 +47,7 @@
    )
 )
 
-(set li0ob
+(set! li0ob
    (merge_to_list
       (lambda
          (
@@ -61,9 +61,9 @@
    )
 )
 
-(set li1 (range 10 40 1))
-(set li1oa (range 10 60 1))
-(set li1ob (range 10 40 1))
+(set! li1 (range 10 40 1))
+(set! li1oa (range 10 60 1))
+(set! li1ob (range 10 40 1))
 
 (merge!
    (lambda
@@ -101,13 +101,13 @@
    li1ob
 )
 
-(assert
+(assert!
    (= (var li1) (var li0) (var li0oa) (var li0ob) (var li1oa) (var li1ob))
    [FAILED] (var test_name) Equality test 0.
 )
 
-(for (set i 0) (=< i 30) (set i (+ i 1))
-   (assert
+(for (set! i 0) (=< i 30) (set! i (+ i 1))
+   (assert!
       (=
          (- (+ 10 i) (* 2 i))
          (access i li0)
@@ -138,7 +138,7 @@
 (global (set int) si1oa)
 (global (set int) si1ob)
 
-(set si0
+(set! si0
    (merge_to_set
       (lambda
          (
@@ -152,7 +152,7 @@
    )
 )
 
-(set si0oa
+(set! si0oa
    (merge_to_set
       (lambda
          (
@@ -166,7 +166,7 @@
    )
 )
 
-(set si0ob
+(set! si0ob
    (merge_to_set
       (lambda
          (
@@ -220,22 +220,22 @@
    si1ob
 )
 
-(assert
+(assert!
    (= (var si0) (var si0oa) (var si0ob) (var si1) (var si1oa) (var si1ob))
    [FAILED] (var test_name) Equality test 1.
 )
 
 (for
    (
-      (set i 0)
-      (set j 30)
+      (set! i 0)
+      (set! j 30)
    )
    (=< i 30)
    (
-      (set i (+ i 1))
-      (set j (- j 1))
+      (set! i (+ i 1))
+      (set! j (- j 1))
    )
-   (assert
+   (assert!
       (=
          (- (+ 10 j) (* 2 j))
          (access i si0)
@@ -266,7 +266,7 @@
 (global (set int) si3oa)
 (global (set int) si3ob)
 
-(set si2
+(set! si2
    (merge_to_set
       (lambda
          (
@@ -282,7 +282,7 @@
    )
 )
 
-(set si2oa
+(set! si2oa
    (merge_to_set
       (lambda
          (
@@ -298,7 +298,7 @@
    )
 )
 
-(set si2ob
+(set! si2ob
    (merge_to_set
       (lambda
          (
@@ -360,16 +360,16 @@
    -1
 )
 
-(assert
+(assert!
    (= (var si2) (var si2oa) (var si2ob) (var si3) (var si3oa) (var si3ob))
    [FAILED] (var test_name) Equality test 2.
 )
 
 (for
-   (set i 0)
+   (set! i 0)
    (=< i 30)
-   (set i (+ i 1))
-   (assert
+   (set! i (+ i 1))
+   (assert!
       (=
          (* (- (+ 10 i) (* 2 i)) -1)
          (access i si2)
@@ -400,7 +400,7 @@
 (global (list int) ili1oa)
 (global (list int) ili1ob)
 
-(set ili0
+(set! ili0
    (indexed_merge_to_list
       (lambda
          (
@@ -415,7 +415,7 @@
    )
 )
 
-(set ili0oa
+(set! ili0oa
    (indexed_merge_to_list
       (lambda
          (
@@ -430,7 +430,7 @@
    )
 )
 
-(set ili0ob
+(set! ili0ob
    (indexed_merge_to_list
       (lambda
          (
@@ -445,9 +445,9 @@
    )
 )
 
-(set ili1 (range 10 40 1))
-(set ili1oa (range 10 60 1))
-(set ili1ob (range 10 40 1))
+(set! ili1 (range 10 40 1))
+(set! ili1oa (range 10 60 1))
+(set! ili1ob (range 10 40 1))
 
 (indexed_merge!
    (lambda
@@ -488,13 +488,13 @@
    ili1ob
 )
 
-(assert
+(assert!
    (= (var ili1) (var ili0) (var ili0oa) (var ili0ob) (var ili1oa) (var ili1ob))
    [FAILED] (var test_name) Equality test indexed 0.
 )
 
-(for (set i 0) (=< i 30) (set i (+ i 1))
-   (assert
+(for (set! i 0) (=< i 30) (set! i (+ i 1))
+   (assert!
       (=
          (* (- (+ 10 i) (* 2 i)) i)
          (access i ili0)
@@ -519,9 +519,9 @@
 ;;; INDEXED TEST 1 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 For reference, the values found in the sets are:
-(for (set i 0) (=< i 30) (set i (+ i 1))
+(for (set! i 0) (=< i 30) (set! i (+ i 1))
    (local int o)
-   (set o (* (- (+ 10 i) (* 2 i)) (+ i 1)))
+   (set! o (* (- (+ 10 i) (* 2 i)) (+ i 1)))
    (var o) (newline)
    (add! (var o) oracle_set)
 )
@@ -533,7 +533,7 @@ For reference, the values found in the sets are:
 (global (set int) isi1oa)
 (global (set int) isi1ob)
 
-(set isi0
+(set! isi0
    (indexed_merge_to_set
       (lambda
          (
@@ -548,7 +548,7 @@ For reference, the values found in the sets are:
    )
 )
 
-(set isi0oa
+(set! isi0oa
    (indexed_merge_to_set
       (lambda
          (
@@ -563,7 +563,7 @@ For reference, the values found in the sets are:
    )
 )
 
-(set isi0ob
+(set! isi0ob
    (indexed_merge_to_set
       (lambda
          (
@@ -621,13 +621,13 @@ For reference, the values found in the sets are:
    isi1ob
 )
 
-(assert
+(assert!
    (= (var isi0) (var isi0oa) (var isi0ob) (var isi1) (var isi1oa) (var isi1ob))
    [FAILED] (var test_name) Equality test indexed 1.
 )
 
-(for (set i (- (size oracle_set) 1)) (>= i 0) (set i (- i 1))
-   (assert
+(for (set! i (- (size oracle_set) 1)) (>= i 0) (set! i (- i 1))
+   (assert!
       (=
          (access i oracle_set)
          (access i isi0)
@@ -648,16 +648,16 @@ For reference, the values found in the sets are:
    )
 )
 
-(clear oracle_set)
+(clear! oracle_set)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; INDEXED TEST 2 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 For reference, the values found in the sets are:
-(for (set i 0) (=< i 30) (set i (+ i 1))
+(for (set! i 0) (=< i 30) (set! i (+ i 1))
    (local int o)
-   (set o (* (- (+ 10 i) (* 2 i)) -1 (+ i 1)))
+   (set! o (* (- (+ 10 i) (* 2 i)) -1 (+ i 1)))
    (var o) (newline)
    (add! (var o) oracle_set)
 )
@@ -669,7 +669,7 @@ For reference, the values found in the sets are:
 (global (set int) isi3oa)
 (global (set int) isi3ob)
 
-(set isi2
+(set! isi2
    (indexed_merge_to_set
       (lambda
          (
@@ -686,7 +686,7 @@ For reference, the values found in the sets are:
    )
 )
 
-(set isi2oa
+(set! isi2oa
    (indexed_merge_to_set
       (lambda
          (
@@ -703,7 +703,7 @@ For reference, the values found in the sets are:
    )
 )
 
-(set isi2ob
+(set! isi2ob
    (indexed_merge_to_set
       (lambda
          (
@@ -769,13 +769,13 @@ For reference, the values found in the sets are:
    -1
 )
 
-(assert
+(assert!
    (= (var isi2) (var isi2oa) (var isi2ob) (var isi3) (var isi3oa) (var isi3ob))
    [FAILED] (var test_name) Equality test indexed 2.
 )
 
-(for (set i (- (size oracle_set) 1)) (>= i 0) (set i (- i 1))
-   (assert
+(for (set! i (- (size oracle_set) 1)) (>= i 0) (set! i (- i 1))
+   (assert!
       (=
          (access i oracle_set)
          (access i isi2)
@@ -804,7 +804,7 @@ For reference, the values found in the sets are:
 (global (list int) sli2)
 (global (list int) sli3)
 
-(set sli0
+(set! sli0
    (safe_merge_to_list
       (lambda
          (
@@ -820,7 +820,7 @@ For reference, the values found in the sets are:
    )
 )
 
-(set sli1
+(set! sli1
    (safe_merge_to_list
       (lambda
          (
@@ -836,18 +836,18 @@ For reference, the values found in the sets are:
    )
 )
 
-(for (set i 0) (=< i 10) (set i (+ i 1))
-   (assert
+(for (set! i 0) (=< i 10) (set! i (+ i 1))
+   (assert!
       (= (access i sli0) (access i sli1) (- i 1))
       [FAILED] (var test_name) Equality test safe 0.
    )
 )
 
-(assert
+(assert!
    (= (var sli0) (var sli1))
    [FAILED] (var test_name) Equality test safe 0.
 )
 
 [COMPLETED] (var test_name)
 
-(end)
+(end!)
