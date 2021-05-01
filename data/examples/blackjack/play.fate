@@ -10,7 +10,7 @@
 (global int bet)
 (global bool has_doubled)
 
-(set has_played (false))
+(set! has_played (false))
 
 (define_sequence play_a_game ()
    (local card new_card)
@@ -20,13 +20,13 @@
          Sitting yourself at a table, you see someone rushing to set up the
          cards and manage the game.
       )
-      (set has_played (true))
+      (set! has_played (true))
    )
    (if (= (var player.money) 0)
       I am sorry, (var player.name), but you appear to have ran out of coins.
-      (done)
+      (done!)
    )
-   (prompt_integer
+   (prompt_integer!
       (ptr bet)
       1
       (var player.money)
@@ -38,7 +38,7 @@
 
    (newline)
 
-   (set current_deck (shuffle deck_template))
+   (set! current_deck (shuffle deck_template))
 
    (pop_left! current_deck (ptr new_card))
    (add! (var new_card) player.hand)
@@ -74,26 +74,26 @@
       (newline)
    )
 
-   (visit initial_draw)
+   (visit! initial_draw)
 
-   (clear dealer_hand)
-   (clear player.hand)
+   (clear! dealer_hand)
+   (clear! player.hand)
 
    (newline)
    Interesting. Would you like to go again?
 
-   (player_choice
+   (player_choice!
       (option
          ( Yes, please. )
          Very well.
          (newline)
-         (jump_to play_a_game)
+         (jump_to! play_a_game)
       )
       (option
          ( No, thank you. )
          It was a pleasure to play with you. Farewell.
          (newline)
-         (done)
+         (done!)
       )
    )
 )
@@ -102,8 +102,8 @@
    (local int dealer_score)
    (local int player_score)
 
-   (visit compute_score (ptr dealer_hand) (ptr dealer_score))
-   (visit compute_score (ptr player.hand) (ptr player_score))
+   (visit! compute_score (ptr dealer_hand) (ptr dealer_score))
+   (visit! compute_score (ptr player.hand) (ptr player_score))
 
    (if (= (var dealer_score) 21)
       (text_effect action_description
@@ -127,7 +127,7 @@
             )
             (newline)
             Double Blackjack! A tie, then.
-            (done)
+            (done!)
          )
          (
             (text_effect action_description
@@ -135,8 +135,8 @@
             )
             (newline)
             Blackjack! Looks like I win, this time.
-            (visit money_loss (var bet))
-            (done)
+            (visit! money_loss (var bet))
+            (done!)
          )
       )
    )
@@ -148,26 +148,26 @@
       (newline)
       Blackjack! Looks like you win, this time.
       (newline)
-      (visit money_acquisition (cast int (* (cast float (var bet)) 1.5)))
-      (done)
+      (visit! money_acquisition (cast int (* (cast float (var bet)) 1.5)))
+      (done!)
    )
 
-   (player_choice
+   (player_choice!
       (option
          ( Another card, please. )
-         (set has_doubled (false))
-         (jump_to acquire_card)
+         (set! has_doubled (false))
+         (jump_to! acquire_card)
       )
       (option
          ( I will stand. )
-         (jump_to resolve_dealer)
+         (jump_to! resolve_dealer)
       )
       (if (and (>= player_score 9) (<= player_score 11))
          (option
             ( Double my bet, I'll only take one card. )
-            (set bet (* bet 2))
-            (set has_doubled (true))
-            (jump_to acquire_card)
+            (set! bet (* bet 2))
+            (set! has_doubled (true))
+            (jump_to! acquire_card)
          )
       )
    )
@@ -180,7 +180,7 @@
    (pop_left! current_deck (ptr new_card))
    (add! (var new_card) player.hand)
 
-   (visit compute_score (ptr player.hand) (ptr player_score))
+   (visit! compute_score (ptr player.hand) (ptr player_score))
 
    (text_effect action_description
       You have been dealt the (var new_card.name).
@@ -206,22 +206,22 @@
       (newline)
       A bust! What a shame...
       (newline)
-      (visit money_loss (var bet))
+      (visit! money_loss (var bet))
       (done)
    )
 
    (if (var has_doubled)
-      (jump_to resolve_dealer)
+      (jump_to! resolve_dealer)
    )
 
-   (player_choice
+   (player_choice!
       (option
          ( Another card, please. )
-         (jump_to acquire_card)
+         (jump_to! acquire_card)
       )
       (option
          ( This will do. I stand. )
-         (jump_to resolve_dealer)
+         (jump_to! resolve_dealer)
       )
    )
 )
@@ -229,7 +229,7 @@
 (define_sequence resolve_dealer ()
    (local int dealer_score)
    (local int player_score)
-   (visit compute_score (ptr dealer_hand) (ptr dealer_score))
+   (visit! compute_score (ptr dealer_hand) (ptr dealer_score))
 
    Very well. I shall now play my turn.
    (newline)
@@ -261,7 +261,7 @@
          (newline)
       )
 
-      (visit compute_score (ptr dealer_hand) (ptr dealer_score))
+      (visit! compute_score (ptr dealer_hand) (ptr dealer_score))
    )
 
    (if (> dealer_score 21)
@@ -271,11 +271,11 @@
       (newline)
       Ah. It would appear I have gone above the limit.
       (newline)
-      (visit money_acquisition (var bet))
-      (done)
+      (visit! money_acquisition (var bet))
+      (done!)
    )
 
-   (visit compute_score (ptr player.hand) (ptr player_score))
+   (visit! compute_score (ptr player.hand) (ptr player_score))
 
    (var player_score) for you, against (var dealer_score) for me.
 
@@ -283,21 +283,21 @@
 
    (if (= (var player_score) (var dealer_score))
       A tie, then.
-      (done)
+      (done!)
    )
 
    (if_else (> player_score dealer_score)
       (
          Congratulation, you won.
          (newline)
-         (visit money_acquisition (var bet))
-         (done)
+         (visit! money_acquisition (var bet))
+         (done!)
       )
       (
          It would appear I have won this game.
          (newline)
-         (visit money_loss (var bet))
-         (done)
+         (visit! money_loss (var bet))
+         (done!)
       )
    )
 )

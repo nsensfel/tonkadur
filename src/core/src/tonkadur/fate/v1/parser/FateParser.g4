@@ -357,6 +357,27 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
+   | DECLARE_EXTRA_TYPE_KW new_reference_name WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DECLARE_EXTRA_TYPE_KW.getLine()),
+            ($DECLARE_EXTRA_TYPE_KW.getCharPositionInLine())
+         );
+
+      WORLD.types().add
+      (
+         new ExtraType
+         (
+            start_origin,
+            ($new_reference_name.result)
+         )
+      );
+   }
+
    | DECLARE_EXTRA_INSTRUCTION_KW new_reference_name WS* R_PAREN
    {
       final Origin start_origin;

@@ -8,38 +8,38 @@
 
 (local int original_amount)
 
-(set player.money 0)
+(set! player.money 0)
 
 Welcome to Tonkadur's wonderful and totally original blackjack!
 Say, I don't think I've seen you before...
 No, no, I am sure I haven't, actually.
-(prompt_string (ptr player.name) 1 64 What's your name, then?)
+(prompt_string! (ptr player.name) 1 64 What's your name, then?)
 Alright, (var player.name), well, since it's your first time here, let me give
 you some coins.
 Just between you and me, someone left those laying around, they aren't mine.
 
-(visit money_acquisition (+ 100 (rand 0 100)))
-(set original_amount (var player.money))
+(visit! money_acquisition (+ 100 (rand 0 100)))
+(set! original_amount (var player.money))
 
 Now, you're all set to go... unless you don't know how to play?
 
-(player_choice
+(player_choice!
    (option ( As it happens, I do not. )
-      (visit rules_of_blackjack)
+      (visit! rules_of_blackjack)
       (text_effect action_description
          You leave the counter and approach one of the tables.
       )
-      (visit play_a_game)
+      (visit! play_a_game)
    )
    (event (escape)
       You suddenly disappear.
-      (end)
+      (end!)
    )
    (option ( I am familiar with BlackJack. )
       (text_effect action_description
          You leave the counter and approach one of the tables.
       )
-      (visit play_a_game)
+      (visit! play_a_game)
    )
 )
 (text_effect action_description
@@ -76,4 +76,4 @@ Now, you're all set to go... unless you don't know how to play?
    (eval coins_word (var player.money)).
 )
 
-(end)
+(end!)

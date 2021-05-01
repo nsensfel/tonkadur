@@ -11,6 +11,7 @@ import java.util.Set;
 import tonkadur.wyrd.v1.lang.Register;
 
 import tonkadur.wyrd.v1.lang.type.DictType;
+import tonkadur.wyrd.v1.lang.type.ExtraType;
 
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
@@ -24,6 +25,7 @@ public class World
 
    /* This solves the issue of using other yet undefined dict types. */
    protected final List<DictType> dict_types_in_order;
+   protected final Set<String> extra_types;
 
    protected final List<Instruction> code;
 
@@ -35,6 +37,7 @@ public class World
       sequence_labels = new HashMap<String, Integer>();
       dict_types = new HashMap<String, DictType>();
       dict_types_in_order = new ArrayList<DictType>();
+      extra_types = new HashSet<String>();
 
       code = new ArrayList<Instruction>();
    }
@@ -59,10 +62,20 @@ public class World
       return dict_types_in_order;
    }
 
+   public Set<String> get_extra_types ()
+   {
+      return extra_types;
+   }
+
    public void add_dict_type (final DictType dict_type)
    {
       dict_types.put(dict_type.get_name(), dict_type);
       dict_types_in_order.add(dict_type);
+   }
+
+   public void add_extra_type (final ExtraType type)
+   {
+      extra_types.add(type.get_name());
    }
 
    public Collection<Register> get_registers ()

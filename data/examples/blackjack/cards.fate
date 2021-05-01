@@ -8,7 +8,7 @@
 
 (local (lambda (list card) (string)) card_generator)
 
-(set card_generator
+(set! card_generator
    (lambda ( (string family) )
       (map
          (lambda
@@ -50,20 +50,20 @@
    (local int aces_count)
    (local int maybe_better_score)
 
-   (set (at result) 0)
+   (set! (at result) 0)
 
    (foreach (at deck) card
-      (set (at result) (+ card.score (at result)))
+      (set! (at result) (+ card.score (at result)))
       (if (= (var card.number) 1)
-         (set aces_count (+ aces_count 1))
+         (set! aces_count (+ aces_count 1))
       )
    )
 
    (while (> aces_count 0)
-      (set maybe_better_score (+ (at result) 10))
+      (set! maybe_better_score (+ (at result) 10))
       (if (=< maybe_better_score 21)
-         (set (at result) (var maybe_better_score))
+         (set! (at result) (var maybe_better_score))
       )
-      (set aces_count (- aces_count 1))
+      (set! aces_count (- aces_count 1))
    )
 )

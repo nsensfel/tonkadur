@@ -6,7 +6,7 @@
 
 (global (lambda text (int)) coins_word)
 
-(set coins_word
+(set! coins_word
    (lambda ((int i))
       (if_else (= (var i) 1)
          (text a single coin)
@@ -18,7 +18,7 @@
 (declare_text_effect action_description)
 
 (define_sequence money_acquisition ((int amount))
-   (set player.money (+ player.money amount))
+   (set! player.money (+ player.money amount))
    (if (> amount 0)
       (text_effect action_description
          You acquired (eval coins_word (var amount))!
@@ -27,7 +27,7 @@
 )
 
 (define_sequence money_loss ((int amount))
-   (set player.money (- player.money amount))
+   (set! player.money (- player.money amount))
    (if (> amount 0)
       (text_effect action_description
          You lost (eval coins_word (var amount)).

@@ -73,6 +73,17 @@ public class TypeCompiler
          return Type.INT;
       }
 
+      if (fate_type instanceof tonkadur.fate.v1.lang.type.ExtraType)
+      {
+         final ExtraType result;
+
+         result = new ExtraType(fate_type.get_base_type().get_name());
+
+         compiler.world().add_extra_type(result);
+
+         return result;
+      }
+
       fate_type = fate_type.get_base_type();
 
       if (fate_type.equals(tonkadur.fate.v1.lang.type.Type.BOOL))
