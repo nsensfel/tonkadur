@@ -9,11 +9,11 @@ import tonkadur.parser.Origin;
 
 import tonkadur.error.ErrorManager;
 
-import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
+import tonkadur.fate.v1.error.UnknownStructureFieldException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
-public class DictType extends Type
+public class StructType extends Type
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -25,7 +25,7 @@ public class DictType extends Type
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   public DictType
+   public StructType
    (
       final Origin origin,
       final Map<String, Type> field_types,
@@ -39,7 +39,7 @@ public class DictType extends Type
 
    /**** Accessors ************************************************************/
    public Type get_field_type (final Origin call_origin, final String t)
-   throws UnknownDictionaryFieldException
+   throws UnknownStructureFieldException
    {
       final Type result;
 
@@ -49,7 +49,7 @@ public class DictType extends Type
       {
          ErrorManager.handle
          (
-            new UnknownDictionaryFieldException(call_origin, t, this)
+            new UnknownStructureFieldException(call_origin, t, this)
          );
 
          return Type.ANY;
@@ -67,11 +67,11 @@ public class DictType extends Type
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof DictType)
+      if (t instanceof StructType)
       {
-         final DictType dt;
+         final StructType dt;
 
-         dt = (DictType) t;
+         dt = (StructType) t;
 
          for (final Map.Entry<String, Type> own_field: get_fields())
          {
@@ -107,14 +107,14 @@ public class DictType extends Type
    {
       final Map<String, Type> result_field_types;
       final Set<String> result_field_names;
-      final DictType dt;
+      final StructType dt;
 
-      if (!(de instanceof DictType))
+      if (!(de instanceof StructType))
       {
          return Type.ANY;
       }
 
-      dt = (DictType) de;
+      dt = (StructType) de;
 
       result_field_names = new HashSet<String>();
       result_field_types = new HashMap<String, Type>();
@@ -148,7 +148,7 @@ public class DictType extends Type
          result_field_types.put(field_name, result_field_type);
       }
 
-      return new DictType(get_origin(), result_field_types, name);
+      return new StructType(get_origin(), result_field_types, name);
    }
 
    @Override
@@ -161,7 +161,7 @@ public class DictType extends Type
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new DictType(origin, field_types, name);
+      return new StructType(origin, field_types, name);
    }
 
    @Override
@@ -169,7 +169,7 @@ public class DictType extends Type
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Dict ");
+      sb.append("(Struct ");
 
       for (final Map.Entry<String, Type> field: get_fields())
       {

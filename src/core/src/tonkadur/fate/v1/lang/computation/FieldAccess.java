@@ -8,13 +8,13 @@ import tonkadur.parser.Origin;
 import tonkadur.error.ErrorManager;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
-import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
+import tonkadur.fate.v1.error.UnknownStructureFieldException;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-import tonkadur.fate.v1.lang.type.DictType;
+import tonkadur.fate.v1.lang.type.StructType;
 import tonkadur.fate.v1.lang.type.Type;
 
 public class FieldAccess extends Computation
@@ -55,7 +55,7 @@ public class FieldAccess extends Computation
    )
    throws
       InvalidTypeException,
-      UnknownDictionaryFieldException
+      UnknownStructureFieldException
    {
       Type current_type;
 
@@ -67,7 +67,7 @@ public class FieldAccess extends Computation
          current_type = parent.get_type();
       }
 
-      if (!(current_type instanceof DictType))
+      if (!(current_type instanceof StructType))
       {
          ErrorManager.handle
          (
@@ -84,7 +84,7 @@ public class FieldAccess extends Computation
       }
       else
       {
-         current_type = ((DictType) current_type).get_field_type(origin, field);
+         current_type = ((StructType) current_type).get_field_type(origin, field);
       }
 
       return new FieldAccess(origin, parent, current_type, field);
@@ -98,7 +98,7 @@ public class FieldAccess extends Computation
    )
    throws
       InvalidTypeException,
-      UnknownDictionaryFieldException
+      UnknownStructureFieldException
    {
       for (final String field: field_sequence)
       {

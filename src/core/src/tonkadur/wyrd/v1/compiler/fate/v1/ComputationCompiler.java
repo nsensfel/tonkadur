@@ -495,7 +495,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                compiler,
                (
-                  (tonkadur.fate.v1.lang.type.DictType)
+                  (tonkadur.fate.v1.lang.type.StructType)
                      n.get_parent().get_type()
                ).get_field_type(null, n.get_field_name())
             )
@@ -526,7 +526,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             (
                compiler,
                (
-                  (tonkadur.fate.v1.lang.type.DictType)
+                  (tonkadur.fate.v1.lang.type.StructType)
                      n.get_parent().get_type()
                ).get_field_type(null, n.get_field_name())
             )

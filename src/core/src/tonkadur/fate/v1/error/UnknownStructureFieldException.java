@@ -7,25 +7,25 @@ import tonkadur.error.ErrorLevel;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.type.DictType;
+import tonkadur.fate.v1.lang.type.StructType;
 import tonkadur.fate.v1.lang.type.Type;
 
-public class UnknownDictionaryFieldException extends ParsingError
+public class UnknownStructureFieldException extends ParsingError
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final String field_name;
-   protected final DictType dict;
+   protected final StructType dict;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   public UnknownDictionaryFieldException
+   public UnknownStructureFieldException
    (
       final Origin origin,
       final String field_name,
-      final DictType dict
+      final StructType dict
    )
    {
       super(ErrorLevel.ERROR, ErrorCategory.INVALID_USE, origin);

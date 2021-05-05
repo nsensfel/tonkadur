@@ -20,7 +20,7 @@ import tonkadur.fate.v1.lang.computation.VariableReference;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.PointerType;
-import tonkadur.fate.v1.lang.type.DictType;
+import tonkadur.fate.v1.lang.type.StructType;
 import tonkadur.fate.v1.lang.type.Type;
 
 public class VariableFromWord
@@ -81,7 +81,7 @@ public class VariableFromWord
                      Constant.build(origin, subref)
                   );
             }
-            else if (t instanceof DictType)
+            else if (t instanceof StructType)
             {
                result =
                   FieldReference.build

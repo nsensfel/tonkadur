@@ -10,8 +10,7 @@
 (require battle.fate)
 
 (define_sequence in_your_room ()
-   (ifelse
-      (is_member visited_your_room progress)
+   (if_else (is_member visited_your_room progress)
       (text_effect narrator
          You room is still a mess. You don't have time to clean things up,
          though.
@@ -25,15 +24,15 @@
          make the cut.
       )
    )
-   (add visited_your_room progress)
-   (player_choice
-      (
+   (add! visited_your_room progress)
+   (player_choice!
+      (option
          ( Look for healing items )
-         (jump_to look_for_healing_items)
+         (jump_to! look_for_healing_items)
       )
-      (
+      (option
          ( No time! Let's go adventuring! )
-         (jump_to leave_your_room)
+         (jump_to! leave_your_room)
       )
    )
 )
@@ -44,7 +43,7 @@
       of mess for healing items.
       (newline)
    )
-   (ifelse
+   (if_else
       (=< (rand 0 99) 25)
       (
          (text_effect surprise
@@ -52,13 +51,13 @@
                Oh! You found something!
             )
          )
-         (call get_item (ref (var potion)))
+         (call! get_item (ref (var potion)))
       )
       (text_effect narrator
          No, you don't find anything.
       )
    )
-   (jump_to in_your_room)
+   (jump_to! in_your_room)
 )
 
 (define_sequence leave_your_room ()
@@ -66,12 +65,12 @@
       As you rush through the door of your room, you fail to notice the obstacle
       in your path and trip on something that was clearly meant for you.
    )
-   (event pause)
+   (event! pause)
    (text_effect narrator
       It's a monster-holder! There's a note, too.
    )
-   (set player.creature (eval random_creature))
-   (event pause)
+   (set! player.creature (eval random_creature))
+   (event! pause)
    (text_effect note_reading
       Hey sleepyhead. I couldn't wake you up for your big day, but lucky you,
       someone noticed that you weren't going to make it in time and got this for
@@ -88,5 +87,5 @@
       immediately get challenged by some grinning kid who clearly knew you
       haven't had time to train and wants to score an easy victory.
    )
-   (jump_to start_battle)
+   (jump_to! start_battle)
 )

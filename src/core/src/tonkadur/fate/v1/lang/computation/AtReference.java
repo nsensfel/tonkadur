@@ -7,7 +7,7 @@ import tonkadur.parser.Origin;
 import tonkadur.error.ErrorManager;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
-import tonkadur.fate.v1.error.UnknownDictionaryFieldException;
+import tonkadur.fate.v1.error.UnknownStructureFieldException;
 
 import tonkadur.fate.v1.lang.Variable;
 

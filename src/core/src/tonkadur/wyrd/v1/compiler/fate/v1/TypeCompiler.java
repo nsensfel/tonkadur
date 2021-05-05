@@ -22,13 +22,13 @@ public class TypeCompiler
    )
    throws Error
    {
-      if (fate_type instanceof tonkadur.fate.v1.lang.type.DictType)
+      if (fate_type instanceof tonkadur.fate.v1.lang.type.StructType)
       {
          return
             compile_dict_type
             (
                compiler,
-               (tonkadur.fate.v1.lang.type.DictType) fate_type
+               (tonkadur.fate.v1.lang.type.StructType) fate_type
             );
       }
 
@@ -119,7 +119,7 @@ public class TypeCompiler
    protected static Type compile_dict_type
    (
       final Compiler compiler,
-      final tonkadur.fate.v1.lang.type.DictType fate_dict_type
+      final tonkadur.fate.v1.lang.type.StructType fate_dict_type
    )
    throws Error
    {

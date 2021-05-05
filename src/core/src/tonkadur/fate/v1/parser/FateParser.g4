@@ -57,29 +57,34 @@ options
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-fate_file [Context context,  Deque<Map<String, Variable>> local_variables, World world]
-   @init
+fate_file
+[
+   Context context,
+   Deque<Map<String, Variable>> local_variables,
+   World world
+]
+@init
+{
+   CONTEXT = context;
+   WORLD = world;
+
+   if (local_variables == null)
    {
-      CONTEXT = context;
-      WORLD = world;
-
-      if (local_variables == null)
-      {
-         LOCAL_VARIABLES = new ArrayDeque<Map<String, Variable>>();
-         LOCAL_VARIABLES.push(new HashMap<String, Variable>());
-      }
-      else
-      {
-         LOCAL_VARIABLES = local_variables;
-      }
-
-      HIERARCHICAL_VARIABLES = new ArrayDeque<List<String>>();
-      BREAKABLE_LEVELS = 0;
-
-      HIERARCHICAL_VARIABLES.push(new ArrayList<String>());
-      CHOICE_LIMITED_VARIABLES = new ArrayDeque<Collection<String>>();
+      LOCAL_VARIABLES = new ArrayDeque<Map<String, Variable>>();
+      LOCAL_VARIABLES.push(new HashMap<String, Variable>());
    }
-   :
+   else
+   {
+      LOCAL_VARIABLES = local_variables;
+   }
+
+   HIERARCHICAL_VARIABLES = new ArrayDeque<List<String>>();
+   BREAKABLE_LEVELS = 0;
+
+   HIERARCHICAL_VARIABLES.push(new ArrayList<String>());
+   CHOICE_LIMITED_VARIABLES = new ArrayDeque<Collection<String>>();
+}
+:
    WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
    (
       (
@@ -118,24 +123,24 @@ returns [List<Instruction> result]
 
 first_level_fate_instr:
    DEFINE_SEQUENCE_KW
-      new_reference_name
-      WS*
-      (
-         L_PAREN WS* variable_list WS* R_PAREN
-         {
-            final Map<String, Variable> variable_map;
+         new_reference_name
+         WS*
+         (
+            L_PAREN WS* variable_list WS* R_PAREN
+            {
+               final Map<String, Variable> variable_map;
 
-            variable_map = new HashMap<String, Variable>();
+               variable_map = new HashMap<String, Variable>();
 
-            variable_map.putAll(($variable_list.result).as_map());
+               variable_map.putAll(($variable_list.result).as_map());
 
-            LOCAL_VARIABLES.push(variable_map);
-         }
-      )
-      pre_sequence_point=WS+
-      general_fate_sequence
-      WS*
-   R_PAREN
+               LOCAL_VARIABLES.push(variable_map);
+            }
+         )
+         pre_sequence_point=WS+
+         general_fate_sequence
+         WS*
+      R_PAREN
    {
       final Origin start_origin, sequence_origin;
       final Sequence new_sequence;
@@ -172,11 +177,11 @@ first_level_fate_instr:
    }
 
    | DECLARE_VARIABLE_KW
-      type
-      WS+
-      name=new_reference_name
-      WS*
-   R_PAREN
+         type
+         WS+
+         name=new_reference_name
+         WS*
+      R_PAREN
    {
       final Origin start_origin, type_origin;
       final Variable new_variable;
@@ -201,11 +206,11 @@ first_level_fate_instr:
    }
 
    | EXTERNAL_KW
-      type
-      WS+
-      name=new_reference_name
-      WS*
-   R_PAREN
+         type
+         WS+
+         name=new_reference_name
+         WS*
+      R_PAREN
    {
       final Origin start_origin, type_origin;
       final Variable new_variable;
@@ -229,17 +234,17 @@ first_level_fate_instr:
       WORLD.variables().add(new_variable);
    }
 
-   | IGNORE_ERROR_KW WORD WS+ first_level_fate_instr WS* R_PAREN
+   | IMP_IGNORE_ERROR_KW WORD WS+ first_level_fate_instr WS* R_PAREN
    {
       /* TODO: temporarily disable an compiler error category */
    }
 
    | DECLARE_TEXT_EFFECT_KW
-      new_reference_name
-      WS+
-      params=type_list
-      WS*
-   R_PAREN
+         new_reference_name
+         WS+
+         params=type_list
+         WS*
+      R_PAREN
    {
       final Origin start_origin;
       final TextEffect new_text_effect;
@@ -317,7 +322,7 @@ first_level_fate_instr:
       WORLD.types().add(new_type);
    }
 
-   | DECLARE_DICT_TYPE_KW
+   | DECLARE_STRUCT_TYPE_KW
       new_reference_name
       WS*
       variable_list
@@ -342,12 +347,12 @@ first_level_fate_instr:
       start_origin =
          CONTEXT.get_origin_at
          (
-            ($DECLARE_DICT_TYPE_KW.getLine()),
-            ($DECLARE_DICT_TYPE_KW.getCharPositionInLine())
+            ($DECLARE_STRUCT_TYPE_KW.getLine()),
+            ($DECLARE_STRUCT_TYPE_KW.getCharPositionInLine())
          );
 
       new_type =
-         new DictType
+         new StructType
          (
             start_origin,
             field_types,
@@ -732,12 +737,29 @@ returns [Instruction result]
          );
    }
 
+   | IMP_DICT_SET_KW key=value WS+ val=value WS+ value_reference WS* R_PAREN
+   {
+      // TODO
+      $result = null;
+      /*
+         SetEntry.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_DICT_SET_KW.getLine()),
+               ($IMP_DICT_SET_KW.getCharPositionInLine())
+            ),
+            ($key.result),
+            ($val.result)
+         );
+      */
+   }
+
    | IMP_ADD_KW value_list WS+ value_reference WS* R_PAREN
    {
       final List<Instruction> add_instrs;
 
       add_instrs = new ArrayList<Instruction>();
-
 
       for (final Computation value: ($value_list.result))
       {
@@ -836,6 +858,27 @@ returns [Instruction result]
    {
       /* TODO: temporarily disable an compiler error category */
       $result = ($general_fate_instr.result);
+   }
+
+   | IMP_DICT_REMOVE_KW
+         value WS+
+         value_reference WS*
+      R_PAREN
+   {
+      // TODO
+      $result = null;
+      /*
+         RemoveEntry.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_DICT_REMOVE_KW.getLine()),
+               ($IMP_DICT_REMOVE_KW.getCharPositionInLine())
+            ),
+            ($value.result),
+            ($value_reference.result)
+         );
+      */
    }
 
    | IMP_REMOVE_ONE_KW
@@ -1000,6 +1043,26 @@ returns [Instruction result]
          );
    }
 
+   | IMP_DICT_MAP_KW non_text_value WS+ value_reference WS* R_PAREN
+   {
+      // TODO
+      $result = null;
+      /*
+         DictMap.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_DICT_MAP_KW.getLine()),
+               ($IMP_DICT_MAP_KW.getCharPositionInLine())
+            ),
+            ($non_text_value.result),
+            ($value_reference.result),
+            new ArrayList()
+         );
+      */
+   }
+
+
    | IMP_MAP_KW non_text_value WS+ value_reference WS+ value_list WS* R_PAREN
    {
       $result =
@@ -1050,6 +1113,55 @@ returns [Instruction result]
             ($value_reference.result),
             ($value_list.result)
          );
+   }
+
+   | IMP_DICT_MERGE_KW
+         fun=non_text_value WS+
+         inv1=non_text_value WS+
+         value_reference WS*
+      R_PAREN
+   {
+      // TODO
+      $result = null;
+      /*
+         DictMerge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_DICT_MERGE_KW.getLine()),
+               ($IMP_DICT_MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv1.result),
+            ($value_reference.result),
+            new ArrayList()
+         );
+      */
+   }
+
+   | IMP_DICT_MERGE_KW
+         fun=non_text_value WS+
+         inv1=non_text_value WS+
+         value_reference WS+
+         value_list WS*
+      R_PAREN
+   {
+      // TODO
+      $result = null;
+      /*
+         DictMerge.build
+         (
+            CONTEXT.get_origin_at
+            (
+               ($IMP_DICT_MERGE_KW.getLine()),
+               ($IMP_DICT_MERGE_KW.getCharPositionInLine())
+            ),
+            ($fun.result),
+            ($inv1.result),
+            ($value_reference.result),
+            ($value_list.result)
+         );
+      */
    }
 
    | IMP_MERGE_KW
@@ -2107,6 +2219,119 @@ returns [Instruction result]
       CHOICE_LIMITED_VARIABLES.pop();
    }
 
+   | IMP_DICT_TO_LIST_KW non_text_value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_FROM_LIST_KW non_text_value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_KEYS_KW non_text_value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_VALUES_KW non_text_value WS+ value_reference WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_MERGE_KW
+         dict0r=value_reference WS+
+         dict1=non_text_value WS+
+         fun=non_text_value WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_MERGE_KW
+         dict0r=value_reference WS+
+         dict1=non_text_value WS+
+         fun=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_FILTER_KW
+         dict0r=value_reference WS+
+         fun=non_text_value WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_FILTER_KW
+         dict0r=value_reference WS+
+         fun=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_SET_KW
+         key=value WS+
+         val=value WS+
+         dict0r=value_reference WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_REMOVE_KW key=value WS+ dict0r=value_reference WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_HAS_KW
+         key=value WS+
+         dict0=non_text_value WS+
+         value_reference WS*
+      R_PAREN
+   {
+
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_GET_KW
+         key=value WS+
+         dict0=non_text_value WS+
+         value_reference WS*
+      R_PAREN
+   {
+
+      /* TODO */
+      $result = null;
+   }
+
+   | IMP_DICT_GET_POINTER_KW
+         key=value WS+
+         dict0=non_text_value WS+
+         value_reference WS*
+      R_PAREN
+   {
+
+      /* TODO */
+      $result = null;
+   }
+
    | paragraph
    {
       $result =
@@ -2967,6 +3192,33 @@ returns [Type result]
             start_origin,
             ($type.result),
             ("anonymous (" + ($type.result).get_name() + ") ref type")
+         );
+   }
+
+   | DICT_KW key_type=type WS+ val_type=type WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         CONTEXT.get_origin_at
+         (
+            ($DICT_KW.getLine()),
+            ($DICT_KW.getCharPositionInLine())
+         );
+
+      $result =
+         DictionaryType.build
+         (
+            start_origin,
+            ($key_type.result),
+            ($val_type.result),
+            (
+               "anonymous ("
+               + ($key_type.result)
+               + " "
+               + $val_type.result
+               + ") dictionary type"
+            )
          );
    }
 
@@ -5452,6 +5704,102 @@ returns [Computation result]
          );
    }
 
+   | DICT_TO_LIST_KW non_text_value WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_FROM_LIST_KW non_text_value WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_KEYS_KW non_text_value WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_VALUES_KW non_text_value WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_MERGE_KW
+         dict0=non_text_value WS+
+         dict1=non_text_value WS+
+         fun=non_text_value WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_MERGE_KW
+         dict0=non_text_value WS+
+         dict1=non_text_value WS+
+         fun=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_FILTER_KW
+         dict0=non_text_value WS+
+         fun=non_text_value WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_FILTER_KW
+         dict0=non_text_value WS+
+         fun=non_text_value WS+
+         value_list WS*
+      R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_SET_KW key=value WS+ val=value WS+ dict0=non_text_value WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_REMOVE_KW key=value WS+ dict0=non_text_value WS* R_PAREN
+   {
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_HAS_KW key=value WS+ dict0=non_text_value WS* R_PAREN
+   {
+
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_GET_KW key=value WS+ dict0=non_text_value WS* R_PAREN
+   {
+
+      /* TODO */
+      $result = null;
+   }
+
+   | DICT_GET_POINTER_KW key=value WS+ dict0=non_text_value WS* R_PAREN
+   {
+
+      /* TODO */
+      $result = null;
+   }
 
    | SHUFFLE_KW non_text_value WS* R_PAREN
    {

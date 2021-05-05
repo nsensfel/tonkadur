@@ -10,16 +10,16 @@
    Today was supposed to be glorious! At long last, you were going on your
    life-defining adventure with a powerful companion.
 )
-(event pause)
+(event! pause)
 (text_effect narrator
    ...
 )
-(event pause)
+(event! pause)
 (text_effect narrator
    Maybe you should stop daydreaming and see what can be salvaged at this point.
 )
-(event pause)
+(event! pause)
 (text_effect narrator
    You stand in your room, having just dressed.
 )
-(jump_to in_your_room)
+(jump_to! in_your_room)

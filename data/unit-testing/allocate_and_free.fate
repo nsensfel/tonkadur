@@ -1,8 +1,10 @@
 (fate_version 1)
 
 (local (ptr int) p0)
+(local (list (ptr int)) lp0)
 
 (allocate! p0)
+
 (set! (at p0) 72)
 
 (assert! (= (at p0) 72)
@@ -10,6 +12,15 @@
 )
 
 (free! (at p0))
+
+(add! (default (ptr int)) lp0)
+(add! (default (ptr int)) lp0)
+(add! (default (ptr int)) lp0)
+(add! (default (ptr int)) lp0)
+
+(allocate! lp0.0)
+(allocate! (at (access_pointer 1 lp0)))
+(allocate! (access_pointer 1 lp0)))
 
 [COMPLETED]
 

@@ -16,6 +16,7 @@ R_PAREN: ')';
 
 
 ABS_KW: L_PAREN 'abs'('olute'?) SEP+;
+DICT_KW: L_PAREN 'dict'('ionary'?) SEP+;
 ACCESS_KW: L_PAREN 'access' SEP+;
 ACCESS_POINTER_KW: L_PAREN 'access'US('ptr'|'pointer') SEP+;
 ADD_KW: L_PAREN 'add'(US'element')? SEP+;
@@ -37,8 +38,8 @@ CONS_KW: L_PAREN 'cons' SEP+;
 COUNT_KW: L_PAREN 'count' SEP+;
 DECLARE_ALIAS_TYPE_KW:
    L_PAREN ((('declare'|'define'|'def')US(('sub'|'alias')US)?'type')|'typedef') SEP+;
-DECLARE_DICT_TYPE_KW: L_PAREN
-   ('declare'|'define'|'def')US('dict'|('struct''ure'?))(US'type')? SEP+;
+DECLARE_STRUCT_TYPE_KW: L_PAREN
+   ('declare'|'define'|'def')US('struct''ure'?)(US'type')? SEP+;
 DECLARE_EXTRA_INSTRUCTION_KW: L_PAREN ('declare'|'define'|'def')US'extra'US'instruction' SEP+;
 DECLARE_EXTRA_COMPUTATION_KW: L_PAREN ('declare'|'define'|'def')US'extra'US'computation' SEP+;
 DECLARE_EXTRA_TYPE_KW: L_PAREN ('declare'|'define'|'def')US'extra'US'type' SEP+;
@@ -50,6 +51,44 @@ EXTERNAL_KW: L_PAREN 'extern'('al'?) SEP+;
 DEFAULT_KW: L_PAREN 'default' SEP+;
 DEFINE_SEQUENCE_KW: L_PAREN ('declare'|'define'|'def')US(('seq'('uence')?)|('proc'('edure'?))) SEP+;
 DIVIDE_KW: L_PAREN ('divide'|'/'|'div') SEP+;
+DICT_TO_LIST_KW:
+   L_PAREN
+      (('dict'('ionary'?)US'to'US'list')|('list'US'from'US'dict'('ionary'?)))
+   SEP+;
+DICT_FROM_LIST_KW:
+   L_PAREN
+      (('dict'('ionary'?)US'from'US'list')|('list'US'to'US'dict'('ionary'?)))
+   SEP+;
+DICT_KEYS_KW: L_PAREN (('get'US)?'dict'('ionary'?)US'keys') SEP+;
+DICT_VALUES_KW: L_PAREN (('get'US)?'dict'('ionary'?)US'values') SEP+;
+DICT_MERGE_KW: L_PAREN ('dict'('ionary'?)US'merge') SEP+;
+DICT_MAP_KW: L_PAREN ('dict'('ionary'?)US'map') SEP+;
+DICT_FILTER_KW: L_PAREN ('dict'('ionary'?)US'filter') SEP+;
+DICT_SET_KW: L_PAREN ('dict'('ionary'?)US'set') SEP+;
+DICT_REMOVE_KW: L_PAREN ('dict'('ionary'?)US'remove') SEP+;
+DICT_HAS_KW: L_PAREN ('dict'('ionary'?)US'has') SEP+;
+DICT_GET_KW: L_PAREN ('dict'('ionary'?)US'get') SEP+;
+DICT_GET_POINTER_KW: L_PAREN ('dict'('ionary'?)US'get'US('ptr'|'pointer')) SEP+;
+
+IMP_DICT_TO_LIST_KW:
+   L_PAREN
+      (('dict'('ionary'?)US'to'US'list')|('list'US'from'US'dict'('ionary'?)))'!'
+   SEP+;
+IMP_DICT_FROM_LIST_KW:
+   L_PAREN
+      (('dict'('ionary'?)US'from'US'list')|('list'US'to'US'dict'('ionary'?)))'!'
+   SEP+;
+IMP_DICT_KEYS_KW: L_PAREN (('get'US)?'dict'('ionary'?)US'keys')'!' SEP+;
+IMP_DICT_VALUES_KW: L_PAREN (('get'US)?'dict'('ionary'?)US'values')'!' SEP+;
+IMP_DICT_MERGE_KW: L_PAREN ('dict'('ionary'?)US'merge')'!' SEP+;
+IMP_DICT_MAP_KW: L_PAREN ('dict'('ionary'?)US'map')'!' SEP+;
+IMP_DICT_FILTER_KW: L_PAREN ('dict'('ionary'?)US'filter')'!' SEP+;
+IMP_DICT_SET_KW: L_PAREN ('dict'('ionary'?)US'set')'!' SEP+;
+IMP_DICT_REMOVE_KW: L_PAREN ('dict'('ionary'?)US'remove')'!' SEP+;
+IMP_DICT_HAS_KW: L_PAREN ('dict'('ionary'?)US'has')'!' SEP+;
+IMP_DICT_GET_KW: L_PAREN ('dict'('ionary'?)US'get')'!' SEP+;
+IMP_DICT_GET_POINTER_KW:
+   L_PAREN ('dict'('ionary'?)US'get'US('ptr'|'pointer'))'!' SEP+;
 DO_WHILE_KW: L_PAREN ('do'US'while') SEP+;
 ENABLE_TEXT_EFFECT_KW: L_PAREN 'text'US'effect' SEP+;
 END_KW: L_PAREN 'end'('!'?) SEP* R_PAREN;
