@@ -77,7 +77,7 @@ public class PointerType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return Type.REF;
+      return Type.PTR;
    }
 
    /**** Misc. ****************************************************************/

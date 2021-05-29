@@ -11,7 +11,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.PointerType;
@@ -22,7 +22,7 @@ public class AccessPointer extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference parent;
+   protected final Computation parent;
    protected final Computation index;
 
    /***************************************************************************/
@@ -32,7 +32,7 @@ public class AccessPointer extends Computation
    protected AccessPointer
    (
       final Origin origin,
-      final Reference parent,
+      final Computation parent,
       final Type type,
       final Computation index
    )
@@ -54,7 +54,7 @@ public class AccessPointer extends Computation
    public static AccessPointer build
    (
       final Origin origin,
-      Reference parent,
+      Computation parent,
       final Computation index
    )
    throws InvalidTypeException
@@ -63,9 +63,9 @@ public class AccessPointer extends Computation
 
       current_type = parent.get_type();
 
-      while (current_type.get_act_as_type().equals(Type.REF))
+      while (current_type.get_act_as_type().equals(Type.PTR))
       {
-         parent = AtReference.build(origin, parent);
+         parent = AtComputation.build(origin, parent);
          current_type = parent.get_type();
       }
 
@@ -120,7 +120,7 @@ public class AccessPointer extends Computation
       return index;
    }
 
-   public Reference get_parent ()
+   public Computation get_parent ()
    {
       return parent;
    }

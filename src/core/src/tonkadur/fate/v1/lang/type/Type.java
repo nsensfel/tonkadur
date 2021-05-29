@@ -27,7 +27,7 @@ public class Type extends DeclaredEntity
    public static final Type INT;
    public static final Type LAMBDA;
    public static final Type LIST;
-   public static final Type REF;
+   public static final Type PTR;
    public static final Type TEXT;
    public static final Type SEQUENCE;
    public static final Type SET;
@@ -56,7 +56,7 @@ public class Type extends DeclaredEntity
       INT = new Type(base, null, "int");
       LAMBDA = new Type(base, null, "lambda");
       LIST = new Type(base, null, "list");
-      REF = new Type(base, null, "ref");
+      PTR = new Type(base, null, "ptr");
       TEXT = new Type(base, null, "text");
       SEQUENCE = new Type(base, null, "sequence");
       SET = new Type(base, null, "set");
@@ -71,7 +71,7 @@ public class Type extends DeclaredEntity
       ALL_TYPES.add(INT);
       ALL_TYPES.add(LAMBDA);
       ALL_TYPES.add(LIST);
-      ALL_TYPES.add(REF);
+      ALL_TYPES.add(PTR);
       ALL_TYPES.add(TEXT);
       ALL_TYPES.add(SEQUENCE);
       ALL_TYPES.add(SET);
@@ -90,7 +90,7 @@ public class Type extends DeclaredEntity
       COMPARABLE_TYPES.add(LAMBDA);
       COMPARABLE_TYPES.add(STRING);
       COMPARABLE_TYPES.add(BOOL);
-      COMPARABLE_TYPES.add(REF);
+      COMPARABLE_TYPES.add(PTR);
 
       COLLECTION_TYPES = new HashSet<Type>();
 

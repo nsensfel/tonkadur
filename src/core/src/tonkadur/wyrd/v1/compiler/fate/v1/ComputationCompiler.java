@@ -472,37 +472,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
-   public void visit_field_reference
-   (
-      final tonkadur.fate.v1.lang.computation.FieldReference n
-   )
-   throws Throwable
-   {
-      final ComputationCompiler n_cc;
-
-      n_cc = new ComputationCompiler(compiler);
-
-      n.get_parent().get_visited_by(n_cc);
-
-      assimilate(n_cc);
-
-      result_as_address =
-         new RelativeAddress
-         (
-            n_cc.get_address(),
-            new Constant(Type.STRING, n.get_field_name()),
-            TypeCompiler.compile
-            (
-               compiler,
-               (
-                  (tonkadur.fate.v1.lang.type.StructType)
-                     n.get_parent().get_type()
-               ).get_field_type(null, n.get_field_name())
-            )
-         );
-   }
-
-   @Override
    public void visit_field_access
    (
       final tonkadur.fate.v1.lang.computation.FieldAccess n

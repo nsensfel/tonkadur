@@ -65,7 +65,7 @@ public class AtReference extends Reference
             (
                origin,
                current_type,
-               Collections.singleton(Type.REF)
+               Collections.singleton(Type.PTR)
             )
          );
 

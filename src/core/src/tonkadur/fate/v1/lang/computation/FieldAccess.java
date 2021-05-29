@@ -61,7 +61,7 @@ public class FieldAccess extends Computation
 
       current_type = parent.get_type();
 
-      while (current_type.get_act_as_type().equals(Type.REF))
+      while (current_type.get_act_as_type().equals(Type.PTR))
       {
          parent = AtReference.build(origin, (Reference) parent);
          current_type = parent.get_type();

@@ -10,7 +10,6 @@ import tonkadur.fate.v1.lang.type.LambdaType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class LambdaEvaluation extends Computation
@@ -18,7 +17,7 @@ public class LambdaEvaluation extends Computation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference lambda_function;
+   protected final Computation lambda_function;
    protected final List<Computation> parameters;
 
    /***************************************************************************/
@@ -28,7 +27,7 @@ public class LambdaEvaluation extends Computation
    protected LambdaEvaluation
    (
       final Origin origin,
-      final Reference lambda_function,
+      final Computation lambda_function,
       final List<Computation> parameters,
       final Type act_as
    )
@@ -46,20 +45,24 @@ public class LambdaEvaluation extends Computation
    public static LambdaEvaluation build
    (
       final Origin origin,
-      final Reference reference,
+      final Computation lambda_function,
       final List<Computation> parameters
    )
    throws ParsingError
    {
-      RecurrentChecks.assert_lambda_matches_computations(reference, parameters);
+      RecurrentChecks.assert_lambda_matches_computations
+      (
+         lambda_function,
+         parameters
+      );
 
       return
          new LambdaEvaluation
          (
             origin,
-            reference,
+            lambda_function,
             parameters,
-            (((LambdaType) reference.get_type()).get_return_type())
+            (((LambdaType) lambda_function.get_type()).get_return_type())
          );
    }
 
@@ -71,7 +74,7 @@ public class LambdaEvaluation extends Computation
       cv.visit_lambda_evaluation(this);
    }
 
-   public Reference get_lambda_function_reference ()
+   public Computation get_lambda_function ()
    {
       return lambda_function;
    }

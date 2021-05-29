@@ -1,8 +1,8 @@
-parser grammar FateParser;
+parser grammar TinyFateParser;
 
 options
 {
-   tokenVocab = FateLexer;
+   tokenVocab = TinyFateLexer;
 }
 
 @header
@@ -46,54 +46,29 @@ options
 
 @members
 {
-   Context CONTEXT;
-   World WORLD;
-   Deque<Map<String, Variable>> LOCAL_VARIABLES;
-   Deque<List<String>> HIERARCHICAL_VARIABLES;
-   int BREAKABLE_LEVELS;
-   Deque<Collection<String>> CHOICE_LIMITED_VARIABLES;
+   Parser PARSER;
 }
 
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-fate_file
-[
-   Context context,
-   Deque<Map<String, Variable>> local_variables,
-   World world
-]
+fate_file [Parser PARSER]
 @init
 {
-   CONTEXT = context;
-   WORLD = world;
+   PARSER = parser;
 
-   if (local_variables == null)
-   {
-      LOCAL_VARIABLES = new ArrayDeque<Map<String, Variable>>();
-      LOCAL_VARIABLES.push(new HashMap<String, Variable>());
-   }
-   else
-   {
-      LOCAL_VARIABLES = local_variables;
-   }
-
-   HIERARCHICAL_VARIABLES = new ArrayDeque<List<String>>();
-   BREAKABLE_LEVELS = 0;
-
-   HIERARCHICAL_VARIABLES.push(new ArrayList<String>());
-   CHOICE_LIMITED_VARIABLES = new ArrayDeque<Collection<String>>();
+   PARSER.increase_local_variables_hierarchy();
 }
 :
    WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
    (
       (
-         first_level_fate_instr
+         first_level_instruction
          |
          (
-            general_fate_instr
+            instruction
             {
-               WORLD.add_global_instruction(($general_fate_instr.result));
+               PARSER.get_world().add_global_instruction(($instruction.result));
             }
          )
       )
@@ -104,7 +79,7 @@ fate_file
    }
 ;
 
-general_fate_sequence
+maybe_instruction_list
 returns [List<Instruction> result]
 @init
 {
@@ -112,33 +87,258 @@ returns [List<Instruction> result]
 }
 :
    (WS*
-      general_fate_instr
+      instruction
       {
-         $result.add(($general_fate_instr.result));
+         $result.add(($instruction.result));
       }
    WS*)*
    {
    }
 ;
 
-first_level_fate_instr:
-   DEFINE_SEQUENCE_KW
-         new_reference_name
+first_level_instruction
+@init
+{
+   Parser.LocalVariables previous_local_variables_stack;
+}
+:
+   DECLARE_ALIAS_TYPE_KW parent=type WS+ identifier WS* R_PAREN
+   {
+      final Origin start_origin;
+      final Type new_type;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_ALIAS_TYPE_KW.getLine()),
+            ($DECLARE_ALIAS_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_type =
+         ($parent.result).generate_alias
+         (
+            start_origin,
+            ($identifier.result)
+         );
+
+      PARSER.get_world().types().add(new_type);
+   }
+
+   | DECLARE_STRUCT_TYPE_KW identifier WS* variable_list WS* R_PAREN
+   {
+      final Origin start_origin;
+      final Type new_type;
+      final Map<String, Type> field_types;
+
+      field_types = new HashMap<String, Type>();
+
+      for (final Variable te: ($variable_list.result).get_entries())
+      {
+         field_types.put(te.get_name(), te.get_type());
+      }
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_STRUCT_TYPE_KW.getLine()),
+            ($DECLARE_STRUCT_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_type =
+         new StructType
+         (
+            start_origin,
+            field_types,
+            ($identifier.result)
+         );
+
+      PARSER.get_world().types().add(new_type);
+   }
+
+   | DECLARE_EXTRA_INSTRUCTION_KW identifier maybe_type_list WS* R_PAREN
+   {
+      final Origin start_origin;
+      final ExtraInstruction extra_instruction;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_EXTRA_INSTRUCTION_KW.getLine()),
+            ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
+         );
+
+      extra_instruction =
+         new ExtraInstruction
+         (
+            start_origin,
+            ($identifier.result),
+            ($type_list.result)
+         );
+
+      PARSER.get_world().extra_instructions().add(extra_instruction);
+   }
+
+   | DECLARE_EXTRA_COMPUTATION_KW
+         type WS+
+         identifier
+         maybe_type_list WS*
+      R_PAREN
+   {
+      final Origin start_origin;
+      final ExtraComputation extra_computation;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_EXTRA_COMPUTATION_KW.getLine()),
+            ($DECLARE_EXTRA_COMPUTATION_KW.getCharPositionInLine())
+         );
+
+      extra_computation =
+         new ExtraComputation
+         (
+            start_origin,
+            ($type.result),
+            ($identifier.result),
+            ($type_list.result)
+         );
+
+      PARSER.get_world().extra_computations().add(extra_computation);
+   }
+
+   | DECLARE_EXTRA_TYPE_KW identifier maybe_type_list WS* R_PAREN
+   {
+      final Origin start_origin;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_EXTRA_TYPE_KW.getLine()),
+            ($DECLARE_EXTRA_TYPE_KW.getCharPositionInLine())
+         );
+
+      PARSER.get_world().types().add
+      (
+         new ExtraType
+         (
+            start_origin,
+            ($identifier.result),
+            ($maybe_type_list.result)
+         )
+      );
+   }
+
+   | DECLARE_EVENT_TYPE_KW identifier maybe_type_list WS* R_PAREN
+   {
+      final Origin start_origin;
+      final Event new_event;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_EVENT_TYPE_KW.getLine()),
+            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
+         );
+
+      new_event =
+         new Event
+         (
+            start_origin,
+            ($type_list.result),
+            ($identifier.result)
+         );
+
+      PARSER.get_world().events().add(new_event);
+   }
+
+   | DECLARE_TEXT_EFFECT_KW identifier maybe_type_list WS* R_PAREN
+   {
+      final Origin start_origin;
+      final TextEffect new_text_effect;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_TEXT_EFFECT_KW.getLine()),
+            ($DECLARE_TEXT_EFFECT_KW.getCharPositionInLine())
+         );
+
+      new_text_effect =
+         new TextEffect
+         (
+            start_origin,
+            ($type_list.result),
+            ($identifier.result)
+         );
+
+      PARSER.get_world().text_effects().add(new_text_effect);
+   }
+
+   | DECLARE_GLOBAL_VARIABLE_KW type WS+ name=identifier WS* R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_GLOBAL_VARIABLE_KW.getLine()),
+            ($DECLARE_GLOBAl_VARIABLE_KW.getCharPositionInLine())
+         );
+
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            ($type.result),
+            ($name.result),
+            false
+         );
+
+      PARSER.get_world().variables().add(new_variable);
+   }
+
+   | DECLARE_EXTERNAL_VARIABLE_KW type WS+ name=identifier WS* R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_EXTERNAL_VARIABLE_KW.getLine()),
+            ($DECLARE_EXTERNAL_VARIABLE_KW.getCharPositionInLine())
+         );
+
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            ($type.result),
+            ($name.result),
+            true
+         );
+
+      PARSER.get_world().variables().add(new_variable);
+   }
+
+   | DEFINE_SEQUENCE_KW
+         {
+            previous_local_variables_stack = PARSER.get_local_variables_stack();
+            PARSER.discard_local_variables_stack();
+            PARSER.increase_local_variables_herarchy();
+         }
+         identifier
          WS*
          (
             L_PAREN WS* variable_list WS* R_PAREN
             {
-               final Map<String, Variable> variable_map;
-
-               variable_map = new HashMap<String, Variable>();
-
-               variable_map.putAll(($variable_list.result).as_map());
-
-               LOCAL_VARIABLES.push(variable_map);
+               PARSER.add_local_variables(($variable_list.result).as_map());
+               PARSER.increase_local_variables_herarchy();
             }
          )
          pre_sequence_point=WS+
-         general_fate_sequence
+         maybe_instruction_list
          WS*
       R_PAREN
    {
@@ -146,14 +346,14 @@ first_level_fate_instr:
       final Sequence new_sequence;
 
       start_origin =
-         CONTEXT.get_origin_at
+         PARSER.get_origin_at
          (
             ($DEFINE_SEQUENCE_KW.getLine()),
             ($DEFINE_SEQUENCE_KW.getCharPositionInLine())
          );
 
       sequence_origin =
-         CONTEXT.get_origin_at
+         PARSER.get_origin_at
          (
             ($pre_sequence_point.getLine()),
             ($pre_sequence_point.getCharPositionInLine())
@@ -166,132 +366,22 @@ first_level_fate_instr:
             new InstructionList
             (
                sequence_origin,
-               ($general_fate_sequence.result)
+               ($maybe_instruction_list.result)
             ),
-            ($new_reference_name.result),
+            ($identifier.result),
             ($variable_list.result).get_entries()
          );
 
-      WORLD.sequences().add(new_sequence);
-      LOCAL_VARIABLES.pop();
+      PARSER.get_world().sequences().add(new_sequence);
+      PARSER.restore_local_variables_stack(previous_local_variables_stack);
    }
 
-   | DECLARE_VARIABLE_KW
-         type
-         WS+
-         name=new_reference_name
-         WS*
-      R_PAREN
-   {
-      final Origin start_origin, type_origin;
-      final Variable new_variable;
 
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_VARIABLE_KW.getLine()),
-            ($DECLARE_VARIABLE_KW.getCharPositionInLine())
-         );
-
-      new_variable =
-         new Variable
-         (
-            start_origin,
-            ($type.result),
-            ($name.result),
-            false
-         );
-
-      WORLD.variables().add(new_variable);
-   }
-
-   | EXTERNAL_KW
-         type
-         WS+
-         name=new_reference_name
-         WS*
-      R_PAREN
-   {
-      final Origin start_origin, type_origin;
-      final Variable new_variable;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($EXTERNAL_KW.getLine()),
-            ($EXTERNAL_KW.getCharPositionInLine())
-         );
-
-      new_variable =
-         new Variable
-         (
-            start_origin,
-            ($type.result),
-            ($name.result),
-            true
-         );
-
-      WORLD.variables().add(new_variable);
-   }
-
-   | IMP_IGNORE_ERROR_KW WORD WS+ first_level_fate_instr WS* R_PAREN
+   | IMP_IGNORE_ERROR_KW WORD WS+ first_level_instruction WS* R_PAREN
    {
       /* TODO: temporarily disable an compiler error category */
    }
 
-   | DECLARE_TEXT_EFFECT_KW
-         new_reference_name
-         WS+
-         params=type_list
-         WS*
-      R_PAREN
-   {
-      final Origin start_origin;
-      final TextEffect new_text_effect;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_TEXT_EFFECT_KW.getLine()),
-            ($DECLARE_TEXT_EFFECT_KW.getCharPositionInLine())
-         );
-
-      new_text_effect =
-         new TextEffect
-         (
-            start_origin,
-            ($type_list.result),
-            ($new_reference_name.result)
-         );
-
-      WORLD.text_effects().add(new_text_effect);
-   }
-
-   | DECLARE_TEXT_EFFECT_KW
-      new_reference_name
-      WS*
-   R_PAREN
-   {
-      final Origin start_origin;
-      final TextEffect new_text_effect;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_TEXT_EFFECT_KW.getLine()),
-            ($DECLARE_TEXT_EFFECT_KW.getCharPositionInLine())
-         );
-
-      new_text_effect =
-         new TextEffect
-         (
-            start_origin,
-            new ArrayList(),
-            ($new_reference_name.result)
-         );
-
-      WORLD.text_effects().add(new_text_effect);
-   }
 
    | REQUIRE_EXTENSION_KW WORD WS* R_PAREN
    {
@@ -300,257 +390,23 @@ first_level_fate_instr:
       /* TODO: error report if extension not explicitly enabled. */
    }
 
-   | DECLARE_ALIAS_TYPE_KW parent=type WS+ new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-      final Type new_type;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_ALIAS_TYPE_KW.getLine()),
-            ($DECLARE_ALIAS_TYPE_KW.getCharPositionInLine())
-         );
-
-      new_type =
-         ($parent.result).generate_alias
-         (
-            start_origin,
-            ($new_reference_name.result)
-         );
-
-      WORLD.types().add(new_type);
-   }
-
-   | DECLARE_STRUCT_TYPE_KW
-      new_reference_name
-      WS*
-      variable_list
-      WS*
-   R_PAREN
-   {
-      final Origin start_origin;
-      final Type new_type;
-      final Map<String, Type> field_types;
-
-      field_types = new HashMap<String, Type>();
-
-      for
-      (
-         final Variable te:
-            ($variable_list.result).get_entries()
-      )
-      {
-         field_types.put(te.get_name(), te.get_type());
-      }
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_STRUCT_TYPE_KW.getLine()),
-            ($DECLARE_STRUCT_TYPE_KW.getCharPositionInLine())
-         );
-
-      new_type =
-         new StructType
-         (
-            start_origin,
-            field_types,
-            ($new_reference_name.result)
-         );
-
-      WORLD.types().add(new_type);
-   }
-
-   | DECLARE_EXTRA_TYPE_KW new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_EXTRA_TYPE_KW.getLine()),
-            ($DECLARE_EXTRA_TYPE_KW.getCharPositionInLine())
-         );
-
-      WORLD.types().add
-      (
-         new ExtraType
-         (
-            start_origin,
-            ($new_reference_name.result)
-         )
-      );
-   }
-
-   | DECLARE_EXTRA_INSTRUCTION_KW new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-      final ExtraInstruction extra_instruction;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_EXTRA_INSTRUCTION_KW.getLine()),
-            ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
-         );
-
-      extra_instruction =
-         new ExtraInstruction
-         (
-            start_origin,
-            ($new_reference_name.result),
-            new ArrayList<Type>()
-         );
-
-      WORLD.extra_instructions().add(extra_instruction);
-   }
-
-   | DECLARE_EXTRA_INSTRUCTION_KW new_reference_name WS+ type_list WS* R_PAREN
-   {
-      final Origin start_origin;
-      final ExtraInstruction extra_instruction;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_EXTRA_INSTRUCTION_KW.getLine()),
-            ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
-         );
-
-      extra_instruction =
-         new ExtraInstruction
-         (
-            start_origin,
-            ($new_reference_name.result),
-            ($type_list.result)
-         );
-
-      WORLD.extra_instructions().add(extra_instruction);
-   }
-
-   | DECLARE_EXTRA_COMPUTATION_KW type WS+ new_reference_name WS+ type_list WS* R_PAREN
-   {
-      final Origin start_origin;
-      final ExtraComputation extra_computation;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_EXTRA_COMPUTATION_KW.getLine()),
-            ($DECLARE_EXTRA_COMPUTATION_KW.getCharPositionInLine())
-         );
-
-      extra_computation =
-         new ExtraComputation
-         (
-            start_origin,
-            ($type.result),
-            ($new_reference_name.result),
-            ($type_list.result)
-         );
-
-      WORLD.extra_computations().add(extra_computation);
-   }
-
-   | DECLARE_EXTRA_COMPUTATION_KW type WS+ new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-      final ExtraComputation extra_computation;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_EXTRA_COMPUTATION_KW.getLine()),
-            ($DECLARE_EXTRA_COMPUTATION_KW.getCharPositionInLine())
-         );
-
-      extra_computation =
-         new ExtraComputation
-         (
-            start_origin,
-            ($type.result),
-            ($new_reference_name.result),
-            new ArrayList<Type>()
-         );
-
-      WORLD.extra_computations().add(extra_computation);
-   }
-
-   | DECLARE_EVENT_TYPE_KW new_reference_name WS* R_PAREN
-   {
-      final Origin start_origin;
-      final Event new_event;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_EVENT_TYPE_KW.getLine()),
-            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
-         );
-
-      new_event =
-         new Event
-         (
-            start_origin,
-            new ArrayList<Type>(),
-            ($new_reference_name.result)
-         );
-
-      WORLD.events().add(new_event);
-   }
-
-   | DECLARE_EVENT_TYPE_KW new_reference_name WS+ type_list WS* R_PAREN
-   {
-      final Origin start_origin;
-      final Event new_event;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DECLARE_EVENT_TYPE_KW.getLine()),
-            ($DECLARE_EVENT_TYPE_KW.getCharPositionInLine())
-         );
-
-      new_event =
-         new Event
-         (
-            start_origin,
-            ($type_list.result),
-            ($new_reference_name.result)
-         );
-
-      WORLD.events().add(new_event);
-   }
-
-
    | REQUIRE_KW WORD WS* R_PAREN
    {
       final String filename;
 
-      filename = Files.resolve_filename(CONTEXT, ($WORD.text));
+      filename = Files.resolve_filename(PARSER.get_context(), ($WORD.text));
 
-      if (!WORLD.has_loaded_file(filename))
+      if (!PARSER.get_world().has_loaded_file(filename))
       {
-         CONTEXT.push
+         PARSER.add_file_content
          (
-            CONTEXT.get_location_at
+            PARSER.get_location_at
             (
                ($REQUIRE_KW.getLine()),
                ($REQUIRE_KW.getCharPositionInLine())
             ),
             filename
          );
-
-         tonkadur.fate.v1.Utils.add_file_content
-         (
-            filename,
-            CONTEXT,
-            LOCAL_VARIABLES,
-            WORLD
-         );
-
-         CONTEXT.pop();
       }
    }
 
@@ -558,31 +414,21 @@ first_level_fate_instr:
    {
       final String filename;
 
-      filename = Files.resolve_filename(CONTEXT, ($WORD.text));
+      filename = Files.resolve_filename(PARSER.get_context(), ($WORD.text));
 
-      CONTEXT.push
+      PARSER.add_file_content
       (
-         CONTEXT.get_location_at
+         PARSER.get_location_at
          (
             ($INCLUDE_KW.getLine()),
             ($INCLUDE_KW.getCharPositionInLine())
          ),
          filename
       );
-
-      tonkadur.fate.v1.Utils.add_file_content
-      (
-         filename,
-         CONTEXT,
-         LOCAL_VARIABLES,
-         WORLD
-      );
-
-      CONTEXT.pop();
    }
 
    /*
-   | EXTENSION_FIRST_LEVEL_KW WORD WS+ general_fate_sequence WS* R_PAREN
+   | EXTENSION_FIRST_LEVEL_KW WORD WS+ instruction_list WS* R_PAREN
    {
       final Origin origin;
       final ExtensionInstruction instr;
@@ -605,57 +451,59 @@ first_level_fate_instr:
       }
       else
       {
-         instr.build(WORLD, CONTEXT, origin, ($general_fate_sequence.result));
+         instr.build(WORLD, CONTEXT, origin, ($instruction_list.result));
       }
    }
    */
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 /* Trying to get rule priorities right */
-general_fate_instr
+instruction
 returns [Instruction result]
 :
-   L_PAREN WS+ general_fate_sequence WS+ R_PAREN
+   L_PAREN WS* maybe_instruction_list WS* R_PAREN
    {
+      /*
+       * Don't define a local variable hierachy just for that group, as it would
+       * prevent things like
+       * (for
+       *    (
+       *       (local int i)
+       *       (set i 0)
+       *    )
+       *    (< i 3)
+       *    (set i (+ i 1))
+       *    stuff
+       * )
+       *
+       */
       $result =
          new InstructionList
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($L_PAREN.getLine()),
                ($L_PAREN.getCharPositionInLine())
             ),
-            ($general_fate_sequence.result)
+            ($maybe_instruction_list.result)
          );
    }
 
-   | LOCAL_KW
-      type
-      WS+
-      name=new_reference_name
-      WS*
-   R_PAREN
+   | DECLARE_LOCAL_VARIABLE_KW type WS+ name=identifier WS* R_PAREN
    {
       final Origin start_origin, type_origin;
       final Variable new_variable;
       final Map<String, Variable> variable_map;
 
       start_origin =
-         CONTEXT.get_origin_at
+         PARSER.get_origin_at
          (
-            ($LOCAL_KW.getLine()),
-            ($LOCAL_KW.getCharPositionInLine())
+            ($DECLARE_LOCAL_VARIABLE_KW.getLine()),
+            ($DECLARE_LOCAL_VARIABLE_KW.getCharPositionInLine())
          );
 
       new_variable =
@@ -667,965 +515,295 @@ returns [Instruction result]
             false
          );
 
-      variable_map = LOCAL_VARIABLES.peekFirst();
-
-      if (variable_map.containsKey(($name.result)))
-      {
-         ErrorManager.handle
-         (
-            new DuplicateLocalVariableException
-            (
-               variable_map.get(($name.result)),
-               new_variable
-            )
-         );
-      }
-      else
-      {
-         variable_map.put(($name.result), new_variable);
-      }
+      PARSER.add_local_variable(new_variable);
 
       $result = new LocalVariable(new_variable);
-
-      if (!HIERARCHICAL_VARIABLES.isEmpty())
-      {
-         HIERARCHICAL_VARIABLES.peekFirst().add(new_variable.get_name());
-      }
    }
 
-   | PROMPT_STRING_KW
-         targetv=non_text_value WS+
-         min_size=non_text_value WS+
-         max_size=non_text_value WS+
-         paragraph WS*
-      R_PAREN
+/******************************************************************************/
+/**** LOOPS *******************************************************************/
+/******************************************************************************/
+   | COND_KW instruction_cond_list WS* R_PAREN
    {
       $result =
-         PromptString.build
+         CondInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($PROMPT_STRING_KW.getLine()),
-               ($PROMPT_STRING_KW.getCharPositionInLine())
+               ($COND_KW.getLine()),
+               ($COND_KW.getCharPositionInLine())
             ),
-            ($targetv.result),
-            ($min_size.result),
-            ($max_size.result),
-            ($paragraph.result)
+            ($instruction_cond_list.result)
          );
    }
 
-   | PROMPT_INTEGER_KW
-         targetv=non_text_value WS+
-         min_size=non_text_value WS+
-         max_size=non_text_value WS+
-         paragraph WS*
+   | DO_WHILE_KW computation WS*
+         {
+            PARSER.increment_breakable_levels();
+            PARSER.increment_continue_levels();
+            PARSER.increase_local_variables_hierarchy();
+         }
+         maybe_instruction_list WS*
       R_PAREN
    {
+      PARSER.decrease_local_variables_hierarchy();
+      PARSER.decrement_continue_levels();
+      PARSER.decrement_breakable_levels();
+
       $result =
-         PromptInteger.build
+         DoWhile.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($PROMPT_INTEGER_KW.getLine()),
-               ($PROMPT_INTEGER_KW.getCharPositionInLine())
+               ($DO_WHILE_KW.getLine()),
+               ($DO_WHILE_KW.getCharPositionInLine())
             ),
-            ($targetv.result),
-            ($min_size.result),
-            ($max_size.result),
-            ($paragraph.result)
+            ($computation.result),
+            ($maybe_instruction_list.result)
          );
    }
 
-   | IMP_DICT_SET_KW key=value WS+ val=value WS+ value_reference WS* R_PAREN
+   | FOR_KW
+         {
+            PARSER.increase_local_variables_hierarchy();
+         }
+         pre=instruction WS* computation WS* post=instruction WS*
+         {
+            PARSER.increment_breakable_levels();
+            PARSER.increment_continue_levels();
+         }
+         maybe_instruction_list
+         WS*
+      R_PAREN
    {
-      // TODO
-      $result = null;
-      /*
-         SetEntry.build
+      PARSER.decrement_continue_levels();
+      PARSER.decrement_breakable_levels();
+      PARSER.decrease_local_variables_hierarchy();
+
+      $result =
+         For.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($IMP_DICT_SET_KW.getLine()),
-               ($IMP_DICT_SET_KW.getCharPositionInLine())
+               ($FOR_KW.getLine()),
+               ($FOR_KW.getCharPositionInLine())
             ),
-            ($key.result),
-            ($val.result)
+            ($computation.result),
+            ($pre.result),
+            ($maybe_instruction_list.result),
+            ($post.result)
          );
-      */
    }
 
-   | IMP_ADD_KW value_list WS+ value_reference WS* R_PAREN
-   {
-      final List<Instruction> add_instrs;
-
-      add_instrs = new ArrayList<Instruction>();
-
-      for (final Computation value: ($value_list.result))
+   | FOR_EACH_KW coll=computation WS+ identifier
       {
-         add_instrs.add
-         (
-            AddElement.build
+         final Variable new_variable;
+         final Type collection_type;
+         Type elem_type;
+
+         elem_type = Type.ANY;
+
+         collection_type = ($coll.result).get_type();
+
+         /* FIXME: This doesn't let you use it with a Dict. */
+         if (collection_type instanceof CollectionType)
+         {
+            elem_type = ((CollectionType) collection_type).get_content_type();
+         }
+         else
+         {
+            ErrorManager.handle
             (
-               CONTEXT.get_origin_at
+               new InvalidTypeException
                (
-                  ($IMP_ADD_KW.getLine()),
-                  ($IMP_ADD_KW.getCharPositionInLine())
+                  PARSER.get_origin_at
+                  (
+                     ($FOR_EACH_KW.getLine()),
+                     ($FOR_EACH_KW.getCharPositionInLine())
+                  ),
+                  elem_type,
+                  Type.COLLECTION_TYPES
+               )
+            );
+
+            elem_type = Type.ANY;
+         }
+
+         new_variable =
+            new Variable
+            (
+               PARSER.get_origin_at
+               (
+                  ($FOR_EACH_KW.getLine()),
+                  ($FOR_EACH_KW.getCharPositionInLine())
                ),
-               value,
-               ($value_reference.result)
-            )
-         );
+               elem_type,
+               ($identifier.result),
+               false
+            );
+
+         PARSER.increase_local_variables_hierarchy();
+         PARSER.increment_breakable_levels();
+         PARSER.increment_continue_levels();
+
+         PARSER.add_local_variable(new_variable);
       }
+      WS+ maybe_instruction_list WS* R_PAREN
+   {
+      PARSER.decrement_continue_levels();
+      PARSER.decrement_breakable_levels();
+      PARSER.decrease_local_variables_hierarchy();
 
       $result =
-         new InstructionList
+         new ForEach
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($IMP_ADD_KW.getLine()),
-               ($IMP_ADD_KW.getCharPositionInLine())
+               ($FOR_EACH_KW.getLine()),
+               ($FOR_EACH_KW.getCharPositionInLine())
             ),
-            add_instrs
+            ($coll.result),
+            ($identifier.result),
+            ($maybe_instruction_list.result)
          );
    }
 
-   | IMP_ADD_AT_KW
-         index=non_text_value WS+
-         element=value WS+
-         value_reference WS*
+   | WHILE_KW computation WS*
+      {
+         PARSER.increase_local_variables_hierarchy();
+         PARSER.increment_breakable_levels();
+         PARSER.increment_continue_levels();
+      }
+      maybe_instruction_list WS* R_PAREN
+   {
+      PARSER.decrement_continue_levels();
+      PARSER.decrement_breakable_levels();
+      PARSER.decrease_local_variables_hierarchy();
+
+      $result =
+         While.build
+         (
+            PARSER.get_origin_at
+            (
+               ($WHILE_KW.getLine()),
+               ($WHILE_KW.getCharPositionInLine())
+            ),
+            ($computation.result),
+            ($maybe_instruction_list.result)
+         );
+   }
+
+   | SWITCH_KW computation WS*
+         {
+            PARSER.increment_breakable_levels();
+         }
+         instr_cond_list WS*
+         {
+            PARSER.increase_local_variables_hierarchy();
+         }
+         instruction WS*
       R_PAREN
    {
+      PARSER.decrease_local_variables_hierarchy();
+      PARSER.decrement_breakable_levels();
+
       $result =
-         AddElementAt.build
+         SwitchInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($IMP_ADD_AT_KW.getLine()),
-               ($IMP_ADD_AT_KW.getCharPositionInLine())
+               ($SWITCH_KW.getLine()),
+               ($SWITCH_KW.getCharPositionInLine())
             ),
-            ($index.result),
-            ($element.result),
-            ($value_reference.result)
+            ($computation.result),
+            ($instr_cond_list.result),
+            ($instruction.result)
          );
    }
 
-   | IMP_ADD_ALL_KW
-         sourcev=non_text_value WS+
-         target=value_reference WS*
+/******************************************************************************/
+/**** IF ELSE *****************************************************************/
+/******************************************************************************/
+   | IF_KW computation WS*
+         {
+            PARSER.increase_local_variables_hierarchy();
+         }
+         maybe_instruction_list WS*
       R_PAREN
    {
+      PARSER.decrease_local_variables_hierarchy();
+
       $result =
-         AddElementsOf.build
+         IfInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($IMP_ADD_ALL_KW.getLine()),
-               ($IMP_ADD_ALL_KW.getCharPositionInLine())
+               ($IF_KW.getLine()),
+               ($IF_KW.getCharPositionInLine())
             ),
-            ($sourcev.result),
-            ($target.result)
+            ($computation.result),
+            ($maybe_instruction_list.result)
          );
    }
 
-   | END_KW
+   | IF_ELSE_KW computation
+         {
+            PARSER.increase_local_variables_hierarchy();
+         }
+         WS* if_true=instruction
+         {
+            PARSER.decrease_local_variables_hierarchy();
+            PARSER.increase_local_variables_hierarchy();
+         }
+         WS* if_false=instruction WS*
+      R_PAREN
    {
+      PARSER.decrease_local_variables_hierarchy();
+
       $result =
-         new End
+         IfElseInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($END_KW.getLine()),
-               ($END_KW.getCharPositionInLine())
-            )
+               ($IF_ELSE_KW.getLine()),
+               ($IF_ELSE_KW.getCharPositionInLine())
+            ),
+            ($computation.result),
+            ($if_true.result),
+            ($if_false.result)
          );
    }
 
-   | DONE_KW
-   {
-      $result =
-         new Done
-         (
-            CONTEXT.get_origin_at
-            (
-               ($DONE_KW.getLine()),
-               ($DONE_KW.getCharPositionInLine())
-            )
-         );
-   }
+/******************************************************************************/
+/**** ERRORS ******************************************************************/
+/******************************************************************************/
 
-   | IMP_IGNORE_ERROR_KW WORD WS+ general_fate_instr WS* R_PAREN
+   | IMP_IGNORE_ERROR_KW WORD WS+ instruction WS* R_PAREN
    {
       /* TODO: temporarily disable an compiler error category */
-      $result = ($general_fate_instr.result);
+      $result = ($instruction.result);
    }
 
-   | IMP_DICT_REMOVE_KW
-         value WS+
-         value_reference WS*
-      R_PAREN
-   {
-      // TODO
-      $result = null;
-      /*
-         RemoveEntry.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_DICT_REMOVE_KW.getLine()),
-               ($IMP_DICT_REMOVE_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($value_reference.result)
-         );
-      */
-   }
-
-   | IMP_REMOVE_ONE_KW
-         value WS+
-         value_reference WS*
-      R_PAREN
+   | IMP_ASSERT_KW computation WS+ paragraph WS* R_PAREN
    {
       $result =
-         RemoveElement.build
+         Assert.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($IMP_REMOVE_ONE_KW.getLine()),
-               ($IMP_REMOVE_ONE_KW.getCharPositionInLine())
+               ($IMP_ASSERT_KW.getLine()),
+               ($IMP_ASSERT_KW.getCharPositionInLine())
             ),
-            ($value.result),
-            ($value_reference.result)
+            ($computation.result),
+            ($paragraph.result)
          );
    }
 
-   | IMP_REMOVE_AT_KW
-         non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-      $result =
-         RemoveElementAt.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_REMOVE_AT_KW.getLine()),
-               ($IMP_REMOVE_AT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result)
-         );
-   }
+/******************************************************************************/
+/**** STRUCTURES **************************************************************/
+/******************************************************************************/
 
-   | IMP_REMOVE_ALL_KW
-         value WS+
-         value_reference WS*
-      R_PAREN
-   {
-      $result =
-         RemoveAllOfElement.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_REMOVE_ALL_KW.getLine()),
-               ($IMP_REMOVE_ALL_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($value_reference.result)
-         );
-   }
-
-   | IMP_CLEAR_KW value_reference WS* R_PAREN
-   {
-      $result =
-         Clear.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_CLEAR_KW.getLine()),
-               ($IMP_CLEAR_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result)
-         );
-   }
-
-   | IMP_REVERSE_KW value_reference WS* R_PAREN
-   {
-      $result =
-         ReverseList.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_REVERSE_KW.getLine()),
-               ($IMP_REVERSE_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result)
-         );
-   }
-
-   | IMP_PUSH_LEFT_KW value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         PushElement.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_PUSH_LEFT_KW.getLine()),
-               ($IMP_PUSH_LEFT_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($value_reference.result),
-            true
-         );
-   }
-
-   | IMP_PUSH_RIGHT_KW value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         PushElement.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_PUSH_RIGHT_KW.getLine()),
-               ($IMP_PUSH_RIGHT_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($value_reference.result),
-            false
-         );
-   }
-
-   | IMP_POP_RIGHT_KW value_reference WS+ non_text_value WS* R_PAREN
-   {
-      $result =
-         PopElement.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_POP_RIGHT_KW.getLine()),
-               ($IMP_POP_RIGHT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            false
-         );
-   }
-
-   | IMP_POP_LEFT_KW value_reference WS+ non_text_value WS* R_PAREN
-   {
-      $result =
-         PopElement.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_POP_LEFT_KW.getLine()),
-               ($IMP_POP_LEFT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            true
-         );
-   }
-
-   | IMP_MAP_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         tonkadur.fate.v1.lang.instruction.Map.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_MAP_KW.getLine()),
-               ($IMP_MAP_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            new ArrayList()
-         );
-   }
-
-   | IMP_DICT_MAP_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      // TODO
-      $result = null;
-      /*
-         DictMap.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_DICT_MAP_KW.getLine()),
-               ($IMP_DICT_MAP_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            new ArrayList()
-         );
-      */
-   }
-
-
-   | IMP_MAP_KW non_text_value WS+ value_reference WS+ value_list WS* R_PAREN
-   {
-      $result =
-         tonkadur.fate.v1.lang.instruction.Map.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_MAP_KW.getLine()),
-               ($IMP_MAP_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            ($value_list.result)
-         );
-   }
-
-   | IMP_INDEXED_MAP_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         IndexedMap.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_MAP_KW.getLine()),
-               ($IMP_INDEXED_MAP_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            new ArrayList()
-         );
-   }
-
-   | IMP_INDEXED_MAP_KW
-         non_text_value WS+
-         value_reference WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMap.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_MAP_KW.getLine()),
-               ($IMP_INDEXED_MAP_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            ($value_list.result)
-         );
-   }
-
-   | IMP_DICT_MERGE_KW
-         fun=non_text_value WS+
-         inv1=non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-      // TODO
-      $result = null;
-      /*
-         DictMerge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_DICT_MERGE_KW.getLine()),
-               ($IMP_DICT_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            ($value_reference.result),
-            new ArrayList()
-         );
-      */
-   }
-
-   | IMP_DICT_MERGE_KW
-         fun=non_text_value WS+
-         inv1=non_text_value WS+
-         value_reference WS+
-         value_list WS*
-      R_PAREN
-   {
-      // TODO
-      $result = null;
-      /*
-         DictMerge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_DICT_MERGE_KW.getLine()),
-               ($IMP_DICT_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            ($value_reference.result),
-            ($value_list.result)
-         );
-      */
-   }
-
-   | IMP_MERGE_KW
-         fun=non_text_value WS+
-         inv1=non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-      $result =
-         Merge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_MERGE_KW.getLine()),
-               ($IMP_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            null,
-            ($value_reference.result),
-            null,
-            new ArrayList()
-         );
-   }
-
-   | IMP_MERGE_KW
-         fun=non_text_value WS+
-         inv1=non_text_value WS+
-         value_reference WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         Merge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_MERGE_KW.getLine()),
-               ($IMP_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            null,
-            ($value_reference.result),
-            null,
-            ($value_list.result)
-         );
-   }
-
-   | IMP_INDEXED_MERGE_KW
-         fun=non_text_value WS+
-         inv1=non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMerge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_MERGE_KW.getLine()),
-               ($IMP_INDEXED_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            null,
-            ($value_reference.result),
-            null,
-            new ArrayList()
-         );
-   }
-
-   | IMP_INDEXED_MERGE_KW
-         fun=non_text_value WS+
-         inv1=non_text_value WS+
-         value_reference WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMerge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_MERGE_KW.getLine()),
-               ($IMP_INDEXED_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            null,
-            ($value_reference.result),
-            null,
-            ($value_list.result)
-         );
-   }
-
-   | SAFE_IMP_MERGE_KW
-      fun=non_text_value WS+
-      def1=value WS+
-      inv1=non_text_value WS+
-      def0=value WS+
-      value_reference WS*
-      R_PAREN
-   {
-      $result =
-         Merge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_IMP_MERGE_KW.getLine()),
-               ($SAFE_IMP_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            ($def1.result),
-            ($value_reference.result),
-            ($def0.result),
-            new ArrayList()
-         );
-   }
-
-   | SAFE_IMP_MERGE_KW
-      fun=non_text_value WS+
-      def1=value WS+
-      inv1=non_text_value WS+
-      def0=value WS+
-      value_reference WS+
-      value_list WS*
-      R_PAREN
-   {
-      $result =
-         Merge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_IMP_MERGE_KW.getLine()),
-               ($SAFE_IMP_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            ($def1.result),
-            ($value_reference.result),
-            ($def0.result),
-            ($value_list.result)
-         );
-   }
-
-   | SAFE_IMP_INDEXED_MERGE_KW
-      fun=non_text_value WS+
-      def1=value WS+
-      inv1=non_text_value WS+
-      def0=value WS+
-      value_reference WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMerge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_IMP_INDEXED_MERGE_KW.getLine()),
-               ($SAFE_IMP_INDEXED_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            ($def1.result),
-            ($value_reference.result),
-            ($def0.result),
-            new ArrayList()
-         );
-   }
-
-   | SAFE_IMP_INDEXED_MERGE_KW
-      fun=non_text_value WS+
-      def1=value WS+
-      inv1=non_text_value WS+
-      def0=value WS+
-      value_reference WS+
-      value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMerge.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_IMP_INDEXED_MERGE_KW.getLine()),
-               ($SAFE_IMP_INDEXED_MERGE_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv1.result),
-            ($def1.result),
-            ($value_reference.result),
-            ($def0.result),
-            ($value_list.result)
-         );
-   }
-
-   | IMP_SUB_LIST_KW
-         vstart=non_text_value WS+
-         vend=non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-      $result =
-         SubList.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_SUB_LIST_KW.getLine()),
-               ($IMP_SUB_LIST_KW.getCharPositionInLine())
-            ),
-            ($vstart.result),
-            ($vend.result),
-            ($value_reference.result)
-         );
-   }
-
-   | IMP_FILTER_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         Filter.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_FILTER_KW.getLine()),
-               ($IMP_FILTER_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            new ArrayList()
-         );
-   }
-
-   | IMP_FILTER_KW non_text_value WS+ value_reference WS+ value_list WS* R_PAREN
-   {
-      $result =
-         Filter.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_FILTER_KW.getLine()),
-               ($IMP_FILTER_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            ($value_list.result)
-         );
-   }
-
-   | IMP_INDEXED_FILTER_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         IndexedFilter.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_FILTER_KW.getLine()),
-               ($IMP_INDEXED_FILTER_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            new ArrayList()
-         );
-   }
-
-   | IMP_INDEXED_FILTER_KW
-         non_text_value WS+
-         value_reference WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedFilter.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_FILTER_KW.getLine()),
-               ($IMP_INDEXED_FILTER_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            ($value_list.result)
-         );
-   }
-
-   | IMP_PARTITION_KW
-      non_text_value WS+
-      iftrue=value_reference WS+
-      iffalse=value_reference WS*
-      R_PAREN
-   {
-      $result =
-         Partition.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_PARTITION_KW.getLine()),
-               ($IMP_PARTITION_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($iftrue.result),
-            ($iffalse.result),
-            new ArrayList()
-         );
-   }
-
-   | IMP_PARTITION_KW
-      non_text_value WS+
-      iftrue=value_reference WS+
-      iffalse=value_reference WS+
-      value_list WS*
-      R_PAREN
-   {
-      $result =
-         Partition.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_PARTITION_KW.getLine()),
-               ($IMP_PARTITION_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($iftrue.result),
-            ($iffalse.result),
-            ($value_list.result)
-         );
-   }
-
-   | IMP_INDEXED_PARTITION_KW
-      non_text_value WS+
-      iftrue=value_reference WS+
-      iffalse=value_reference WS*
-      R_PAREN
-   {
-      $result =
-         IndexedPartition.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_PARTITION_KW.getLine()),
-               ($IMP_INDEXED_PARTITION_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($iftrue.result),
-            ($iffalse.result),
-            new ArrayList()
-         );
-   }
-
-   | IMP_INDEXED_PARTITION_KW
-      non_text_value WS+
-      iftrue=value_reference WS+
-      iffalse=value_reference WS+
-      value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedPartition.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_INDEXED_PARTITION_KW.getLine()),
-               ($IMP_INDEXED_PARTITION_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($iftrue.result),
-            ($iffalse.result),
-            ($value_list.result)
-         );
-   }
-
-   | IMP_SORT_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-        Sort.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_SORT_KW.getLine()),
-               ($IMP_SORT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            new ArrayList()
-         );
-   }
-
-   | IMP_SORT_KW non_text_value WS+ value_reference WS+ value_list WS* R_PAREN
-   {
-      $result =
-         Sort.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_SORT_KW.getLine()),
-               ($IMP_SORT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value_reference.result),
-            ($value_list.result)
-         );
-   }
-
-
-   | IMP_SHUFFLE_KW value_reference WS* R_PAREN
-   {
-      $result =
-         Shuffle.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_SHUFFLE_KW.getLine()),
-               ($IMP_SHUFFLE_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result)
-         );
-   }
-
-   | IMP_SET_KW value_reference WS+ value WS* R_PAREN
-   {
-      $result =
-         SetValue.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_SET_KW.getLine()),
-               ($IMP_SET_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($value_reference.result)
-         );
-   }
-
-   | ALLOCATE_KW value_reference WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($ALLOCATE_KW.getLine()),
-            ($ALLOCATE_KW.getCharPositionInLine())
-         );
-
-      $result = Allocate.build(origin, ($value_reference.result));
-   }
-
-
-   | FREE_KW value_reference WS* R_PAREN
-   {
-      $result =
-         new Free
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FREE_KW.getLine()),
-               ($FREE_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result)
-         );
-   }
-
-   | IMP_SET_FIELDS_KW value_reference WS* field_value_list WS* R_PAREN
+   | IMP_SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
    {
       /*
        * A bit of a lazy solution: build field references, then extract the data
@@ -1647,7 +825,7 @@ returns [Instruction result]
             FieldReference.build
             (
                entry.get_car(),
-               ($value_reference.result),
+               ($computation.result),
                entry.get_cdr().get_car()
             );
 
@@ -1661,554 +839,32 @@ returns [Instruction result]
       $result =
          new SetFields
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($IMP_SET_FIELDS_KW.getLine()),
                ($IMP_SET_FIELDS_KW.getCharPositionInLine())
             ),
-            ($value_reference.result),
+            ($computation.result),
             assignments
          );
    }
 
-   | WHILE_KW non_text_value WS*
-      {
-         BREAKABLE_LEVELS++;
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
-      }
-      general_fate_sequence
-      {
-         BREAKABLE_LEVELS--;
-
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS*
-      R_PAREN
-   {
-      $result =
-         While.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($WHILE_KW.getLine()),
-               ($WHILE_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($general_fate_sequence.result)
-         );
-   }
-
-   | DO_WHILE_KW non_text_value WS*
-      {
-         BREAKABLE_LEVELS++;
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
-      }
-      general_fate_sequence
-      {
-         BREAKABLE_LEVELS--;
-
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS*
-      R_PAREN
-   {
-      $result =
-         DoWhile.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($DO_WHILE_KW.getLine()),
-               ($DO_WHILE_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($general_fate_sequence.result)
-         );
-   }
-
-   | {BREAKABLE_LEVELS > 0}? IMP_BREAK_KW
-   {
-      $result =
-         new Break
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_BREAK_KW.getLine()),
-               ($IMP_BREAK_KW.getCharPositionInLine())
-            )
-         );
-   }
-
-   | FOR_KW pre=general_fate_instr WS*
-      non_text_value WS*
-      post=general_fate_instr WS*
-      {
-         BREAKABLE_LEVELS++;
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
-      }
-      general_fate_sequence
-      {
-         BREAKABLE_LEVELS--;
-
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS* R_PAREN
-   {
-      $result =
-         For.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOR_KW.getLine()),
-               ($FOR_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($pre.result),
-            ($general_fate_sequence.result),
-            ($post.result)
-         );
-   }
-
-   | FOR_EACH_KW
-      coll=non_text_value WS+ new_reference_name
-      {
-         final Map<String, Variable> variable_map;
-         final Variable new_variable;
-         final Type collection_type;
-         Type elem_type;
-
-         elem_type = Type.ANY;
-
-         collection_type = ($coll.result).get_type();
-
-         if (collection_type instanceof CollectionType)
-         {
-            elem_type = ((CollectionType) collection_type).get_content_type();
-         }
-         else
-         {
-            ErrorManager.handle
-            (
-               new InvalidTypeException
-               (
-                  CONTEXT.get_origin_at
-                  (
-                     ($FOR_EACH_KW.getLine()),
-                     ($FOR_EACH_KW.getCharPositionInLine())
-                  ),
-                  elem_type,
-                  Type.COLLECTION_TYPES
-               )
-            );
-
-            elem_type = Type.ANY;
-         }
-
-
-         new_variable =
-            new Variable
-            (
-               CONTEXT.get_origin_at
-               (
-                  ($FOR_EACH_KW.getLine()),
-                  ($FOR_EACH_KW.getCharPositionInLine())
-               ),
-               elem_type,
-               ($new_reference_name.result),
-               false
-            );
-
-         variable_map = LOCAL_VARIABLES.peekFirst();
-
-         if (variable_map.containsKey(($new_reference_name.result)))
-         {
-            ErrorManager.handle
-            (
-               new DuplicateLocalVariableException
-               (
-                  variable_map.get(($new_reference_name.result)),
-                  new_variable
-               )
-            );
-         }
-         else
-         {
-            variable_map.put(($new_reference_name.result), new_variable);
-         }
-      }
-      WS+
-      {
-         BREAKABLE_LEVELS++;
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
-      }
-      general_fate_sequence
-      {
-         BREAKABLE_LEVELS--;
-
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS*
-   R_PAREN
-   {
-      $result =
-         new ForEach
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOR_EACH_KW.getLine()),
-               ($FOR_EACH_KW.getCharPositionInLine())
-            ),
-            ($coll.result),
-            ($new_reference_name.result),
-            ($general_fate_sequence.result)
-         );
-
-      variable_map.remove(($new_reference_name.result));
-   }
-
-   | EXTRA_INSTRUCTION_KW WORD WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-      final ExtraInstruction extra_instruction;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($EXTRA_INSTRUCTION_KW.getLine()),
-            ($EXTRA_INSTRUCTION_KW.getCharPositionInLine())
-         );
-
-      extra_instruction = WORLD.extra_instructions().get(origin, ($WORD.text));
-
-      $result =
-         extra_instruction.instantiate
-         (
-            WORLD,
-            CONTEXT,
-            origin,
-            ($value_list.result)
-         );
-   }
-
-   | EXTRA_INSTRUCTION_KW WORD WS* R_PAREN
-   {
-      final Origin origin;
-      final ExtraInstruction extra_instruction;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($EXTRA_INSTRUCTION_KW.getLine()),
-            ($EXTRA_INSTRUCTION_KW.getCharPositionInLine())
-         );
-
-      extra_instruction = WORLD.extra_instructions().get(origin, ($WORD.text));
-
-      $result =
-         extra_instruction.instantiate
-         (
-            WORLD,
-            CONTEXT,
-            origin,
-            new ArrayList<Computation>()
-         );
-   }
-
-   | VISIT_KW WORD WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-      final String sequence_name;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($VISIT_KW.getLine()),
-            ($VISIT_KW.getCharPositionInLine())
-         );
-
-      sequence_name = ($WORD.text);
-
-      WORLD.add_sequence_use(origin, sequence_name, ($value_list.result));
-
-      $result = new SequenceCall(origin, sequence_name, ($value_list.result));
-   }
-
-   | VISIT_KW WORD WS* R_PAREN
-   {
-      final Origin origin;
-      final String sequence_name;
-      final List<Computation> params;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($VISIT_KW.getLine()),
-            ($VISIT_KW.getCharPositionInLine())
-         );
-
-      params = new ArrayList<Computation>();
-
-      sequence_name = ($WORD.text);
-
-      WORLD.add_sequence_use(origin, sequence_name, params);
-
-      $result = new SequenceCall(origin, sequence_name, params);
-   }
-
-   | CONTINUE_AS_KW WORD WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-      final String sequence_name;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($CONTINUE_AS_KW.getLine()),
-            ($CONTINUE_AS_KW.getCharPositionInLine())
-         );
-
-      sequence_name = ($WORD.text);
-
-      WORLD.add_sequence_use(origin, sequence_name, ($value_list.result));
-
-      $result = new SequenceJump(origin, sequence_name, ($value_list.result));
-   }
-
-   | CONTINUE_AS_KW WORD WS* R_PAREN
-   {
-      final Origin origin;
-      final String sequence_name;
-      final List<Computation> params;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($CONTINUE_AS_KW.getLine()),
-            ($CONTINUE_AS_KW.getCharPositionInLine())
-         );
-
-      params = new ArrayList<Computation>();
-
-      sequence_name = ($WORD.text);
-
-      WORLD.add_sequence_use(origin, sequence_name, params);
-
-      $result = new SequenceJump(origin, sequence_name, params);
-   }
-
-   | VISIT_KW value WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($VISIT_KW.getLine()),
-            ($VISIT_KW.getCharPositionInLine())
-         );
-
-      $result =
-         SequenceVariableCall.build
-         (
-            origin,
-            ($value.result),
-            ($value_list.result)
-         );
-   }
-
-   | VISIT_KW value WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($VISIT_KW.getLine()),
-            ($VISIT_KW.getCharPositionInLine())
-         );
-
-      $result =
-         SequenceVariableCall.build
-         (
-            origin,
-            ($value.result),
-            new ArrayList<Computation>()
-         );
-   }
-
-   | CONTINUE_AS_KW value WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($CONTINUE_AS_KW.getLine()),
-            ($CONTINUE_AS_KW.getCharPositionInLine())
-         );
-
-      $result =
-         SequenceVariableJump.build
-         (
-            origin,
-            ($value.result),
-            ($value_list.result)
-         );
-   }
-
-   | CONTINUE_AS_KW value WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($CONTINUE_AS_KW.getLine()),
-            ($CONTINUE_AS_KW.getCharPositionInLine())
-         );
-
-      $result =
-         SequenceVariableJump.build
-         (
-            origin,
-            ($value.result),
-            new ArrayList<Computation>()
-         );
-   }
-
-   | IMP_ASSERT_KW non_text_value WS+ paragraph WS* R_PAREN
-   {
-      $result =
-         Assert.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMP_ASSERT_KW.getLine()),
-               ($IMP_ASSERT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($paragraph.result)
-         );
-   }
-
-   | IF_KW non_text_value WS*
-      {
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
-      }
-      general_fate_sequence
-      {
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS* R_PAREN
-   {
-      $result =
-         IfInstruction.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IF_KW.getLine()),
-               ($IF_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($general_fate_sequence.result)
-         );
-   }
-
-   | IF_ELSE_KW
-         non_text_value
-         {
-            HIERARCHICAL_VARIABLES.push(new ArrayList());
-         }
-         WS+ if_true=general_fate_instr
-         {
-            for (final String s: HIERARCHICAL_VARIABLES.pop())
-            {
-               LOCAL_VARIABLES.peekFirst().remove(s);
-            }
-
-            HIERARCHICAL_VARIABLES.push(new ArrayList());
-         }
-         WS+ if_false=general_fate_instr
-         {
-            for (final String s: HIERARCHICAL_VARIABLES.pop())
-            {
-               LOCAL_VARIABLES.peekFirst().remove(s);
-            }
-
-         }
-      WS* R_PAREN
-   {
-      $result =
-         IfElseInstruction.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IF_ELSE_KW.getLine()),
-               ($IF_ELSE_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($if_true.result),
-            ($if_false.result)
-         );
-   }
-
-   | COND_KW instr_cond_list WS* R_PAREN
-   {
-      $result =
-         CondInstruction.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($COND_KW.getLine()),
-               ($COND_KW.getCharPositionInLine())
-            ),
-            ($instr_cond_list.result)
-         );
-   }
-
-   | SWITCH_KW non_text_value WS*
-         instr_cond_list WS*
-         general_fate_instr WS*
-      R_PAREN
-   {
-      $result =
-         SwitchInstruction.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SWITCH_KW.getLine()),
-               ($SWITCH_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($instr_cond_list.result),
-            ($general_fate_instr.result)
-         );
-   }
+/******************************************************************************/
+/**** PLAYER INPUTS ***********************************************************/
+/******************************************************************************/
 
    | PLAYER_CHOICE_KW
-      {
-         CHOICE_LIMITED_VARIABLES.push(new HashSet<String>());
-      }
-      player_choice_list WS* R_PAREN
+         {
+            // FIXME: handle player_choice limited local variables.
+            PARSER.push_choice_limited_variables_level();
+         }
+         player_choice_list WS*
+      R_PAREN
    {
       $result =
          new PlayerChoice
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($PLAYER_CHOICE_KW.getLine()),
                ($PLAYER_CHOICE_KW.getCharPositionInLine())
@@ -2216,122 +872,74 @@ returns [Instruction result]
             ($player_choice_list.result)
          );
 
-      CHOICE_LIMITED_VARIABLES.pop();
+      PARSER.pop_choice_limited_variables_level();
    }
 
-   | IMP_DICT_TO_LIST_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_FROM_LIST_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_KEYS_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_VALUES_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_MERGE_KW
-         dict0r=value_reference WS+
-         dict1=non_text_value WS+
-         fun=non_text_value WS*
+   | PROMPT_STRING_KW
+         targetv=computation WS+
+         min_size=computation WS+
+         max_size=computation WS+
+         paragraph WS*
       R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         PromptString.build
+         (
+            PARSER.get_origin_at
+            (
+               ($PROMPT_STRING_KW.getLine()),
+               ($PROMPT_STRING_KW.getCharPositionInLine())
+            ),
+            ($targetv.result),
+            ($min_size.result),
+            ($max_size.result),
+            ($paragraph.result)
+         );
    }
 
-   | IMP_DICT_MERGE_KW
-         dict0r=value_reference WS+
-         dict1=non_text_value WS+
-         fun=non_text_value WS+
-         value_list WS*
+   | PROMPT_INTEGER_KW
+         targetv=computation WS+
+         min_size=computation WS+
+         max_size=computation WS+
+         paragraph WS*
       R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         PromptInteger.build
+         (
+            PARSER.get_origin_at
+            (
+               ($PROMPT_INTEGER_KW.getLine()),
+               ($PROMPT_INTEGER_KW.getCharPositionInLine())
+            ),
+            ($targetv.result),
+            ($min_size.result),
+            ($max_size.result),
+            ($paragraph.result)
+         );
    }
 
-   | IMP_DICT_FILTER_KW
-         dict0r=value_reference WS+
-         fun=non_text_value WS*
-      R_PAREN
+/******************************************************************************/
+/**** GENERIC INSTRUCTIONS ****************************************************/
+/******************************************************************************/
+   | L_PAREN identifier IMP_MARKER maybe_computation_list WS* R_PAREN
    {
-      /* TODO */
-      $result = null;
+      $result =
+         GenericInstruction.build
+         (
+            PARSER.get_origin_at
+            (
+               ($L_PAREN.getLine()),
+               ($L_PAREN.getCharPositionInLine())
+            ),
+            ($identifier.result),
+            ($maybe_computation_list.result)
+         );
    }
 
-   | IMP_DICT_FILTER_KW
-         dict0r=value_reference WS+
-         fun=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_SET_KW
-         key=value WS+
-         val=value WS+
-         dict0r=value_reference WS*
-      R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_REMOVE_KW key=value WS+ dict0r=value_reference WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_HAS_KW
-         key=value WS+
-         dict0=non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_GET_KW
-         key=value WS+
-         dict0=non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-
-      /* TODO */
-      $result = null;
-   }
-
-   | IMP_DICT_GET_POINTER_KW
-         key=value WS+
-         dict0=non_text_value WS+
-         value_reference WS*
-      R_PAREN
-   {
-
-      /* TODO */
-      $result = null;
-   }
-
+/******************************************************************************/
+/**** DISPLAYED COMPUTATIONS **************************************************/
+/******************************************************************************/
    | paragraph
    {
       $result =
@@ -2344,17 +952,10 @@ returns [Instruction result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
-instr_cond_list
+instruction_cond_list
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
@@ -2368,9 +969,9 @@ returns [List<Cons<Computation, Instruction>> result]
    (
       (
          (
-            (L_PAREN WS* non_text_value WS+)
+            (L_PAREN WS* computation WS+)
             {
-               condition = ($non_text_value.result);
+               condition = ($computation.result);
             }
          )
          |
@@ -2380,9 +981,8 @@ returns [List<Cons<Computation, Instruction>> result]
                condition =
                   VariableFromWord.generate
                   (
-                     WORLD,
-                     LOCAL_VARIABLES,
-                     CONTEXT.get_origin_at
+                     PARSER,
+                     PARSER.get_origin_at
                      (
                         ($something_else.getLine()),
                         ($something_else.getCharPositionInLine())
@@ -2392,22 +992,14 @@ returns [List<Cons<Computation, Instruction>> result]
             }
          )
       )
-         {
-            HIERARCHICAL_VARIABLES.push(new ArrayList());
-         }
-         general_fate_instr
-         {
-            for (final String s: HIERARCHICAL_VARIABLES.pop())
-            {
-               LOCAL_VARIABLES.peekFirst().remove(s);
-            }
-         }
-         WS* R_PAREN
       {
-         $result.add
-         (
-            new Cons(condition, ($general_fate_instr.result))
-         );
+         PARSER.increase_local_variables_hierarchy();
+      }
+         instruction WS* R_PAREN
+      {
+         PARSER.decrease_local_variables_hierarchy();
+
+         $result.add(new Cons(condition, ($instruction.result)));
       }
       WS*
    )+
@@ -2416,17 +1008,10 @@ returns [List<Cons<Computation, Instruction>> result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
-instr_switch_list
+instruction_switch_list
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
@@ -2434,22 +1019,17 @@ returns [List<Cons<Computation, Instruction>> result]
 }
 :
    (
-      L_PAREN WS* value WS+
+      L_PAREN WS* computation WS+
          {
-            HIERARCHICAL_VARIABLES.push(new ArrayList());
+            PARSER.increase_local_variables_hierarchy();
          }
-         general_fate_instr
-         {
-            for (final String s: HIERARCHICAL_VARIABLES.pop())
-            {
-               LOCAL_VARIABLES.peekFirst().remove(s);
-            }
-         }
-         WS* R_PAREN
+         instruction WS* R_PAREN
       {
+         PARSER.decrease_local_variables_hierarchy();
+
          $result.add
          (
-            new Cons(($value.result), ($general_fate_instr.result))
+            new Cons(($value.result), ($instruction.result))
          );
       }
       WS*
@@ -2458,7 +1038,25 @@ returns [List<Cons<Computation, Instruction>> result]
    }
 ;
 
-player_choice_list
+player_choice_list returns [List<Instruction> result]
+@init
+{
+   $result = new ArrayList<Instruction>();
+}
+:
+   (
+      WS* player_choice
+      {
+         $result.add($player_choice.result);
+      }
+   )+
+;
+catch [final Throwable e]
+{
+   PARSER.handle_error(e);
+}
+
+maybe_player_choice_list
 returns [List<Instruction> result]
 @init
 {
@@ -2477,136 +1075,105 @@ returns [List<Instruction> result]
 
 player_choice
 returns [Instruction result]
+/*
+ * Do not use a separate Local Variable stack for the player choice
+ * instructions.
+ */
 :
    TEXT_OPTION_KW
-      L_PAREN WS* paragraph WS* R_PAREN WS+
+      L_PAREN WS* paragraph WS* R_PAREN WS*
       {
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
+         PARSER.increase_local_variables_hierarchy();
       }
-      general_fate_sequence
-      {
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS*
+      maybe_instruction_list WS*
    R_PAREN
    {
+      PARSER.decrease_local_variables_hierarchy();
+
       $result =
          new TextOption
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($TEXT_OPTION_KW.getLine()),
                ($TEXT_OPTION_KW.getCharPositionInLine())
             ),
             ($paragraph.result),
-            ($general_fate_sequence.result)
+            ($maybe_instruction_list.result)
          );
    }
 
    | EVENT_OPTION_KW
-      L_PAREN WS* WORD WS* R_PAREN WS+
+      L_PAREN WS* WORD maybe_value_list WS* R_PAREN WS*
       {
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
+         PARSER.increase_local_variables_hierarchy();
       }
-      general_fate_sequence
-      {
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS*
+      maybe_instruction_list WS*
    R_PAREN
    {
       final Origin origin;
       final Event event;
 
+      PARSER.decrease_local_variables_hierarchy();
+
       origin =
-         CONTEXT.get_origin_at
+         PARSER.get_origin_at
          (
             ($L_PAREN.getLine()),
             ($L_PAREN.getCharPositionInLine())
          );
 
-      event = WORLD.events().get(origin, ($WORD.text));
-
-      $result =
-         new EventOption
-         (
-            origin,
-            event,
-            ($general_fate_sequence.result)
-         );
-   }
-
-   | EVENT_OPTION_KW
-      L_PAREN WS* WORD WS+ value_list WS* R_PAREN WS+
-      {
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
-      }
-      general_fate_sequence
-      {
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
-         {
-            LOCAL_VARIABLES.peekFirst().remove(s);
-         }
-      }
-      WS*
-   R_PAREN
-   {
-      final Origin origin;
-      final Event event;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($L_PAREN.getLine()),
-            ($L_PAREN.getCharPositionInLine())
-         );
-
-      event = WORLD.events().get(origin, ($WORD.text));
+      event = PARSER.get_world().events().get(origin, ($WORD.text));
 
       $result =
          EventOption.build
          (
             origin,
             event,
-            ($value_list.result),
-            ($general_fate_sequence.result)
+            ($maybe_value_list.result),
+            ($maybe_instruction_list.result)
          );
    }
 
-   | IF_KW
-         non_text_value WS+
-         player_choice_list WS*
-      R_PAREN
+   | L_PAREN maybe_player_choice_list WS* R_PAREN
+   {
+      $result =
+         new InstructionList
+         (
+            PARSER.get_origin_at
+            (
+               ($L_PAREN.getLine()),
+               ($L_PAREN.getCharPositionInLine())
+            ),
+            ($maybe_player_choice_list.result)
+         );
+   }
+
+   | IF_KW computation WS* player_choice_list WS* R_PAREN
    {
       $result =
          IfInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($IF_KW.getLine()),
                ($IF_KW.getCharPositionInLine())
             ),
-            ($non_text_value.result),
+            ($computation.result),
             ($player_choice_list.result)
          );
    }
 
    | IF_ELSE_KW
-      non_text_value WS+
-      if_true=player_choice WS+
-      if_false=player_choice WS*
-   R_PAREN
+         computation WS*
+         if_true=player_choice WS*
+         if_false=player_choice WS*
+      R_PAREN
    {
       $result =
          IfElseInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($IF_ELSE_KW.getLine()),
                ($IF_ELSE_KW.getCharPositionInLine())
@@ -2622,7 +1189,7 @@ returns [Instruction result]
       $result =
          CondInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($COND_KW.getLine()),
                ($COND_KW.getCharPositionInLine())
@@ -2631,12 +1198,16 @@ returns [Instruction result]
          );
    }
 
-   | SWITCH_KW value WS* player_choice_switch_list WS+ player_choice WS* R_PAREN
+   | SWITCH_KW
+         computation WS*
+         player_choice_switch_list WS+
+         player_choice WS*
+      R_PAREN
    {
       $result =
          SwitchInstruction.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($SWITCH_KW.getLine()),
                ($SWITCH_KW.getCharPositionInLine())
@@ -2648,28 +1219,28 @@ returns [Instruction result]
    }
 
    | FOR_KW
-      l0=L_PAREN
-      choice_for_variable_list WS*
-      R_PAREN WS*
-      non_text_value WS*
-      l1=L_PAREN
-      choice_for_update_variable_list WS*
-      R_PAREN WS*
-      player_choice_list
-      WS* R_PAREN
+         l0=L_PAREN
+         choice_for_variable_list WS*
+         R_PAREN WS*
+         computation WS*
+         l1=L_PAREN
+         choice_for_update_variable_list WS*
+         R_PAREN WS*
+         player_choice_list WS*
+      R_PAREN
    {
       $result =
          For.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($FOR_KW.getLine()),
                ($FOR_KW.getCharPositionInLine())
             ),
-            ($non_text_value.result),
+            ($computation.result),
             new InstructionList
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($l0.getLine()),
                   ($l0.getCharPositionInLine())
@@ -2679,7 +1250,7 @@ returns [Instruction result]
             ($player_choice_list.result),
             new InstructionList
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($l1.getLine()),
                   ($l1.getCharPositionInLine())
@@ -2690,7 +1261,7 @@ returns [Instruction result]
    }
 
    | FOR_EACH_KW
-      non_text_value WS+ new_reference_name
+      computation WS+ identifier
       {
          final Map<String, Variable> variable_map;
          final Variable new_variable;
@@ -2711,7 +1282,7 @@ returns [Instruction result]
             (
                new InvalidTypeException
                (
-                  CONTEXT.get_origin_at
+                  PARSER.get_origin_at
                   (
                      ($FOR_EACH_KW.getLine()),
                      ($FOR_EACH_KW.getCharPositionInLine())
@@ -2724,47 +1295,30 @@ returns [Instruction result]
             elem_type = Type.ANY;
          }
 
-
          new_variable =
             new Variable
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($FOR_EACH_KW.getLine()),
                   ($FOR_EACH_KW.getCharPositionInLine())
                ),
                elem_type,
-               ($new_reference_name.result),
+               ($identifier.result),
                false
             );
 
-         variable_map = LOCAL_VARIABLES.peekFirst();
-
-         if (variable_map.containsKey(($new_reference_name.result)))
-         {
-            ErrorManager.handle
-            (
-               new DuplicateLocalVariableException
-               (
-                  variable_map.get(($new_reference_name.result)),
-                  new_variable
-               )
-            );
-         }
-         else
-         {
-            variable_map.put(($new_reference_name.result), new_variable);
-         }
+         PARSER.add_context_variable(new_variable);
       }
       WS+
       {
-         HIERARCHICAL_VARIABLES.push(new ArrayList());
+         PARSER.get_hierarchical_variables().push(new ArrayList());
       }
       player_choice_list
       {
-         for (final String s: HIERARCHICAL_VARIABLES.pop())
+         for (final String s: PARSER.get_hierarchical_variables().pop())
          {
-            LOCAL_VARIABLES.peekFirst().remove(s);
+            PARSER.get_local_variables().peekFirst().remove(s);
          }
       }
       WS*
@@ -2773,29 +1327,22 @@ returns [Instruction result]
       $result =
          new ForEach
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($FOR_EACH_KW.getLine()),
                ($FOR_EACH_KW.getCharPositionInLine())
             ),
             ($non_text_value.result),
-            ($new_reference_name.result),
+            ($identifier.result),
             ($player_choice_list.result)
          );
 
-      variable_map.remove(($new_reference_name.result));
+      variable_map.remove(($identifier.result));
    }
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 player_choice_cond_list
@@ -2812,9 +1359,9 @@ returns [List<Cons<Computation, Instruction>> result]
    (
       (
          (
-            (L_PAREN WS* non_text_value WS+)
+            (L_PAREN WS* computation WS+)
             {
-               condition = ($non_text_value.result);
+               condition = ($computation.result);
             }
          )
          |
@@ -2824,9 +1371,8 @@ returns [List<Cons<Computation, Instruction>> result]
                condition =
                   VariableFromWord.generate
                   (
-                     WORLD,
-                     LOCAL_VARIABLES,
-                     CONTEXT.get_origin_at
+                     PARSER,
+                     PARSER.get_origin_at
                      (
                         ($something_else.getLine()),
                         ($something_else.getCharPositionInLine())
@@ -2847,14 +1393,7 @@ returns [List<Cons<Computation, Instruction>> result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 player_choice_switch_list
@@ -2865,9 +1404,9 @@ returns [List<Cons<Computation, Instruction>> result]
 }
 :
    (
-      L_PAREN WS* value WS+ player_choice WS* R_PAREN
+      L_PAREN WS* computation WS* player_choice WS* R_PAREN
       {
-         $result.add(new Cons(($value.result), ($player_choice.result)));
+         $result.add(new Cons(($computation.result), ($player_choice.result)));
       }
       WS*
    )+
@@ -2876,14 +1415,7 @@ returns [List<Cons<Computation, Instruction>> result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 paragraph
@@ -2893,222 +1425,18 @@ returns [TextNode result]
    final List<TextNode> content = new ArrayList();
 }
 :
-   first=text_value
+   computation_list
    {
-      content.add(($first.result));
-   }
-   (
-      (WS+ next_a=text_value)
-      {
-         if (!(content.get(content.size() - 1) instanceof Newline))
-         {
-            content.add
-            (
-               ValueToText.build
-               (
-                  Constant.build_string
-                  (
-                     $next_a.result.get_origin(),
-                     " "
-                  )
-               )
-            );
-         }
-
-         content.add(($next_a.result));
-      }
-      |
-      (next_b=text_value)
-      {
-         content.add(($next_b.result));
-      }
-   )*
-   {
-      if (content.size() == 1)
-      {
-         $result = content.get(0);
-      }
-      else
-      {
-         $result =
-            new Paragraph
-            (
-               ($first.result.get_origin()),
-               content
-            );
-      }
+      // convert all computations to text.
+      // return text node.
+      return new Paragraph(computation_list.result);
    }
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
-actual_text_value
-returns [TextNode result]:
-   TEXT_KW paragraph WS* R_PAREN
-   {
-      $result = ($paragraph.result);
-   }
-
-   | JOIN_KW value WS+ non_text_value WS* R_PAREN
-   {
-      $result =
-         TextJoin.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($JOIN_KW.getLine()),
-               ($JOIN_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            ($value.result)
-         );
-   }
-
-   | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
-   {
-      final TextEffect effect;
-
-      effect =
-         WORLD.text_effects().get
-         (
-            CONTEXT.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
-
-      $result =
-         TextWithEffect.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            effect,
-            new ArrayList<Computation>(),
-            ($paragraph.result)
-         );
-   }
-
-   | ENABLE_TEXT_EFFECT_KW
-      L_PAREN
-         WORD WS+
-         value_list WS*
-      R_PAREN WS+
-      paragraph WS*
-      R_PAREN
-   {
-      final TextEffect effect;
-
-      effect =
-         WORLD.text_effects().get
-         (
-            CONTEXT.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
-
-      $result =
-         TextWithEffect.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ENABLE_TEXT_EFFECT_KW.getLine()),
-               ($ENABLE_TEXT_EFFECT_KW.getCharPositionInLine())
-            ),
-            effect,
-            ($value_list.result),
-            ($paragraph.result)
-         );
-   }
-
-   | NEWLINE_KW
-   {
-      $result =
-         new Newline
-         (
-            CONTEXT.get_origin_at
-            (
-               ($NEWLINE_KW.getLine()),
-               ($NEWLINE_KW.getCharPositionInLine())
-            )
-         );
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
-
-value_as_text
-returns [TextNode result]:
-   sentence
-   {
-      $result = ValueToText.build(($sentence.result));
-   }
-
-   | non_text_value
-   {
-      $result = ValueToText.build(($non_text_value.result));
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
-
-text_value
-returns [TextNode result]:
-   actual_text_value
-   {
-      $result = $actual_text_value.result;
-   }
-
-   | value_as_text
-   {
-      $result = $value_as_text.result;
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
 sentence
 returns [Computation result]
 @init
@@ -3116,12 +1444,6 @@ returns [Computation result]
    final StringBuilder string_builder = new StringBuilder();
 }
 :
-   STRING_KW sentence WS* R_PAREN
-   {
-      $result = ($sentence.result);
-   }
-
-   |
    first_word=WORD
    {
       string_builder.append(($first_word.text));
@@ -3137,7 +1459,7 @@ returns [Computation result]
       $result =
          Constant.build_string
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($first_word.getLine()),
                ($first_word.getCharPositionInLine())
@@ -3148,14 +1470,7 @@ returns [Computation result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 type
@@ -3164,9 +1479,9 @@ returns [Type result]
    WORD
    {
       $result =
-         WORLD.types().get
+         PARSER.get_world().types().get
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())
@@ -3175,162 +1490,27 @@ returns [Type result]
          );
    }
 
-   | REF_KW type WS* R_PAREN
+   | L_PAREN identifier WS+ type_list WS* R_PAREN
    {
-      final Origin start_origin;
+      final Type t;
 
-      start_origin =
-         CONTEXT.get_origin_at
+      t =
+         PARSER.get_world().types().get
          (
-            ($REF_KW.getLine()),
-            ($REF_KW.getCharPositionInLine())
-         );
-
-      $result =
-         new PointerType
-         (
-            start_origin,
-            ($type.result),
-            ("anonymous (" + ($type.result).get_name() + ") ref type")
-         );
-   }
-
-   | DICT_KW key_type=type WS+ val_type=type WS* R_PAREN
-   {
-      final Origin start_origin;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($DICT_KW.getLine()),
-            ($DICT_KW.getCharPositionInLine())
-         );
-
-      $result =
-         DictionaryType.build
-         (
-            start_origin,
-            ($key_type.result),
-            ($val_type.result),
+            PARSER.get_origin_at
             (
-               "anonymous ("
-               + ($key_type.result)
-               + " "
-               + $val_type.result
-               + ") dictionary type"
-            )
-         );
-   }
-
-   | SET_KW type WS* R_PAREN
-   {
-      final Origin start_origin;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($SET_KW.getLine()),
-            ($SET_KW.getCharPositionInLine())
-         );
-
-      $result =
-         CollectionType.build
-         (
-            start_origin,
-            ($type.result),
-            true,
-            ("anonymous (" + ($type.result).get_name() + ") set type")
-         );
-   }
-
-   | LIST_KW type WS* R_PAREN
-   {
-      final Origin start_origin;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($LIST_KW.getLine()),
-            ($LIST_KW.getCharPositionInLine())
-         );
-
-      $result =
-         CollectionType.build
-         (
-            start_origin,
-            ($type.result),
-            false,
-            ("anonymous (" + ($type.result).get_name() + ") list type")
-         );
-   }
-
-   | CONS_KW t0=type WS+ t1=type WS* R_PAREN
-   {
-      $result =
-         new ConsType
-         (
-            CONTEXT.get_origin_at
-            (
-               ($CONS_KW.getLine()),
-               ($CONS_KW.getCharPositionInLine())
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
             ),
-            ($t0.result),
-            ($t1.result),
-            ("anonymous (" + ($type.result).get_name() + ") list type")
-         );
-   }
-
-   | LAMBDA_KW type WS* L_PAREN WS* type_list WS* R_PAREN WS* R_PAREN
-   {
-      final Origin start_origin;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($LAMBDA_KW.getLine()),
-            ($LAMBDA_KW.getCharPositionInLine())
+            ($WORD.text)
          );
 
-      $result =
-         new LambdaType
-         (
-            start_origin,
-            ($type.result),
-            "auto_generated",
-            ($type_list.result)
-         );
-   }
-
-   | SEQUENCE_KW type_list WS* R_PAREN
-   {
-      final Origin start_origin;
-
-      start_origin =
-         CONTEXT.get_origin_at
-         (
-            ($SEQUENCE_KW.getLine()),
-            ($SEQUENCE_KW.getCharPositionInLine())
-         );
-
-      $result =
-         new SequenceType
-         (
-            start_origin,
-            "auto_generated",
-            ($type_list.result)
-         );
+      $result = t.build(type_list);
    }
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 type_list
@@ -3340,12 +1520,27 @@ returns [List<Type> result]
    $result = new ArrayList<Type>();
 }
 :
-   (
+   type
+   {
+      $result.add(($type.result));
+   }
+   (WS+
       type
       {
          $result.add(($type.result));
       }
-   )?
+   )*
+   {
+   }
+;
+
+maybe_type_list
+returns [List<Type> result]
+@init
+{
+   $result = new ArrayList<Type>();
+}
+:
    (WS+
       type
       {
@@ -3364,10 +1559,6 @@ returns [List<Cons<Variable, Computation>> result]
 
    var_name = null;
 
-   Map<String, Variable> variables;
-
-   variables = LOCAL_VARIABLES.peekFirst();
-
    $result = new ArrayList<Cons<Variable, Computation>>();
 }
 :
@@ -3375,9 +1566,9 @@ returns [List<Cons<Variable, Computation>> result]
       WS*
          (
             (
-               L_PAREN WS* new_reference_name
+               L_PAREN WS* identifier
                {
-                  var_name = ($new_reference_name.result);
+                  var_name = ($identifier.result);
                }
             )
             |
@@ -3395,7 +1586,7 @@ returns [List<Cons<Variable, Computation>> result]
          v =
             new Variable
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($L_PAREN.getLine()),
                   ($L_PAREN.getCharPositionInLine())
@@ -3405,7 +1596,7 @@ returns [List<Cons<Variable, Computation>> result]
                false
             );
 
-         if (variables.containsKey(var_name))
+         if (PARSER.current_context_variable_level_has(var_name))
          {
             ErrorManager.handle
             (
@@ -3417,7 +1608,7 @@ returns [List<Cons<Variable, Computation>> result]
             );
          }
 
-         variables.put(var_name, v);
+         PARSER.add_context_variable(v);
 
          $result.add(new Cons(v, ($value.result)));
       }
@@ -3427,14 +1618,7 @@ returns [List<Cons<Variable, Computation>> result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 choice_for_update_variable_list
@@ -3445,7 +1629,7 @@ returns [List<Instruction> result]
    String var_name;
    Origin origin;
 
-   allowed_variables = CHOICE_LIMITED_VARIABLES.peek();
+   allowed_variables = PARSER.get_choice_limited_variables().peek();
    var_name = null;
    origin = null;
 
@@ -3456,11 +1640,11 @@ returns [List<Instruction> result]
       WS*
          (
             (
-               L_PAREN WS* new_reference_name
+               L_PAREN WS* identifier
                {
-                  var_name = ($new_reference_name.result);
+                  var_name = ($identifier.result);
                   origin =
-                     CONTEXT.get_origin_at
+                     PARSER.get_origin_at
                      (
                         ($L_PAREN.getLine()),
                         ($L_PAREN.getCharPositionInLine())
@@ -3473,7 +1657,7 @@ returns [List<Instruction> result]
                {
                   var_name = ($something_else.text).substring(1).trim();
                   origin =
-                     CONTEXT.get_origin_at
+                     PARSER.get_origin_at
                      (
                         ($something_else.getLine()),
                         ($something_else.getCharPositionInLine())
@@ -3481,18 +1665,17 @@ returns [List<Instruction> result]
                }
             )
          )
-         WS+ value WS* R_PAREN
+         WS+ computation WS* R_PAREN
       {
          $result.add
          (
             SetValue.build
             (
                origin,
-               ($value.result),
+               ($computation.result),
                VariableFromWord.generate
                (
-                  WORLD,
-                  LOCAL_VARIABLES,
+                  PARSER,
                   origin,
                   var_name
                )
@@ -3513,14 +1696,7 @@ returns [List<Instruction> result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 choice_for_variable_list
@@ -3531,7 +1707,7 @@ returns [List<Instruction> result]
    String var_name;
    Origin origin;
 
-   allowed_variables = CHOICE_LIMITED_VARIABLES.peek();
+   allowed_variables = PARSER.get_choice_limited_variables().peek();
    var_name = null;
    origin = null;
 
@@ -3542,11 +1718,11 @@ returns [List<Instruction> result]
       WS*
          (
             (
-               L_PAREN WS* new_reference_name
+               L_PAREN WS* identifier
                {
-                  var_name = ($new_reference_name.result);
+                  var_name = ($identifier.result);
                   origin =
-                     CONTEXT.get_origin_at
+                     PARSER.get_origin_at
                      (
                         ($L_PAREN.getLine()),
                         ($L_PAREN.getCharPositionInLine())
@@ -3559,7 +1735,7 @@ returns [List<Instruction> result]
                {
                   var_name = ($something_else.text).substring(1).trim();
                   origin =
-                     CONTEXT.get_origin_at
+                     PARSER.get_origin_at
                      (
                         ($something_else.getLine()),
                         ($something_else.getCharPositionInLine())
@@ -3567,21 +1743,15 @@ returns [List<Instruction> result]
                }
             )
          )
-         WS+ value WS* R_PAREN
+         WS+ computation WS* R_PAREN
       {
          $result.add
          (
             SetValue.build
             (
                origin,
-               ($value.result),
-               VariableFromWord.generate
-               (
-                  WORLD,
-                  LOCAL_VARIABLES,
-                  origin,
-                  var_name
-               )
+               ($computation.result),
+               VariableFromWord.generate(PARSER, origin, var_name)
             )
          );
 
@@ -3593,14 +1763,7 @@ returns [List<Instruction> result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 variable_list
@@ -3625,7 +1788,7 @@ returns [VariableList result]
             )
             {
                origin =
-                  CONTEXT.get_origin_at
+                  PARSER.get_origin_at
                   (
                      ($L_PAREN.getLine()),
                      ($L_PAREN.getCharPositionInLine())
@@ -3638,14 +1801,14 @@ returns [VariableList result]
             something_else=.
             {
                origin =
-                  CONTEXT.get_origin_at
+                  PARSER.get_origin_at
                   (
                      ($something_else.getLine()),
                      ($something_else.getCharPositionInLine())
                   );
 
                next_type =
-                  WORLD.types().get
+                  PARSER.get_world().types().get
                   (
                      origin,
                      ($something_else.text).substring(1).trim()
@@ -3653,7 +1816,7 @@ returns [VariableList result]
             }
          )
       )
-      WS* new_reference_name WS* R_PAREN
+      WS* identifier WS* R_PAREN
       {
          $result.add
          (
@@ -3661,7 +1824,7 @@ returns [VariableList result]
             (
                origin,
                next_type,
-               ($new_reference_name.result),
+               ($identifier.result),
                false
             )
          );
@@ -3669,18 +1832,10 @@ returns [VariableList result]
    )*
    {
    }
-   |
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 field_value_list
@@ -3711,22 +1866,18 @@ returns [List<Cons<Origin, Cons<String, Computation>>> result]
             }
          )
       )
-      value WS* R_PAREN
+      computation WS* R_PAREN
       {
          $result.add
          (
             new Cons
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($L_PAREN.getLine()),
                   ($L_PAREN.getCharPositionInLine())
                ),
-               new Cons
-               (
-                  field_name,
-                  ($value.result)
-               )
+               new Cons(field_name, ($computation.result))
             )
          );
       }
@@ -3735,7 +1886,7 @@ returns [List<Cons<Origin, Cons<String, Computation>>> result]
    }
 ;
 
-new_reference_name
+identifier
 returns [String result]
 :
    WORD
@@ -3746,7 +1897,7 @@ returns [String result]
          (
             new IllegalReferenceNameException
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($WORD.getLine()),
                   ($WORD.getCharPositionInLine())
@@ -3761,472 +1912,26 @@ returns [String result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
 /******************************************************************************/
 /**** VALUES ******************************************************************/
 /******************************************************************************/
-boolean_expression
-returns [Computation result]:
-   TRUE_KW
-   {
-      $result =
-         Constant.build_boolean
-         (
-            CONTEXT.get_origin_at
-            (
-               ($TRUE_KW.getLine()),
-               ($TRUE_KW.getCharPositionInLine())
-            ),
-            true
-         );
-   }
 
-   | FALSE_KW
-   {
-      $result =
-         Constant.build_boolean
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FALSE_KW.getLine()),
-               ($FALSE_KW.getCharPositionInLine())
-            ),
-            false
-         );
-   }
-
-   | AND_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($AND_KW.getLine()),
-               ($AND_KW.getCharPositionInLine())
-            ),
-            Operator.AND,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | OR_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($OR_KW.getLine()),
-               ($OR_KW.getCharPositionInLine())
-            ),
-            Operator.OR,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | ONE_IN_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ONE_IN_KW.getLine()),
-               ($ONE_IN_KW.getCharPositionInLine())
-            ),
-            Operator.ONE_IN,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | NOT_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($NOT_KW.getLine()),
-               ($NOT_KW.getCharPositionInLine())
-            ),
-            Operator.NOT,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | IMPLIES_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IMPLIES_KW.getLine()),
-               ($IMPLIES_KW.getCharPositionInLine())
-            ),
-            Operator.IMPLIES,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | LOWER_THAN_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($LOWER_THAN_KW.getLine()),
-               ($LOWER_THAN_KW.getCharPositionInLine())
-            ),
-            Operator.LOWER_THAN,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | LOWER_EQUAL_THAN_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($LOWER_EQUAL_THAN_KW.getLine()),
-               ($LOWER_EQUAL_THAN_KW.getCharPositionInLine())
-            ),
-            Operator.LOWER_EQUAL_THAN,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | EQUALS_KW value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($EQUALS_KW.getLine()),
-               ($EQUALS_KW.getCharPositionInLine())
-            ),
-            Operator.EQUALS,
-            ($value_list.result)
-         );
-   }
-
-   | GREATER_EQUAL_THAN_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($GREATER_EQUAL_THAN_KW.getLine()),
-               ($GREATER_EQUAL_THAN_KW.getCharPositionInLine())
-            ),
-            Operator.GREATER_EQUAL_THAN,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | GREATER_THAN_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($GREATER_THAN_KW.getLine()),
-               ($GREATER_THAN_KW.getCharPositionInLine())
-            ),
-            Operator.GREATER_THAN,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | IS_MEMBER_KW value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         IsMemberOperator.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IS_MEMBER_KW.getLine()),
-               ($IS_MEMBER_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($value_reference.result)
-         );
-   }
-
-   | IS_EMPTY_KW value_reference WS* R_PAREN
-   {
-      $result =
-         IsEmpty.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IS_EMPTY_KW.getLine()),
-               ($IS_EMPTY_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result)
-         );
-   }
-
-   | INDEX_OF_KW value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         IndexOfOperator.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEX_OF_KW.getLine()),
-               ($INDEX_OF_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($value_reference.result)
-         );
-   }
-
-   | SIZE_KW value_reference WS* R_PAREN
-   {
-      $result =
-         SizeOperator.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SIZE_KW.getLine()),
-               ($SIZE_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result)
-         );
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
-
-math_expression
-returns [Computation result]:
-   PLUS_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($PLUS_KW.getLine()),
-               ($PLUS_KW.getCharPositionInLine())
-            ),
-            Operator.PLUS,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | MINUS_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MINUS_KW.getLine()),
-               ($MINUS_KW.getCharPositionInLine())
-            ),
-            Operator.MINUS,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | MIN_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MIN_KW.getLine()),
-               ($MIN_KW.getCharPositionInLine())
-            ),
-            Operator.MIN,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | MAX_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MAX_KW.getLine()),
-               ($MAX_KW.getCharPositionInLine())
-            ),
-            Operator.MAX,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | CLAMP_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($CLAMP_KW.getLine()),
-               ($CLAMP_KW.getCharPositionInLine())
-            ),
-            Operator.CLAMP,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | ABS_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ABS_KW.getLine()),
-               ($ABS_KW.getCharPositionInLine())
-            ),
-            Operator.ABS,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | MODULO_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MODULO_KW.getLine()),
-               ($MODULO_KW.getCharPositionInLine())
-            ),
-            Operator.MODULO,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | TIMES_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($TIMES_KW.getLine()),
-               ($TIMES_KW.getCharPositionInLine())
-            ),
-            Operator.TIMES,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | DIVIDE_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($DIVIDE_KW.getLine()),
-               ($DIVIDE_KW.getCharPositionInLine())
-            ),
-            Operator.DIVIDE,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | POWER_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($POWER_KW.getLine()),
-               ($POWER_KW.getCharPositionInLine())
-            ),
-            Operator.POWER,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | RANDOM_KW non_text_value_list WS* R_PAREN
-   {
-      $result =
-         Operation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($RANDOM_KW.getLine()),
-               ($RANDOM_KW.getCharPositionInLine())
-            ),
-            Operator.RANDOM,
-            ($non_text_value_list.result)
-         );
-   }
-
-   | COUNT_KW value WS+ non_text_value WS* R_PAREN
-   {
-      $result =
-         CountOperator.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($COUNT_KW.getLine()),
-               ($COUNT_KW.getCharPositionInLine())
-            ),
-            ($value.result),
-            ($non_text_value.result)
-         );
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
-
-value
+computation
 returns [Computation result]
+@init
+{
+   Parser.LocalVariables previous_local_variables_stack;
+}
 :
    WORD
    {
       $result =
-         Constant.build
+         AmbiguousWord.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())
@@ -4235,9 +1940,9 @@ returns [Computation result]
          );
    }
 
-   | IGNORE_ERROR_KW WORD WS+ value WS* R_PAREN
+   | IGNORE_ERROR_KW WORD WS+ computation WS* R_PAREN
    {
-      $result = ($value.result);
+      $result = ($computation.result);
       /* TODO: temporarily disable an compiler error category */
    }
 
@@ -4251,335 +1956,18 @@ returns [Computation result]
       $result = ($sentence.result);
    }
 
-   | actual_text_value
-   {
-      $result = ($actual_text_value.result);
-   }
-
-   | non_text_value
-   {
-      $result = ($non_text_value.result);
-   }
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
-
-non_text_value
-returns [Computation result]
-:
-   STRING_KW sentence WS* R_PAREN
-   {
-      $result = $sentence.result;
-   }
-
-   | IF_ELSE_KW cond=non_text_value WS+
-      if_true=value WS+
-      if_false=value WS*
-   R_PAREN
-   {
-      $result =
-         IfElseValue.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($IF_ELSE_KW.getLine()),
-               ($IF_ELSE_KW.getCharPositionInLine())
-            ),
-            ($cond.result),
-            ($if_true.result),
-            ($if_false.result)
-         );
-   }
-
-   | CONS_KW v0=value WS+ v1=value WS* R_PAREN
-   {
-      $result =
-         new ConsComputation
-         (
-            CONTEXT.get_origin_at
-            (
-               ($CONS_KW.getLine()),
-               ($CONS_KW.getCharPositionInLine())
-            ),
-            ($v0.result),
-            ($v1.result)
-         );
-   }
-
-   | CAR_KW non_text_value WS* R_PAREN
-   {
-      $result =
-         CarCdr.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($CAR_KW.getLine()),
-               ($CAR_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            true
-         );
-   }
-
-   | CDR_KW non_text_value WS* R_PAREN
-   {
-      $result =
-         CarCdr.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($CDR_KW.getLine()),
-               ($CDR_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            false
-         );
-   }
-
-   | ACCESS_KW index=non_text_value WS+ collection=non_text_value WS* R_PAREN
-   {
-      $result =
-         Access.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ACCESS_KW.getLine()),
-               ($ACCESS_KW.getCharPositionInLine())
-            ),
-            ($collection.result),
-            ($index.result)
-         );
-   }
-
-   | ACCESS_POINTER_KW non_text_value WS+ value_reference WS* R_PAREN
-   {
-      $result =
-         AccessPointer.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ACCESS_POINTER_KW.getLine()),
-               ($ACCESS_POINTER_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result),
-            ($non_text_value.result)
-         );
-   }
-
-   | FIELD_ACCESS_KW WORD WS+ non_text_value WS* R_PAREN
+   | FIELD_ACCESS_KW WORD WS+ computation WS* R_PAREN
    {
       $result =
          FieldAccess.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($FIELD_ACCESS_KW.getLine()),
                ($FIELD_ACCESS_KW.getCharPositionInLine())
             ),
-            ($non_text_value.result),
+            ($computation.result),
             ($WORD.text)
-         );
-   }
-
-   | FOLDL_KW
-         fun=non_text_value WS+
-         init=value WS+
-         inr=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         Fold.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOLDL_KW.getLine()),
-               ($FOLDL_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($init.result),
-            ($inr.result),
-            true,
-            new ArrayList()
-         );
-   }
-
-   | FOLDL_KW
-         fun=non_text_value WS+
-         init=value WS+
-         inr=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         Fold.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOLDL_KW.getLine()),
-               ($FOLDL_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($init.result),
-            ($inr.result),
-            true,
-            ($value_list.result)
-         );
-   }
-
-   | FOLDR_KW
-         fun=non_text_value WS+
-         init=value WS+
-         inr=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         Fold.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOLDR_KW.getLine()),
-               ($FOLDR_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($init.result),
-            ($inr.result),
-            false,
-            new ArrayList()
-         );
-   }
-
-   | FOLDR_KW
-         fun=non_text_value WS+
-         init=value WS+
-         inr=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         Fold.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FOLDR_KW.getLine()),
-               ($FOLDR_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($init.result),
-            ($inr.result),
-            false,
-            ($value_list.result)
-         );
-   }
-
-   | LIST_KW value_list WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($LIST_KW.getLine()),
-            ($LIST_KW.getCharPositionInLine())
-         );
-
-      if ($value_list.result.size() == 0)
-      {
-         ErrorManager.handle(new InvalidArityException(origin, 0, 1, -1));
-      }
-
-
-      $result =
-         new Default
-         (
-            origin,
-            CollectionType.build
-            (
-               origin,
-               ($value_list.result).get(0).get_type(),
-               false,
-               "Autogenerated List Type"
-            )
-         );
-
-      for (final Computation val: $value_list.result)
-      {
-         $result =
-            AddElementComputation.build
-            (
-               origin,
-               val,
-               $result
-            );
-      }
-   }
-
-   | SET_KW value_list WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($SET_KW.getLine()),
-            ($SET_KW.getCharPositionInLine())
-         );
-
-      if ($value_list.result.size() == 0)
-      {
-         ErrorManager.handle(new InvalidArityException(origin, 0, 1, -1));
-      }
-
-      $result =
-         new Default
-         (
-            origin,
-            CollectionType.build
-            (
-               origin,
-               ($value_list.result).get(0).get_type(),
-               true,
-               "Autogenerated Set Type"
-            )
-         );
-
-      for (final Computation val: $value_list.result)
-      {
-         $result =
-            AddElementComputation.build
-            (
-               origin,
-               val,
-               $result
-            );
-      }
-   }
-
-   | RANGE_KW
-      vstart=non_text_value WS+
-      vend=non_text_value WS+
-      inc=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-        Range.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($RANGE_KW.getLine()),
-               ($RANGE_KW.getCharPositionInLine())
-            ),
-            ($vstart.result),
-            ($vend.result),
-            ($inc.result)
          );
    }
 
@@ -4588,7 +1976,7 @@ returns [Computation result]
       $result =
          new Default
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($DEFAULT_KW.getLine()),
                ($DEFAULT_KW.getCharPositionInLine())
@@ -4597,1225 +1985,129 @@ returns [Computation result]
          );
    }
 
-   | COND_KW value_cond_list WS* R_PAREN
+   | COND_KW computation_cond_list WS* R_PAREN
    {
       $result =
          CondValue.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($COND_KW.getLine()),
                ($COND_KW.getCharPositionInLine())
             ),
-            ($value_cond_list.result)
+            ($computation_cond_list.result)
          );
    }
 
    | SWITCH_KW
-         target=value WS*
-         value_switch_list WS*
-         default_val=value WS*
+         target=computation WS*
+         computation_switch_list WS*
+         default_val=computation WS*
       R_PAREN
    {
       $result =
          SwitchValue.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($SWITCH_KW.getLine()),
                ($SWITCH_KW.getCharPositionInLine())
             ),
             ($target.result),
-            ($value_switch_list.result),
+            ($computation_switch_list.result),
             ($default_val.result)
          );
    }
 
-   | boolean_expression
-   {
-      $result = ($boolean_expression.result);
-   }
-
    | LAMBDA_KW
+      {
+         previous_local_variables_stack = PARSER.get_local_variables_stack();
+         PARSER.discard_local_variables_stack();
+         PARSER.increase_local_variables_hierarchy();
+      }
          L_PAREN WS* variable_list WS* R_PAREN
          {
-            final Map<String, Variable> variable_map;
-
-            variable_map = new HashMap<String, Variable>();
-
-            variable_map.putAll(($variable_list.result).as_map());
-
-            LOCAL_VARIABLES.push(variable_map);
+            PARSER.add_local_variables(($variable_lists.result).as_map());
          }
          WS*
-         value
+         computation
          WS*
       R_PAREN
       {
+         PARSER.restore_local_variables_stack(previous_local_variables_stack);
+
          $result =
             LambdaExpression.build
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($LAMBDA_KW.getLine()),
                   ($LAMBDA_KW.getCharPositionInLine())
                ),
                ($variable_list.result).get_entries(),
-               ($value.result)
+               ($computation.result)
             );
-
-         LOCAL_VARIABLES.pop();
       }
 
    | LET_KW
+      {
+         PARSER.increase_local_variables_hierarchy();
+      }
          L_PAREN WS* let_variable_list WS* R_PAREN
          WS*
-         value
+         computation
          WS*
       R_PAREN
       {
          final List<Cons<Variable, Computation>> let_list;
+
+         PARSER.decrease_local_variables_hierarchy();
 
          let_list = ($let_variable_list.result);
 
          $result =
             new Let
             (
-               CONTEXT.get_origin_at
+               PARSER.get_origin_at
                (
                   ($LET_KW.getLine()),
                   ($LET_KW.getCharPositionInLine())
                ),
                let_list,
-               ($value.result)
+               ($computation.result)
             );
-
-         for (final Cons<Variable, Computation> entry: let_list)
-         {
-            LOCAL_VARIABLES.peekFirst().remove(entry.get_car().get_name());
-         }
       }
 
-   | math_expression
-   {
-      $result = ($math_expression.result);
-   }
-
-   | REF_KW value_reference WS* R_PAREN
-   {
-      $result =
-         new AddressOperator
-         (
-            CONTEXT.get_origin_at
-            (
-               ($REF_KW.getLine()),
-               ($REF_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result)
-         );
-   }
-
-   | CAST_KW WORD WS+ value WS* R_PAREN
+   | CAST_KW type WS+ computation WS* R_PAREN
    {
       final Origin target_type_origin;
       final Type target_type;
 
       target_type_origin =
-         CONTEXT.get_origin_at
+         PARSER.get_origin_at
          (
             ($WORD.getLine()),
             ($WORD.getCharPositionInLine())
          );
 
-      target_type = WORLD.types().get(target_type_origin, ($WORD.text));
+      target_type =
+         PARSER.get_world().types().get(target_type_origin, ($WORD.text));
 
       $result =
          Cast.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($CAST_KW.getLine()),
                ($CAST_KW.getCharPositionInLine())
             ),
             target_type,
-            ($value.result),
+            ($computation.result),
             false
          );
    }
 
-   | EXTRA_COMPUTATION_KW WORD WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-      final ExtraComputation extra_computation;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      extra_computation = WORLD.extra_computations().get(origin, ($WORD.text));
-
-      $result =
-         extra_computation.instantiate
-         (
-            WORLD,
-            CONTEXT,
-            origin,
-            ($value_list.result)
-         );
-   }
-
-   | EXTRA_COMPUTATION_KW WORD WS* R_PAREN
-   {
-      final Origin origin;
-      final ExtraComputation extra_computation;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      extra_computation = WORLD.extra_computations().get(origin, ($WORD.text));
-
-      $result =
-         extra_computation.instantiate
-         (
-            WORLD,
-            CONTEXT,
-            origin,
-            new ArrayList<Computation>()
-         );
-   }
-
-   | SEQUENCE_KW WORD WS* R_PAREN
-   {
-      final SequenceReference sr;
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($SEQUENCE_KW.getLine()),
-            ($SEQUENCE_KW.getCharPositionInLine())
-         );
-
-      sr = new SequenceReference(origin, ($WORD.text));
-      $result = sr;
-
-      WORLD.add_sequence_variable(sr);
-   }
-
-   | EVAL_KW value_reference WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($EVAL_KW.getLine()),
-            ($EVAL_KW.getCharPositionInLine())
-         );
-
-      $result =
-         LambdaEvaluation.build
-         (
-            origin,
-            ($value_reference.result),
-            new ArrayList()
-         );
-   }
-
-   | EVAL_KW value_reference WS+ value_list WS* R_PAREN
-   {
-      final Origin origin;
-
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($EVAL_KW.getLine()),
-            ($EVAL_KW.getCharPositionInLine())
-         );
-
-      $result =
-         LambdaEvaluation.build
-         (
-            origin,
-            ($value_reference.result),
-            ($value_list.result)
-         );
-   }
-
-   | ADD_KW vall=value_list WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result = ($coll.result);
-
-      for (final Computation value: ($vall.result))
-      {
-         $result =
-            AddElementComputation.build
-            (
-               CONTEXT.get_origin_at
-               (
-                  ($ADD_KW.getLine()),
-                  ($ADD_KW.getCharPositionInLine())
-               ),
-               value,
-               $result
-            );
-      }
-   }
-
-   | ADD_AT_KW
-         index=non_text_value WS+
-         element=value WS+
-         coll=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         AddElementAtComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ADD_AT_KW.getLine()),
-               ($ADD_AT_KW.getCharPositionInLine())
-            ),
-            ($index.result),
-            ($element.result),
-            ($coll.result)
-         );
-   }
-
-   | ADD_ALL_KW
-         sourcev=non_text_value WS+
-         targetv=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         AddElementsOfComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($ADD_ALL_KW.getLine()),
-               ($ADD_ALL_KW.getCharPositionInLine())
-            ),
-            ($sourcev.result),
-            ($targetv.result)
-         );
-   }
-
-   | REMOVE_ONE_KW val=value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         RemoveElementComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($REMOVE_ONE_KW.getLine()),
-               ($REMOVE_ONE_KW.getCharPositionInLine())
-            ),
-            ($val.result),
-            ($coll.result)
-         );
-   }
-
-   | REMOVE_AT_KW val=value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         RemoveElementAtComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($REMOVE_AT_KW.getLine()),
-               ($REMOVE_AT_KW.getCharPositionInLine())
-            ),
-            ($val.result),
-            ($coll.result)
-         );
-   }
-
-   | REMOVE_ALL_KW val=value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         RemoveAllOfElementComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($REMOVE_ALL_KW.getLine()),
-               ($REMOVE_ALL_KW.getCharPositionInLine())
-            ),
-            ($val.result),
-            ($coll.result)
-         );
-   }
-
-   | REVERSE_KW non_text_value WS* R_PAREN
-   {
-      $result =
-         ReverseListComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($REVERSE_KW.getLine()),
-               ($REVERSE_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result)
-         );
-   }
-
-   | PUSH_LEFT_KW val=value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         PushElementComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($PUSH_LEFT_KW.getLine()),
-               ($PUSH_LEFT_KW.getCharPositionInLine())
-            ),
-            ($val.result),
-            ($coll.result),
-            true
-         );
-   }
-
-   | PUSH_RIGHT_KW val=value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         PushElementComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($PUSH_RIGHT_KW.getLine()),
-               ($PUSH_RIGHT_KW.getCharPositionInLine())
-            ),
-            ($val.result),
-            ($coll.result),
-            false
-         );
-   }
-
-   | POP_LEFT_KW non_text_value WS* R_PAREN
-   {
-      $result =
-         PopElementComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($POP_LEFT_KW.getLine()),
-               ($POP_LEFT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            true
-         );
-   }
-
-   | POP_RIGHT_KW non_text_value WS* R_PAREN
-   {
-      $result =
-         PopElementComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($POP_RIGHT_KW.getLine()),
-               ($POP_RIGHT_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result),
-            false
-         );
-   }
-
-   | MAP_KW fun=non_text_value WS+ inv=non_text_value WS* R_PAREN
-   {
-      $result =
-         tonkadur.fate.v1.lang.computation.MapComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MAP_KW.getLine()),
-               ($MAP_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv.result),
-            new ArrayList()
-         );
-   }
-
-   | MAP_KW fun=non_text_value WS+ inv=non_text_value WS+ value_list WS* R_PAREN
-   {
-      $result =
-         tonkadur.fate.v1.lang.computation.MapComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MAP_KW.getLine()),
-               ($MAP_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv.result),
-            ($value_list.result)
-         );
-   }
-
-   | INDEXED_MAP_KW fun=non_text_value WS+ inv=non_text_value WS* R_PAREN
-   {
-      $result =
-         IndexedMapComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_MAP_KW.getLine()),
-               ($INDEXED_MAP_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv.result),
-            new ArrayList()
-         );
-   }
-
-   | INDEXED_MAP_KW
-         fun=non_text_value WS+
-         inv=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMapComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_MAP_KW.getLine()),
-               ($INDEXED_MAP_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv.result),
-            ($value_list.result)
-         );
-   }
-
-   | INDEXED_MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_MERGE_TO_LIST_KW.getLine()),
-               ($INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            false,
-            new ArrayList()
-         );
-   }
-
-   | INDEXED_MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_MERGE_TO_LIST_KW.getLine()),
-               ($INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            false,
-            ($value_list.result)
-         );
-   }
-
-   | SAFE_INDEXED_MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getLine()),
-               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            false,
-            new ArrayList()
-         );
-   }
-
-   | SAFE_INDEXED_MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getLine()),
-               ($SAFE_INDEXED_MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            false,
-            ($value_list.result)
-         );
-   }
-
-   | MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MERGE_TO_LIST_KW.getLine()),
-               ($MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            false,
-            new ArrayList()
-         );
-   }
-
-   | MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MERGE_TO_LIST_KW.getLine()),
-               ($MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            false,
-            ($value_list.result)
-         );
-   }
-
-   | SAFE_MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_MERGE_TO_LIST_KW.getLine()),
-               ($SAFE_MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            false,
-            new ArrayList()
-         );
-   }
-
-   | SAFE_MERGE_TO_LIST_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_MERGE_TO_LIST_KW.getLine()),
-               ($SAFE_MERGE_TO_LIST_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            false,
-            ($value_list.result)
-         );
-   }
-
-   | INDEXED_MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_MERGE_TO_SET_KW.getLine()),
-               ($INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            true,
-            new ArrayList()
-         );
-   }
-
-   | INDEXED_MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_MERGE_TO_SET_KW.getLine()),
-               ($INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            true,
-            ($value_list.result)
-         );
-   }
-
-   | SAFE_INDEXED_MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_INDEXED_MERGE_TO_SET_KW.getLine()),
-               ($SAFE_INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            true,
-            new ArrayList()
-         );
-   }
-
-   | SAFE_INDEXED_MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedMergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_INDEXED_MERGE_TO_SET_KW.getLine()),
-               ($SAFE_INDEXED_MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            true,
-            ($value_list.result)
-         );
-   }
-
-   | MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MERGE_TO_SET_KW.getLine()),
-               ($MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            true,
-            new ArrayList()
-         );
-   }
-
-   | MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         inv0=non_text_value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($MERGE_TO_SET_KW.getLine()),
-               ($MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            null,
-            ($inv1.result),
-            null,
-            true,
-            ($value_list.result)
-         );
-   }
-
-   | SAFE_MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_MERGE_TO_SET_KW.getLine()),
-               ($SAFE_MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            true,
-            new ArrayList()
-         );
-   }
-
-   | SAFE_MERGE_TO_SET_KW
-         fun=non_text_value WS+
-         def0=value WS+
-         inv0=non_text_value WS+
-         def1=value WS+
-         inv1=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         MergeComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SAFE_MERGE_TO_SET_KW.getLine()),
-               ($SAFE_MERGE_TO_SET_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($inv0.result),
-            ($def0.result),
-            ($inv1.result),
-            ($def1.result),
-            true,
-            ($value_list.result)
-         );
-   }
-
-   | SUB_LIST_KW
-      vstart=non_text_value WS+
-      vend=non_text_value WS+
-      inv=non_text_value WS*
-      R_PAREN
-   {
-      $result =
-         SubListComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SUB_LIST_KW.getLine()),
-               ($SUB_LIST_KW.getCharPositionInLine())
-            ),
-            ($vstart.result),
-            ($vend.result),
-            ($inv.result)
-         );
-   }
-
-   | FILTER_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         FilterComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FILTER_KW.getLine()),
-               ($FILTER_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            new ArrayList()
-         );
-   }
-
-   | FILTER_KW
-         fun=non_text_value WS+
-         coll=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         FilterComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FILTER_KW.getLine()),
-               ($FILTER_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            ($value_list.result)
-         );
-   }
-
-   | INDEXED_FILTER_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         IndexedFilterComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_FILTER_KW.getLine()),
-               ($INDEXED_FILTER_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            new ArrayList()
-         );
-   }
-
-   | INDEXED_FILTER_KW
-         fun=non_text_value WS+
-         coll=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedFilterComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_FILTER_KW.getLine()),
-               ($INDEXED_FILTER_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            ($value_list.result)
-         );
-   }
-
-   | PARTITION_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-        PartitionComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($PARTITION_KW.getLine()),
-               ($PARTITION_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            new ArrayList()
-         );
-   }
-
-   | PARTITION_KW
-         fun=non_text_value WS+
-         coll=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-        PartitionComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($PARTITION_KW.getLine()),
-               ($PARTITION_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            ($value_list.result)
-         );
-   }
-
-   | INDEXED_PARTITION_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         IndexedPartitionComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_PARTITION_KW.getLine()),
-               ($INDEXED_PARTITION_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            new ArrayList()
-         );
-   }
-
-   | INDEXED_PARTITION_KW
-         fun=non_text_value WS+
-         coll=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         IndexedPartitionComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($INDEXED_PARTITION_KW.getLine()),
-               ($INDEXED_PARTITION_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            ($value_list.result)
-         );
-   }
-
-   | SORT_KW fun=non_text_value WS+ coll=non_text_value WS* R_PAREN
-   {
-      $result =
-         SortComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SORT_KW.getLine()),
-               ($SORT_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            new ArrayList()
-         );
-   }
-
-   | SORT_KW
-         fun=non_text_value WS+
-         coll=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      $result =
-         SortComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SORT_KW.getLine()),
-               ($SORT_KW.getCharPositionInLine())
-            ),
-            ($fun.result),
-            ($coll.result),
-            ($value_list.result)
-         );
-   }
-
-   | DICT_TO_LIST_KW non_text_value WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_FROM_LIST_KW non_text_value WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_KEYS_KW non_text_value WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_VALUES_KW non_text_value WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_MERGE_KW
-         dict0=non_text_value WS+
-         dict1=non_text_value WS+
-         fun=non_text_value WS*
-      R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_MERGE_KW
-         dict0=non_text_value WS+
-         dict1=non_text_value WS+
-         fun=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_FILTER_KW
-         dict0=non_text_value WS+
-         fun=non_text_value WS*
-      R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_FILTER_KW
-         dict0=non_text_value WS+
-         fun=non_text_value WS+
-         value_list WS*
-      R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_SET_KW key=value WS+ val=value WS+ dict0=non_text_value WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_REMOVE_KW key=value WS+ dict0=non_text_value WS* R_PAREN
-   {
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_HAS_KW key=value WS+ dict0=non_text_value WS* R_PAREN
-   {
-
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_GET_KW key=value WS+ dict0=non_text_value WS* R_PAREN
-   {
-
-      /* TODO */
-      $result = null;
-   }
-
-   | DICT_GET_POINTER_KW key=value WS+ dict0=non_text_value WS* R_PAREN
-   {
-
-      /* TODO */
-      $result = null;
-   }
-
-   | SHUFFLE_KW non_text_value WS* R_PAREN
-   {
-      $result =
-        ShuffleComputation.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($SHUFFLE_KW.getLine()),
-               ($SHUFFLE_KW.getCharPositionInLine())
-            ),
-            ($non_text_value.result)
-         );
-   }
-
-   | SET_FIELDS_KW non_text_value WS* field_value_list WS* R_PAREN
+   | SET_FIELDS_KW computation WS* field_computation_list WS* R_PAREN
    {
       /*
        * A bit of a lazy solution: build field references, then extract the data
@@ -5827,7 +2119,7 @@ returns [Computation result]
       for
       (
          final Cons<Origin, Cons<String, Computation>> entry:
-            ($field_value_list.result)
+            ($field_computation_list.result)
       )
       {
          final FieldReference fr;
@@ -5837,7 +2129,7 @@ returns [Computation result]
             FieldReference.build
             (
                entry.get_car(),
-               ($non_text_value.result),
+               ($computation.result),
                entry.get_cdr().get_car()
             );
 
@@ -5851,24 +2143,24 @@ returns [Computation result]
       $result =
          new SetFieldsComputation
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($SET_FIELDS_KW.getLine()),
                ($SET_FIELDS_KW.getCharPositionInLine())
             ),
-            ($non_text_value.result),
+            ($computation.result),
             assignments
          );
    }
 
-   | WORD
+   | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
    {
-      $result = null;
+      final TextEffect effect;
 
-      $result =
-         Constant.build_if_non_string
+      effect =
+         PARSER.get_world().text_effects().get
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())
@@ -5876,103 +2168,76 @@ returns [Computation result]
             ($WORD.text)
          );
 
-      if ($result == null)
-      {
-         $result =
-            VariableFromWord.generate
-            (
-               WORLD,
-               LOCAL_VARIABLES,
-               CONTEXT.get_origin_at
-               (
-                  ($WORD.getLine()),
-                  ($WORD.getCharPositionInLine())
-               ),
-               ($WORD.text)
-            );
-      }
-   }
-
-   | value_reference
-   {
-      $result = ($value_reference.result);
-   }
-
-;
-catch [final Throwable e]
-{
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
-}
-
-value_reference
-returns [Reference result]
-:
-   AT_KW non_text_value WS* R_PAREN
-   {
       $result =
-         AtReference.build
+         TextWithEffect.build
          (
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
-               ($AT_KW.getLine()),
-               ($AT_KW.getCharPositionInLine())
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
             ),
-            ($non_text_value.result)
+            effect,
+            new ArrayList<Computation>(),
+            ($paragraph.result)
          );
    }
 
-   | FIELD_KW WORD WS+ value_reference WS* R_PAREN
+   | ENABLE_TEXT_EFFECT_KW
+      L_PAREN
+         WORD WS+
+         value_list WS*
+      R_PAREN WS+
+      paragraph WS*
+      R_PAREN
    {
-      $result =
-         FieldReference.build
-         (
-            CONTEXT.get_origin_at
-            (
-               ($FIELD_KW.getLine()),
-               ($FIELD_KW.getCharPositionInLine())
-            ),
-            ($value_reference.result),
-            ($WORD.text)
-         );
-   }
+      final TextEffect effect;
 
-
-   | (WORD | (VARIABLE_KW WORD WS* R_PAREN))
-   {
-      $result =
-         VariableFromWord.generate
+      effect =
+         PARSER.get_world().text_effects().get
          (
-            WORLD,
-            LOCAL_VARIABLES,
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())
             ),
             ($WORD.text)
          );
+
+      $result =
+         TextWithEffect.build
+         (
+            PARSER.get_origin_at
+            (
+               ($ENABLE_TEXT_EFFECT_KW.getLine()),
+               ($ENABLE_TEXT_EFFECT_KW.getCharPositionInLine())
+            ),
+            effect,
+            ($value_list.result),
+            ($paragraph.result)
+         );
+   }
+
+   | L_PAREN identifier maybe_computation_list WS* R_PAREN
+   {
+      $result =
+         GenericComputation.build
+         (
+            PARSER.get_origin_at
+            (
+               ($L_PAREN.getLine()),
+               ($L_PAREN.getCharPositionInLine())
+            ),
+            ($identifier.result),
+            ($maybe_computation_list.result)
+         );
    }
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
-value_cond_list
+computation_cond_list
 returns [List<Cons<Computation, Computation>> result]
 @init
 {
@@ -5987,7 +2252,7 @@ returns [List<Cons<Computation, Computation>> result]
       (
          (
             (
-               L_PAREN WS* c=non_text_value WS+
+               L_PAREN WS* c=computation WS+
             )
             {
                condition = ($c.result);
@@ -6000,9 +2265,8 @@ returns [List<Cons<Computation, Computation>> result]
                condition =
                   VariableFromWord.generate
                   (
-                     WORLD,
-                     LOCAL_VARIABLES,
-                     CONTEXT.get_origin_at
+                     PARSER,
+                     PARSER.get_origin_at
                      (
                         ($something_else.getLine()),
                         ($something_else.getCharPositionInLine())
@@ -6012,7 +2276,7 @@ returns [List<Cons<Computation, Computation>> result]
             }
          )
       )
-      v=value WS* R_PAREN WS*
+      v=computation WS* R_PAREN WS*
       {
          $result.add(new Cons(condition, ($v.result)));
       }
@@ -6022,17 +2286,10 @@ returns [List<Cons<Computation, Computation>> result]
 ;
 catch [final Throwable e]
 {
-   if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
-   {
-      throw new ParseCancellationException(CONTEXT.toString() + ((e.getMessage() == null) ? "" : e.getMessage()), e);
-   }
-   else
-   {
-      throw new ParseCancellationException(e);
-   }
+   PARSER.handle_error(e);
 }
 
-value_switch_list
+computation_switch_list
 returns [List<Cons<Computation, Computation>> result]
 @init
 {
@@ -6040,7 +2297,7 @@ returns [List<Cons<Computation, Computation>> result]
 }
 :
    (
-      L_PAREN WS* c=value WS+ v=value WS* R_PAREN WS*
+      L_PAREN WS* c=computation WS+ v=computation WS* R_PAREN WS*
       {
          $result.add(new Cons(($c.result), ($v.result)));
       }
@@ -6049,7 +2306,7 @@ returns [List<Cons<Computation, Computation>> result]
    }
 ;
 
-value_list
+maybe_computation_list
 returns [List<Computation> result]
 @init
 {
@@ -6057,38 +2314,15 @@ returns [List<Computation> result]
 }
 :
    (
-      value
+      computation
       {
-         ($result).add(($value.result));
+         ($result).add(($computation.result));
       }
    )*
    (WS+
-      value
+      computation
       {
-         ($result).add(($value.result));
-      }
-   )*
-   {
-   }
-;
-
-non_text_value_list
-returns [List<Computation> result]
-@init
-{
-   $result = new ArrayList<Computation>();
-}
-:
-   (
-      non_text_value
-      {
-         ($result).add(($non_text_value.result));
-      }
-   )*
-   (WS+
-      non_text_value
-      {
-         ($result).add(($non_text_value.result));
+         ($result).add(($computation.result));
       }
    )*
    {
