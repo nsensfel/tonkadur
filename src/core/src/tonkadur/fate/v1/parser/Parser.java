@@ -20,13 +20,13 @@ import tonkadur.fate.v1.lang.World;
 
 public class Parser
 {
-   final World world;
-   final Context context;
+   protected final World world;
+   protected final Context context;
 
-   LocalVariables local_variables;
+   protected LocalVariables local_variables;
 
-   int breakable_levels;
-   int continue_levels;
+   protected int breakable_levels;
+   protected int continue_levels;
 
    public Parser (final World world)
    {
@@ -196,12 +196,12 @@ public class Parser
    throws IOException
    {
       final CommonTokenStream tokens;
-      final TinyFateLexer lexer;
-      final TinyFateParser parser;
+      final FateLexer lexer;
+      final FateParser parser;
 
-      lexer = new TinyFateLexer(CharStreams.fromFileName(filename));
+      lexer = new FateLexer(CharStreams.fromFileName(filename));
       tokens = new CommonTokenStream(lexer);
-      parser = new TinyFateParser(tokens);
+      parser = new FateParser(tokens);
 
       if (origin != null)
       {
@@ -223,7 +223,73 @@ public class Parser
       }
    }
 
+   public PlayerChoiceData generate_player_choice_data ()
+   {
+      return new Parser.PlayerChoiceData(this);
+   }
+
+   public void enable_restricted_variable_stack_of (final PlayerChoiceData pcd)
+   {
+      pcd.previous_variable_stack = get_local_variables_stack();
+
+      restore_local_variables_stack(pcd.restricted_including_variables_stack);
+   }
+
+   public void disable_restricted_stack_of (final PlayerChoiceData pcd)
+   {
+      restore_local_variables_stack(pcd.previous_variable_stack);
+   }
+
+
    public static class LocalVariables extends Deque<Map<String, Variable>>
    {
+   }
+
+   public static class PlayerChoiceData
+   {
+      protected final Parser parent;
+      protected final LocalVariables restricted_including_variables_stack;
+      protected LocalVariables previous_variable_stack;
+      protected final Deque<Set<String>> player_choice_variable_names;
+
+      protected PlayerChoiceData (final Parser parent)
+      {
+         this.parent = parent;
+
+         previous_variable_stack = parent.get_local_variables_stack();
+
+         // Note: clone makes a shallow copy.
+         restricted_including_variables_stack = previous_variable_stack.clone();
+
+         player_choice_variable_names = new ArrayDeque<Set<String>>();
+      }
+
+      public void increase_variable_names_hierarchy ()
+      {
+         player_choice_variable_names.push(new HashSet<String>());
+      }
+
+      public void decrease_variable_names_hierarchy ()
+      {
+         player_choice_variable_names.pop();
+      }
+
+      public void mark_name_as_editable (final String name)
+      {
+         player_choice_variable_names.peek().add(name);
+      }
+
+      public boolean can_update_variable (final String name)
+      {
+         for (final Set<String> variable_names: player_choice_variable_names)
+         {
+            if (variables_names.has(name))
+            {
+               return true;
+            }
+         }
+
+         return false;
+      }
    }
 }

@@ -1,8 +1,8 @@
-parser grammar TinyFateParser;
+parser grammar FateParser;
 
 options
 {
-   tokenVocab = TinyFateLexer;
+   tokenVocab = FateLexer;
 }
 
 @header
@@ -172,7 +172,7 @@ first_level_instruction
          (
             start_origin,
             ($identifier.result),
-            ($type_list.result)
+            ($maybe_type_list.result)
          );
 
       PARSER.get_world().extra_instructions().add(extra_instruction);
@@ -200,7 +200,7 @@ first_level_instruction
             start_origin,
             ($type.result),
             ($identifier.result),
-            ($type_list.result)
+            ($maybe_type_list.result)
          );
 
       PARSER.get_world().extra_computations().add(extra_computation);
@@ -244,7 +244,7 @@ first_level_instruction
          new Event
          (
             start_origin,
-            ($type_list.result),
+            ($maybe_type_list.result),
             ($identifier.result)
          );
 
@@ -267,7 +267,7 @@ first_level_instruction
          new TextEffect
          (
             start_origin,
-            ($type_list.result),
+            ($maybe_type_list.result),
             ($identifier.result)
          );
 
@@ -283,7 +283,7 @@ first_level_instruction
          PARSER.get_origin_at
          (
             ($DECLARE_GLOBAL_VARIABLE_KW.getLine()),
-            ($DECLARE_GLOBAl_VARIABLE_KW.getCharPositionInLine())
+            ($DECLARE_GLOBAL_VARIABLE_KW.getCharPositionInLine())
          );
 
       new_variable =
@@ -697,7 +697,7 @@ returns [Instruction result]
          {
             PARSER.increment_breakable_levels();
          }
-         instr_cond_list WS*
+         instruction_cond_list WS*
          {
             PARSER.increase_local_variables_hierarchy();
          }
@@ -716,7 +716,7 @@ returns [Instruction result]
                ($SWITCH_KW.getCharPositionInLine())
             ),
             ($computation.result),
-            ($instr_cond_list.result),
+            ($instruction_cond_list.result),
             ($instruction.result)
          );
    }
@@ -854,11 +854,8 @@ returns [Instruction result]
 /******************************************************************************/
 
    | PLAYER_CHOICE_KW
-         {
-            // FIXME: handle player_choice limited local variables.
-            PARSER.push_choice_limited_variables_level();
-         }
-         player_choice_list WS*
+         player_choice_list[Parser.generate_player_choice_data()]
+         WS*
       R_PAREN
    {
       $result =
@@ -871,8 +868,6 @@ returns [Instruction result]
             ),
             ($player_choice_list.result)
          );
-
-      PARSER.pop_choice_limited_variables_level();
    }
 
    | PROMPT_STRING_KW
@@ -1029,7 +1024,7 @@ returns [List<Cons<Computation, Instruction>> result]
 
          $result.add
          (
-            new Cons(($value.result), ($instruction.result))
+            new Cons(($computation.result), ($instruction.result))
          );
       }
       WS*
@@ -1038,14 +1033,15 @@ returns [List<Cons<Computation, Instruction>> result]
    }
 ;
 
-player_choice_list returns [List<Instruction> result]
+player_choice_list [Parser.PlayerChoiceData pcd]
+returns [List<Instruction> result]
 @init
 {
    $result = new ArrayList<Instruction>();
 }
 :
    (
-      WS* player_choice
+      WS* player_choice[pcd]
       {
          $result.add($player_choice.result);
       }
@@ -1056,7 +1052,7 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-maybe_player_choice_list
+maybe_player_choice_list [Parser.PlayerChoiceData pcd]
 returns [List<Instruction> result]
 @init
 {
@@ -1064,7 +1060,7 @@ returns [List<Instruction> result]
 }
 :
    (WS*
-      player_choice
+      player_choice[pcd]
       {
          $result.add(($player_choice.result));
       }
@@ -1073,16 +1069,23 @@ returns [List<Instruction> result]
    }
 ;
 
-player_choice
+player_choice [Parser.PlayerChoiceData pcd]
 returns [Instruction result]
 /*
  * Do not use a separate Local Variable stack for the player choice
- * instructions.
+ * instructions but do have one for any variable defined in 'for' or 'foreach'
+ * choices.
  */
 :
    TEXT_OPTION_KW
-      L_PAREN WS* paragraph WS* R_PAREN WS*
+      L_PAREN WS*
       {
+         PARSER.enable_restricted_stack_of(pcd);
+      }
+      paragraph
+      WS* R_PAREN WS*
+      {
+         PARSER.disable_restricted_stack_of(pcd);
          PARSER.increase_local_variables_hierarchy();
       }
       maybe_instruction_list WS*
@@ -1104,8 +1107,12 @@ returns [Instruction result]
    }
 
    | EVENT_OPTION_KW
-      L_PAREN WS* WORD maybe_value_list WS* R_PAREN WS*
       {
+         PARSER.enable_restricted_stack_of(pcd);
+      }
+      L_PAREN WS* WORD maybe_computation_list WS* R_PAREN WS*
+      {
+         PARSER.disable_restricted_stack_of(pcd);
          PARSER.increase_local_variables_hierarchy();
       }
       maybe_instruction_list WS*
@@ -1130,12 +1137,12 @@ returns [Instruction result]
          (
             origin,
             event,
-            ($maybe_value_list.result),
+            ($maybe_computation_list.result),
             ($maybe_instruction_list.result)
          );
    }
 
-   | L_PAREN maybe_player_choice_list WS* R_PAREN
+   | L_PAREN maybe_player_choice_list[pcd] WS* R_PAREN
    {
       $result =
          new InstructionList
@@ -1149,7 +1156,16 @@ returns [Instruction result]
          );
    }
 
-   | IF_KW computation WS* player_choice_list WS* R_PAREN
+   | IF_KW
+         {
+            PARSER.enable_restricted_stack_of(pcd);
+         }
+         computation WS*
+         {
+            PARSER.disable_restricted_stack_of(pcd);
+         }
+         player_choice_list[pcd] WS*
+      R_PAREN
    {
       $result =
          IfInstruction.build
@@ -1165,9 +1181,15 @@ returns [Instruction result]
    }
 
    | IF_ELSE_KW
+         {
+            PARSER.enable_restricted_stack_of(pcd);
+         }
          computation WS*
-         if_true=player_choice WS*
-         if_false=player_choice WS*
+         {
+            PARSER.disable_restricted_stack_of(pcd);
+         }
+         if_true=player_choice[pcd] WS*
+         if_false=player_choice[pcd] WS*
       R_PAREN
    {
       $result =
@@ -1178,13 +1200,13 @@ returns [Instruction result]
                ($IF_ELSE_KW.getLine()),
                ($IF_ELSE_KW.getCharPositionInLine())
             ),
-            ($non_text_value.result),
+            ($computation.result),
             ($if_true.result),
             ($if_false.result)
          );
    }
 
-   | COND_KW player_choice_cond_list WS* R_PAREN
+   | COND_KW player_choice_cond_list[pcd] WS* R_PAREN
    {
       $result =
          CondInstruction.build
@@ -1199,9 +1221,15 @@ returns [Instruction result]
    }
 
    | SWITCH_KW
+         {
+            PARSER.enable_restricted_stack_of(pcd);
+         }
          computation WS*
-         player_choice_switch_list WS+
-         player_choice WS*
+         {
+            PARSER.disable_restricted_stack_of(pcd);
+         }
+         player_choice_switch_list[pcd] WS+
+         player_choice[pcd] WS*
       R_PAREN
    {
       $result =
@@ -1212,7 +1240,7 @@ returns [Instruction result]
                ($SWITCH_KW.getLine()),
                ($SWITCH_KW.getCharPositionInLine())
             ),
-            ($value.result),
+            ($computation.result),
             ($player_choice_switch_list.result),
             ($player_choice.result)
          );
@@ -1220,15 +1248,28 @@ returns [Instruction result]
 
    | FOR_KW
          l0=L_PAREN
-         choice_for_variable_list WS*
+         {
+            PARSER.enable_restricted_stack_of(pcd);
+            PARSER.increase_local_variables_hierarchy();
+            pcd.increase_variable_names_hierarchy();
+         }
+         choice_for_variable_list[pcd] WS*
          R_PAREN WS*
          computation WS*
          l1=L_PAREN
-         choice_for_update_variable_list WS*
+         choice_for_update_variable_list[pcd] WS*
          R_PAREN WS*
-         player_choice_list WS*
+         {
+            PARSER.disable_restricted_stack_of(pcd);
+         }
+         player_choice_list[pcd] WS*
       R_PAREN
    {
+      pcd.decrease_variable_names_hierarchy();
+      PARSER.enable_restricted_stack_of(pcd);
+      PARSER.decrease_local_variables_hierarchy();
+      PARSER.disable_restricted_stack_of(pcd);
+
       $result =
          For.build
          (
@@ -1261,7 +1302,14 @@ returns [Instruction result]
    }
 
    | FOR_EACH_KW
-      computation WS+ identifier
+         {
+            PARSER.enable_restricted_stack_of(pcd);
+            PARSER.increase_local_variables_hierarchy();
+         }
+         computation WS+
+         {
+         }
+      identifier
       {
          final Map<String, Variable> variable_map;
          final Variable new_variable;
@@ -1270,7 +1318,7 @@ returns [Instruction result]
 
          elem_type = Type.ANY;
 
-         collection_type = ($non_text_value.result).get_type();
+         collection_type = ($computation.result).get_type();
 
          if (collection_type instanceof CollectionType)
          {
@@ -1308,22 +1356,16 @@ returns [Instruction result]
                false
             );
 
-         PARSER.add_context_variable(new_variable);
+         PARSER.add_local_variable(new_variable);
+         PARSER.disable_restricted_stack_of(pcd);
       }
       WS+
-      {
-         PARSER.get_hierarchical_variables().push(new ArrayList());
-      }
-      player_choice_list
-      {
-         for (final String s: PARSER.get_hierarchical_variables().pop())
-         {
-            PARSER.get_local_variables().peekFirst().remove(s);
-         }
-      }
-      WS*
+      player_choice_list[pcd] WS*
    R_PAREN
    {
+      PARSER.enable_restricted_stack_of(pcd);
+      PARSER.decrease_local_variables_hierarchy();
+      PARSER.disable_restricted_stack_of(pcd);
       $result =
          new ForEach
          (
@@ -1332,12 +1374,10 @@ returns [Instruction result]
                ($FOR_EACH_KW.getLine()),
                ($FOR_EACH_KW.getCharPositionInLine())
             ),
-            ($non_text_value.result),
+            ($computation.result),
             ($identifier.result),
             ($player_choice_list.result)
          );
-
-      variable_map.remove(($identifier.result));
    }
 ;
 catch [final Throwable e]
@@ -1345,7 +1385,7 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-player_choice_cond_list
+player_choice_cond_list [Parser.PlayerChoiceData pcd]
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
@@ -1354,6 +1394,7 @@ returns [List<Cons<Computation, Instruction>> result]
    condition = null;
 
    $result = new ArrayList<Cons<Computation, Instruction>>();
+   // TODO: pcd enable.
 }
 :
    (
@@ -1362,6 +1403,7 @@ returns [List<Cons<Computation, Instruction>> result]
             (L_PAREN WS* computation WS+)
             {
                condition = ($computation.result);
+               // TODO: pcd disable.
             }
          )
          |
@@ -1379,10 +1421,11 @@ returns [List<Cons<Computation, Instruction>> result]
                      ),
                      ($something_else.text).substring(1).trim()
                   );
+               // TODO: pcd disable.
             }
          )
       )
-      player_choice WS* R_PAREN
+      player_choice[pcd] WS* R_PAREN
       {
          $result.add(new Cons(condition, ($player_choice.result)));
       }
@@ -1396,15 +1439,22 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-player_choice_switch_list
+player_choice_switch_list [Parser.PlayerChoiceData pcd]
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
    $result = new ArrayList<Cons<Computation, Instruction>>();
+   // todo: pcd enable
 }
 :
    (
-      L_PAREN WS* computation WS* player_choice WS* R_PAREN
+      L_PAREN
+         WS* computation
+         {
+            //todo: pcd disable
+         }
+         WS* player_choice[pcd] WS*
+      R_PAREN
       {
          $result.add(new Cons(($computation.result), ($player_choice.result)));
       }
@@ -1499,10 +1549,10 @@ returns [Type result]
          (
             PARSER.get_origin_at
             (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
+               ($L_PAREN.getLine()),
+               ($L_PAREN.getCharPositionInLine())
             ),
-            ($WORD.text)
+            ($identifier.result)
          );
 
       $result = t.build(type_list);
@@ -1579,7 +1629,7 @@ returns [List<Cons<Variable, Computation>> result]
                }
             )
          )
-         WS+ value WS* R_PAREN
+         WS+ computation WS* R_PAREN
       {
          final Variable v;
 
@@ -1591,26 +1641,14 @@ returns [List<Cons<Variable, Computation>> result]
                   ($L_PAREN.getLine()),
                   ($L_PAREN.getCharPositionInLine())
                ),
-               ($value.result).get_type(),
+               ($computation.result).get_type(),
                var_name,
                false
             );
 
-         if (PARSER.current_context_variable_level_has(var_name))
-         {
-            ErrorManager.handle
-            (
-               new DuplicateLocalVariableException
-               (
-                  variables.get(var_name),
-                  v
-               )
-            );
-         }
-
          PARSER.add_context_variable(v);
 
-         $result.add(new Cons(v, ($value.result)));
+         $result.add(new Cons(v, ($computation.result)));
       }
    )*
    {
@@ -1621,15 +1659,13 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-choice_for_update_variable_list
+choice_for_update_variable_list [Parser.PlayerChoiceData pcd]
 returns [List<Instruction> result]
 @init
 {
-   Collection<String> allowed_variables;
    String var_name;
    Origin origin;
 
-   allowed_variables = PARSER.get_choice_limited_variables().peek();
    var_name = null;
    origin = null;
 
@@ -1682,7 +1718,7 @@ returns [List<Instruction> result]
             )
          );
 
-         if (!allowed_variables.contains(var_name))
+         if (!pcd.can_update_variable(var_name))
          {
             ErrorManager.handle
             (
@@ -1699,15 +1735,13 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-choice_for_variable_list
+choice_for_variable_list [Parser.PlayerChoiceData pcd]
 returns [List<Instruction> result]
 @init
 {
-   Collection<String> allowed_variables;
    String var_name;
    Origin origin;
 
-   allowed_variables = PARSER.get_choice_limited_variables().peek();
    var_name = null;
    origin = null;
 
@@ -1745,6 +1779,21 @@ returns [List<Instruction> result]
          )
          WS+ computation WS* R_PAREN
       {
+         final Variable new_var;
+
+         new_var =
+            new Variable
+            (
+               origin,
+               ($computation.result).get_type(),
+               var_name,
+               false
+            );
+
+         $result.add(new LocalVariable(new_var));
+
+         PARSER.add_context_variable(v);
+
          $result.add
          (
             SetValue.build
@@ -1755,7 +1804,7 @@ returns [List<Instruction> result]
             )
          );
 
-         allowed_variables.add(var_name);
+         pcd.mark_name_as_editable(var_name);
       }
    )*
    {
@@ -2027,7 +2076,7 @@ returns [Computation result]
       }
          L_PAREN WS* variable_list WS* R_PAREN
          {
-            PARSER.add_local_variables(($variable_lists.result).as_map());
+            PARSER.add_local_variables(($variable_list.result).as_map());
          }
          WS*
          computation
@@ -2080,19 +2129,6 @@ returns [Computation result]
 
    | CAST_KW type WS+ computation WS* R_PAREN
    {
-      final Origin target_type_origin;
-      final Type target_type;
-
-      target_type_origin =
-         PARSER.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
-
-      target_type =
-         PARSER.get_world().types().get(target_type_origin, ($WORD.text));
-
       $result =
          Cast.build
          (
@@ -2101,13 +2137,13 @@ returns [Computation result]
                ($CAST_KW.getLine()),
                ($CAST_KW.getCharPositionInLine())
             ),
-            target_type,
+            $type.result,
             ($computation.result),
             false
          );
    }
 
-   | SET_FIELDS_KW computation WS* field_computation_list WS* R_PAREN
+   | SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
    {
       /*
        * A bit of a lazy solution: build field references, then extract the data
@@ -2119,7 +2155,7 @@ returns [Computation result]
       for
       (
          final Cons<Origin, Cons<String, Computation>> entry:
-            ($field_computation_list.result)
+            ($field_value_list.result)
       )
       {
          final FieldReference fr;
@@ -2185,7 +2221,7 @@ returns [Computation result]
    | ENABLE_TEXT_EFFECT_KW
       L_PAREN
          WORD WS+
-         value_list WS*
+         computation_list WS*
       R_PAREN WS+
       paragraph WS*
       R_PAREN
@@ -2212,7 +2248,7 @@ returns [Computation result]
                ($ENABLE_TEXT_EFFECT_KW.getCharPositionInLine())
             ),
             effect,
-            ($value_list.result),
+            ($computation_list.result),
             ($paragraph.result)
          );
    }
@@ -2305,6 +2341,10 @@ returns [List<Cons<Computation, Computation>> result]
    {
    }
 ;
+catch [final Throwable e]
+{
+   PARSER.handle_error(e);
+}
 
 maybe_computation_list
 returns [List<Computation> result]
@@ -2313,12 +2353,6 @@ returns [List<Computation> result]
    $result = new ArrayList<Computation>();
 }
 :
-   (
-      computation
-      {
-         ($result).add(($computation.result));
-      }
-   )*
    (WS+
       computation
       {
@@ -2328,3 +2362,32 @@ returns [List<Computation> result]
    {
    }
 ;
+catch [final Throwable e]
+{
+   PARSER.handle_error(e);
+}
+
+computation_list
+returns [List<Computation> result]
+@init
+{
+   $result = new ArrayList<Computation>();
+}
+:
+   computation
+   {
+      ($result).add(($computation.result));
+   }
+   (WS+
+      computation
+      {
+         ($result).add(($computation.result));
+      }
+   )*
+   {
+   }
+;
+catch [final Throwable e]
+{
+   PARSER.handle_error(e);
+}
