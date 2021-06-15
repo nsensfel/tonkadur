@@ -5,6 +5,7 @@ import java.util.List;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
+import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.TextNode;
 
 public class Paragraph extends TextNode
@@ -12,7 +13,7 @@ public class Paragraph extends TextNode
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<TextNode> content;
+   protected final List<Computation> content;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -26,7 +27,7 @@ public class Paragraph extends TextNode
    public Paragraph
    (
       final Origin origin,
-      final List<TextNode> content
+      final List<Computation> content
    )
    {
       super(origin);
@@ -42,7 +43,7 @@ public class Paragraph extends TextNode
       cv.visit_paragraph(this);
    }
 
-   public List<TextNode> get_content ()
+   public List<Computation> get_content ()
    {
       return content;
    }
@@ -55,7 +56,7 @@ public class Paragraph extends TextNode
 
       sb.append("(Paragraph ");
 
-      for (final TextNode text: content)
+      for (final Computation text: content)
       {
          sb.append(content.toString());
       }

@@ -46,13 +46,13 @@ options
 
 @members
 {
-   Parser PARSER;
+   ParserData PARSER;
 }
 
 /******************************************************************************/
 /******************************************************************************/
 /******************************************************************************/
-fate_file [Parser PARSER]
+fate_file [ParserData parser]
 @init
 {
    PARSER = parser;
@@ -99,7 +99,7 @@ returns [List<Instruction> result]
 first_level_instruction
 @init
 {
-   Parser.LocalVariables previous_local_variables_stack;
+   ParserData.LocalVariables previous_local_variables_stack;
 }
 :
    DECLARE_ALIAS_TYPE_KW parent=type WS+ identifier WS* R_PAREN
@@ -326,7 +326,7 @@ first_level_instruction
          {
             previous_local_variables_stack = PARSER.get_local_variables_stack();
             PARSER.discard_local_variables_stack();
-            PARSER.increase_local_variables_herarchy();
+            PARSER.increase_local_variables_hierarchy();
          }
          identifier
          WS*
@@ -334,7 +334,7 @@ first_level_instruction
             L_PAREN WS* variable_list WS* R_PAREN
             {
                PARSER.add_local_variables(($variable_list.result).as_map());
-               PARSER.increase_local_variables_herarchy();
+               PARSER.increase_local_variables_hierarchy();
             }
          )
          pre_sequence_point=WS+
@@ -400,7 +400,7 @@ first_level_instruction
       {
          PARSER.add_file_content
          (
-            PARSER.get_location_at
+            PARSER.get_origin_at
             (
                ($REQUIRE_KW.getLine()),
                ($REQUIRE_KW.getCharPositionInLine())
@@ -418,7 +418,7 @@ first_level_instruction
 
       PARSER.add_file_content
       (
-         PARSER.get_location_at
+         PARSER.get_origin_at
          (
             ($INCLUDE_KW.getLine()),
             ($INCLUDE_KW.getCharPositionInLine())
@@ -818,11 +818,11 @@ returns [Instruction result]
             ($field_value_list.result)
       )
       {
-         final FieldReference fr;
+         final FieldAccess fa;
          final Computation cp;
 
-         fr =
-            FieldReference.build
+         fa =
+            FieldAccess.build
             (
                entry.get_car(),
                ($computation.result),
@@ -831,9 +831,9 @@ returns [Instruction result]
 
          cp = entry.get_cdr().get_cdr();
 
-         RecurrentChecks.assert_can_be_used_as(cp, fr.get_type());
+         RecurrentChecks.assert_can_be_used_as(cp, fa.get_type());
 
-         assignments.add(new Cons(fr.get_field_name(), cp));
+         assignments.add(new Cons(fa.get_field_name(), cp));
       }
 
       $result =
@@ -854,7 +854,7 @@ returns [Instruction result]
 /******************************************************************************/
 
    | PLAYER_CHOICE_KW
-         player_choice_list[Parser.generate_player_choice_data()]
+         player_choice_list[PARSER.generate_player_choice_data()]
          WS*
       R_PAREN
    {
@@ -1033,7 +1033,7 @@ returns [List<Cons<Computation, Instruction>> result]
    }
 ;
 
-player_choice_list [Parser.PlayerChoiceData pcd]
+player_choice_list [ParserData.PlayerChoiceData pcd]
 returns [List<Instruction> result]
 @init
 {
@@ -1052,7 +1052,7 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-maybe_player_choice_list [Parser.PlayerChoiceData pcd]
+maybe_player_choice_list [ParserData.PlayerChoiceData pcd]
 returns [List<Instruction> result]
 @init
 {
@@ -1069,7 +1069,7 @@ returns [List<Instruction> result]
    }
 ;
 
-player_choice [Parser.PlayerChoiceData pcd]
+player_choice [ParserData.PlayerChoiceData pcd]
 returns [Instruction result]
 /*
  * Do not use a separate Local Variable stack for the player choice
@@ -1080,7 +1080,7 @@ returns [Instruction result]
    TEXT_OPTION_KW
       L_PAREN WS*
       {
-         PARSER.enable_restricted_stack_of(pcd);
+         PARSER.enable_restricted_variable_stack_of(pcd);
       }
       paragraph
       WS* R_PAREN WS*
@@ -1108,7 +1108,7 @@ returns [Instruction result]
 
    | EVENT_OPTION_KW
       {
-         PARSER.enable_restricted_stack_of(pcd);
+         PARSER.enable_restricted_variable_stack_of(pcd);
       }
       L_PAREN WS* WORD maybe_computation_list WS* R_PAREN WS*
       {
@@ -1158,7 +1158,7 @@ returns [Instruction result]
 
    | IF_KW
          {
-            PARSER.enable_restricted_stack_of(pcd);
+            PARSER.enable_restricted_variable_stack_of(pcd);
          }
          computation WS*
          {
@@ -1182,7 +1182,7 @@ returns [Instruction result]
 
    | IF_ELSE_KW
          {
-            PARSER.enable_restricted_stack_of(pcd);
+            PARSER.enable_restricted_variable_stack_of(pcd);
          }
          computation WS*
          {
@@ -1222,7 +1222,7 @@ returns [Instruction result]
 
    | SWITCH_KW
          {
-            PARSER.enable_restricted_stack_of(pcd);
+            PARSER.enable_restricted_variable_stack_of(pcd);
          }
          computation WS*
          {
@@ -1249,7 +1249,7 @@ returns [Instruction result]
    | FOR_KW
          l0=L_PAREN
          {
-            PARSER.enable_restricted_stack_of(pcd);
+            PARSER.enable_restricted_variable_stack_of(pcd);
             PARSER.increase_local_variables_hierarchy();
             pcd.increase_variable_names_hierarchy();
          }
@@ -1266,7 +1266,7 @@ returns [Instruction result]
       R_PAREN
    {
       pcd.decrease_variable_names_hierarchy();
-      PARSER.enable_restricted_stack_of(pcd);
+      PARSER.enable_restricted_variable_stack_of(pcd);
       PARSER.decrease_local_variables_hierarchy();
       PARSER.disable_restricted_stack_of(pcd);
 
@@ -1303,7 +1303,7 @@ returns [Instruction result]
 
    | FOR_EACH_KW
          {
-            PARSER.enable_restricted_stack_of(pcd);
+            PARSER.enable_restricted_variable_stack_of(pcd);
             PARSER.increase_local_variables_hierarchy();
          }
          computation WS+
@@ -1363,7 +1363,7 @@ returns [Instruction result]
       player_choice_list[pcd] WS*
    R_PAREN
    {
-      PARSER.enable_restricted_stack_of(pcd);
+      PARSER.enable_restricted_variable_stack_of(pcd);
       PARSER.decrease_local_variables_hierarchy();
       PARSER.disable_restricted_stack_of(pcd);
       $result =
@@ -1385,7 +1385,7 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-player_choice_cond_list [Parser.PlayerChoiceData pcd]
+player_choice_cond_list [ParserData.PlayerChoiceData pcd]
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
@@ -1394,7 +1394,7 @@ returns [List<Cons<Computation, Instruction>> result]
    condition = null;
 
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   PARSER.enable_restricted_stack_of(pcd);
+   PARSER.enable_restricted_variable_stack_of(pcd);
 }
 :
    (
@@ -1441,12 +1441,12 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-player_choice_switch_list [Parser.PlayerChoiceData pcd]
+player_choice_switch_list [ParserData.PlayerChoiceData pcd]
 returns [List<Cons<Computation, Instruction>> result]
 @init
 {
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   PARSER.enable_restricted_stack_of(pcd);
+   PARSER.enable_restricted_variable_stack_of(pcd);
 }
 :
    (
@@ -1471,17 +1471,21 @@ catch [final Throwable e]
 }
 
 paragraph
-returns [TextNode result]
+returns [Computation result]
 @init
 {
-   final List<TextNode> content = new ArrayList();
 }
 :
    computation_list
    {
       // convert all computations to text.
       // return text node.
-      return new Paragraph(computation_list.result);
+      return
+         new Paragraph
+         (
+            $computation_list.result.get(0).get_origin(),
+            $computation_list.result
+         );
    }
 ;
 catch [final Throwable e]
@@ -1557,7 +1561,7 @@ returns [Type result]
             ($identifier.result)
          );
 
-      $result = t.build(type_list);
+      $result = t.build($type_list.result);
    }
 ;
 catch [final Throwable e]
@@ -1648,7 +1652,7 @@ returns [List<Cons<Variable, Computation>> result]
                false
             );
 
-         PARSER.add_context_variable(v);
+         PARSER.add_local_variable(v);
 
          $result.add(new Cons(v, ($computation.result)));
       }
@@ -1661,7 +1665,7 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-choice_for_update_variable_list [Parser.PlayerChoiceData pcd]
+choice_for_update_variable_list [ParserData.PlayerChoiceData pcd]
 returns [List<Instruction> result]
 @init
 {
@@ -1737,7 +1741,7 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-choice_for_variable_list [Parser.PlayerChoiceData pcd]
+choice_for_variable_list [ParserData.PlayerChoiceData pcd]
 returns [List<Instruction> result]
 @init
 {
@@ -1794,7 +1798,7 @@ returns [List<Instruction> result]
 
          $result.add(new LocalVariable(new_var));
 
-         PARSER.add_context_variable(v);
+         PARSER.add_local_variable(new_var);
 
          $result.add
          (
@@ -1974,7 +1978,7 @@ computation
 returns [Computation result]
 @init
 {
-   Parser.LocalVariables previous_local_variables_stack;
+   ParserData.LocalVariables previous_local_variables_stack;
 }
 :
    WORD
@@ -1997,7 +2001,7 @@ returns [Computation result]
          VariableFromWord.generate
          (
             PARSER,
-            CONTEXT.get_origin_at
+            PARSER.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())
@@ -2175,11 +2179,11 @@ returns [Computation result]
             ($field_value_list.result)
       )
       {
-         final FieldReference fr;
+         final FieldAccess fa;
          final Computation cp;
 
-         fr =
-            FieldReference.build
+         fa =
+            FieldAccess.build
             (
                entry.get_car(),
                ($computation.result),
@@ -2188,9 +2192,9 @@ returns [Computation result]
 
          cp = entry.get_cdr().get_cdr();
 
-         RecurrentChecks.assert_can_be_used_as(cp, fr.get_type());
+         RecurrentChecks.assert_can_be_used_as(cp, fa.get_type());
 
-         assignments.add(new Cons(fr.get_field_name(), cp));
+         assignments.add(new Cons(fa.get_field_name(), cp));
       }
 
       $result =

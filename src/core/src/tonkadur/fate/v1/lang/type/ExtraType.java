@@ -1,15 +1,18 @@
 package tonkadur.fate.v1.lang.type;
 
+import java.util.List;
+
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class ExtraType extends Type
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-
+   protected final List<Type> parameters;
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
@@ -18,20 +21,26 @@ public class ExtraType extends Type
    public ExtraType
    (
       final Origin origin,
-      final String name
+      final String name,
+      final List<Type> parameters
    )
    {
       super(origin, null, name);
+
+      this.parameters = parameters;
    }
 
    public ExtraType
    (
       final Origin origin,
       final ExtraType parent,
-      final String name
+      final String name,
+      final List<Type> parameters
    )
    {
       super(origin, parent, name);
+
+      this.parameters = parameters;
    }
 
    /**** Accessors ************************************************************/
@@ -46,7 +55,24 @@ public class ExtraType extends Type
 
          e = (ExtraType) t;
 
-         return get_base_type().get_name().equals(e.get_base_type().get_name());
+         if (get_base_type().get_name().equals(e.get_base_type().get_name()))
+         {
+            try
+            {
+               RecurrentChecks.assert_types_matches_signature
+               (
+                  Origin.BASE_LANGUAGE,
+                  parameters,
+                  e.parameters
+               );
+            }
+            catch (final Throwable _e)
+            {
+               return false;
+            }
+
+            return true;
+         }
 
       }
 
@@ -76,7 +102,7 @@ public class ExtraType extends Type
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new ExtraType(origin, this, name);
+      return new ExtraType(origin, this, name, parameters);
    }
 
    @Override
@@ -86,6 +112,13 @@ public class ExtraType extends Type
 
       sb.append("ExtraType::");
       sb.append(name);
+
+      for (final Type t: parameters)
+      {
+         sb.append("<");
+         sb.append(t.toString());
+         sb.append(">");
+      }
 
       return sb.toString();
    }

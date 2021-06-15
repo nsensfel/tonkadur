@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.parser.Parser;
+import tonkadur.fate.v1.parser.ParserData;
 import tonkadur.fate.v1.lang.Variable;
 
 import tonkadur.fate.v1.lang.computation.Constant;
@@ -29,7 +29,7 @@ public class VariableFromWord
 
    public static Computation generate
    (
-      final Parser parser,
+      final ParserData parser,
       final Origin origin,
       final String word
    )

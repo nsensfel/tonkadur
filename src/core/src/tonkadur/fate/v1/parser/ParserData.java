@@ -13,6 +13,8 @@ import java.util.Set;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
+
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
@@ -24,7 +26,7 @@ import tonkadur.fate.v1.error.DuplicateLocalVariableException;
 import tonkadur.fate.v1.lang.Variable;
 import tonkadur.fate.v1.lang.World;
 
-public class Parser
+public class ParserData
 {
    protected final World world;
    protected final Context context;
@@ -34,7 +36,7 @@ public class Parser
    protected int breakable_levels;
    protected int continue_levels;
 
-   public Parser (final World world)
+   public ParserData (final World world)
    {
       this.world = world;
 
@@ -224,7 +226,7 @@ public class Parser
 
    public PlayerChoiceData generate_player_choice_data ()
    {
-      return new Parser.PlayerChoiceData(this);
+      return new ParserData.PlayerChoiceData(this);
    }
 
    public void enable_restricted_variable_stack_of (final PlayerChoiceData pcd)
@@ -243,14 +245,15 @@ public class Parser
    /* Internal class to make moving LocalVariable objects around easier. */
    public static class LocalVariables
    {
-      protected final Deque<Map<String, Variable>> stack;
+      // Can't clone if declared as Deque
+      protected final ArrayDeque<Map<String, Variable>> stack;
 
       protected LocalVariables ()
       {
          stack = new ArrayDeque<Map<String, Variable>>();
       }
 
-      protected LocalVariables (final Deque<Map<String, Variable>> stack)
+      protected LocalVariables (final ArrayDeque<Map<String, Variable>> stack)
       {
          this.stack = stack.clone();
       }
@@ -264,12 +267,12 @@ public class Parser
 
    public static class PlayerChoiceData
    {
-      protected final Parser parent;
+      protected final ParserData parent;
       protected final LocalVariables restricted_including_variables_stack;
       protected LocalVariables previous_variable_stack;
       protected final Deque<Set<String>> player_choice_variable_names;
 
-      protected PlayerChoiceData (final Parser parent)
+      protected PlayerChoiceData (final ParserData parent)
       {
          this.parent = parent;
 
