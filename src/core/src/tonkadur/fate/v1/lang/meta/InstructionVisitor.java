@@ -5,21 +5,6 @@ import tonkadur.fate.v1.lang.instruction.*;
 public interface InstructionVisitor
 {
    /* Instruction Nodes */
-   public void visit_add_element (final AddElement n)
-   throws Throwable;
-
-   public void visit_extra_instruction (final ExtraInstructionInstance n)
-   throws Throwable;
-
-   public void visit_add_element_at (final AddElementAt n)
-   throws Throwable;
-
-   public void visit_add_elements_of (final AddElementsOf n)
-   throws Throwable;
-
-   public void visit_remove_elements_of (final RemoveElementsOf n)
-   throws Throwable;
-
    public void visit_assert (final Assert n)
    throws Throwable;
 
@@ -32,12 +17,6 @@ public interface InstructionVisitor
    public void visit_done (final Done n)
    throws Throwable;
 
-   public void visit_allocate (final Allocate n)
-   throws Throwable;
-
-   public void visit_free (final Free n)
-   throws Throwable;
-
    public void visit_while (final While n)
    throws Throwable;
 
@@ -47,55 +26,7 @@ public interface InstructionVisitor
    public void visit_for (final For n)
    throws Throwable;
 
-   public void visit_remove_element_at (final RemoveElementAt n)
-   throws Throwable;
-
    public void visit_for_each (final ForEach n)
-   throws Throwable;
-
-   public void visit_clear (final Clear n)
-   throws Throwable;
-
-   public void visit_map (final Map n)
-   throws Throwable;
-
-   public void visit_merge (final Merge n)
-   throws Throwable;
-
-   public void visit_indexed_merge (final IndexedMerge n)
-   throws Throwable;
-
-   public void visit_filter (final Filter n)
-   throws Throwable;
-
-   public void visit_indexed_filter (final IndexedFilter n)
-   throws Throwable;
-
-   public void visit_sublist (final SubList n)
-   throws Throwable;
-
-   public void visit_partition (final Partition n)
-   throws Throwable;
-
-   public void visit_indexed_partition (final IndexedPartition n)
-   throws Throwable;
-
-   public void visit_sort (final Sort n)
-   throws Throwable;
-
-   public void visit_indexed_map (final IndexedMap c)
-   throws Throwable;
-
-   public void visit_shuffle (final Shuffle c)
-   throws Throwable;
-
-   public void visit_pop_element (final PopElement c)
-   throws Throwable;
-
-   public void visit_push_element (final PushElement c)
-   throws Throwable;
-
-   public void visit_reverse_list (final ReverseList n)
    throws Throwable;
 
    public void visit_cond_instruction (final CondInstruction n)
@@ -131,12 +62,6 @@ public interface InstructionVisitor
    public void visit_event_option (final EventOption n)
    throws Throwable;
 
-   public void visit_remove_all_of_element (final RemoveAllOfElement n)
-   throws Throwable;
-
-   public void visit_remove_element (final RemoveElement n)
-   throws Throwable;
-
    public void visit_sequence_call (final SequenceCall n)
    throws Throwable;
 
@@ -156,5 +81,11 @@ public interface InstructionVisitor
    throws Throwable;
 
    public void visit_set_fields (final SetFields n)
+   throws Throwable;
+
+   public void visit_extra_instruction (final ExtraInstructionInstance n)
+   throws Throwable;
+
+   public void visit_generic_instruction (final GenericInstruction n)
    throws Throwable;
 }

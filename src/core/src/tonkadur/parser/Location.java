@@ -123,4 +123,11 @@ public class Location
    {
       return (filename.hashCode() + line + column);
    }
+
+
+   @Override
+   public Location clone ()
+   {
+      return new Location(is_base_language, directory, filename, line, column);
+   }
 }

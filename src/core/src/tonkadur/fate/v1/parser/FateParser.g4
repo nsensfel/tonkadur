@@ -1394,7 +1394,7 @@ returns [List<Cons<Computation, Instruction>> result]
    condition = null;
 
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   // TODO: pcd enable.
+   PARSER.enable_restricted_stack_of(pcd);
 }
 :
    (
@@ -1403,7 +1403,8 @@ returns [List<Cons<Computation, Instruction>> result]
             (L_PAREN WS* computation WS+)
             {
                condition = ($computation.result);
-               // TODO: pcd disable.
+
+               PARSER.disable_restricted_stack_of(pcd);
             }
          )
          |
@@ -1421,7 +1422,8 @@ returns [List<Cons<Computation, Instruction>> result]
                      ),
                      ($something_else.text).substring(1).trim()
                   );
-               // TODO: pcd disable.
+
+               PARSER.disable_restricted_stack_of(pcd);
             }
          )
       )
@@ -1444,14 +1446,14 @@ returns [List<Cons<Computation, Instruction>> result]
 @init
 {
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   // todo: pcd enable
+   PARSER.enable_restricted_stack_of(pcd);
 }
 :
    (
       L_PAREN
          WS* computation
          {
-            //todo: pcd disable
+            PARSER.disable_restricted_stack_of(pcd);
          }
          WS* player_choice[pcd] WS*
       R_PAREN
@@ -1981,6 +1983,21 @@ returns [Computation result]
          AmbiguousWord.build
          (
             PARSER.get_origin_at
+            (
+               ($WORD.getLine()),
+               ($WORD.getCharPositionInLine())
+            ),
+            ($WORD.text)
+         );
+   }
+
+   | VARIABLE_KW WORD WS* R_PAREN
+   {
+      $result =
+         VariableFromWord.generate
+         (
+            PARSER,
+            CONTEXT.get_origin_at
             (
                ($WORD.getLine()),
                ($WORD.getCharPositionInLine())

@@ -8,7 +8,6 @@ import tonkadur.functional.Cons;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.Computation;
 
 public class SetFields extends Instruction
@@ -16,7 +15,7 @@ public class SetFields extends Instruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference target;
+   protected final Computation target;
    protected final List<Cons<String, Computation>> field_assignments;
 
    /***************************************************************************/
@@ -30,7 +29,7 @@ public class SetFields extends Instruction
    public SetFields
    (
       final Origin origin,
-      final Reference target,
+      final Computation target,
       final List<Cons<String, Computation>> field_assignments
    )
    {
@@ -48,7 +47,7 @@ public class SetFields extends Instruction
       iv.visit_set_fields(this);
    }
 
-   public Reference get_target ()
+   public Computation get_target ()
    {
       return target;
    }

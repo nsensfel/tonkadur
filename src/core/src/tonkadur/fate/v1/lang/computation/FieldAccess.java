@@ -11,11 +11,12 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.error.UnknownStructureFieldException;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.type.StructType;
 import tonkadur.fate.v1.lang.type.Type;
+
+import tonkadur.fate.v1.lang.computation.generic.AtReference;
 
 public class FieldAccess extends Computation
 {
@@ -53,9 +54,7 @@ public class FieldAccess extends Computation
       Computation parent,
       final String field
    )
-   throws
-      InvalidTypeException,
-      UnknownStructureFieldException
+   throws Throwable
    {
       Type current_type;
 
@@ -63,7 +62,14 @@ public class FieldAccess extends Computation
 
       while (current_type.get_act_as_type().equals(Type.PTR))
       {
-         parent = AtReference.build(origin, (Reference) parent);
+         parent =
+            GenericComputation.build
+            (
+               origin,
+               "at",
+               Collections.singletonList(parent)
+            );
+
          current_type = parent.get_type();
       }
 
@@ -96,9 +102,7 @@ public class FieldAccess extends Computation
       Computation parent,
       final List<String> field_sequence
    )
-   throws
-      InvalidTypeException,
-      UnknownStructureFieldException
+   throws Throwable
    {
       for (final String field: field_sequence)
       {

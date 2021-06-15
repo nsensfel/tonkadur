@@ -37,6 +37,14 @@ public abstract class Computation extends Node
       return type;
    }
 
+   public void expect_non_string ()
+   {
+   }
+
+   public void expect_string ()
+   {
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

@@ -13,6 +13,12 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.computation.ExtraComputationInstance;
 
+
+// This is for computations that are not compiled to Wyrd, but simply declared
+// in Fate and implemented by the wyrd interpreter.
+// This class should become something like a sub-GenericComputation thing.
+// Declaring an ExtraComputation should register an ExtraComputation object as a
+// GenericComputation, thus making it seamless from the user's point of view.
 public class ExtraComputation extends DeclaredEntity
 {
    protected static final ExtraComputation ANY;

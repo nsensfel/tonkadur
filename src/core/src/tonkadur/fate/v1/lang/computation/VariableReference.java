@@ -5,11 +5,11 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.lang.Variable;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-public class VariableReference extends Reference
+public class VariableReference extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -26,7 +26,7 @@ public class VariableReference extends Reference
       final Variable variable
    )
    {
-      super(origin, reported_type, variable.get_name());
+      super(origin, reported_type);
       this.variable = variable;
    }
    /**** Constructors *********************************************************/
@@ -41,7 +41,7 @@ public class VariableReference extends Reference
       final Variable variable
    )
    {
-      super(origin, variable.get_type(), variable.get_name());
+      super(origin, variable.get_type());
       this.variable = variable;
    }
 

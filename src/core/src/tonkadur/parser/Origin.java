@@ -48,4 +48,10 @@ public class Origin
 
       return sb.toString();
    }
+
+   @Override
+   public Origin clone ()
+   {
+      return new Origin(context.clone(), location.clone());
+   }
 }

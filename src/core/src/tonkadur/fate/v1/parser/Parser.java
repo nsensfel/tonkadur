@@ -3,8 +3,10 @@ package tonkadur.fate.v1.parser;
 import java.io.IOException;
 
 import java.util.Collection;
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +16,10 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
+
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.DuplicateLocalVariableException;
 
 import tonkadur.fate.v1.lang.Variable;
 import tonkadur.fate.v1.lang.World;
@@ -37,7 +43,7 @@ public class Parser
       breakable_levels = 0;
       continue_levels = 0;
 
-      context = new Context();
+      context = Context.BASE_LANGUAGE.clone();
    }
 
    public Origin get_origin_at (final int line, final int column)
@@ -90,7 +96,7 @@ public class Parser
    /**** LOCAL VARIABLES ******************************************************/
    public Variable maybe_get_local_variable (final String name)
    {
-      for (final Map<String, Variable> level: context_variables)
+      for (final Map<String, Variable> level: local_variables.stack)
       {
          final Variable v;
 
@@ -106,7 +112,7 @@ public class Parser
    }
 
    public void add_local_variables (final Map<String, Variable> collection)
-   throws Trowable
+   throws Throwable
    {
       for (final Variable variable: collection.values())
       {
@@ -115,11 +121,12 @@ public class Parser
    }
 
    public void add_local_variable (final Variable variable)
-   throws Trowable
+   throws Throwable
    {
-      final Map<String, Variable> current_hierarchy = local_variables.peek();
+      final Map<String, Variable> current_hierarchy;
       final Variable previous_entry;
 
+      current_hierarchy = local_variables.stack.peek();
       previous_entry = current_hierarchy.get(variable.get_name());
 
       if (previous_entry != null)
@@ -139,18 +146,18 @@ public class Parser
 
    public void increase_local_variables_hierarchy ()
    {
-      local_variables.push(new HashMap<String, Variable>());
+      local_variables.stack.push(new HashMap<String, Variable>());
    }
 
    public void decrease_local_variables_hierarchy ()
    {
-      local_variables.pop();
+      local_variables.stack.pop();
    }
 
    /* I don't think it's needed ATM. */
    public Collection<Variable> get_local_variables_at_current_hierarchy ()
    {
-      return local_variables.peek().values();
+      return local_variables.stack.peek().values();
    }
 
    public LocalVariables get_local_variables_stack ()
@@ -176,7 +183,7 @@ public class Parser
    {
       if ((e.getMessage() == null) || !e.getMessage().startsWith("Require"))
       {
-         kthrow
+         throw
             new ParseCancellationException
             (
                (
@@ -203,17 +210,9 @@ public class Parser
       tokens = new CommonTokenStream(lexer);
       parser = new FateParser(tokens);
 
-      if (origin != null)
-      {
-         context.push(origin);
-      }
-
+      context.push(origin.get_location(), filename);
       parser.fate_file(this);
-
-      if (origin != null)
-      {
-         context.pop();
-      }
+      context.pop();
 
       world.add_loaded_file(filename);
 
@@ -241,8 +240,26 @@ public class Parser
    }
 
 
-   public static class LocalVariables extends Deque<Map<String, Variable>>
+   /* Internal class to make moving LocalVariable objects around easier. */
+   public static class LocalVariables
    {
+      protected final Deque<Map<String, Variable>> stack;
+
+      protected LocalVariables ()
+      {
+         stack = new ArrayDeque<Map<String, Variable>>();
+      }
+
+      protected LocalVariables (final Deque<Map<String, Variable>> stack)
+      {
+         this.stack = stack.clone();
+      }
+
+      @Override
+      public LocalVariables clone ()
+      {
+         return new LocalVariables(stack);
+      }
    }
 
    public static class PlayerChoiceData
@@ -283,7 +300,7 @@ public class Parser
       {
          for (final Set<String> variable_names: player_choice_variable_names)
          {
-            if (variables_names.has(name))
+            if (variable_names.contains(name))
             {
                return true;
             }

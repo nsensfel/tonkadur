@@ -7,7 +7,6 @@ import tonkadur.parser.ParsingError;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Reference;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SetValue extends Instruction
@@ -16,7 +15,7 @@ public class SetValue extends Instruction
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation element;
-   protected final Reference value_reference;
+   protected final Computation value_reference;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
@@ -26,7 +25,7 @@ public class SetValue extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Reference value_reference
+      final Computation value_reference
    )
    {
       super(origin);
@@ -43,7 +42,7 @@ public class SetValue extends Instruction
    (
       final Origin origin,
       final Computation element,
-      final Reference value_reference
+      final Computation value_reference
    )
    throws ParsingError
    {
@@ -65,7 +64,7 @@ public class SetValue extends Instruction
       return element;
    }
 
-   public Reference get_reference ()
+   public Computation get_reference ()
    {
       return value_reference;
    }

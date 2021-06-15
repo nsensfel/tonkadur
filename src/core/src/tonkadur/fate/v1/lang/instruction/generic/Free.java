@@ -1,66 +1,101 @@
 package tonkadur.fate.v1.lang.instruction;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
-import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.PointerType;
 
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.Reference;
+import tonkadur.fate.v1.lang.meta.Computation;
 
-public class Allocate extends Instruction
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
+public class Free extends GenericInstruction
 {
+   protected static final Free ARCHETYPE;
+
+   static
+   {
+      final List<String> aliases;
+
+      aliases = new ArrayList<String>();
+
+      ARCHETYPE =
+         new Free
+         (
+            Origin.BASE_LANGUAGE,
+            null
+         );
+
+      aliases.add("free");
+      aliases.add("delete");
+      aliases.add("destroy");
+
+      try
+      {
+         ARCHETYPE.register(aliases, null);
+      }
+      catch (final Exception e)
+      {
+         e.printStackTrace();
+
+         System.exit(-1);
+      }
+   }
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Reference target;
-   protected final Type allocated_type;
+   protected final Computation value_reference;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected Allocate
-   (
-      final Origin origin,
-      final Type allocated_type,
-      final Reference target
-   )
-   {
-      super(origin);
-
-      this.allocated_type = allocated_type;
-      this.target = target;
-   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static Allocate build (final Origin origin, final Reference target)
-   throws ParsingError
+   protected Free (final Origin origin, final Computation value_reference)
    {
+      super(origin, "free");
+
+      this.value_reference = value_reference;
+   }
+
+   @Override
+   public GenericInstruction build
+   (
+      final Origin origin,
+      final List<Computation> call_parameters,
+      final Object _constructor_parameter
+   )
+   throws Throwable
+   {
+      final Computation target;
       final Type target_type;
+
+      if (call_parameters.size() != 1)
+      {
+         // Error.
+      }
+
+      call_parameters.get(0).expect_non_string();
+
+      target = call_parameters.get(0);
 
       target_type = target.get_type();
 
       if (target_type instanceof PointerType)
       {
-         return
-            new Allocate
-            (
-               origin,
-               ((PointerType) target_type).get_referenced_type(),
-               target
-            );
+         return new Free(origin, target);
       }
 
       ErrorManager.handle
@@ -76,25 +111,13 @@ public class Allocate extends Instruction
          )
       );
 
-      return new Allocate(origin, Type.ANY, target);
+      return new Free(origin, target);
    }
 
    /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final InstructionVisitor iv)
-   throws Throwable
+   public Computation get_reference ()
    {
-      iv.visit_allocate(this);
-   }
-
-   public Reference get_target ()
-   {
-      return target;
-   }
-
-   public Type get_allocated_type ()
-   {
-      return allocated_type;
+      return value_reference;
    }
 
    /**** Misc. ****************************************************************/
@@ -103,8 +126,9 @@ public class Allocate extends Instruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(Allocate ");
-      sb.append(target.toString());
+      sb.append("(Free ");
+      sb.append(value_reference.toString());
+
       sb.append(")");
 
       return sb.toString();

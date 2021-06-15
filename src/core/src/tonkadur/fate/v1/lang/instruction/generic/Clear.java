@@ -1,16 +1,47 @@
-package tonkadur.fate.v1.lang.computation;
+package tonkadur.fate.v1.lang.instruction;
+
+import java.util.List;
+import java.util.ArrayList;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
-import tonkadur.fate.v1.lang.type.Type;
-
-import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
-public class IsEmpty extends Computation
+public class Clear extends GenericInstruction
 {
+   protected static final Clear ARCHETYPE;
+
+   static
+   {
+      final List<String> aliases;
+
+      ARCHETYPE = new Clear(Origin.BASE_LANGUAGE, null);
+
+      aliases = new ArrayList<String>();
+
+      aliases.add("clear");
+      aliases.add("empty");
+
+      aliases.add("list:clear");
+      aliases.add("list:empty");
+
+      aliases.add("set:clear");
+      aliases.add("set:empty");
+
+      try
+      {
+         ARCHETYPE.register(aliases, null);
+      }
+      catch (final Exception e)
+      {
+         e.printStackTrace();
+
+         System.exit(-1);
+      }
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
@@ -20,13 +51,13 @@ public class IsEmpty extends Computation
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected IsEmpty
+   protected Clear
    (
       final Origin origin,
       final Computation collection
    )
    {
-      super(origin, Type.BOOL);
+      super(origin, "clear");
 
       this.collection = collection;
    }
@@ -35,26 +66,32 @@ public class IsEmpty extends Computation
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static IsEmpty build
+   @Override
+   public GenericInstruction build
    (
       final Origin origin,
-      final Computation collection
+      final List<Computation> call_parameters,
+      final Object _constructor_parameter
    )
-   throws ParsingError
+   throws Throwable
    {
+      final Computation collection;
+
+      if (call_parameters.size() != 1)
+      {
+         // Error.
+      }
+
+      collection = call_parameters.get(0);
+
+      collection.expect_non_string();
+
       RecurrentChecks.assert_is_a_collection(collection);
 
-      return new IsEmpty(origin, collection);
+      return new Clear(origin, collection);
    }
 
    /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final ComputationVisitor cv)
-   throws Throwable
-   {
-      cv.visit_is_empty(this);
-   }
-
    public Computation get_collection ()
    {
       return collection;
@@ -66,12 +103,7 @@ public class IsEmpty extends Computation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(IsEmpty");
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-
-      sb.append("collection:");
-      sb.append(System.lineSeparator());
+      sb.append("(Clear ");
       sb.append(collection.toString());
 
       sb.append(")");
