@@ -1520,7 +1520,7 @@ returns [Computation result]
    {
       // convert all computations to text.
       // return text node.
-      return
+      $result =
          new Paragraph
          (
             $computation_list.result.get(0).get_origin(),
@@ -2063,8 +2063,9 @@ returns [Computation result]
    WORD
    {
       $result =
-         AmbiguousWord.build
+         new AmbiguousWord
          (
+            PARSER,
             PARSER.get_origin_at
             (
                ($WORD.getLine()),
