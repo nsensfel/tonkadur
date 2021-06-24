@@ -1,16 +1,27 @@
 package tonkadur.fate.v1.lang.type;
 
+import java.util.Arrays;
+
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 public class ConsType extends Type
 {
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final Type car;
-   protected final Type cdr;
+   public static final ConsType ARCHETYPE;
+
+   static
+   {
+
+      ARCHETYPE =
+         new ConsType
+         (
+            Origin.BASE_LANGUAGE,
+            Type.ANY,
+            Type.ANY,
+            "cons"
+         );
+   }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -25,21 +36,18 @@ public class ConsType extends Type
       final String name
    )
    {
-      super(origin, null, name);
-
-      this.car = car;
-      this.cdr = cdr;
+      super(origin, null, name, Arrays.asList(new Type[]{car, cdr}));
    }
 
    /**** Accessors ************************************************************/
    public Type get_car_type ()
    {
-      return car;
+      return parameters.get(0);
    }
 
    public Type get_cdr_type ()
    {
-      return cdr;
+      return parameters.get(1);
    }
 
    /**** Compatibility ********************************************************/
@@ -53,8 +61,8 @@ public class ConsType extends Type
          dt = (ConsType) t;
 
          return
-            car.can_be_used_as(dt.car)
-            && cdr.can_be_used_as(dt.cdr);
+            get_car_type().can_be_used_as(dt.get_car_type())
+            && get_cdr_type().can_be_used_as(dt.get_cdr_type());
       }
 
       return false;
@@ -79,8 +87,11 @@ public class ConsType extends Type
 
       dt = (ConsType) de;
 
-      resulting_car = (Type) car.generate_comparable_to(dt.car);
-      resulting_cdr = (Type) cdr.generate_comparable_to(dt.cdr);
+      resulting_car =
+         (Type) get_car_type().generate_comparable_to(dt.get_car_type());
+
+      resulting_cdr =
+         (Type) get_cdr_type().generate_comparable_to(dt.get_cdr_type());
 
       return new ConsType(get_origin(), resulting_car, resulting_cdr, name);
    }
@@ -88,14 +99,14 @@ public class ConsType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return Type.CONS;
+      return ARCHETYPE;
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new ConsType(origin, car, cdr, name);
+      return new ConsType(origin, get_car_type(), get_cdr_type(), name);
    }
 
    @Override
@@ -104,9 +115,9 @@ public class ConsType extends Type
       final StringBuilder sb = new StringBuilder();
 
       sb.append("(Cons ");
-      sb.append(car.toString());
+      sb.append(get_car_type().toString());
       sb.append(" ");
-      sb.append(cdr.toString());
+      sb.append(get_cdr_type().toString());
       sb.append(")::");
       sb.append(name);
 

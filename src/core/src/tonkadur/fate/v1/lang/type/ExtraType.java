@@ -1,6 +1,8 @@
 package tonkadur.fate.v1.lang.type;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import tonkadur.parser.Origin;
 
@@ -10,26 +12,10 @@ import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 public class ExtraType extends Type
 {
    /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final List<Type> parameters;
-   /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
 
    /**** Constructors *********************************************************/
-   public ExtraType
-   (
-      final Origin origin,
-      final String name,
-      final List<Type> parameters
-   )
-   {
-      super(origin, null, name);
-
-      this.parameters = parameters;
-   }
-
    public ExtraType
    (
       final Origin origin,
@@ -38,9 +24,7 @@ public class ExtraType extends Type
       final List<Type> parameters
    )
    {
-      super(origin, parent, name);
-
-      this.parameters = parameters;
+      super(origin, parent, name, parameters);
    }
 
    /**** Accessors ************************************************************/
@@ -97,8 +81,12 @@ public class ExtraType extends Type
       return get_base_type();
    }
 
-   /**** Misc. ****************************************************************/
+   public List<Type> get_parameters ()
+   {
+      return parameters;
+   }
 
+   /**** Misc. ****************************************************************/
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {

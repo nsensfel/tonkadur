@@ -8,14 +8,14 @@ import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.meta.Computation;
 
 public class TextOption extends Instruction
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final TextNode text;
+   protected final Computation text;
    protected final List<Instruction> effects;
 
    /***************************************************************************/
@@ -25,7 +25,7 @@ public class TextOption extends Instruction
    public TextOption
    (
       final Origin origin,
-      final TextNode text,
+      final Computation text,
       final List<Instruction> effects
    )
    {
@@ -44,7 +44,7 @@ public class TextOption extends Instruction
       iv.visit_text_option(this);
    }
 
-   public TextNode get_text ()
+   public Computation get_text ()
    {
       return text;
    }

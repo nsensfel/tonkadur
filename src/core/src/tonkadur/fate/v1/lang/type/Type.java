@@ -21,17 +21,10 @@ public class Type extends DeclaredEntity
 {
    public static final Type ANY;
    public static final Type BOOL;
-   public static final Type CONS;
-   public static final Type DICT;
    public static final Type FLOAT;
    public static final Type INT;
-   public static final Type LAMBDA;
-   public static final Type LIST;
-   public static final Type PTR;
-   public static final Type TEXT;
-   public static final Type SEQUENCE;
-   public static final Type SET;
    public static final Type STRING;
+   public static final Type TEXT;
 
    public static final Set<Type> NUMBER_TYPES;
    public static final Set<Type> ALL_TYPES;
@@ -50,31 +43,24 @@ public class Type extends DeclaredEntity
       ANY = new Type(base, null, "undetermined type");
 
       BOOL = new Type(base, null, "bool");
-      CONS = new Type(base, null, "cons");
-      DICT = new Type(base, null, "dict");
       FLOAT = new Type(base, null, "float");
       INT = new Type(base, null, "int");
-      LAMBDA = new Type(base, null, "lambda");
-      LIST = new Type(base, null, "list");
-      PTR = new Type(base, null, "ptr");
       TEXT = new Type(base, null, "text");
-      SEQUENCE = new Type(base, null, "sequence");
-      SET = new Type(base, null, "set");
       STRING = new Type(base, null, "string");
 
       ALL_TYPES = new HashSet<Type>();
       ALL_TYPES.add(ANY);
       ALL_TYPES.add(BOOL);
-      ALL_TYPES.add(CONS);
-      ALL_TYPES.add(DICT);
+      ALL_TYPES.add(ConsType.ARCHETYPE);
+      ALL_TYPES.add(DictionaryType.ARCHETYPE);
       ALL_TYPES.add(FLOAT);
       ALL_TYPES.add(INT);
-      ALL_TYPES.add(LAMBDA);
-      ALL_TYPES.add(LIST);
-      ALL_TYPES.add(PTR);
+      ALL_TYPES.add(LambdaType.ARCHETYPE);
+      ALL_TYPES.add(CollectionType.SET_ARCHETYPE);
+      ALL_TYPES.add(CollectionType.LIST_ARCHETYPE);
+      ALL_TYPES.add(PointerType.ARCHETYPE);
       ALL_TYPES.add(TEXT);
-      ALL_TYPES.add(SEQUENCE);
-      ALL_TYPES.add(SET);
+      ALL_TYPES.add(SequenceType.ARCHETYPE);
       ALL_TYPES.add(STRING);
 
 
@@ -86,16 +72,16 @@ public class Type extends DeclaredEntity
 
       COMPARABLE_TYPES.add(FLOAT);
       COMPARABLE_TYPES.add(INT);
-      COMPARABLE_TYPES.add(SEQUENCE);
-      COMPARABLE_TYPES.add(LAMBDA);
+      COMPARABLE_TYPES.add(SequenceType.ARCHETYPE);
+      COMPARABLE_TYPES.add(LambdaType.ARCHETYPE);
       COMPARABLE_TYPES.add(STRING);
       COMPARABLE_TYPES.add(BOOL);
-      COMPARABLE_TYPES.add(PTR);
+      COMPARABLE_TYPES.add(PointerType.ARCHETYPE);
 
       COLLECTION_TYPES = new HashSet<Type>();
 
-      COLLECTION_TYPES.add(SET);
-      COLLECTION_TYPES.add(LIST);
+      COLLECTION_TYPES.add(CollectionType.SET_ARCHETYPE);
+      COLLECTION_TYPES.add(CollectionType.LIST_ARCHETYPE);
    }
 
    public static Type value_on_missing ()
@@ -109,36 +95,21 @@ public class Type extends DeclaredEntity
       return "Type";
    }
 
+   public static List<Type> generate_default_parameters (final int i)
+   {
+      return Collections.nCopies(i, Type.ANY);
+   }
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Type true_type;
    protected final Type parent;
+   protected final List<Type> parameters;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-
-   /**** Constructors *********************************************************/
-   public static Type build
-   (
-      final Origin origin,
-      final Type parent,
-      final String name
-   )
-   throws InvalidTypeException
-   {
-      if (!COMPARABLE_TYPES.contains(parent.get_act_as_type()))
-      {
-         ErrorManager.handle
-         (
-            new InvalidTypeException(origin, parent, COMPARABLE_TYPES)
-         );
-      }
-
-      return new Type(origin, parent, name);
-   }
 
    /**** Accessors ************************************************************/
    public Type get_base_type ()
@@ -148,12 +119,17 @@ public class Type extends DeclaredEntity
 
    public Type get_act_as_type ()
    {
-      return true_type;
+      return get_base_type();
    }
 
    public boolean is_base_type ()
    {
       return (parent == null);
+   }
+
+   public List<Type> get_parameters ()
+   {
+      return parameters;
    }
 
    public Type try_merging_with (final Type t)
@@ -263,12 +239,57 @@ public class Type extends DeclaredEntity
 
       sb.append(name);
 
+      for (final Type t: parameters)
+      {
+         sb.append("<");
+         sb.append(t.toString());
+         sb.append(">");
+      }
+
       return sb.toString();
+   }
+
+   public Type generate_variant
+   (
+      final Origin origin,
+      final List<Type> parameters
+   )
+   throws Throwable
+   {
+      if (this.parameters.size() != parameters.size())
+      {
+         // TODO: error;
+      }
+
+      return new Type(origin, get_base_type(), name, parameters);
    }
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
+   protected Type
+   (
+      final Origin origin,
+      final Type parent,
+      final String name,
+      final List<Type> parameters
+   )
+   {
+      super(origin, name);
+
+      if (parent == null)
+      {
+         true_type = this;
+      }
+      else
+      {
+         true_type = parent.true_type;
+      }
+
+      this.parent = parent;
+      this.parameters = parameters;
+   }
+
    protected Type
    (
       final Origin origin,
@@ -288,6 +309,7 @@ public class Type extends DeclaredEntity
       }
 
       this.parent = parent;
+      this.parameters = generate_default_parameters(0);
    }
 
    protected boolean this_or_parent_equals (final Type t)

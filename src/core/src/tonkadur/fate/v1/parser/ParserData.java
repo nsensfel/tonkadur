@@ -18,6 +18,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.error.ErrorManager;
 
@@ -202,7 +203,7 @@ public class ParserData
    }
 
    public void add_file_content (final Origin origin, final String filename)
-   throws IOException
+   throws IOException, ParsingError
    {
       final CommonTokenStream tokens;
       final FateLexer lexer;

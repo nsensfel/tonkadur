@@ -62,7 +62,7 @@ public class SequenceVariableJump extends Instruction
          parameters
       );
 
-      if (!sequence.get_type().get_act_as_type().equals(Type.SEQUENCE))
+      if (!sequence.get_type().get_act_as_type().equals(SequenceType.ARCHETYPE))
       {
          ErrorManager.handle
          (
@@ -70,7 +70,7 @@ public class SequenceVariableJump extends Instruction
             (
                origin,
                sequence.get_type(),
-               Collections.singleton(Type.SEQUENCE)
+               Collections.singleton(SequenceType.ARCHETYPE)
             )
          );
       }

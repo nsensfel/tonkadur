@@ -11,10 +11,22 @@ import tonkadur.fate.v1.lang.meta.Computation;
 
 public class SequenceType extends Type
 {
+   public static final SequenceType ARCHETYPE;
+
+   static
+   {
+      ARCHETYPE =
+         new SequenceType
+         (
+            Origin.BASE_LANGUAGE,
+            "sequence",
+            new ArrayList<Type>()
+         );
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Type> signature;
    protected boolean signature_is_defined;
 
    /***************************************************************************/
@@ -26,12 +38,11 @@ public class SequenceType extends Type
    (
       final Origin origin,
       final String name,
-      final List<Type> signature
+      final List<Type> parameters
    )
    {
-      super(origin, null, name);
+      super(origin, null, name, parameters);
 
-      this.signature = signature;
       this.signature_is_defined = true;
    }
 
@@ -41,16 +52,15 @@ public class SequenceType extends Type
       final String name
    )
    {
-      super(origin, null, name);
+      super(origin, null, name, new ArrayList<Type>());
 
-      this.signature = new ArrayList<Type>();
       this.signature_is_defined = false;
    }
 
    /**** Accessors ************************************************************/
    public List<Type> get_signature ()
    {
-      return signature;
+      return parameters;
    }
 
    public void propose_signature (final List<Type> signature)
@@ -60,7 +70,7 @@ public class SequenceType extends Type
          return;
       }
 
-      this.signature.addAll(signature);
+      this.parameters.addAll(signature);
 
       signature_is_defined = true;
    }
@@ -77,7 +87,7 @@ public class SequenceType extends Type
 
       for (final Computation c: params)
       {
-         signature.add(c.get_type());
+         parameters.add(c.get_type());
       }
 
       signature_is_defined = true;
@@ -96,13 +106,13 @@ public class SequenceType extends Type
 
          propose_signature(lt.get_signature());
 
-         if (signature.size() != lt.signature.size())
+         if (parameters.size() != lt.parameters.size())
          {
             return false;
          }
 
-         i0 = signature.iterator();
-         i1 = lt.signature.iterator();
+         i0 = parameters.iterator();
+         i1 = lt.parameters.iterator();
 
          while(i0.hasNext())
          {
@@ -138,15 +148,15 @@ public class SequenceType extends Type
 
       lt = (SequenceType) de;
 
-      if (lt.signature.size() != signature.size())
+      if (lt.parameters.size() != parameters.size())
       {
          return Type.ANY;
       }
 
       resulting_signature = new ArrayList<Type>();
 
-      i0 = signature.iterator();
-      i1 = lt.signature.iterator();
+      i0 = parameters.iterator();
+      i1 = lt.parameters.iterator();
 
       while(i0.hasNext())
       {
@@ -162,14 +172,14 @@ public class SequenceType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return Type.SEQUENCE;
+      return ARCHETYPE;
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new SequenceType(origin, name, signature);
+      return new SequenceType(origin, name, parameters);
    }
 
    @Override
@@ -179,7 +189,7 @@ public class SequenceType extends Type
 
       sb.append("(Sequence (");
 
-      for (final Type t: signature)
+      for (final Type t: parameters)
       {
          sb.append(t.get_name());
          sb.append(" ");

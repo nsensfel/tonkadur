@@ -8,10 +8,9 @@ import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
-import tonkadur.fate.v1.lang.meta.TextNode;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class ValueToText extends TextNode
+public class ValueToText extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -24,7 +23,7 @@ public class ValueToText extends TextNode
    /**** Constructors *********************************************************/
    protected ValueToText (final Computation value)
    {
-      super(value.get_origin());
+      super(value.get_origin(), Type.TEXT);
 
       this.value = value;
    }

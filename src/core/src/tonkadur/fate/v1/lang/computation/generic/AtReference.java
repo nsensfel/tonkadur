@@ -121,7 +121,7 @@ public class AtReference extends GenericComputation
             (
                origin,
                current_type,
-               Collections.singleton(Type.PTR)
+               Collections.singleton(PointerType.ARCHETYPE)
             )
          );
 

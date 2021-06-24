@@ -6,9 +6,9 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.TextNode;
+import tonkadur.fate.v1.lang.type.Type;
 
-public class Paragraph extends TextNode
+public class Paragraph extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -30,7 +30,7 @@ public class Paragraph extends TextNode
       final List<Computation> content
    )
    {
-      super(origin);
+      super(origin, Type.TEXT);
 
       this.content = content;
    }

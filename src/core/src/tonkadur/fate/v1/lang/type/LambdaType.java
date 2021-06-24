@@ -10,10 +10,23 @@ import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 public class LambdaType extends Type
 {
+   public static final LambdaType ARCHETYPE;
+
+   static
+   {
+      ARCHETYPE =
+         new LambdaType
+         (
+            Origin.BASE_LANGUAGE,
+            Type.ANY,
+            "lambda",
+            new ArrayList<Type>()
+         );
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Type> signature;
    protected final Type return_type;
 
    /***************************************************************************/
@@ -29,9 +42,8 @@ public class LambdaType extends Type
       final List<Type> signature
    )
    {
-      super(origin, null, name);
+      super(origin, null, name, signature);
 
-      this.signature = signature;
       this.return_type = return_type;
    }
 
@@ -43,7 +55,7 @@ public class LambdaType extends Type
 
    public List<Type> get_signature ()
    {
-      return signature;
+      return parameters;
    }
 
    /**** Compatibility ********************************************************/
@@ -59,15 +71,15 @@ public class LambdaType extends Type
 
          if
          (
-            signature.size() != lt.signature.size()
+            parameters.size() != lt.parameters.size()
             || !return_type.can_be_used_as(lt.return_type)
          )
          {
             return false;
          }
 
-         i0 = signature.iterator();
-         i1 = lt.signature.iterator();
+         i0 = parameters.iterator();
+         i1 = lt.parameters.iterator();
 
          while(i0.hasNext())
          {
@@ -104,7 +116,7 @@ public class LambdaType extends Type
 
       lt = (LambdaType) de;
 
-      if (lt.signature.size() != signature.size())
+      if (lt.parameters.size() != parameters.size())
       {
          return Type.ANY;
       }
@@ -113,8 +125,8 @@ public class LambdaType extends Type
       resulting_return_type =
          (Type) return_type.generate_comparable_to(lt.return_type);
 
-      i0 = signature.iterator();
-      i1 = lt.signature.iterator();
+      i0 = parameters.iterator();
+      i1 = lt.parameters.iterator();
 
       while(i0.hasNext())
       {
@@ -137,14 +149,14 @@ public class LambdaType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return Type.LAMBDA;
+      return get_base_type();
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new LambdaType(origin, return_type, name, signature);
+      return new LambdaType(origin, return_type, name, parameters);
    }
 
    @Override
@@ -156,7 +168,7 @@ public class LambdaType extends Type
       sb.append(return_type.toString());
       sb.append(" (");
 
-      for (final Type t: signature)
+      for (final Type t: parameters)
       {
          sb.append(t.get_name());
       }

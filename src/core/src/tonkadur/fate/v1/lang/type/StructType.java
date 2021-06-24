@@ -154,7 +154,7 @@ public class StructType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return Type.DICT;
+      return get_base_type();
    }
 
    /**** Misc. ****************************************************************/

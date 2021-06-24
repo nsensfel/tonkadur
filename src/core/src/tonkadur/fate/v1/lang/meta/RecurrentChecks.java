@@ -101,7 +101,7 @@ public class RecurrentChecks
             (
                o,
                t,
-               Collections.singletonList(Type.LIST)
+               Collections.singletonList(CollectionType.LIST_ARCHETYPE)
             )
          );
       }
@@ -128,7 +128,7 @@ public class RecurrentChecks
             (
                o,
                t,
-               Collections.singletonList(Type.SET)
+               Collections.singletonList(CollectionType.SET_ARCHETYPE)
             )
          );
       }
@@ -372,7 +372,7 @@ public class RecurrentChecks
             (
                l.get_origin(),
                l.get_type(),
-               Collections.singleton(Type.LAMBDA)
+               Collections.singleton(LambdaType.ARCHETYPE)
             )
          );
       }

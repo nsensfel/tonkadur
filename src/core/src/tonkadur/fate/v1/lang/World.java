@@ -25,8 +25,12 @@ import tonkadur.fate.v1.lang.meta.ExtraComputation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
-import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.CollectionType;
+import tonkadur.fate.v1.lang.type.ConsType;
+import tonkadur.fate.v1.lang.type.DictionaryType;
+import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.SequenceType;
+import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.computation.SequenceReference;
 
@@ -312,13 +316,24 @@ public class World
       try
       {
          type_collection.add(Type.BOOL);
-         //type_collection.add(Type.DICT);
          type_collection.add(Type.FLOAT);
          type_collection.add(Type.INT);
-         //type_collection.add(Type.LIST);
-         //type_collection.add(Type.SET);
          type_collection.add(Type.STRING);
          type_collection.add(Type.TEXT);
+
+         type_collection.add(CollectionType.LIST_ARCHETYPE);
+         type_collection.add(CollectionType.SET_ARCHETYPE);
+
+         type_collection.add(ConsType.ARCHETYPE);
+
+         type_collection.add(DictionaryType.ARCHETYPE);
+
+         type_collection.add(LambdaType.ARCHETYPE);
+         type_collection.add(SequenceType.ARCHETYPE);
+
+         //type_collection.add(Type.SET);
+         //
+         //type_collection.add(Type.DICT);
       }
       catch (final Throwable t)
       {

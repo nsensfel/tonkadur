@@ -1,5 +1,7 @@
 package tonkadur.fate.v1.lang.type;
 
+import java.util.Collections;
+
 import tonkadur.error.ErrorManager;
 import tonkadur.parser.ParsingError;
 
@@ -11,10 +13,33 @@ import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 public class CollectionType extends Type
 {
+   public static final CollectionType LIST_ARCHETYPE;
+   public static final CollectionType SET_ARCHETYPE;
+
+   static
+   {
+
+      LIST_ARCHETYPE =
+         new CollectionType
+         (
+            Origin.BASE_LANGUAGE,
+            Type.ANY,
+            false,
+            "list"
+         );
+
+      SET_ARCHETYPE =
+         new CollectionType
+         (
+            Origin.BASE_LANGUAGE,
+            Type.ANY,
+            true,
+            "set"
+         );
+   }
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type content_type;
    protected final boolean is_set;
 
    /***************************************************************************/
@@ -59,7 +84,7 @@ public class CollectionType extends Type
    /**** Accessors ************************************************************/
    public Type get_content_type ()
    {
-      return content_type;
+      return parameters.get(0);
    }
 
    public boolean is_set ()
@@ -70,7 +95,7 @@ public class CollectionType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return is_set? Type.SET : Type.LIST;
+      return is_set()? SET_ARCHETYPE: LIST_ARCHETYPE;
    }
 
    /**** Compatibility ********************************************************/
@@ -85,8 +110,8 @@ public class CollectionType extends Type
 
          return
             (
-               (!ct.is_set || is_set)
-               && content_type.can_be_used_as(ct.content_type)
+               (!ct.is_set() || is_set())
+               && get_content_type().can_be_used_as(ct.get_content_type())
             );
       }
 
@@ -115,8 +140,14 @@ public class CollectionType extends Type
          new CollectionType
          (
             get_origin(),
-            ((Type) content_type.generate_comparable_to(ct.content_type)),
-            (ct.is_set || is_set),
+            (
+               (Type) get_content_type().generate_comparable_to
+               (
+                  ct.get_content_type()
+               )
+            ),
+            // FIXME: not too sure about that line there:
+            ct.is_set(),
             name
          );
    }
@@ -126,7 +157,7 @@ public class CollectionType extends Type
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new CollectionType(origin, content_type, is_set, name);
+      return new CollectionType(origin, get_content_type(), is_set(), name);
    }
 
    @Override
@@ -143,9 +174,9 @@ public class CollectionType extends Type
          sb.append("(List ");
       }
 
-      sb.append(content_type.toString());
+      sb.append(get_content_type().toString());
       sb.append(")::");
-      sb.append(name);
+      sb.append(get_name());
 
       return sb.toString();
    }
@@ -163,9 +194,8 @@ public class CollectionType extends Type
       final String name
    )
    {
-      super(origin, null, name);
+      super(origin, null, name, Collections.singletonList(content_type));
 
       this.is_set = is_set;
-      this.content_type = content_type;
    }
 }

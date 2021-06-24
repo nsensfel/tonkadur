@@ -11,6 +11,20 @@ import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 public class DictionaryType extends Type
 {
+   public static final DictionaryType ARCHETYPE;
+
+   static
+   {
+      ARCHETYPE =
+         new DictionaryType
+         (
+            Origin.BASE_LANGUAGE,
+            Type.ANY,
+            Type.ANY,
+            "dict"
+         );
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
@@ -57,7 +71,7 @@ public class DictionaryType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return Type.DICT;
+      return ARCHETYPE;
    }
 
    /**** Compatibility ********************************************************/

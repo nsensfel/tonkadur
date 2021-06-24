@@ -1,15 +1,29 @@
 package tonkadur.fate.v1.lang.type;
 
+import java.util.Collections;
+
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 public class PointerType extends Type
 {
+   public static final PointerType ARCHETYPE;
+
+   static
+   {
+      ARCHETYPE =
+         new PointerType
+         (
+            Origin.BASE_LANGUAGE,
+            Type.ANY,
+            "ptr"
+         );
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Type referenced_type;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -23,15 +37,13 @@ public class PointerType extends Type
       final String name
    )
    {
-      super(origin, null, name);
-
-      this.referenced_type = referenced_type;
+      super(origin, null, name, Collections.singletonList(referenced_type));
    }
 
    /**** Accessors ************************************************************/
    public Type get_referenced_type ()
    {
-      return referenced_type;
+      return parameters.get(0);
    }
 
    /**** Compatibility ********************************************************/
@@ -44,7 +56,7 @@ public class PointerType extends Type
 
          dt = (PointerType) t;
 
-         return referenced_type.can_be_used_as(dt.referenced_type);
+         return get_referenced_type().can_be_used_as(dt.get_referenced_type());
       }
 
       return false;
@@ -69,7 +81,10 @@ public class PointerType extends Type
 
       dt = (PointerType) de;
       resulting_referenced_type =
-         (Type) referenced_type.generate_comparable_to(dt.referenced_type);
+         (Type) get_referenced_type().generate_comparable_to
+         (
+            dt.get_referenced_type()
+         );
 
       return new PointerType(get_origin(), resulting_referenced_type, name);
    }
@@ -77,14 +92,14 @@ public class PointerType extends Type
    @Override
    public Type get_act_as_type ()
    {
-      return Type.PTR;
+      return ARCHETYPE;
    }
 
    /**** Misc. ****************************************************************/
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new PointerType(origin, referenced_type, name);
+      return new PointerType(origin, get_referenced_type(), name);
    }
 
    @Override
@@ -93,7 +108,7 @@ public class PointerType extends Type
       final StringBuilder sb = new StringBuilder();
 
       sb.append("(Pointer to ");
-      sb.append(referenced_type.toString());
+      sb.append(get_referenced_type().toString());
       sb.append(")::");
       sb.append(name);
 

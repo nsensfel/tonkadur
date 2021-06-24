@@ -14,6 +14,7 @@ import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 
 import tonkadur.fate.v1.lang.type.StructType;
+import tonkadur.fate.v1.lang.type.PointerType;
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.computation.generic.AtReference;
@@ -60,7 +61,7 @@ public class FieldAccess extends Computation
 
       current_type = parent.get_type();
 
-      while (current_type.get_act_as_type().equals(Type.PTR))
+      while (current_type.get_act_as_type().equals(PointerType.ARCHETYPE))
       {
          parent =
             GenericComputation.build
@@ -81,7 +82,7 @@ public class FieldAccess extends Computation
             (
                origin,
                current_type,
-               Collections.singleton(Type.DICT),
+               Collections.singleton(Type.ANY), // FIXME: Type.STRUCT
                parent.toString()
             )
          );
