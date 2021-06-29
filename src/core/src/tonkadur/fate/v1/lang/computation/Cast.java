@@ -107,6 +107,8 @@ public class Cast extends Computation
    {
       final Type hint;
 
+      value.expect_string();
+
       if
       (
          (value.get_type().can_be_used_as(to))
