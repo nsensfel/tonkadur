@@ -1,6 +1,8 @@
 package tonkadur.fate.v1.lang.computation;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 import tonkadur.functional.Cons;
 
@@ -8,6 +10,7 @@ import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.FutureType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -55,16 +58,12 @@ public class CondValue extends Computation
       {
          if (entry.get_cdr().get_type().can_be_used_as(Type.STRING))
          {
-            expect_string = 1;
-
             hint = Type.STRING;
 
             break;
          }
          else if (entry.get_cdr().get_type() != Type.ANY)
          {
-            expect_string = 0;
-
             hint = entry.get_cdr().get_type();
 
             break;
@@ -94,12 +93,18 @@ public class CondValue extends Computation
    /**** Accessors ************************************************************/
    @Override
    public void expect_non_string ()
+   throws ParsingError
    {
       if (get_type() instanceof FutureType)
       {
+         final Computation a;
          Type hint;
 
-         hint = branches.get(0).get_cdr().expect_non_string();
+         a = branches.get(0).get_cdr();
+
+         a.expect_non_string();
+
+         hint = a.get_type();
 
          for (final Cons<Computation, Computation> entry: branches)
          {
@@ -114,12 +119,18 @@ public class CondValue extends Computation
 
    @Override
    public void expect_string ()
+   throws ParsingError
    {
       if (get_type() instanceof FutureType)
       {
+         final Computation a;
          Type hint;
 
-         hint = branches.get(0).get_cdr().expect_string();
+         a = branches.get(0).get_cdr();
+
+         a.expect_non_string();
+
+         hint = a.get_type();
 
          for (final Cons<Computation, Computation> entry: branches)
          {

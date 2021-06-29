@@ -1,13 +1,17 @@
 package tonkadur.fate.v1.lang.type;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Collection;
+import java.util.Collections;
 
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 public class FutureType extends Type
 {
@@ -44,7 +48,7 @@ public class FutureType extends Type
    {
       final Collection<FutureType> result;
 
-      result = new ArraList<FutureType>();
+      result = new ArrayList<FutureType>();
 
       for (final FutureType t: FUTURE_TYPES)
       {
@@ -164,7 +168,7 @@ public class FutureType extends Type
    {
       assert_is_resolved();
 
-      return resolved_type.generate_variant(parameters);
+      return resolved_type.generate_variant(origin, parameters);
    }
 
    public Type get_resolved_type ()

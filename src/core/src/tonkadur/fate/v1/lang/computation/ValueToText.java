@@ -1,9 +1,7 @@
 package tonkadur.fate.v1.lang.computation;
 
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.IncompatibleTypeException;
-import tonkadur.fate.v1.error.IncomparableTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -33,9 +31,7 @@ public class ValueToText extends Computation
    /***************************************************************************/
    /**** Constructors *********************************************************/
    public static ValueToText build (final Computation value)
-   throws
-      IncompatibleTypeException,
-      IncomparableTypeException
+   throws ParsingError
    {
       final Type value_base_type;
 

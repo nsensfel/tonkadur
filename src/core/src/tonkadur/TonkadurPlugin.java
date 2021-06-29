@@ -96,7 +96,7 @@ public abstract class TonkadurPlugin
    public void pre_fate_parsing
    (
       final tonkadur.fate.v1.lang.World fate_world,
-      final Context context
+      final tonkadur.fate.v1.parser.ParserData parser_data
    )
    throws Throwable
    {

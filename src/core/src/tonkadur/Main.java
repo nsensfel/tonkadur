@@ -4,9 +4,9 @@ import java.util.List;
 
 import java.io.IOException;
 
-import tonkadur.parser.Context;
+import tonkadur.parser.Origin;
 
-import tonkadur.fate.v1.Utils;
+import tonkadur.fate.v1.parser.ParserData;
 
 public class Main
 {
@@ -19,7 +19,7 @@ public class Main
       final List<TonkadurPlugin> plugins;
       final tonkadur.fate.v1.lang.World fate_world;
       final tonkadur.wyrd.v1.lang.World wyrd_world;
-      final Context context;
+      final ParserData parser_data;
 
       tonkadur.fate.v1.Base.initialize();
       tonkadur.wyrd.v1.Base.initialize();
@@ -39,20 +39,19 @@ public class Main
       }
 
       fate_world = new tonkadur.fate.v1.lang.World();
-      context = Context.build(RuntimeParameters.get_input_file());
+      parser_data = new ParserData(fate_world);
 
       for (final TonkadurPlugin tp: plugins)
       {
-         tp.pre_fate_parsing(fate_world, context);
+         tp.pre_fate_parsing(fate_world, parser_data);
       }
 
       try
       {
-         Utils.add_file_content
+         parser_data.add_file_content
          (
-            context.get_current_file(),
-            context,
-            fate_world
+            Origin.BASE_LANGUAGE,
+            RuntimeParameters.get_input_file()
          );
 
          System.out.println("Parsing completed.");

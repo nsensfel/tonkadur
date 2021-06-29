@@ -1,6 +1,7 @@
 package tonkadur.fate.v1.lang.meta;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -38,10 +39,12 @@ public abstract class Computation extends Node
    }
 
    public void expect_non_string ()
+   throws ParsingError
    {
    }
 
    public void expect_string ()
+   throws ParsingError
    {
    }
 
