@@ -1,14 +1,19 @@
 package tonkadur.fate.v1.lang.instruction;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.functional.Cons;
 
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.computation.FieldAccess;
+
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SetFields extends Instruction
 {
@@ -38,12 +43,13 @@ public class SetFields extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public static SetFieldsComputation build
+   public static SetFields build
    (
       final Origin origin,
       final Computation target,
       final List<Cons<Origin, Cons<String, Computation>>> field_assignments
    )
+   throws Throwable
    {
       // A bit of a lazy solution: build field references, then extract the data
       final List<Cons<String, Computation>> assignments;

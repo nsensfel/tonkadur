@@ -75,6 +75,13 @@ public class FutureType extends Type
       FUTURE_TYPES.add(this);
    }
 
+   public FutureType (final Origin origin)
+   {
+      super(origin, null, "Future Type", new ArrayList<Type>());
+
+      FUTURE_TYPES.add(this);
+   }
+
 
    /**** Accessors ************************************************************/
    public Type get_base_type ()

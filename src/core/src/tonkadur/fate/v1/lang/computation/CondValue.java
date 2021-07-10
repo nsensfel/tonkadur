@@ -55,11 +55,6 @@ public class CondValue extends Computation
          entry.get_car().expect_non_string();
 
          RecurrentChecks.assert_can_be_used_as(entry.get_car(), Type.BOOL);
-
-         if (hint != null)
-         {
-            hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
-         }
       }
 
       return new CondValue(origin, new FutureType(origin), branches);

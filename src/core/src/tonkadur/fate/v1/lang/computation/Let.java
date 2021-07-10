@@ -5,6 +5,7 @@ import java.util.List;
 import tonkadur.functional.Cons;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;

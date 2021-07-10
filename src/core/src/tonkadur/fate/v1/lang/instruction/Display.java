@@ -5,6 +5,7 @@ import java.util.Collections;
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -23,15 +24,13 @@ public class Display extends Instruction
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Display
+   protected Display
    (
       final Origin origin,
       final Computation content
    )
    {
       super(origin);
-
-      content.expect_string();
 
       this.content = content;
    }
@@ -40,6 +39,17 @@ public class Display extends Instruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
+   public static Display build
+   (
+      final Origin origin,
+      final Computation content
+   )
+   throws ParsingError
+   {
+      content.expect_string();
+
+      return new Display(origin, content);
+   }
 
    /**** Accessors ************************************************************/
    @Override

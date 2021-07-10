@@ -361,6 +361,59 @@ public class RecurrentChecks
       }
    }
 
+   public static void handle_expected_type_propagation
+   (
+      final Computation computation,
+      final Type type
+   )
+   throws ParsingError
+   {
+      if
+      (
+         type.can_be_used_as(Type.TEXT)
+         || type.can_be_used_as(Type.STRING)
+      )
+      {
+         computation.expect_string();
+      }
+      else
+      {
+         computation.expect_non_string();
+      }
+   }
+
+   public static void propagate_expected_types
+   (
+      final List<Computation> computations,
+      final List<Type> types
+   )
+   throws ParsingError
+   {
+      try
+      {
+         (new Merge<Computation, Type, Boolean>()
+         {
+            @Override
+            public Boolean risky_lambda (final Computation c, final Type p)
+            throws ParsingError
+            {
+               handle_expected_type_propagation(c, p);
+
+               return Boolean.TRUE;
+            }
+         }).risky_merge(computations, types);
+      }
+      catch (final ParsingError e)
+      {
+         throw e;
+      }
+      catch (final Throwable e)
+      {
+         e.printStackTrace();
+         System.exit(-1);
+      }
+   }
+
    public static void assert_is_a_lambda_function (final Computation l)
    throws ParsingError
    {

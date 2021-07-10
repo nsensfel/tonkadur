@@ -3,6 +3,7 @@ package tonkadur.fate.v1.lang.instruction;
 import java.util.List;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -19,10 +20,10 @@ public class TextOption extends Instruction
    protected final List<Instruction> effects;
 
    /***************************************************************************/
-   /**** PUBLIC ***************************************************************/
+   /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public TextOption
+   protected TextOption
    (
       final Origin origin,
       final Computation text,
@@ -31,10 +32,25 @@ public class TextOption extends Instruction
    {
       super(origin);
 
-      text.expect_string();
-
       this.text = text;
       this.effects = effects;
+   }
+
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
+   /**** Constructors *********************************************************/
+   public static TextOption build
+   (
+      final Origin origin,
+      final Computation text,
+      final List<Instruction> effects
+   )
+   throws ParsingError
+   {
+      text.expect_string();
+
+      return new TextOption(origin, text, effects);
    }
 
 

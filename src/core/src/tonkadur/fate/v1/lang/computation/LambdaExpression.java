@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -48,6 +49,7 @@ public class LambdaExpression extends Computation
       final List<Variable> parameters,
       final Computation function
    )
+   throws ParsingError
    {
       final List<Type> signature;
       final LambdaType type;

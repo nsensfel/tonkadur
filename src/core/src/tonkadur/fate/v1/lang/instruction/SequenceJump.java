@@ -3,10 +3,14 @@ package tonkadur.fate.v1.lang.instruction;
 import java.util.List;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
+
+import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SequenceJump extends Instruction
 {
@@ -34,6 +38,7 @@ public class SequenceJump extends Instruction
    }
 
    /**** Accessors ************************************************************/
+   // TODO: call this at some point.
    public void perform_signature_checks (final List<Type> signature)
    throws ParsingError
    {

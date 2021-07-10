@@ -6,8 +6,7 @@ import java.util.List;
 import tonkadur.error.ErrorManager;
 
 import tonkadur.parser.Origin;
-
-import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -26,10 +25,10 @@ public class ForEach extends Instruction
    protected final List<Instruction> body;
 
    /***************************************************************************/
-   /**** PUBLIC ***************************************************************/
+   /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public ForEach
+   protected ForEach
    (
       final Origin origin,
       final Computation collection,
@@ -39,11 +38,27 @@ public class ForEach extends Instruction
    {
       super(origin);
 
-      collection.expect_non_string();
-
       this.collection = collection;
       this.var_name = var_name;
       this.body = body;
+   }
+
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
+   /**** Constructors *********************************************************/
+   public static ForEach build
+   (
+      final Origin origin,
+      final Computation collection,
+      final String var_name,
+      final List<Instruction> body
+   )
+   throws ParsingError
+   {
+      collection.expect_non_string();
+
+      return new ForEach(origin, collection, var_name, body);
    }
 
    /**** Accessors ************************************************************/

@@ -8,6 +8,7 @@ import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.FutureType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -59,7 +60,8 @@ public class SwitchValue extends Computation
       Type candidate_hint;
 
       target_type = target.get_type();
-      target_type.expect_string();
+
+      target.expect_string();
 
       candidate_hint = branches.get(0).get_car().get_type();
 

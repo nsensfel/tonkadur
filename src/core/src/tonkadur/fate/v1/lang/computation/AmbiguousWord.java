@@ -8,6 +8,7 @@ import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.FutureType;
 
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.VariableFromWord;
 
 public class AmbiguousWord extends Computation
@@ -41,7 +42,7 @@ public class AmbiguousWord extends Computation
       final String as_string
    )
    {
-      super(origin, new FutureType(origin, new ArrayList<>()));
+      super(origin, new FutureType(origin));
 
       this.parser = parser;
       this.as_string = as_string;
@@ -83,7 +84,7 @@ public class AmbiguousWord extends Computation
          System.exit(-1);
       }
 
-      type.resolve_to(result.get_type());
+      ((FutureType) type).resolve_to(result.get_type());
    }
 
    @Override
@@ -91,7 +92,7 @@ public class AmbiguousWord extends Computation
    {
       result = Constant.build_string(get_origin(), as_string);
 
-      type.resolve_to(result.get_type());
+      ((FutureType) type).resolve_to(result.get_type());
    }
 
    public String get_value_as_string ()

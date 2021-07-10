@@ -695,7 +695,7 @@ returns [Instruction result]
       PARSER.decrease_local_variables_hierarchy();
 
       $result =
-         new ForEach
+         ForEach.build
          (
             PARSER.get_origin_at
             (
@@ -846,7 +846,7 @@ returns [Instruction result]
    | IMP_SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
    {
       $result =
-         new SetFields
+         SetFields.build
          (
             PARSER.get_origin_at
             (
@@ -947,7 +947,7 @@ returns [Instruction result]
    | paragraph
    {
       $result =
-         new Display
+         Display.build
          (
             ($paragraph.result.get_origin()),
             ($paragraph.result)
@@ -1103,7 +1103,7 @@ returns [Instruction result]
       PARSER.decrease_local_variables_hierarchy();
 
       $result =
-         new TextOption
+         TextOption.build
          (
             PARSER.get_origin_at
             (
@@ -1376,7 +1376,7 @@ returns [Instruction result]
       PARSER.decrease_local_variables_hierarchy();
       PARSER.disable_restricted_stack_of(pcd);
       $result =
-         new ForEach
+         ForEach.build
          (
             PARSER.get_origin_at
             (
@@ -2031,9 +2031,9 @@ returns [Computation result]
 :
    WORD
    {
-      if ($WORD.text.matches("[0-9]+(\.[0-9]+)?"))
+      if ($WORD.text.matches("[0-9]+(\\.[0-9]+)?"))
       {
-         return
+         $result =
             Constant.build
             (
                PARSER.get_origin_at
@@ -2232,7 +2232,7 @@ returns [Computation result]
    | SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
    {
       $result =
-         new SetFieldsComputation
+         SetFieldsComputation.build
          (
             PARSER.get_origin_at
             (

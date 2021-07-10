@@ -1,14 +1,16 @@
 package tonkadur.fate.v1.lang.computation;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.functional.Cons;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
-import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 public class SetFieldsComputation extends Computation
 {
@@ -43,6 +45,7 @@ public class SetFieldsComputation extends Computation
       final Computation target,
       final List<Cons<Origin, Cons<String, Computation>>> field_assignments
    )
+   throws Throwable
    {
       // A bit of a lazy solution: build field references, then extract the data
       final List<Cons<String, Computation>> assignments;

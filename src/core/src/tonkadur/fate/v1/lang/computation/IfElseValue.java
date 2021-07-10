@@ -4,6 +4,7 @@ import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.FutureType;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
