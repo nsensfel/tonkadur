@@ -49,6 +49,7 @@ public class CondInstruction extends Instruction
    {
       for (final Cons<Computation, Instruction> branch: branches)
       {
+         branch.get_car().expect_non_string();
          RecurrentChecks.assert_can_be_used_as(branch.get_car(), Type.BOOL);
       }
 

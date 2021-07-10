@@ -845,37 +845,6 @@ returns [Instruction result]
 
    | IMP_SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
    {
-      /*
-       * A bit of a lazy solution: build field references, then extract the data
-       */
-      final List<Cons<String, Computation>> assignments;
-
-      assignments = new ArrayList<Cons<String, Computation>>();
-
-      for
-      (
-         final Cons<Origin, Cons<String, Computation>> entry:
-            ($field_value_list.result)
-      )
-      {
-         final FieldAccess fa;
-         final Computation cp;
-
-         fa =
-            FieldAccess.build
-            (
-               entry.get_car(),
-               ($computation.result),
-               entry.get_cdr().get_car()
-            );
-
-         cp = entry.get_cdr().get_cdr();
-
-         RecurrentChecks.assert_can_be_used_as(cp, fa.get_type());
-
-         assignments.add(new Cons(fa.get_field_name(), cp));
-      }
-
       $result =
          new SetFields
          (
@@ -885,7 +854,7 @@ returns [Instruction result]
                ($IMP_SET_FIELDS_KW.getCharPositionInLine())
             ),
             ($computation.result),
-            assignments
+            ($field_value_list.result)
          );
    }
 
@@ -2062,17 +2031,33 @@ returns [Computation result]
 :
    WORD
    {
-      $result =
-         new AmbiguousWord
-         (
-            PARSER,
-            PARSER.get_origin_at
+      if ($WORD.text.matches("[0-9]+(\.[0-9]+)?"))
+      {
+         return
+            Constant.build
             (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
+               PARSER.get_origin_at
+               (
+                  ($WORD.getLine()),
+                  ($WORD.getCharPositionInLine())
+               ),
+               ($WORD.text)
+            );
+      }
+      else
+      {
+         $result =
+            new AmbiguousWord
+            (
+               PARSER,
+               PARSER.get_origin_at
+               (
+                  ($WORD.getLine()),
+                  ($WORD.getCharPositionInLine())
+               ),
+               ($WORD.text)
+            );
+      }
    }
 
    | VARIABLE_KW WORD WS* R_PAREN
@@ -2246,37 +2231,6 @@ returns [Computation result]
 
    | SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
    {
-      /*
-       * A bit of a lazy solution: build field references, then extract the data
-       */
-      final List<Cons<String, Computation>> assignments;
-
-      assignments = new ArrayList<Cons<String, Computation>>();
-
-      for
-      (
-         final Cons<Origin, Cons<String, Computation>> entry:
-            ($field_value_list.result)
-      )
-      {
-         final FieldAccess fa;
-         final Computation cp;
-
-         fa =
-            FieldAccess.build
-            (
-               entry.get_car(),
-               ($computation.result),
-               entry.get_cdr().get_car()
-            );
-
-         cp = entry.get_cdr().get_cdr();
-
-         RecurrentChecks.assert_can_be_used_as(cp, fa.get_type());
-
-         assignments.add(new Cons(fa.get_field_name(), cp));
-      }
-
       $result =
          new SetFieldsComputation
          (
@@ -2286,7 +2240,7 @@ returns [Computation result]
                ($SET_FIELDS_KW.getCharPositionInLine())
             ),
             ($computation.result),
-            assignments
+            ($field_value_list.result)
          );
    }
 

@@ -57,6 +57,10 @@ public class SequenceVariableCall extends Instruction
    {
       final List<Type> signature;
 
+      sequence.expect_non_string();
+
+      // TODO: change this system, since we'd rather use the signature to tell
+      // the parameters what to expect.
       ((SequenceType) sequence.get_type()).propose_signature_from_parameters
       (
          parameters

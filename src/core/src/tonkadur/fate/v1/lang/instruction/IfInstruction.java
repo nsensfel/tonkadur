@@ -49,6 +49,8 @@ public class IfInstruction extends Instruction
    )
    throws ParsingError
    {
+      condition.expect_non_string();
+
       RecurrentChecks.assert_can_be_used_as(condition, Type.BOOL);
 
       return new IfInstruction(origin, condition, if_true);

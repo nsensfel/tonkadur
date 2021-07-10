@@ -59,6 +59,8 @@ public class FieldAccess extends Computation
    {
       Type current_type;
 
+      parent.expect_non_string();
+
       current_type = parent.get_type();
 
       while (current_type.get_act_as_type().equals(PointerType.ARCHETYPE))

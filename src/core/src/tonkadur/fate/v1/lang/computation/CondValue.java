@@ -50,26 +50,6 @@ public class CondValue extends Computation
    )
    throws ParsingError
    {
-      Type hint;
-
-      hint = null;
-
-      for (final Cons<Computation, Computation> entry: branches)
-      {
-         if (entry.get_cdr().get_type().can_be_used_as(Type.STRING))
-         {
-            hint = Type.STRING;
-
-            break;
-         }
-         else if (entry.get_cdr().get_type() != Type.ANY)
-         {
-            hint = entry.get_cdr().get_type();
-
-            break;
-         }
-      }
-
       for (final Cons<Computation, Computation> entry: branches)
       {
          entry.get_car().expect_non_string();
@@ -82,12 +62,7 @@ public class CondValue extends Computation
          }
       }
 
-      if (hint == null)
-      {
-         hint = new FutureType(origin, new ArrayList<Type>());
-      }
-
-      return new CondValue(origin, hint, branches);
+      return new CondValue(origin, new FutureType(origin), branches);
    }
 
    /**** Accessors ************************************************************/
@@ -95,52 +70,46 @@ public class CondValue extends Computation
    public void expect_non_string ()
    throws ParsingError
    {
-      if (get_type() instanceof FutureType)
+      final Computation a;
+      Type hint;
+
+      a = branches.get(0).get_cdr();
+
+      a.expect_non_string();
+
+      hint = a.get_type();
+
+      for (final Cons<Computation, Computation> entry: branches)
       {
-         final Computation a;
-         Type hint;
+         entry.get_cdr().expect_non_string();
 
-         a = branches.get(0).get_cdr();
-
-         a.expect_non_string();
-
-         hint = a.get_type();
-
-         for (final Cons<Computation, Computation> entry: branches)
-         {
-            entry.get_cdr().expect_non_string();
-
-            hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
-         }
-
-         ((FutureType) get_type()).resolve_to(hint);
+         hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
       }
+
+      ((FutureType) get_type()).resolve_to(hint);
    }
 
    @Override
    public void expect_string ()
    throws ParsingError
    {
-      if (get_type() instanceof FutureType)
+      final Computation a;
+      Type hint;
+
+      a = branches.get(0).get_cdr();
+
+      a.expect_non_string();
+
+      hint = a.get_type();
+
+      for (final Cons<Computation, Computation> entry: branches)
       {
-         final Computation a;
-         Type hint;
+         entry.get_cdr().expect_non_string();
 
-         a = branches.get(0).get_cdr();
-
-         a.expect_non_string();
-
-         hint = a.get_type();
-
-         for (final Cons<Computation, Computation> entry: branches)
-         {
-            entry.get_cdr().expect_non_string();
-
-            hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
-         }
-
-         ((FutureType) get_type()).resolve_to(hint);
+         hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
       }
+
+      ((FutureType) get_type()).resolve_to(hint);
    }
 
    @Override

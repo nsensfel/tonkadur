@@ -57,6 +57,8 @@ public class For extends Instruction
    )
    throws ParsingError
    {
+      condition.expect_non_string();
+
       RecurrentChecks.assert_can_be_used_as(condition, Type.BOOL);
 
       return new For(origin, condition, pre, body, post);

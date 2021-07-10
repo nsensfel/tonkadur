@@ -56,6 +56,11 @@ public class PromptInteger extends Instruction
    )
    throws ParsingError
    {
+      target.expect_non_string();
+      min.expect_non_string();
+      max.expect_non_string();
+      label.expect_string();
+
       RecurrentChecks.assert_can_be_used_as(min, Type.INT);
       RecurrentChecks.assert_can_be_used_as(max, Type.INT);
       RecurrentChecks.assert_can_be_used_as(label, Type.TEXT);

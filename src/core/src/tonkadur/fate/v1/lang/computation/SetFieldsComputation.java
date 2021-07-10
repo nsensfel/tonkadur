@@ -21,12 +21,7 @@ public class SetFieldsComputation extends Computation
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
-
-   /***************************************************************************/
-   /**** PUBLIC ***************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public SetFieldsComputation
+   protected SetFieldsComputation
    (
       final Origin origin,
       final Computation target,
@@ -38,6 +33,52 @@ public class SetFieldsComputation extends Computation
       this.target = target;
       this.field_assignments = field_assignments;
    }
+
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
+   public static SetFieldsComputation build
+   (
+      final Origin origin,
+      final Computation target,
+      final List<Cons<Origin, Cons<String, Computation>>> field_assignments
+   )
+   {
+      // A bit of a lazy solution: build field references, then extract the data
+      final List<Cons<String, Computation>> assignments;
+
+      target.expect_non_string();
+
+      assignments = new ArrayList<Cons<String, Computation>>();
+
+      for
+      (
+         final Cons<Origin, Cons<String, Computation>> entry: field_assignments
+      )
+      {
+         final FieldAccess fa;
+         final Computation cp;
+
+         fa =
+            FieldAccess.build
+            (
+               entry.get_car(),
+               target,
+               entry.get_cdr().get_car()
+            );
+
+         cp = entry.get_cdr().get_cdr();
+
+         RecurrentChecks.handle_expected_type_propagation(cp, fa.get_type());
+         RecurrentChecks.assert_can_be_used_as(cp, fa.get_type());
+
+         assignments.add(new Cons(fa.get_field_name(), cp));
+      }
+
+      return new SetFieldsComputation(origin, target, assignments);
+   }
+
+   /**** Constructors *********************************************************/
 
    /**** Accessors ************************************************************/
    @Override

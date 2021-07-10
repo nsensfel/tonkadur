@@ -52,6 +52,11 @@ public class LambdaExpression extends Computation
       final List<Type> signature;
       final LambdaType type;
 
+      // TODO: is there any way to avoid that? Finding out the expected type
+      // of the lambda expression and using the returned type as a basis for
+      // what is expected?
+      function.expect_string();
+
       signature = new ArrayList<Type>();
 
       for (final Variable v: parameters)

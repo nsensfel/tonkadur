@@ -57,11 +57,15 @@ public class SwitchInstruction extends Instruction
    {
       final Type target_type;
 
+      target.expect_string();
+
       target_type = target.get_type();
 
       for (final Cons<Computation, Instruction> branch: branches)
       {
-         RecurrentChecks.assert_can_be_used_as(branch.get_car(), Type.BOOL);
+         branch.get_car().expect_string();
+
+         RecurrentChecks.assert_can_be_used_as(branch.get_car(), target_type);
       }
 
       return

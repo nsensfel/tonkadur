@@ -45,6 +45,12 @@ public class ExtraComputationInstance extends GenericComputation
    )
    throws ParsingError
    {
+      RecurrentChecks.propagate_expected_types
+      (
+         parameters,
+         computation.get_signature()
+      );
+
       RecurrentChecks.assert_computations_matches_signature
       (
          origin,

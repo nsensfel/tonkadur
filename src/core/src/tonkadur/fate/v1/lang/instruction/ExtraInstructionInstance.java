@@ -46,6 +46,12 @@ public class ExtraInstructionInstance extends GenericInstruction
    )
    throws ParsingError
    {
+      RecurrentChecks.propagate_expected_types
+      (
+         parameters,
+         instruction.get_signature()
+      );
+
       RecurrentChecks.assert_computations_matches_signature
       (
          origin,

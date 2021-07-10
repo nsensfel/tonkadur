@@ -46,6 +46,8 @@ public class SetValue extends Instruction
    )
    throws ParsingError
    {
+      value_reference.expect_non_string();
+
       RecurrentChecks.assert_can_be_used_as(element, value_reference);
 
       return new SetValue(origin, element, value_reference);

@@ -31,6 +31,8 @@ public class TextOption extends Instruction
    {
       super(origin);
 
+      text.expect_string();
+
       this.text = text;
       this.effects = effects;
    }

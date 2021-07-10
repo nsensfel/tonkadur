@@ -47,6 +47,9 @@ public class Assert extends Instruction
    )
    throws ParsingError
    {
+      condition.expect_non_string();
+      message.expect_string();
+
       RecurrentChecks.assert_can_be_used_as(condition, Type.BOOL);
 
       return new Assert(origin, condition, message);

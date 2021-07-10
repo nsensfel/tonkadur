@@ -488,6 +488,11 @@ public class Operation extends GenericComputation
       operator_min_arity = operator.get_minimum_arity();
       operands_size = operands.size();
 
+      for (final Computation c: operands)
+      {
+         c.expect_non_string();
+      }
+
       if
       (
          (operands_size < operator_min_arity)

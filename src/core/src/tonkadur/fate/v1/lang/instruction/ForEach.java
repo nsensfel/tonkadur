@@ -39,6 +39,8 @@ public class ForEach extends Instruction
    {
       super(origin);
 
+      collection.expect_non_string();
+
       this.collection = collection;
       this.var_name = var_name;
       this.body = body;

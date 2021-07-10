@@ -51,6 +51,23 @@ public class SequenceCall extends Instruction
       return parameters;
    }
 
+   public void perform_signature_checks (final List<Type> signature)
+   throws ParsingError
+   {
+      RecurrentChecks.propagate_expected_types
+      (
+         parameters,
+         signature
+      );
+
+      RecurrentChecks.assert_computations_matches_signature
+      (
+         get_origin(),
+         parameters,
+         signature
+      );
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

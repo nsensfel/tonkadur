@@ -44,6 +44,20 @@ public class Let extends Computation
 
    /**** Accessors ************************************************************/
    @Override
+   public void expect_non_string ()
+   throws ParsingError
+   {
+      computation.expect_non_string();
+   }
+
+   @Override
+   public void expect_string ()
+   throws ParsingError
+   {
+      computation.expect_string();
+   }
+
+   @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {

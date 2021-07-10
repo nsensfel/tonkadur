@@ -105,31 +105,11 @@ public class LambdaEvaluation extends GenericComputation
 
       call_parameters.remove(0);
 
-      /* String vs Variable resolution */
-      try
-      {
-         (new Merge<Type, Computation, Boolean>()
-         {
-            @Override
-            public Boolean risky_lambda (final Type t, final Computation p)
-            throws ParsingError
-            {
-               if (t.can_be_used_as(Type.STRING))
-               {
-                  p.expect_string();
-               }
-               else
-               {
-                  p.expect_non_string();
-               }
-               return Boolean.TRUE;
-            }
-         }).risky_merge(lambda_signature, call_parameters);
-      }
-      catch (final Throwable e)
-      {
-         // Will be handled better in the check below.
-      }
+      RecurrentChecks.propagate_expected_types
+      (
+         call_parameters,
+         lambda_signature
+      );
 
       RecurrentChecks.assert_computations_matches_signature
       (

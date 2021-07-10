@@ -34,6 +34,23 @@ public class SequenceJump extends Instruction
    }
 
    /**** Accessors ************************************************************/
+   public void perform_signature_checks (final List<Type> signature)
+   throws ParsingError
+   {
+      RecurrentChecks.propagate_expected_types
+      (
+         parameters,
+         signature
+      );
+
+      RecurrentChecks.assert_computations_matches_signature
+      (
+         get_origin(),
+         parameters,
+         signature
+      );
+   }
+
    @Override
    public void get_visited_by (final InstructionVisitor iv)
    throws Throwable

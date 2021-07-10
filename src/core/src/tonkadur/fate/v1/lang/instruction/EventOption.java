@@ -70,6 +70,12 @@ public class EventOption extends Instruction
    )
    throws ParsingError
    {
+      RecurrentChecks.propagate_expected_types
+      (
+         parameters,
+         event.get_signature()
+      );
+
       RecurrentChecks.assert_computations_matches_signature
       (
          origin,

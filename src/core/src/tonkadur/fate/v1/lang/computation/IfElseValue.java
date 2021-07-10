@@ -51,17 +51,48 @@ public class IfElseValue extends Computation
    )
    throws ParsingError
    {
-      final Type type;
+      condition.expect_non_string();
 
       RecurrentChecks.assert_can_be_used_as(condition, Type.BOOL);
 
-      type =
-         RecurrentChecks.assert_can_be_used_as(if_false, if_true.get_type());
-
-      return new IfElseValue(origin, type, condition, if_true, if_false);
+      return
+         new IfElseValue
+         (
+            origin,
+            new FutureType(origin),
+            condition,
+            if_true,
+            if_false
+         );
    }
 
    /**** Accessors ************************************************************/
+   @Override
+   public void expect_non_string ()
+   throws ParsingError
+   {
+      if_true.expect_non_string();
+      if_false.expect_non_string();
+
+      ((FutureType) get_type()).resolve_to
+      (
+         RecurrentChecks.assert_can_be_used_as(if_false, if_true.get_type())
+      );
+   }
+
+   @Override
+   public void expect_string ()
+   throws ParsingError
+   {
+      if_true.expect_string();
+      if_false.expect_string();
+
+      ((FutureType) get_type()).resolve_to
+      (
+         RecurrentChecks.assert_can_be_used_as(if_false, if_true.get_type())
+      );
+   }
+
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable

@@ -31,6 +31,8 @@ public class Display extends Instruction
    {
       super(origin);
 
+      content.expect_string();
+
       this.content = content;
    }
 

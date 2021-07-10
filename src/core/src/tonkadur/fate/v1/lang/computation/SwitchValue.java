@@ -56,32 +56,77 @@ public class SwitchValue extends Computation
    throws ParsingError
    {
       final Type target_type;
-      final Type first_type;
-      Type candidate_hint, hint;
+      Type candidate_hint;
 
       target_type = target.get_type();
+      target_type.expect_string();
 
-      candidate_hint =  branches.get(0).get_car().get_type();
-      hint = branches.get(0).get_cdr().get_type();
+      candidate_hint = branches.get(0).get_car().get_type();
 
       for (final Cons<Computation, Computation> entry: branches)
       {
+         entry.get_car().expect_string();
+
          candidate_hint =
             RecurrentChecks.assert_can_be_used_as
             (
                entry.get_car(),
                candidate_hint
             );
+      }
+
+      return
+         new SwitchValue
+         (
+            origin,
+            new FutureType(origin),
+            target,
+            branches,
+            default_value
+         );
+   }
+
+   /**** Accessors ************************************************************/
+   @Override
+   public void expect_non_string ()
+   throws ParsingError
+   {
+      Type hint;
+
+      default_value.expect_non_string();
+
+      hint = default_value.get_type();
+
+      for (final Cons<Computation, Computation> entry: branches)
+      {
+         entry.get_cdr().expect_non_string();
 
          hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
       }
 
-      hint = RecurrentChecks.assert_can_be_used_as(default_value, hint);
-
-      return new SwitchValue(origin, hint, target, branches, default_value);
+      ((FutureType) get_type()).resolve_to(hint);
    }
 
-   /**** Accessors ************************************************************/
+   @Override
+   public void expect_string ()
+   throws ParsingError
+   {
+      Type hint;
+
+      default_value.expect_string();
+
+      hint = default_value.get_type();
+
+      for (final Cons<Computation, Computation> entry: branches)
+      {
+         entry.get_cdr().expect_string();
+
+         hint = RecurrentChecks.assert_can_be_used_as(entry.get_cdr(), hint);
+      }
+
+      ((FutureType) get_type()).resolve_to(hint);
+   }
+
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
