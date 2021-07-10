@@ -107,7 +107,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       compiler.registers().bind(n.get_variable().get_name(), r);
    }
-
+/*
    @Override
    public void visit_remove_elements_of
    (
@@ -153,7 +153,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       collection_cc.release_registers(result);
       collection_in_cc.release_registers(result);
    }
-
+*/
+/*
    @Override
    public void visit_add_elements_of
    (
@@ -199,7 +200,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       collection_cc.release_registers(result);
       collection_in_cc.release_registers(result);
    }
-
+*/
+/*
    @Override
    public void visit_add_element_at
    (
@@ -287,7 +289,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       element_compiler.release_registers(result);
       collection_compiler.release_registers(result);
    }
-
+*/
+/*
    @Override
    public void visit_add_element
    (
@@ -332,6 +335,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       element_compiler.release_registers(result);
       address_compiler.release_registers(result);
    }
+*/
 
    @Override
    public void visit_assert (final tonkadur.fate.v1.lang.instruction.Assert a)
@@ -369,15 +373,11 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       msg_cc.release_registers(result);
    }
 
+/*
    @Override
    public void visit_clear (final tonkadur.fate.v1.lang.instruction.Clear c)
    throws Throwable
    {
-      /*
-       * Fate: (clear collection)
-       *
-       * Wyrd: <clear collection>
-       */
       final ComputationCompiler address_compiler;
       final Address collection_address;
 
@@ -404,18 +404,14 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       address_compiler.release_registers(result);
    }
-
+*/
+/*
    public void visit_reverse_list
    (
       final tonkadur.fate.v1.lang.instruction.ReverseList n
    )
    throws Throwable
    {
-      /*
-       * Fate: (reverse_list collection)
-       *
-       * Wyrd: <reverse_list collection>
-       */
       final ComputationCompiler address_compiler;
       final Address collection_address;
 
@@ -443,7 +439,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       address_compiler.release_registers(result);
    }
-
+*/
+/*
    @Override
    public void visit_shuffle
    (
@@ -451,11 +448,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /*
-       * Fate: (shuffle collection)
-       *
-       * Wyrd: <shuffle collection>
-       */
       final ComputationCompiler address_compiler;
       final Address collection_address;
 
@@ -482,7 +474,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       address_compiler.release_registers(result);
    }
-
+*/
    @Override
    public void visit_set_fields
    (
@@ -540,7 +532,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       target_cc.release_registers(result);
    }
 
-
+/*
    @Override
    public void visit_map
    (
@@ -550,7 +542,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    {
       final List<Computation> params;
       final List<ComputationCompiler> param_cc_list;
-      /* This is one dangerous operation to do in-place, so we don't. */
+      // This is one dangerous operation to do in-place, so we don't.
       final Register holder;
       final ComputationCompiler lambda_cc, collection_cc;
 
@@ -569,7 +561,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -648,7 +640,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_sort
    (
@@ -695,7 +688,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -742,7 +735,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    private void visit_merge_with_defaults
    (
       final tonkadur.fate.v1.lang.instruction.Merge n
@@ -844,7 +838,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -888,7 +882,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_merge
    (
@@ -896,7 +891,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      /* This is one dangerous operation to do in-place, so we don't. */
+      // This is one dangerous operation to do in-place, so we don't.
 
       if (n.get_main_default() != null)
       {
@@ -978,7 +973,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1018,7 +1013,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    private void visit_indexed_merge_with_defaults
    (
       final tonkadur.fate.v1.lang.instruction.IndexedMerge n
@@ -1120,7 +1116,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1164,7 +1160,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_indexed_merge
    (
@@ -1178,7 +1175,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          return;
       }
 
-      /* This is one dangerous operation to do in-place, so we don't. */
+      // This is one dangerous operation to do in-place, so we don't.
       final Register holder;
       final ComputationCompiler lambda_cc;
       final List<Computation> params;
@@ -1253,7 +1250,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1293,7 +1290,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_partition
    (
@@ -1320,7 +1318,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1386,7 +1384,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_indexed_partition
    (
@@ -1413,7 +1412,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1479,7 +1478,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_sublist
    (
@@ -1550,7 +1550,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       start_compiler.release_registers(result);
       end_compiler.release_registers(result);
    }
-
+*/
+/*
    @Override
    public void visit_push_element
    (
@@ -1618,7 +1619,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       compiler.registers().release(collection_size, result);
       compiler.registers().release(index, result);
    }
-
+*/
+/*
    @Override
    public void visit_pop_element
    (
@@ -1660,7 +1662,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       address_compiler.release_registers(result);
       element_compiler.release_registers(result);
    }
-
+*/
+/*
    @Override
    public void visit_filter
    (
@@ -1687,7 +1690,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1738,7 +1741,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_indexed_filter
    (
@@ -1765,7 +1769,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1816,7 +1820,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
+/*
    @Override
    public void visit_indexed_map
    (
@@ -1826,7 +1831,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    {
       final List<Computation> params;
       final List<ComputationCompiler> param_cc_list;
-      /* This is one dangerous operation to do in-place, so we don't. */
+      // This is one dangerous operation to do in-place, so we don't.
       final Register holder;
       final ComputationCompiler lambda_cc, collection_cc;
 
@@ -1845,7 +1850,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          if (param_cc.has_init())
@@ -1924,7 +1929,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
          cc.release_registers(result);
       }
    }
-
+*/
    @Override
    public void visit_switch_instruction
    (
@@ -2070,7 +2075,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       cc.release_registers(result);
    }
-
+/*
    @Override
    public void visit_free (final tonkadur.fate.v1.lang.instruction.Free n)
    throws Throwable
@@ -2103,7 +2108,8 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       cc.release_registers(result);
    }
-
+*/
+/*
    @Override
    public void visit_allocate
    (
@@ -2146,7 +2152,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       cc.release_registers(result);
    }
-
+*/
    @Override
    public void visit_while (final tonkadur.fate.v1.lang.instruction.While n)
    throws Throwable
@@ -2479,7 +2485,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       /* Already released by the unbind above. */
       /* compiler.registers().release(current_value, result); */
    }
-
+/*
    @Override
    public void visit_remove_element_at
    (
@@ -2535,7 +2541,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       index_cc.release_registers(result);
       collection_cc.release_registers(result);
    }
-
+*/
    @Override
    public void visit_cond_instruction
    (
@@ -3269,234 +3275,234 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       );
    }
 
-   @Override
-   public void visit_remove_all_of_element
-   (
-      final tonkadur.fate.v1.lang.instruction.RemoveAllOfElement n
-   )
-   throws Throwable
-   {
-      /*
-       * Fate:
-       * (remove_all_of element collection)
-       *
-       * Wyrd:
-       * (declare_variable <element_type> .elem)
-       * (declare_variable int .collection_size)
-       *
-       * (set .elem element)
-       * (set .collection_size (size collection))
-       *
-       * <if collection is a list:
-       *    <remove_all (var .elem) (var .collection_size) collection>
-       * >
-       * <if collection is a set:
-       *    (declare_variable bool .found)
-       *    (declare_variable int .index)
-       *
-       *    <binary_search
-       *       (var .elem)
-       *       (var .collection_size)
-       *       collection
-       *       .found
-       *       .index
-       *    >
-       *    (ifelse (var .found)
-       *       <remove_at (var .index) (var .collection_size) collection>
-       *       (nop)
-       *    )
-       * >
-       */
-      final ComputationCompiler elem_cc, collection_cc;
-      final Register collection_size;
-      final Address elem, collection;
+//   @Override
+//   public void visit_remove_all_of_element
+//   (
+//      final tonkadur.fate.v1.lang.instruction.RemoveAllOfElement n
+//   )
+//   throws Throwable
+//   {
+//      /*
+//       * Fate:
+//       * (remove_all_of element collection)
+//       *
+//       * Wyrd:
+//       * (declare_variable <element_type> .elem)
+//       * (declare_variable int .collection_size)
+//       *
+//       * (set .elem element)
+//       * (set .collection_size (size collection))
+//       *
+//       * <if collection is a list:
+//       *    <remove_all (var .elem) (var .collection_size) collection>
+//       * >
+//       * <if collection is a set:
+//       *    (declare_variable bool .found)
+//       *    (declare_variable int .index)
+//       *
+//       *    <binary_search
+//       *       (var .elem)
+//       *       (var .collection_size)
+//       *       collection
+//       *       .found
+//       *       .index
+//       *    >
+//       *    (ifelse (var .found)
+//       *       <remove_at (var .index) (var .collection_size) collection>
+//       *       (nop)
+//       *    )
+//       * >
+//       */
+//      final ComputationCompiler elem_cc, collection_cc;
+//      final Register collection_size;
+//      final Address elem, collection;
+//
+//      elem_cc = new ComputationCompiler(compiler);
+//      collection_cc = new ComputationCompiler(compiler);
+//
+//      collection_size = compiler.registers().reserve(Type.INT, result);
+//
+//      n.get_element().get_visited_by(elem_cc);
+//      n.get_collection().get_visited_by(collection_cc);
+//
+//      elem_cc.generate_address();
+//
+//      if (elem_cc.has_init())
+//      {
+//         result.add(elem_cc.get_init());
+//      }
+//
+//      if (collection_cc.has_init())
+//      {
+//         result.add(collection_cc.get_init());
+//      }
+//
+//      collection = collection_cc.get_address();
+//      elem = elem_cc.get_address();
+//
+//      result.add
+//      (
+//         new SetValue(collection_size.get_address(), new Size(collection))
+//      );
+//
+//      if
+//      (
+//         (
+//            (tonkadur.fate.v1.lang.type.CollectionType)
+//            n.get_collection().get_type()
+//         ).is_set()
+//      )
+//      {
+//         final Computation value_of_elem;
+//         final Register index, found;
+//
+//         index = compiler.registers().reserve(Type.INT, result);
+//         found = compiler.registers().reserve(Type.BOOL, result);
+//
+//         value_of_elem = new ValueOf(elem);
+//
+//         result.add
+//         (
+//            BinarySearch.generate
+//            (
+//               compiler.registers(),
+//               compiler.assembler(),
+//               new ValueOf(elem),
+//               collection_size.get_value(),
+//               collection,
+//               found.get_address(),
+//               index.get_address()
+//            )
+//         );
+//
+//         elem_cc.release_registers(result);
+//
+//         result.add
+//         (
+//            If.generate
+//            (
+//               compiler.registers(),
+//               compiler.assembler(),
+//               found.get_value(),
+//               RemoveAt.generate
+//               (
+//                  compiler.registers(),
+//                  compiler.assembler(),
+//                  index.get_address(),
+//                  collection_size.get_value(),
+//                  collection
+//               )
+//            )
+//         );
+//
+//         compiler.registers().release(index, result);
+//         compiler.registers().release(found, result);
+//      }
+//      else
+//      {
+//         result.add
+//         (
+//            RemoveAllOf.generate
+//            (
+//               compiler.registers(),
+//               compiler.assembler(),
+//               new ValueOf(elem),
+//               collection_size.get_value(),
+//               collection
+//            )
+//         );
+//
+//         elem_cc.release_registers(result);
+//      }
+//
+//      collection_cc.release_registers(result);
+//
+//      compiler.registers().release(collection_size, result);
+//   }
 
-      elem_cc = new ComputationCompiler(compiler);
-      collection_cc = new ComputationCompiler(compiler);
-
-      collection_size = compiler.registers().reserve(Type.INT, result);
-
-      n.get_element().get_visited_by(elem_cc);
-      n.get_collection().get_visited_by(collection_cc);
-
-      elem_cc.generate_address();
-
-      if (elem_cc.has_init())
-      {
-         result.add(elem_cc.get_init());
-      }
-
-      if (collection_cc.has_init())
-      {
-         result.add(collection_cc.get_init());
-      }
-
-      collection = collection_cc.get_address();
-      elem = elem_cc.get_address();
-
-      result.add
-      (
-         new SetValue(collection_size.get_address(), new Size(collection))
-      );
-
-      if
-      (
-         (
-            (tonkadur.fate.v1.lang.type.CollectionType)
-            n.get_collection().get_type()
-         ).is_set()
-      )
-      {
-         final Computation value_of_elem;
-         final Register index, found;
-
-         index = compiler.registers().reserve(Type.INT, result);
-         found = compiler.registers().reserve(Type.BOOL, result);
-
-         value_of_elem = new ValueOf(elem);
-
-         result.add
-         (
-            BinarySearch.generate
-            (
-               compiler.registers(),
-               compiler.assembler(),
-               new ValueOf(elem),
-               collection_size.get_value(),
-               collection,
-               found.get_address(),
-               index.get_address()
-            )
-         );
-
-         elem_cc.release_registers(result);
-
-         result.add
-         (
-            If.generate
-            (
-               compiler.registers(),
-               compiler.assembler(),
-               found.get_value(),
-               RemoveAt.generate
-               (
-                  compiler.registers(),
-                  compiler.assembler(),
-                  index.get_address(),
-                  collection_size.get_value(),
-                  collection
-               )
-            )
-         );
-
-         compiler.registers().release(index, result);
-         compiler.registers().release(found, result);
-      }
-      else
-      {
-         result.add
-         (
-            RemoveAllOf.generate
-            (
-               compiler.registers(),
-               compiler.assembler(),
-               new ValueOf(elem),
-               collection_size.get_value(),
-               collection
-            )
-         );
-
-         elem_cc.release_registers(result);
-      }
-
-      collection_cc.release_registers(result);
-
-      compiler.registers().release(collection_size, result);
-   }
-
-   @Override
-   public void visit_remove_element
-   (
-      final tonkadur.fate.v1.lang.instruction.RemoveElement n
-   )
-   throws Throwable
-   {
-      /*
-       * Fate:
-       * (remove_element element collection)
-       *
-       * Wyrd:
-       * (declare_variable <element_type> .elem)
-       * (declare_variable int .collection_size)
-       * (declare_variable boolean .found)
-       * (declare_variable int .index)
-       *
-       * (set .elem element)
-       * (set .collection_size (size collection))
-       *
-       * <if collection is a set:
-       *    <BinarySearch
-       *       (var .elem)
-       *       (var .collection_size)
-       *       collection
-       *       .found
-       *       .index
-       *    >
-       * >
-       * <if collection is a list:
-       *    <IterativeSearch
-       *       (var .elem)
-       *       (var .collection_size)
-       *       collection
-       *       .found
-       *       .index
-       *    >
-       * >
-       *
-       * (if (var .found)
-       *    <remove_at (var index) (var .collection_size) collection>
-       *    (nop)
-       * )
-       */
-      final ComputationCompiler elem_cc, collection_cc;
-
-      elem_cc = new ComputationCompiler(compiler);
-      collection_cc = new ComputationCompiler(compiler);
-
-      n.get_element().get_visited_by(elem_cc);
-      n.get_collection().get_visited_by(collection_cc);
-
-      elem_cc.generate_address();
-
-      if (elem_cc.has_init())
-      {
-         result.add(elem_cc.get_init());
-      }
-
-      if (collection_cc.has_init())
-      {
-         result.add(collection_cc.get_init());
-      }
-
-      result.add
-      (
-         RemoveOneOf.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            elem_cc.get_computation(),
-            collection_cc.get_address(),
-            (
-               (tonkadur.fate.v1.lang.type.CollectionType)
-               n.get_collection().get_type()
-            ).is_set()
-         )
-      );
-
-      elem_cc.release_registers(result);
-      collection_cc.release_registers(result);
-   }
-
+//   @Override
+//   public void visit_remove_element
+//   (
+//      final tonkadur.fate.v1.lang.instruction.RemoveElement n
+//   )
+//   throws Throwable
+//   {
+//      /*
+//       * Fate:
+//       * (remove_element element collection)
+//       *
+//       * Wyrd:
+//       * (declare_variable <element_type> .elem)
+//       * (declare_variable int .collection_size)
+//       * (declare_variable boolean .found)
+//       * (declare_variable int .index)
+//       *
+//       * (set .elem element)
+//       * (set .collection_size (size collection))
+//       *
+//       * <if collection is a set:
+//       *    <BinarySearch
+//       *       (var .elem)
+//       *       (var .collection_size)
+//       *       collection
+//       *       .found
+//       *       .index
+//       *    >
+//       * >
+//       * <if collection is a list:
+//       *    <IterativeSearch
+//       *       (var .elem)
+//       *       (var .collection_size)
+//       *       collection
+//       *       .found
+//       *       .index
+//       *    >
+//       * >
+//       *
+//       * (if (var .found)
+//       *    <remove_at (var index) (var .collection_size) collection>
+//       *    (nop)
+//       * )
+//       */
+//      final ComputationCompiler elem_cc, collection_cc;
+//
+//      elem_cc = new ComputationCompiler(compiler);
+//      collection_cc = new ComputationCompiler(compiler);
+//
+//      n.get_element().get_visited_by(elem_cc);
+//      n.get_collection().get_visited_by(collection_cc);
+//
+//      elem_cc.generate_address();
+//
+//      if (elem_cc.has_init())
+//      {
+//         result.add(elem_cc.get_init());
+//      }
+//
+//      if (collection_cc.has_init())
+//      {
+//         result.add(collection_cc.get_init());
+//      }
+//
+//      result.add
+//      (
+//         RemoveOneOf.generate
+//         (
+//            compiler.registers(),
+//            compiler.assembler(),
+//            elem_cc.get_computation(),
+//            collection_cc.get_address(),
+//            (
+//               (tonkadur.fate.v1.lang.type.CollectionType)
+//               n.get_collection().get_type()
+//            ).is_set()
+//         )
+//      );
+//
+//      elem_cc.release_registers(result);
+//      collection_cc.release_registers(result);
+//   }
+//
    @Override
    public void visit_sequence_call
    (
@@ -3926,5 +3932,15 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       min_cc.release_registers(result);
       max_cc.release_registers(result);
       label_cc.release_registers(result);
+   }
+
+   @Override
+   public void visit_generic_instruction
+   (
+      final tonkadur.fate.v1.lang.instruction.GenericInstruction n
+   )
+   throws Throwable
+   {
+      // TODO: implement.
    }
 }

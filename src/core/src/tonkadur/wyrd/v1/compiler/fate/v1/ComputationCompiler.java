@@ -162,7 +162,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       return result;
    }
-
+/*
    @Override
    public void visit_at_reference
    (
@@ -192,7 +192,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             )
          );
    }
-
+*/
    @Override
    public void visit_cast
    (
@@ -372,7 +372,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             n.get_value_as_string()
          );
    }
-
+/*
    @Override
    public void visit_count_operator
    (
@@ -470,6 +470,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          );
       }
    }
+*/
 
    @Override
    public void visit_field_access
@@ -611,6 +612,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       }
    }
 
+/*
    @Override
    public void visit_is_member_operator
    (
@@ -702,7 +704,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          );
       }
    }
-
+*/
    @Override
    public void visit_newline
    (
@@ -712,7 +714,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    {
       result_as_computation = new Newline();
    }
-
+/*
    @Override
    public void visit_operation
    (
@@ -1257,7 +1259,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          System.err.println("[P] Unknown Fate operator '" + fate_op_name+ "'.");
       }
    }
-
+*/
+/*
    @Override
    public void visit_size_operator
    (
@@ -1275,7 +1278,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_computation = new Size(cc.get_address());
    }
-
+*/
+/*
    @Override
    public void visit_text_join
    (
@@ -1381,8 +1385,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_computation = accumulator.get_value();
    }
-
-
+*/
    @Override
    public void visit_extra_computation
    (
@@ -1419,7 +1422,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             parameters
          );
    }
-
+/*
    @Override
    public void visit_is_empty
    (
@@ -1438,7 +1441,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       result_as_computation =
          Operation.equals(new Size(cc.get_address()), Constant.ZERO);
    }
-
+*/
+/*
    @Override
    public void visit_index_of_operator
    (
@@ -1478,7 +1482,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
    @Override
    public void visit_default
    (
@@ -1496,7 +1500,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       result_as_computation = r.get_value();
    }
 
-
+/*
    @Override
    public void visit_access_pointer
    (
@@ -1530,7 +1534,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             )
          );
    }
-
+*/
+/*
    @Override
    public void visit_access_as_reference
    (
@@ -1564,7 +1569,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             )
          );
    }
-
+*/
+/*
    @Override
    public void visit_access
    (
@@ -1600,7 +1606,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             )
          );
    }
-
+*/
    @Override
    public void visit_switch_value
    (
@@ -1790,7 +1796,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_computation = new Text(content);
    }
-
+/*
    @Override
    public void visit_address_operator
    (
@@ -1808,7 +1814,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_computation = n_cc.get_address();
    }
-
+*/
    @Override
    public void visit_text_with_effect
    (
@@ -1999,7 +2005,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_computation = compiler.assembler().get_label_constant(in_label);
    }
-
+/*
    @Override
    public void visit_lambda_evaluation
    (
@@ -2050,6 +2056,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             parameters
          )
       );
+   }
+*/
+   @Override
+   public void visit_generic_computation
+   (
+      final tonkadur.fate.v1.lang.computation.GenericComputation n
+   )
+   throws Throwable
+   {
+      // TODO: implement.
    }
 
    @Override
@@ -2126,7 +2142,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       result_as_address = register.get_address();
       result_as_computation = register.get_value();
    }
-
+/*
    @Override
    public void visit_car_cdr
    (
@@ -2154,7 +2170,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             TypeCompiler.compile(compiler, n.get_type())
          );
    }
-
+*/
+/*
    @Override
    public void visit_cons
    (
@@ -2202,7 +2219,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       car_compiler.release_registers(init_instructions);
       cdr_compiler.release_registers(init_instructions);
    }
-
+*/
+/*
    @Override
    public void visit_add_element
    (
@@ -2253,7 +2271,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_add_element_at
    (
@@ -2347,7 +2366,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_remove_elements_of
    (
@@ -2400,7 +2420,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_add_elements_of
    (
@@ -2453,7 +2474,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_fold
    (
@@ -2484,7 +2506,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -2534,7 +2556,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_map
    (
@@ -2565,7 +2588,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -2602,7 +2625,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_range
    (
@@ -2719,7 +2743,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_remove_all_of_element
    (
@@ -2768,7 +2793,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_remove_element_at
    (
@@ -2819,7 +2845,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_remove_element
    (
@@ -2872,7 +2899,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_reverse_list
    (
@@ -2914,7 +2942,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_shuffle
    (
@@ -2955,7 +2984,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    private void visit_merge_with_defaults
    (
       final tonkadur.fate.v1.lang.computation.MergeComputation n
@@ -2986,7 +3016,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3045,7 +3075,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_merge
    (
@@ -3084,7 +3115,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3125,7 +3156,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    private void visit_indexed_merge_with_defaults
    (
       final tonkadur.fate.v1.lang.computation.IndexedMergeComputation n
@@ -3156,7 +3188,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3215,7 +3247,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_indexed_merge
    (
@@ -3254,7 +3287,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3295,7 +3328,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_sublist
    (
@@ -3352,7 +3386,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       end_compiler.release_registers(init_instructions);
       address_compiler.release_registers(init_instructions);
    }
-
+*/
+/*
    @Override
    public void visit_partition
    (
@@ -3384,7 +3419,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3453,7 +3488,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_indexed_partition
    (
@@ -3485,7 +3521,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3554,7 +3590,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_sort
    (
@@ -3585,7 +3622,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3623,7 +3660,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       in_collection_cc.release_registers(init_instructions);
    }
+*/
 
+/*
    @Override
    public void visit_filter
    (
@@ -3654,7 +3693,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3696,7 +3735,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_indexed_filter
    (
@@ -3727,7 +3767,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3769,7 +3809,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_indexed_map
    (
@@ -3800,7 +3841,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          p.get_visited_by(param_cc);
 
-         /* Let's not re-compute the parameters on every iteration. */
+         // Let's not re-compute the parameters on every iteration.
          param_cc.generate_address();
 
          assimilate(param_cc);
@@ -3837,7 +3878,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
+/*
    @Override
    public void visit_push_element
    (
@@ -3912,7 +3954,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       element_compiler.release_registers(init_instructions);
    }
-
+*/
+/*
    @Override
    public void visit_pop_element
    (
@@ -3990,7 +4033,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          )
       );
    }
-
+*/
    @Override
    public void visit_set_fields
    (
