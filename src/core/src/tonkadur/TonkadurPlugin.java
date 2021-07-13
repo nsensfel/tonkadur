@@ -1,8 +1,15 @@
 package tonkadur;
 
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.net.URI;
+
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
+import java.io.File;
+
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -10,35 +17,17 @@ import tonkadur.parser.Context;
 
 public abstract class TonkadurPlugin
 {
-   public static List<TonkadurPlugin> get_plugins ()
+   public static List<Class> get_classes_in
+   (
+      final JarFile current_jar,
+      final String folder_path
+   )
    {
-      final List<TonkadurPlugin> plugins;
+      final List<Class> result;
       final Enumeration<JarEntry> entries;
-      JarFile current_jar;
 
-      plugins = new ArrayList<TonkadurPlugin>();
+      result = new ArrayList<Class>();
 
-      current_jar = null;
-
-      try
-      {
-         current_jar =
-            new JarFile
-            (
-               TonkadurPlugin.class.getProtectionDomain
-               (
-               ).getCodeSource().getLocation().getFile()
-            );
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-      }
-
-      if (current_jar == null)
-      {
-         return null;
-      }
       entries = current_jar.entries();
 
       while (entries.hasMoreElements())
@@ -52,7 +41,7 @@ public abstract class TonkadurPlugin
          if
          (
             !candidate_name.endsWith(".class")
-            || !candidate_name.startsWith("tonkadur/plugin/")
+            || !candidate_name.startsWith(folder_path)
          )
          {
             continue;
@@ -65,11 +54,66 @@ public abstract class TonkadurPlugin
                '.'
             ).substring(0, (candidate_name.length() - 6));
 
+         System.out.println("[D] Loading class " + candidate + "...");
+
+         try
+         {
+            result.add
+            (
+               Class.forName
+               (
+                  candidate_name,
+                  true,
+                  new URLClassLoader
+                  (
+                     new URL[]{new File(current_jar.getName()).toURI().toURL()},
+                     TonkadurPlugin.class.getClassLoader()
+                  )
+               )
+            );
+         }
+         catch (final Throwable e)
+         {
+            System.err.println
+            (
+               "Could not load class "
+               + candidate_name
+               + ": "
+            );
+            e.printStackTrace();
+         }
+      }
+
+      return result;
+   }
+
+   public static void initialize_classes_in
+   (
+      final JarFile current_jar,
+      final String folder_path
+   )
+   throws Throwable
+   {
+      // This already initializes the classes.
+      get_classes_in(current_jar, folder_path);
+   }
+
+   public static List<TonkadurPlugin> extract_plugins_from
+   (
+      final JarFile current_jar
+   )
+   {
+      final List<TonkadurPlugin> plugins;
+
+      plugins = new ArrayList<TonkadurPlugin>();
+
+      for (final Class c: get_classes_in(current_jar, "tonkadur/plugin"))
+      {
          try
          {
             plugins.add
             (
-               (TonkadurPlugin) Class.forName(candidate_name).newInstance()
+               (TonkadurPlugin) c.newInstance()
             );
          }
          catch (final Throwable e)
@@ -77,9 +121,53 @@ public abstract class TonkadurPlugin
             System.err.println
             (
                "Could not load plugin "
-               + candidate_name
+               + c.getName()
                + ": "
             );
+            e.printStackTrace();
+         }
+      }
+
+      return plugins;
+   }
+
+   public static List<TonkadurPlugin> get_plugins ()
+   {
+      final List<TonkadurPlugin> plugins;
+
+      plugins = new ArrayList<TonkadurPlugin>();
+
+      try
+      {
+         plugins.addAll
+         (
+            extract_plugins_from
+            (
+               new JarFile
+               (
+                  TonkadurPlugin.class.getProtectionDomain
+                  (
+                  ).getCodeSource().getLocation().getFile()
+               )
+            )
+         );
+      }
+      catch (final Exception e)
+      {
+         e.printStackTrace();
+      }
+
+      for (final String jar_name: RuntimeParameters.get_jar_plugins())
+      {
+         try
+         {
+            plugins.addAll
+            (
+               extract_plugins_from(new JarFile(jar_name))
+            );
+         }
+         catch (final Exception e)
+         {
             e.printStackTrace();
          }
       }

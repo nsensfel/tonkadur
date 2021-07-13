@@ -2300,6 +2300,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       body = new ArrayList<Instruction>();
 
+      compiler.registers().push_hierarchical_instruction_level();
       ic = new InstructionCompiler(compiler);
       n.get_pre().get_visited_by(ic);
 
@@ -2358,7 +2359,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
             )
          );
       }
-
+      compiler.registers().pop_hierarchical_instruction_level(result);
       compiler.assembler().pop_context_label("breakable");
       cc.release_registers(result);
    }

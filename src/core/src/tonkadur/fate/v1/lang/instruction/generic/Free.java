@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.instruction;
+package tonkadur.fate.v1.lang.instruction.generic;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -49,6 +49,7 @@ public class Free extends GenericInstruction
          System.exit(-1);
       }
    }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/

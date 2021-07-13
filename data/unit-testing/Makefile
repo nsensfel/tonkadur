@@ -17,7 +17,7 @@ clean:
 	rm -f $(JSON_FILES) $(RESULT_FILES)
 
 $(RESULT_FILES): %.txt: %.fate.json
-	$(TONKADUR_INTERPRETER) $< > $@
+	-$(TONKADUR_INTERPRETER) $< > $@
 
 $(JSON_FILES): %.fate.json: %.fate
-	$(TONKADUR_COMPILER) $<
+	-$(TONKADUR_COMPILER) $<

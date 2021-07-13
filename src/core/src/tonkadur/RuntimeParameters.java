@@ -13,6 +13,7 @@ public class RuntimeParameters
 {
    protected static final String version;
    protected static final List<String> include_directories;
+   protected static final List<String> jar_files;
    protected static final Collection<ErrorCategory> disabled_errors;
    protected static final Collection<ErrorCategory> tolerated_errors;
    protected static boolean consider_warnings_as_errors;
@@ -20,8 +21,9 @@ public class RuntimeParameters
 
    static
    {
-      version = "0.9.0";
+      version = "0.9.2";
       include_directories = new ArrayList<String>();
+      jar_files = new ArrayList<String>();
       disabled_errors = new HashSet<ErrorCategory>();
       tolerated_errors = new HashSet<ErrorCategory>();
       consider_warnings_as_errors = false;
@@ -45,6 +47,11 @@ public class RuntimeParameters
    public static List<String> get_include_directories ()
    {
       return include_directories;
+   }
+
+   public static List<String> get_jar_plugins ()
+   {
+      return jar_files;
    }
 
    public static String get_input_file ()
@@ -75,11 +82,15 @@ public class RuntimeParameters
       );
       System.out.println
       (
-         " -te|--tolerate-error <name>\tRelates <name> to a simple warning."
+         " -te|--tolerate-error <name>\tRelegates <name> to a simple warning."
       );
       System.out.println
       (
          " -se|--silence-error <name>\tErrors of type <name> are ignored."
+      );
+      System.out.println
+      (
+         " -p|--plugin <jar>\tLoads 'tonkadur.plugin.*' classes from file."
       );
       System.out.println
       (
@@ -124,6 +135,15 @@ public class RuntimeParameters
          else if (option.equals("-s") || option.equals("--strict"))
          {
             consider_warnings_as_errors = true;
+         }
+         else if (option.equals("-p") || option.equals("--plugin"))
+         {
+            if (!options_it.hasNext())
+            {
+               return false;
+            }
+
+            jar_files.add(options_it.next());
          }
          else if (option.equals("-te") || option.equals("--tolerate-error"))
          {

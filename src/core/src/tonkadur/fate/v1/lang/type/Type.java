@@ -40,7 +40,7 @@ public class Type extends DeclaredEntity
       /*
        * Use of a space necessary to avoid conflicting with a user created type.
        */
-      ANY = new Type(base, null, "undetermined type");
+      ANY = new Type(base, null, "(undetermined type)");
 
       BOOL = new Type(base, null, "bool");
       FLOAT = new Type(base, null, "float");

@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.computation;
+package tonkadur.fate.v1.lang.computation.generic;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -14,6 +14,8 @@ import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
+
+import tonkadur.fate.v1.lang.computation.GenericComputation;
 
 public class LambdaEvaluation extends GenericComputation
 {

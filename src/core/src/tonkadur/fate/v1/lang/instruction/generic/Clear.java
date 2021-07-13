@@ -1,4 +1,4 @@
-package tonkadur.fate.v1.lang.instruction;
+package tonkadur.fate.v1.lang.instruction.generic;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -8,6 +8,8 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
+
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
 
 public class Clear extends GenericInstruction
 {

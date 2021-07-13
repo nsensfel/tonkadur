@@ -24,14 +24,17 @@ public class Main
       tonkadur.fate.v1.Base.initialize();
       tonkadur.wyrd.v1.Base.initialize();
 
-      plugins = TonkadurPlugin.get_plugins();
 
       if (!RuntimeParameters.parse_options(args))
       {
+         plugins = TonkadurPlugin.get_plugins();
+
          RuntimeParameters.print_usage(plugins);
 
          return;
       }
+
+      plugins = TonkadurPlugin.get_plugins();
 
       for (final TonkadurPlugin tp: plugins)
       {
