@@ -115,7 +115,7 @@ public class RuntimeParameters
          return false;
       }
 
-      target_file = options[options.length - 1];
+      target_file = null;
 
       options_it = Arrays.stream(options).iterator();
 
@@ -212,6 +212,10 @@ public class RuntimeParameters
          else if (option.equals("--legal"))
          {
             print_license();
+         }
+         else if (!options_it.hasNext())
+         {
+            target_file = option;
          }
       }
 

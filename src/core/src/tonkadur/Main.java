@@ -49,6 +49,11 @@ public class Main
          tp.pre_fate_parsing(fate_world, parser_data);
       }
 
+      if (RuntimeParameters.get_input_file() == null)
+      {
+         return;
+      }
+
       try
       {
          parser_data.add_file_content
