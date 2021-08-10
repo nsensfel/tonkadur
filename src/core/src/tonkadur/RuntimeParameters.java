@@ -89,7 +89,11 @@ public class RuntimeParameters
       );
       System.out.println
       (
-         " --legal \t\t\tPrints the relevant licenses."
+         " --legal\t\t\tPrints the relevant licenses."
+      );
+      System.out.println
+      (
+         " -h|--help\t\t\tPrints this help."
       );
 
       for (final TonkadurPlugin plugin: plugins)
@@ -230,6 +234,10 @@ public class RuntimeParameters
          else if (option.equals("--legal"))
          {
             print_license();
+         }
+         else if (option.equals("-h") || option.equals("--help"))
+         {
+            print_usage(TonkadurPlugin.get_plugins());
          }
          else if (!options_it.hasNext())
          {
