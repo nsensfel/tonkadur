@@ -1,8 +1,9 @@
 package tonkadur.fate.v1.lang.computation.generic;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 import tonkadur.parser.Origin;
 
@@ -25,76 +26,22 @@ import tonkadur.fate.v1.lang.computation.GenericComputation;
 
 public class AtReference extends GenericComputation
 {
-   protected static final AtReference ARCHETYPE;
-
-   static
+   public static Collection<String> get_aliases ()
    {
-      final List<String> aliases;
-
-      ARCHETYPE =
-         new AtReference
-         (
-            Origin.BASE_LANGUAGE,
-            Type.INT,
-            new Default
-            (
-               Origin.BASE_LANGUAGE,
-               new PointerType
-               (
-                  Origin.BASE_LANGUAGE,
-                  Type.INT,
-                  "(ptr int)"
-               )
-            )
-         );
+      final Collection<String> aliases;
 
       aliases = new ArrayList<String>();
 
       aliases.add("at");
 
-      try
-      {
-         ARCHETYPE.register(aliases, null);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
+      return aliases;
    }
 
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final Computation parent;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   protected AtReference
+   public static GenericComputation build
    (
       final Origin origin,
-      final Type reported_type,
-      final Computation parent
-   )
-   {
-      super(origin, reported_type, "at");
-
-      this.parent = parent;
-   }
-   /**** Constructors *********************************************************/
-
-   /***************************************************************************/
-   /**** PUBLIC ***************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   @Override
-   public GenericComputation build
-   (
-      final Origin origin,
-      final List<Computation> call_parameters,
-      final Object _registered_parameter
+      final String _alias,
+      final List<Computation> call_parameters
    )
    throws Throwable
    {
@@ -103,11 +50,14 @@ public class AtReference extends GenericComputation
       if (call_parameters.size() != 1)
       {
          // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
+
+         return null;
       }
 
       call_parameters.get(0).expect_non_string();
 
-      current_type = parent.get_type();
+      current_type = call_parameters.get(0).get_type();
 
       if (!(current_type instanceof PointerType))
       {
@@ -128,8 +78,34 @@ public class AtReference extends GenericComputation
          current_type = ((PointerType) current_type).get_referenced_type();
       }
 
-      return new AtReference(origin, current_type, parent);
+      return new AtReference(origin, current_type, call_parameters.get(0));
    }
+
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
+   protected final Computation parent;
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
+   protected AtReference
+   (
+      final Origin origin,
+      final Type reported_type,
+      final Computation parent
+   )
+   {
+      super(origin, reported_type);
+
+      this.parent = parent;
+   }
+   /**** Constructors *********************************************************/
+
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
+   /**** Constructors *********************************************************/
 
    /**** Accessors ************************************************************/
    public Computation get_parent ()

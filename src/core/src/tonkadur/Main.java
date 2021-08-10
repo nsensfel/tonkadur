@@ -20,21 +20,23 @@ public class Main
       final tonkadur.fate.v1.lang.World fate_world;
       final tonkadur.wyrd.v1.lang.World wyrd_world;
       final ParserData parser_data;
+      final boolean valid_use;
 
       tonkadur.fate.v1.Base.initialize();
       tonkadur.wyrd.v1.Base.initialize();
 
+      TonkadurPlugin.load_special_classes();
 
-      if (!RuntimeParameters.parse_options(args))
+      valid_use = RuntimeParameters.parse_options(args);
+
+      plugins = TonkadurPlugin.get_plugins();
+
+      if (!valid_use)
       {
-         plugins = TonkadurPlugin.get_plugins();
-
          RuntimeParameters.print_usage(plugins);
 
          return;
       }
-
-      plugins = TonkadurPlugin.get_plugins();
 
       for (final TonkadurPlugin tp: plugins)
       {

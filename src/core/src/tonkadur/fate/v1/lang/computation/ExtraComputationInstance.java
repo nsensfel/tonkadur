@@ -27,7 +27,7 @@ public class ExtraComputationInstance extends GenericComputation
       final List<Computation> parameters
    )
    {
-      super(origin, computation.get_returned_type(), computation.get_name());
+      super(origin, computation.get_returned_type());
 
       this.computation = computation;
       this.parameters = parameters;

@@ -19,12 +19,61 @@ public class GenericComputation extends Computation
    /***************************************************************************/
    /**** STATIC ***************************************************************/
    /***************************************************************************/
-   protected static final Map<String, Cons<GenericComputation, Object>>
-      REGISTERED;
+   protected static final Map<String, Class> REGISTERED;
 
    static
    {
-      REGISTERED = new HashMap<String, Cons<GenericComputation, Object>>();
+      REGISTERED = new HashMap<String, Class>();
+   }
+
+   public static void register (final Class c)
+   {
+      try
+      {
+         for
+         (
+            final String alias:
+               (List<String>) c.getMethod("get_aliases").invoke
+               (
+                  /* object = */null
+               )
+         )
+         {
+            final Class previous_entry;
+
+            previous_entry = REGISTERED.get(alias);
+
+            if (previous_entry != null)
+            {
+               // TODO Exception handling.
+               new Exception
+               (
+                  "[F] Unable to add alias for Generic Fate Computation '"
+                  + alias
+                  + "' from class '"
+                  + c.getName()
+                  + "': it has already been claimed by class '"
+                  + previous_entry.getName()
+                  + "'."
+               );
+
+               System.exit(-1);
+            }
+
+            REGISTERED.put(alias, c);
+         }
+      }
+      catch (final Throwable t)
+      {
+         System.err.println
+         (
+            "Could not register Generic Fate Computation class '"
+            + c.getName()
+            + "': "
+         );
+
+         t.printStackTrace();
+      }
    }
 
    public static GenericComputation build
@@ -35,128 +84,49 @@ public class GenericComputation extends Computation
    )
    throws Throwable
    {
-      final Cons<GenericComputation, Object> target;
+      final Class computation_class;
 
-      target = REGISTERED.get(name);
+      computation_class = REGISTERED.get(name);
 
-      if (target == null)
+      if (computation_class == null)
       {
-         // TODO Exception handling.
+         // TODO use a separate class for this.
+         throw
+            new Exception
+            (
+               "[E] Unknown Generic Fate Computation '"
+               + name
+               + "'."
+            );
       }
 
-      return target.get_car().build(origin, call_parameters, target.get_cdr());
+      return
+         (GenericComputation) computation_class.getDeclaredMethod
+         (
+            "build",
+            Origin.class,
+            String.class,
+            List.class
+         ).invoke(/* object = */ null, origin, name, call_parameters);
    }
-
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final String name;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected GenericComputation
-   (
-      final Origin origin,
-      final Type type,
-      final String name
-   )
+   protected GenericComputation (final Origin origin, final Type type)
    {
       super(origin, type);
-
-      this.name = name;
-   }
-
-   protected GenericComputation build
-   (
-      final Origin origin,
-      final List<Computation> call_parameters,
-      final Object constructor_parameter
-   )
-   throws Throwable
-   {
-      throw
-         new Exception
-         (
-            "Missing build function for GenericComputation '"
-            + name
-            + "'."
-         );
-   }
-
-   protected void register
-   (
-      final String name,
-      final Object constructor_parameter
-   )
-   throws Exception
-   {
-      if (REGISTERED.containsKey(name))
-      {
-         // TODO Exception handling.
-         new Exception
-         (
-            "There already is a GenericComputation with the name '"
-            + name
-            + "'."
-         );
-
-         return;
-      }
-
-      REGISTERED.put(name, new Cons(this, constructor_parameter));
-   }
-
-   protected void register (final Object constructor_parameter)
-   throws Exception
-   {
-      register(get_name(), constructor_parameter);
-   }
-
-   protected void register
-   (
-      final Collection<String> names,
-      final Object constructor_parameter
-   )
-   throws Exception
-   {
-      for (final String name: names)
-      {
-         register(name, constructor_parameter);
-      }
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-
    /**** Accessors ************************************************************/
    @Override
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
       cv.visit_generic_computation(this);
-   }
-
-   public String get_name ()
-   {
-      return name;
-   }
-
-   /**** Misc. ****************************************************************/
-   @Override
-   public String toString ()
-   {
-      final StringBuilder sb = new StringBuilder();
-
-      sb.append("(GenericInstruction (");
-      sb.append(type.get_name());
-      sb.append(") ");
-      sb.append(get_name());
-      sb.append(")");
-
-      return sb.toString();
    }
 }

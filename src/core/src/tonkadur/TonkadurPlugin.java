@@ -17,16 +17,50 @@ import tonkadur.parser.Context;
 
 public abstract class TonkadurPlugin
 {
-   public static List<Class> get_classes_in
+   protected static final List<Class> LOADABLE_SUPERCLASSES;
+   protected static final List<TonkadurPlugin> TONKADUR_PLUGINS;
+
+   static
+   {
+      LOADABLE_SUPERCLASSES = new ArrayList<Class>();
+      TONKADUR_PLUGINS = new ArrayList<TonkadurPlugin>();
+
+      register_as_loadable_superclass(TonkadurPlugin.class);
+   }
+
+   public static void register_as_loadable_superclass (final Class c)
+   {
+      LOADABLE_SUPERCLASSES.add(c);
+   }
+
+   public static void register (final Class c)
+   {
+      try
+      {
+         TONKADUR_PLUGINS.add
+         (
+            (TonkadurPlugin) c.getConstructor().newInstance()
+         );
+      }
+      catch (final Throwable t)
+      {
+         System.err.println
+         (
+            "[E] Unable to create an instance of Tonkadur Plugin class '"
+            + c.getName()
+            + "':"
+         );
+
+         t.printStackTrace();
+      }
+   }
+
+   public static void load_all_relevant_classes_in
    (
-      final JarFile current_jar,
-      final String folder_path
+      final JarFile current_jar
    )
    {
-      final List<Class> result;
       final Enumeration<JarEntry> entries;
-
-      result = new ArrayList<Class>();
 
       entries = current_jar.entries();
 
@@ -38,11 +72,7 @@ public abstract class TonkadurPlugin
          candidate = entries.nextElement();
          candidate_name = candidate.getName();
 
-         if
-         (
-            !candidate_name.endsWith(".class")
-            || !candidate_name.startsWith(folder_path)
-         )
+         if (!candidate_name.endsWith(".class"))
          {
             continue;
          }
@@ -54,12 +84,11 @@ public abstract class TonkadurPlugin
                '.'
             ).substring(0, (candidate_name.length() - 6));
 
-         System.out.println("[D] Loading class " + candidate + "...");
-
          try
          {
-            result.add
-            (
+            final Class c;
+
+            c =
                Class.forName
                (
                   candidate_name,
@@ -69,86 +98,57 @@ public abstract class TonkadurPlugin
                      new URL[]{new File(current_jar.getName()).toURI().toURL()},
                      TonkadurPlugin.class.getClassLoader()
                   )
-               )
-            );
+               );
+
+            for (final Class superclass: LOADABLE_SUPERCLASSES)
+            {
+               if (superclass.isAssignableFrom(c) && !c.equals(superclass))
+               {
+                  System.out.println
+                  (
+                     "[D] Registering class "
+                     + candidate
+                     + " as a "
+                     + superclass.getName()
+                     + "..."
+                  );
+
+                  superclass.getDeclaredMethod
+                  (
+                     "register",
+                     Class.class
+                  ).invoke(/*object = */ null, c);
+
+                  break;
+               }
+            }
          }
          catch (final Throwable e)
          {
             System.err.println
             (
-               "Could not load class "
+               "[E] Could not load class "
                + candidate_name
                + ": "
             );
             e.printStackTrace();
          }
       }
-
-      return result;
    }
 
-   public static void initialize_classes_in
-   (
-      final JarFile current_jar,
-      final String folder_path
-   )
-   throws Throwable
+   public static void load_special_classes ()
    {
-      // This already initializes the classes.
-      get_classes_in(current_jar, folder_path);
-   }
-
-   public static List<TonkadurPlugin> extract_plugins_from
-   (
-      final JarFile current_jar
-   )
-   {
-      final List<TonkadurPlugin> plugins;
-
-      plugins = new ArrayList<TonkadurPlugin>();
-
-      for (final Class c: get_classes_in(current_jar, "tonkadur/plugin"))
-      {
-         try
-         {
-            plugins.add
-            (
-               (TonkadurPlugin) c.newInstance()
-            );
-         }
-         catch (final Throwable e)
-         {
-            System.err.println
-            (
-               "Could not load plugin "
-               + c.getName()
-               + ": "
-            );
-            e.printStackTrace();
-         }
-      }
-
-      return plugins;
-   }
-
-   public static List<TonkadurPlugin> get_plugins ()
-   {
-      final List<TonkadurPlugin> plugins;
-
-      plugins = new ArrayList<TonkadurPlugin>();
+      System.out.println("[D] Loading special classes from main jar...");
 
       try
       {
-         plugins.addAll
+         load_all_relevant_classes_in
          (
-            extract_plugins_from
+            new JarFile
             (
-               new JarFile
+               TonkadurPlugin.class.getProtectionDomain
                (
-                  TonkadurPlugin.class.getProtectionDomain
-                  (
-                  ).getCodeSource().getLocation().getFile()
-               )
+               ).getCodeSource().getLocation().getFile()
             )
          );
       }
@@ -156,23 +156,11 @@ public abstract class TonkadurPlugin
       {
          e.printStackTrace();
       }
+   }
 
-      for (final String jar_name: RuntimeParameters.get_jar_plugins())
-      {
-         try
-         {
-            plugins.addAll
-            (
-               extract_plugins_from(new JarFile(jar_name))
-            );
-         }
-         catch (final Exception e)
-         {
-            e.printStackTrace();
-         }
-      }
-
-      return plugins;
+   public static List<TonkadurPlugin> get_plugins ()
+   {
+      return TONKADUR_PLUGINS;
    }
 
    public void initialize (final String[] args)

@@ -1,6 +1,7 @@
 package tonkadur.fate.v1.lang.computation.generic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import tonkadur.parser.Origin;
@@ -16,18 +17,9 @@ import tonkadur.fate.v1.lang.computation.Constant;
 
 public class AddressOperator extends GenericComputation
 {
-   protected static final AddressOperator ARCHETYPE;
-
-   static
+   public static Collection<String> get_aliases ()
    {
-      final List<String> aliases;
-
-      ARCHETYPE =
-         new AddressOperator
-         (
-            Origin.BASE_LANGUAGE,
-            Constant.build_boolean(Origin.BASE_LANGUAGE, true)
-         );
+      final Collection<String> aliases;
 
       aliases = new ArrayList<String>();
 
@@ -52,26 +44,34 @@ public class AddressOperator extends GenericComputation
       aliases.add("reference");
       aliases.add("ref");
 
-      try
-      {
-         ARCHETYPE.register(aliases, null);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
+      return aliases;
+   }
 
-         System.exit(-1);
+   public static GenericComputation build
+   (
+      final Origin origin,
+      final String _alias,
+      final List<Computation> call_parameters
+   )
+   throws Throwable
+   {
+      if (call_parameters.size() != 1)
+      {
+         // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
+
+         return null;
       }
+
+      call_parameters.get(0).expect_non_string();
+
+      return new AddressOperator(origin, call_parameters.get(0));
    }
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
    protected final Computation referred;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -82,31 +82,12 @@ public class AddressOperator extends GenericComputation
       super
       (
          origin,
-         new PointerType(origin, referred.get_type(), "auto generated"),
-         "address_of"
+         new PointerType(origin, referred.get_type(), "auto generated")
       );
 
       this.referred = referred;
    }
 
-   @Override
-   public GenericComputation build
-   (
-      final Origin origin,
-      final List<Computation> call_parameters,
-      final Object _registered_parameter
-   )
-   throws Throwable
-   {
-      if (call_parameters.size() != 1)
-      {
-         // TODO: Error.
-      }
-
-      call_parameters.get(0).expect_non_string();
-
-      return new AddressOperator(origin, call_parameters.get(0));
-   }
 
    /**** Accessors ************************************************************/
    public Computation get_target ()

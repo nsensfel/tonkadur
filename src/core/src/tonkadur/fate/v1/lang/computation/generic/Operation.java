@@ -1,8 +1,10 @@
 package tonkadur.fate.v1.lang.computation.generic;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import tonkadur.error.ErrorManager;
 
@@ -26,458 +28,153 @@ import tonkadur.fate.v1.lang.computation.Constant;
 
 public class Operation extends GenericComputation
 {
-   protected static final Operation ARCHETYPE;
+   protected static final Map<String, Operator> ALIASED_OPERATOR;
 
    static
    {
-      final List<Computation> operands;
-      List<String> aliases;
-
-      operands = new ArrayList<Computation>();
-
-      operands.add
-      (
-         Constant.build_boolean
-         (
-            Origin.BASE_LANGUAGE,
-            false
-         )
-      );
-
-      operands.add(operands.get(0));
-
-      ARCHETYPE =
-         new Operation
-         (
-            Origin.BASE_LANGUAGE,
-            Type.BOOL,
-            Operator.AND,
-            operands
-         );
-
-      /**** PLUS **************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("+");
-      aliases.add("plus");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.PLUS);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** MINUS *************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("-");
-      aliases.add("minus");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.MINUS);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** TIMES *************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("*");
-      aliases.add("times");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.TIMES);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** DIVIDE ************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("/");
-      aliases.add("div");
-      aliases.add("divide");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.DIVIDE);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** POWER *************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("**");
-      aliases.add("^");
-      aliases.add("pow");
-      aliases.add("power");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.POWER);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** MODULO ************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("%");
-      aliases.add("mod");
-      aliases.add("modulo");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.MODULO);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** MIN ***************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("min");
-      aliases.add("minimum");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.MIN);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** MAX ***************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("max");
-      aliases.add("maximum");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.MAX);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** CLAMP *************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("clamp");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.CLAMP);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** ABS ***************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("abs");
-      aliases.add("absolute");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.ABS);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** RANDOM ************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("rnd");
-      aliases.add("rand");
-      aliases.add("random");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.RANDOM);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** AND ***************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("and");
-      aliases.add("/\\");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.AND);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** OR ****************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("or");
-      aliases.add("\\/");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.OR);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** NOT ***************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("not");
-      aliases.add("~");
-      aliases.add("!");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.NOT);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** IMPLIES ***********************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("implies");
-      aliases.add("=>");
-      aliases.add("->");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.IMPLIES);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** ONE IN ************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("exactlyOneIn");
-      aliases.add("exactlyonein");
-      aliases.add("exactly_one_in");
-      aliases.add("OneIn");
-      aliases.add("onein");
-      aliases.add("one_in");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.ONE_IN);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** EQUALS ************************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("equals");
-      aliases.add("eq");
-      aliases.add("=");
-      aliases.add("==");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.EQUALS);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** LOWER THAN ********************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("lowerThan");
-      aliases.add("lowerthan");
-      aliases.add("lower_than");
-      aliases.add("lt");
-      aliases.add("<");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.LOWER_THAN);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** LOWER EQUAL THAN **************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("lowerEqualThan");
-      aliases.add("lowerequalthan");
-      aliases.add("lower_equal_than");
-      aliases.add("le");
-      aliases.add("<=");
-      aliases.add("=<");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.LOWER_EQUAL_THAN);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** GREATER EQUAL THAN **************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("greaterEqualThan");
-      aliases.add("greaterequalthan");
-      aliases.add("greater_equal_than");
-      aliases.add("ge");
-      aliases.add(">=");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.GREATER_EQUAL_THAN);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
-
-      /**** GREATER THAN ******************************************************/
-      aliases = new ArrayList<String>();
-
-      aliases.add("greaterThan");
-      aliases.add("greaterthan");
-      aliases.add("greater_than");
-      aliases.add("gt");
-      aliases.add(">");
-
-      try
-      {
-         ARCHETYPE.register(aliases, Operator.GREATER_THAN);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
+      Operator operator;
+
+      ALIASED_OPERATOR = new HashMap<String, Operator>();
+
+      operator = Operator.PLUS;
+      ALIASED_OPERATOR.put("+", operator);
+      ALIASED_OPERATOR.put("plus", operator);
+
+      operator = Operator.MINUS;
+      ALIASED_OPERATOR.put("-", operator);
+      ALIASED_OPERATOR.put("minus", operator);
+
+      operator = Operator.TIMES;
+      ALIASED_OPERATOR.put("*", operator);
+      ALIASED_OPERATOR.put("times", operator);
+
+      operator = Operator.DIVIDE;
+      ALIASED_OPERATOR.put("/", operator);
+      ALIASED_OPERATOR.put("div", operator);
+      ALIASED_OPERATOR.put("divide", operator);
+
+      operator = Operator.POWER;
+      ALIASED_OPERATOR.put("**", operator);
+      ALIASED_OPERATOR.put("^", operator);
+      ALIASED_OPERATOR.put("pow", operator);
+      ALIASED_OPERATOR.put("power", operator);
+
+      operator = Operator.MODULO;
+      ALIASED_OPERATOR.put("%", operator);
+      ALIASED_OPERATOR.put("mod", operator);
+      ALIASED_OPERATOR.put("modulo", operator);
+
+      operator = Operator.MIN;
+      ALIASED_OPERATOR.put("min", operator);
+      ALIASED_OPERATOR.put("minimum", operator);
+
+      operator = Operator.MAX;
+      ALIASED_OPERATOR.put("max", operator);
+      ALIASED_OPERATOR.put("maximum", operator);
+
+      operator = Operator.CLAMP;
+      ALIASED_OPERATOR.put("clamp", operator);
+
+      operator = Operator.ABS;
+      ALIASED_OPERATOR.put("abs", operator);
+      ALIASED_OPERATOR.put("absolute", operator);
+
+      operator = Operator.RANDOM;
+      ALIASED_OPERATOR.put("rnd", operator);
+      ALIASED_OPERATOR.put("rand", operator);
+      ALIASED_OPERATOR.put("random", operator);
+
+      operator = Operator.AND;
+      ALIASED_OPERATOR.put("and", operator);
+      ALIASED_OPERATOR.put("/\\", operator);
+
+      operator = Operator.OR;
+      ALIASED_OPERATOR.put("or", operator);
+      ALIASED_OPERATOR.put("\\/", operator);
+
+      operator = Operator.NOT;
+      ALIASED_OPERATOR.put("not", operator);
+      ALIASED_OPERATOR.put("~", operator);
+      ALIASED_OPERATOR.put("!", operator);
+
+      operator = Operator.IMPLIES;
+      ALIASED_OPERATOR.put("implies", operator);
+      ALIASED_OPERATOR.put("=>", operator);
+      ALIASED_OPERATOR.put("->", operator);
+
+      operator = Operator.ONE_IN;
+      ALIASED_OPERATOR.put("exactlyOneIn", operator);
+      ALIASED_OPERATOR.put("exactlyonein", operator);
+      ALIASED_OPERATOR.put("exactly_one_in", operator);
+      ALIASED_OPERATOR.put("OneIn", operator);
+      ALIASED_OPERATOR.put("onein", operator);
+      ALIASED_OPERATOR.put("one_in", operator);
+
+      operator = Operator.EQUALS;
+      ALIASED_OPERATOR.put("equals", operator);
+      ALIASED_OPERATOR.put("eq", operator);
+      ALIASED_OPERATOR.put("=", operator);
+      ALIASED_OPERATOR.put("==", operator);
+
+      operator = Operator.LOWER_THAN;
+      ALIASED_OPERATOR.put("lowerThan", operator);
+      ALIASED_OPERATOR.put("lowerthan", operator);
+      ALIASED_OPERATOR.put("lower_than", operator);
+      ALIASED_OPERATOR.put("lt", operator);
+      ALIASED_OPERATOR.put("<", operator);
+
+      operator = Operator.LOWER_EQUAL_THAN;
+      ALIASED_OPERATOR.put("lowerEqualThan", operator);
+      ALIASED_OPERATOR.put("lowerequalthan", operator);
+      ALIASED_OPERATOR.put("lower_equal_than", operator);
+      ALIASED_OPERATOR.put("le", operator);
+      ALIASED_OPERATOR.put("<=", operator);
+      ALIASED_OPERATOR.put("=<", operator);
+
+      operator = Operator.GREATER_THAN;
+      ALIASED_OPERATOR.put("greaterEqualThan", operator);
+      ALIASED_OPERATOR.put("greaterequalthan", operator);
+      ALIASED_OPERATOR.put("greater_equal_than", operator);
+      ALIASED_OPERATOR.put("ge", operator);
+      ALIASED_OPERATOR.put(">=", operator);
+
+      operator = Operator.GREATER_THAN;
+      ALIASED_OPERATOR.put("greaterThan", operator);
+      ALIASED_OPERATOR.put("greaterthan", operator);
+      ALIASED_OPERATOR.put("greater_than", operator);
+      ALIASED_OPERATOR.put("gt", operator);
+      ALIASED_OPERATOR.put(">", operator);
    }
 
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final Operator operator;
-   protected final List<Computation> operands;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   protected Operation
-   (
-      final Origin origin,
-      final Type result_type,
-      final Operator operator,
-      final List<Computation> operands
-   )
+   public static Collection<String> get_aliases ()
    {
-      super(origin, result_type, "+");
-
-      this.operator = operator;
-      this.operands = operands;
+      return ALIASED_OPERATOR.keySet();
    }
 
-   @Override
-   public GenericComputation build
+   public static GenericComputation build
    (
       final Origin origin,
-      final List<Computation> operands,
-      final Object registered_parameter
+      final String alias,
+      final List<Computation> operands
    )
    throws Throwable
    {
-      final Operator operator;
+      return build(origin, ALIASED_OPERATOR.get(alias), operands);
+   }
+
+   public static GenericComputation build
+   (
+      final Origin origin,
+      final Operator operator,
+      final List<Computation> operands
+   )
+   throws Throwable
+   {
       final Collection<Type> allowed_base_types;
       final int operator_max_arity;
       final int operator_min_arity;
       final int operands_size;
       Type computed_type, previous_computed_type;
-
-      operator = (Operator) registered_parameter;
 
       allowed_base_types = operator.get_allowed_base_types();
       operator_max_arity = operator.get_maximum_arity();
@@ -594,6 +291,29 @@ public class Operation extends GenericComputation
       computed_type = operator.transform_type(computed_type);
 
       return new Operation(origin, computed_type, operator, operands);
+   }
+
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
+   protected final Operator operator;
+   protected final List<Computation> operands;
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
+   protected Operation
+   (
+      final Origin origin,
+      final Type result_type,
+      final Operator operator,
+      final List<Computation> operands
+   )
+   {
+      super(origin, result_type);
+
+      this.operator = operator;
+      this.operands = operands;
    }
 
    /**** Accessors ************************************************************/

@@ -1,7 +1,8 @@
 package tonkadur.fate.v1.lang.computation.generic;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
@@ -19,72 +20,24 @@ import tonkadur.fate.v1.lang.computation.GenericComputation;
 
 public class LambdaEvaluation extends GenericComputation
 {
-   protected static final LambdaEvaluation ARCHETYPE;
-
-   static
+   public static Collection<String> get_aliases ()
    {
-      final List<String> aliases;
-
-      ARCHETYPE =
-         new LambdaEvaluation
-         (
-            Origin.BASE_LANGUAGE,
-            null,
-            null,
-            Type.BOOL
-         );
+      final Collection<String> aliases;
 
       aliases = new ArrayList<String>();
 
       aliases.add("eval");
       aliases.add("evaluate");
 
-      try
-      {
-         ARCHETYPE.register(aliases, null);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
+      return aliases;
    }
 
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final Computation lambda_function;
-   protected final List<Computation> parameters;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected LambdaEvaluation
+   public static GenericComputation build
    (
       final Origin origin,
-      final Computation lambda_function,
-      final List<Computation> parameters,
-      final Type act_as
-   )
-   {
-      super(origin, act_as, "eval");
-
-      this.lambda_function = lambda_function;
-      this.parameters = parameters;
-   }
-
-   /***************************************************************************/
-   /**** PUBLIC ***************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   @Override
-   public GenericComputation build
-   (
-      final Origin origin,
-      final List<Computation> call_parameters,
-      final Object _registered_parameter
+      final String _alias,
+      final List<Computation> call_parameters
    )
    throws Throwable
    {
@@ -94,6 +47,9 @@ public class LambdaEvaluation extends GenericComputation
       if (call_parameters.size() < 1)
       {
          // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
+
+         return null;
       }
 
       lambda_function = call_parameters.get(0);
@@ -125,10 +81,38 @@ public class LambdaEvaluation extends GenericComputation
          (
             origin,
             lambda_function,
-            parameters,
+            call_parameters,
             (((LambdaType) lambda_function.get_type()).get_return_type())
          );
    }
+
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
+   protected final Computation lambda_function;
+   protected final List<Computation> parameters;
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
+   /**** Constructors *********************************************************/
+   protected LambdaEvaluation
+   (
+      final Origin origin,
+      final Computation lambda_function,
+      final List<Computation> parameters,
+      final Type act_as
+   )
+   {
+      super(origin, act_as);
+
+      this.lambda_function = lambda_function;
+      this.parameters = parameters;
+   }
+
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
 
    /**** Accessors ************************************************************/
    public Computation get_lambda_function ()

@@ -7,13 +7,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import java.util.jar.JarFile;
+
 import tonkadur.error.ErrorCategory;
 
 public class RuntimeParameters
 {
    protected static final String version;
    protected static final List<String> include_directories;
-   protected static final List<String> jar_files;
    protected static final Collection<ErrorCategory> disabled_errors;
    protected static final Collection<ErrorCategory> tolerated_errors;
    protected static boolean consider_warnings_as_errors;
@@ -23,7 +24,6 @@ public class RuntimeParameters
    {
       version = "0.9.2";
       include_directories = new ArrayList<String>();
-      jar_files = new ArrayList<String>();
       disabled_errors = new HashSet<ErrorCategory>();
       tolerated_errors = new HashSet<ErrorCategory>();
       consider_warnings_as_errors = false;
@@ -47,11 +47,6 @@ public class RuntimeParameters
    public static List<String> get_include_directories ()
    {
       return include_directories;
-   }
-
-   public static List<String> get_jar_plugins ()
-   {
-      return jar_files;
    }
 
    public static String get_input_file ()
@@ -90,7 +85,7 @@ public class RuntimeParameters
       );
       System.out.println
       (
-         " -p|--plugin <jar>\tLoads 'tonkadur.plugin.*' classes from file."
+         " -p|--plugin <jar>\tLoads plugin classes from jar file."
       );
       System.out.println
       (
@@ -138,12 +133,35 @@ public class RuntimeParameters
          }
          else if (option.equals("-p") || option.equals("--plugin"))
          {
+            final String jar_name;
+
             if (!options_it.hasNext())
             {
                return false;
             }
 
-            jar_files.add(options_it.next());
+            jar_name = options_it.next();
+
+            try
+            {
+               System.out.println("[D] Loading jar '" + jar_name +"'...");
+
+               TonkadurPlugin.load_all_relevant_classes_in
+               (
+                  new JarFile(jar_name)
+               );
+            }
+            catch (final Throwable t)
+            {
+               System.err.println
+               (
+                  "[F] Unable to load plugin jar '" + jar_name + "':"
+               );
+
+               t.printStackTrace();
+
+               System.exit(-1);
+            }
          }
          else if (option.equals("-te") || option.equals("--tolerate-error"))
          {
