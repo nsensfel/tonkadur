@@ -14,7 +14,7 @@ import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 
-public class GenericComputation extends Computation
+public abstract class GenericComputation extends Computation
 {
    /***************************************************************************/
    /**** STATIC ***************************************************************/
@@ -33,7 +33,7 @@ public class GenericComputation extends Computation
          for
          (
             final String alias:
-               (List<String>) c.getMethod("get_aliases").invoke
+               (Collection<String>) c.getMethod("get_aliases").invoke
                (
                   /* object = */null
                )
@@ -46,7 +46,7 @@ public class GenericComputation extends Computation
             if (previous_entry != null)
             {
                // TODO Exception handling.
-               new Exception
+               throw new Exception
                (
                   "[F] Unable to add alias for Generic Fate Computation '"
                   + alias
@@ -56,8 +56,6 @@ public class GenericComputation extends Computation
                   + previous_entry.getName()
                   + "'."
                );
-
-               System.exit(-1);
             }
 
             REGISTERED.put(alias, c);

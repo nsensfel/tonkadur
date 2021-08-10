@@ -12,7 +12,7 @@ import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.ExtraInstruction;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
-public class ExtraInstructionInstance extends GenericInstruction
+public class ExtraInstructionInstance extends Instruction
 {
    protected final ExtraInstruction instruction;
    protected final List<Computation> parameters;
@@ -28,7 +28,7 @@ public class ExtraInstructionInstance extends GenericInstruction
       final List<Computation> parameters
    )
    {
-      super(origin, instruction.get_name());
+      super(origin);
 
       this.instruction = instruction;
       this.parameters = parameters;

@@ -11,7 +11,7 @@ import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.ExtraComputation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
-public class ExtraComputationInstance extends GenericComputation
+public class ExtraComputationInstance extends Computation
 {
    protected final ExtraComputation computation;
    protected final List<Computation> parameters;

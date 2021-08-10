@@ -1,8 +1,9 @@
 package tonkadur.fate.v1.lang.instruction.generic;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import tonkadur.error.ErrorManager;
 
@@ -19,64 +20,23 @@ import tonkadur.fate.v1.lang.instruction.GenericInstruction;
 
 public class Free extends GenericInstruction
 {
-   protected static final Free ARCHETYPE;
-
-   static
+   public static Collection<String> get_aliases ()
    {
       final List<String> aliases;
 
       aliases = new ArrayList<String>();
-
-      ARCHETYPE =
-         new Free
-         (
-            Origin.BASE_LANGUAGE,
-            null
-         );
-
       aliases.add("free");
       aliases.add("delete");
       aliases.add("destroy");
 
-      try
-      {
-         ARCHETYPE.register(aliases, null);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
-
-         System.exit(-1);
-      }
+      return aliases;
    }
 
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final Computation value_reference;
-
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-
-   /***************************************************************************/
-   /**** PUBLIC ***************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected Free (final Origin origin, final Computation value_reference)
-   {
-      super(origin, "free");
-
-      this.value_reference = value_reference;
-   }
-
-   @Override
-   public GenericInstruction build
+   public static GenericInstruction build
    (
       final Origin origin,
-      final List<Computation> call_parameters,
-      final Object _constructor_parameter
+      final String alias_,
+      final List<Computation> call_parameters
    )
    throws Throwable
    {
@@ -85,7 +45,12 @@ public class Free extends GenericInstruction
 
       if (call_parameters.size() != 1)
       {
-         // Error.
+         // TODO: Error.
+         System.err.print
+         (
+            "[E] Wrong number of arguments at "
+            + origin.toString()
+         );
       }
 
       call_parameters.get(0).expect_non_string();
@@ -113,6 +78,27 @@ public class Free extends GenericInstruction
       );
 
       return new Free(origin, target);
+   }
+
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
+   protected final Computation value_reference;
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
+   /**** Constructors *********************************************************/
+
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
+   /**** Constructors *********************************************************/
+   protected Free (final Origin origin, final Computation value_reference)
+   {
+      super(origin);
+
+      this.value_reference = value_reference;
    }
 
    /**** Accessors ************************************************************/

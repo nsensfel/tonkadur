@@ -85,7 +85,7 @@ public class RuntimeParameters
       );
       System.out.println
       (
-         " -p|--plugin <jar>\tLoads plugin classes from jar file."
+         " -p|--plugin <jar>\t\tLoads plugin classes from jar file."
       );
       System.out.println
       (

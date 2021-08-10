@@ -63,7 +63,7 @@ $(STANDALONE): $(TMP_DIR) $(TARGET) $(JSON_SIMPLE_JAR) $(TONKADUR_CORE_JAR)
 	unzip -d $(TMP_DIR) -uo $(TARGET)
 	unzip -d $(TMP_DIR) -uo $(TONKADUR_CORE_JAR)
 	unzip -d $(TMP_DIR) -uo $(JSON_SIMPLE_JAR)
-	$(JAR) -cvfm $@ $(MANIFEST) -C $(TMP_DIR) .
+	$(JAR) -cvfmn $@ $(MANIFEST) -C $(TMP_DIR) .
 
 $(TARGET): $(JAVA_SOURCES) $(CLASSES) $(MANIFEST)
 	rm -f $(TARGET) $(INSTALL_DIR)/$@

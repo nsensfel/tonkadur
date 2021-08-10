@@ -8,11 +8,38 @@ import tonkadur.wyrd.v1.compiler.fate.v1.ComputationCompiler;
 
 public abstract class GenericComputationCompiler extends ComputationCompiler
 {
-   protected static final Map<String, Class> ARCHETYPES;
+   protected static final Map<Class, Class> COMPILERS;
 
    static
    {
-      ARCHETYPES = new HashMap<String, Class>();
+      COMPILERS = new HashMap<Class, Class>();
+   }
+
+   public static void register (final Class c)
+   {
+      try
+      {
+         COMPILERS.put
+         (
+            (Class) c.getDeclaredMethod("get_target_class").invoke
+            (
+               /* object  = */ null
+            ),
+            c
+         );
+      }
+      catch (final Throwable t)
+      {
+         System.err.println
+         (
+            "[F] Could not get target class for Wyrd Generic Computation"
+            + " Compiler '"
+            + c.getName()
+            + "':"
+         );
+
+         t.printStackTrace();
+      }
    }
 
    public static ComputationCompiler handle
@@ -25,7 +52,7 @@ public abstract class GenericComputationCompiler extends ComputationCompiler
       final Class registered_class;
       final GenericComputationCompiler gcc;
 
-      registered_class = ARCHETYPES.get(computation.get_name());
+      registered_class = COMPILERS.get(computation.getClass());
 
       if (registered_class == null)
       {
@@ -33,21 +60,8 @@ public abstract class GenericComputationCompiler extends ComputationCompiler
          (
             "[F] No Wyrd compilation process registered for generic Fate "
             + " computation \""
-            + computation.get_name()
+            + computation.getClass().getName()
             + "\"."
-         );
-
-         System.exit(-1);
-      }
-
-      if (!GenericComputationCompiler.class.isAssignableFrom(registered_class))
-      {
-         System.err.println
-         (
-            "[F] The class registered to compile generic Fate "
-            + " computation \""
-            + computation.get_name()
-            + "\" to Wyrd does not extend the GenericComputationCompiler class."
          );
 
          System.exit(-1);
@@ -65,13 +79,11 @@ public abstract class GenericComputationCompiler extends ComputationCompiler
       return gcc;
    }
 
-   protected void compile
+   protected abstract void compile
    (
       final tonkadur.fate.v1.lang.computation.GenericComputation computation
    )
-   throws Throwable
-   {
-   }
+   throws Throwable;
 
    protected GenericComputationCompiler (final Compiler compiler)
    {

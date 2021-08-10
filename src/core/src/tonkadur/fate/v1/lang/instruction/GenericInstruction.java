@@ -11,21 +11,68 @@ import tonkadur.functional.Cons;
 
 import tonkadur.fate.v1.lang.type.Type;
 
-import tonkadur.fate.v1.lang.meta.InstructionVisitor;
-import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 
-public class GenericInstruction extends Instruction
+public abstract class GenericInstruction extends Instruction
 {
    /***************************************************************************/
    /**** STATIC ***************************************************************/
    /***************************************************************************/
-   protected static final Map<String, Cons<GenericInstruction, Object>>
-      REGISTERED;
+   protected static final Map<String, Class> REGISTERED;
 
    static
    {
-      REGISTERED = new HashMap<String, Cons<GenericInstruction, Object>>();
+      REGISTERED = new HashMap<String, Class>();
+   }
+
+   public static void register (final Class c)
+   {
+      try
+      {
+         for
+         (
+            final String alias:
+               (Collection<String>) c.getMethod("get_aliases").invoke
+               (
+                  /* object = */null
+               )
+         )
+         {
+            final Class previous_entry;
+
+            previous_entry = REGISTERED.get(alias);
+
+            if (previous_entry != null)
+            {
+               // TODO Exception handling.
+               throw new Exception
+               (
+                  "[F] Unable to add alias for Generic Fate Instruction '"
+                  + alias
+                  + "' from class '"
+                  + c.getName()
+                  + "': it has already been claimed by class '"
+                  + previous_entry.getName()
+                  + "'."
+               );
+            }
+
+            REGISTERED.put(alias, c);
+         }
+      }
+      catch (final Throwable t)
+      {
+         System.err.println
+         (
+            "Could not register Generic Fate Instruction class '"
+            + c.getName()
+            + "': "
+         );
+
+         t.printStackTrace();
+      }
    }
 
    public static GenericInstruction build
@@ -36,125 +83,49 @@ public class GenericInstruction extends Instruction
    )
    throws Throwable
    {
-      final Cons<GenericInstruction, Object> target;
+      final Class computation_class;
 
-      target = REGISTERED.get(name);
+      computation_class = REGISTERED.get(name);
 
-      if (target == null)
+      if (computation_class == null)
       {
-         // TODO Exception handling.
+         // TODO use a separate class for this.
+         throw
+            new Exception
+            (
+               "[E] Unknown Generic Fate Instruction '"
+               + name
+               + "'."
+            );
       }
 
-      return target.get_car().build(origin, call_parameters, target.get_cdr());
+      return
+         (GenericInstruction) computation_class.getDeclaredMethod
+         (
+            "build",
+            Origin.class,
+            String.class,
+            List.class
+         ).invoke(/* object = */ null, origin, name, call_parameters);
    }
-
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final String name;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected GenericInstruction
-   (
-      final Origin origin,
-      final String name
-   )
+   protected GenericInstruction (final Origin origin)
    {
       super(origin);
-
-      this.name = name;
-   }
-
-   protected GenericInstruction build
-   (
-      final Origin origin,
-      final List<Computation> call_parameters,
-      final Object constructor_parameter
-   )
-   throws Throwable
-   {
-      throw
-         new Exception
-         (
-            "Missing build function for GenericInstruction '"
-            + name
-            + "'."
-         );
-   }
-
-   protected void register
-   (
-      final String name,
-      final Object constructor_parameter
-   )
-   throws Exception
-   {
-      if (REGISTERED.containsKey(name))
-      {
-         // TODO Exception handling.
-         new Exception
-         (
-            "There already is a GenericInstruction with the name '"
-            + name
-            + "'."
-         );
-
-         return;
-      }
-
-      REGISTERED.put(name, new Cons(this, constructor_parameter));
-   }
-
-   protected void register (final Object constructor_parameter)
-   throws Exception
-   {
-      register(get_name(), constructor_parameter);
-   }
-
-   protected void register
-   (
-      final Collection<String> names,
-      final Object constructor_parameter
-   )
-   throws Exception
-   {
-      for (final String name: names)
-      {
-         register(name, constructor_parameter);
-      }
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-
    /**** Accessors ************************************************************/
    @Override
    public void get_visited_by (final InstructionVisitor cv)
    throws Throwable
    {
       cv.visit_generic_instruction(this);
-   }
-
-   public String get_name ()
-   {
-      return name;
-   }
-
-   /**** Misc. ****************************************************************/
-   @Override
-   public String toString ()
-   {
-      final StringBuilder sb = new StringBuilder();
-
-      sb.append("(GenericInstruction ");
-      sb.append(get_name());
-      sb.append(")");
-
-      return sb.toString();
    }
 }

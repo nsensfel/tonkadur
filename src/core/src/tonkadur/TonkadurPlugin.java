@@ -30,6 +30,8 @@ public abstract class TonkadurPlugin
 
    public static void register_as_loadable_superclass (final Class c)
    {
+      System.out.println("[D] Will load subclasses of " + c.getName() + "...");
+
       LOADABLE_SUPERCLASSES.add(c);
    }
 
@@ -72,7 +74,11 @@ public abstract class TonkadurPlugin
          candidate = entries.nextElement();
          candidate_name = candidate.getName();
 
-         if (!candidate_name.endsWith(".class"))
+         if
+         (
+            !candidate_name.endsWith(".class")
+            || candidate_name.startsWith("org/antlr/")
+         )
          {
             continue;
          }

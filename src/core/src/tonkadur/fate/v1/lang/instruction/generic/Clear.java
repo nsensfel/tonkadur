@@ -1,7 +1,8 @@
 package tonkadur.fate.v1.lang.instruction.generic;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Collection;
 
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
@@ -13,13 +14,9 @@ import tonkadur.fate.v1.lang.instruction.GenericInstruction;
 
 public class Clear extends GenericInstruction
 {
-   protected static final Clear ARCHETYPE;
-
-   static
+   public static Collection<String> get_aliases ()
    {
       final List<String> aliases;
-
-      ARCHETYPE = new Clear(Origin.BASE_LANGUAGE, null);
 
       aliases = new ArrayList<String>();
 
@@ -32,16 +29,36 @@ public class Clear extends GenericInstruction
       aliases.add("set:clear");
       aliases.add("set:empty");
 
-      try
-      {
-         ARCHETYPE.register(aliases, null);
-      }
-      catch (final Exception e)
-      {
-         e.printStackTrace();
+      return aliases;
+   }
 
-         System.exit(-1);
+   public static GenericInstruction build
+   (
+      final Origin origin,
+      final String alias_,
+      final List<Computation> call_parameters
+   )
+   throws Throwable
+   {
+      final Computation collection;
+
+      if (call_parameters.size() != 1)
+      {
+         // TODO: Error.
+         System.err.print
+         (
+            "[E] Wrong number of arguments at "
+            + origin.toString()
+         );
       }
+
+      collection = call_parameters.get(0);
+
+      collection.expect_non_string();
+
+      RecurrentChecks.assert_is_a_collection(collection);
+
+      return new Clear(origin, collection);
    }
 
    /***************************************************************************/
@@ -59,7 +76,7 @@ public class Clear extends GenericInstruction
       final Computation collection
    )
    {
-      super(origin, "clear");
+      super(origin);
 
       this.collection = collection;
    }
@@ -68,30 +85,6 @@ public class Clear extends GenericInstruction
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   @Override
-   public GenericInstruction build
-   (
-      final Origin origin,
-      final List<Computation> call_parameters,
-      final Object _constructor_parameter
-   )
-   throws Throwable
-   {
-      final Computation collection;
-
-      if (call_parameters.size() != 1)
-      {
-         // Error.
-      }
-
-      collection = call_parameters.get(0);
-
-      collection.expect_non_string();
-
-      RecurrentChecks.assert_is_a_collection(collection);
-
-      return new Clear(origin, collection);
-   }
 
    /**** Accessors ************************************************************/
    public Computation get_collection ()
