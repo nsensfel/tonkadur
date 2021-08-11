@@ -72,6 +72,8 @@ import tonkadur.wyrd.v1.compiler.util.Sort;
 import tonkadur.wyrd.v1.compiler.util.SubList;
 import tonkadur.wyrd.v1.compiler.util.While;
 
+import tonkadur.wyrd.v1.compiler.fate.v1.instruction.GenericInstructionCompiler;
+
 public class InstructionCompiler
 implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 {
@@ -3942,6 +3944,10 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    )
    throws Throwable
    {
-      // TODO: implement.
+      final InstructionCompiler ic;
+
+      ic = GenericInstructionCompiler.handle(compiler, n);
+
+      this.result.addAll(ic.result);
    }
 }
