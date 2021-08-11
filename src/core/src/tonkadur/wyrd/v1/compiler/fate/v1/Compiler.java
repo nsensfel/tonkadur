@@ -39,7 +39,7 @@ public class Compiler
       );
 
       compiler.compile_extensions(fate_world);
-      compiler.compile_types(fate_world);
+//      compiler.compile_types(fate_world);
       compiler.compile_variables(fate_world);
 
       compiler.compile_sequences(fate_world);
@@ -80,7 +80,10 @@ public class Compiler
             fate_world.types().get_all()
       )
       {
-         TypeCompiler.compile(this, type);
+         if (!type.equals(tonkadur.fate.v1.lang.type.Type.ANY))
+         {
+            TypeCompiler.compile(this, type);
+         }
       }
    }
 

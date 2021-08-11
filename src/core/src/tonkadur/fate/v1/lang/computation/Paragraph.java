@@ -24,7 +24,22 @@ public class Paragraph extends Computation
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public Paragraph
+   public static Paragraph build
+   (
+      final Origin origin,
+      final List<Computation> content
+   )
+   throws Throwable
+   {
+      for (final Computation c: content)
+      {
+         c.expect_string();
+      }
+
+      return new Paragraph(origin, content);
+   }
+
+   protected Paragraph
    (
       final Origin origin,
       final List<Computation> content

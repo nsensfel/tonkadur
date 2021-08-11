@@ -61,7 +61,6 @@ DECLARE_LOCAL_VARIABLE_KW: L_PAREN 'local' SEP+;
 
 DICT_KW: L_PAREN 'dict'('ionary'?) SEP+;
 LIST_KW: L_PAREN 'list' SEP+;
-SET_KW: L_PAREN 'set' SEP+;
 
 
 ENABLE_TEXT_EFFECT_KW: L_PAREN 'text'US'effect' SEP+;
@@ -150,9 +149,11 @@ CONTINUE_AS_KW:
 END_KW: L_PAREN 'end'('!'?) SEP* R_PAREN;
 
 
+fragment IDENTIFIER_FRAG: ~([ \t\r\n()]|'!');
 
+IDENTIFIER_KW: IDENTIFIER_FRAG+;
 
-WORD: ((~([ \t\r\n()]))|'(lp)'|'(rp)'|'(sp)')+
+WORD: (IDENTIFIER_FRAG|'!'|'(lp)'|'(rp)'|'(sp)')+
    {
       setText
       (
@@ -171,5 +172,6 @@ WORD: ((~([ \t\r\n()]))|'(lp)'|'(rp)'|'(sp)')+
          )
       );
    };
+
 
 COMMENT: WS* ';;' .*? '\n' -> channel(HIDDEN);

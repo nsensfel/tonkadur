@@ -58,11 +58,25 @@ public abstract class GenericComputationCompiler extends ComputationCompiler
       {
          System.err.println
          (
-            "[F] No Wyrd compilation process registered for generic Fate "
+            "[F] No Wyrd compilation process registered for generic Fate"
             + " computation \""
             + computation.getClass().getName()
             + "\"."
          );
+
+         System.err.println("Registered compilers:");
+
+         for (final Class c: COMPILERS.keySet())
+         {
+            System.err.println
+            (
+               "- "
+               + COMPILERS.get(c).getName()
+               + " for "
+               + c.getName()
+               + "."
+            );
+         }
 
          System.exit(-1);
       }

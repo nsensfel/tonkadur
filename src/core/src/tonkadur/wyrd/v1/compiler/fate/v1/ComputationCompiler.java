@@ -57,6 +57,8 @@ import tonkadur.wyrd.v1.lang.computation.*;
 import tonkadur.wyrd.v1.lang.World;
 import tonkadur.wyrd.v1.lang.Register;
 
+import tonkadur.wyrd.v1.compiler.fate.v1.computation.GenericComputationCompiler;
+
 public class ComputationCompiler
 implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 {
@@ -1796,25 +1798,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       result_as_computation = new Text(content);
    }
-/*
-   @Override
-   public void visit_address_operator
-   (
-      final tonkadur.fate.v1.lang.computation.AddressOperator n
-   )
-   throws Throwable
-   {
-      final ComputationCompiler n_cc;
 
-      n_cc = new ComputationCompiler(compiler);
-
-      n.get_target().get_visited_by(n_cc);
-
-      assimilate(n_cc);
-
-      result_as_computation = n_cc.get_address();
-   }
-*/
    @Override
    public void visit_text_with_effect
    (
@@ -2065,7 +2049,15 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    )
    throws Throwable
    {
-      // TODO: implement.
+      final ComputationCompiler handler;
+
+      handler = GenericComputationCompiler.handle(compiler, n);
+
+      assimilate(handler);
+
+      this.instructions_were_generated = handler.instructions_were_generated;
+      this.result_as_computation = handler.result_as_computation;
+      this.result_as_address = handler.result_as_address;
    }
 
    @Override

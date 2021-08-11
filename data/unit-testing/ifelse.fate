@@ -4,12 +4,12 @@
 
 (set! test_name ( IF ELSE ))
 
+(global bool test)
 
 (if (false)
    (assert! (false) [FAILED] (var test_name) Executing dead code 0.)
 )
 
-(global bool test)
 
 (set! test (false))
 

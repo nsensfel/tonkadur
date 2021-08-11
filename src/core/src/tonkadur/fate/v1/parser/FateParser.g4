@@ -60,7 +60,7 @@ fate_file [ParserData parser]
    PARSER.increase_local_variables_hierarchy();
 }
 :
-   WS* FATE_VERSION_KW WORD WS* R_PAREN WS*
+   WS* FATE_VERSION_KW word WS* R_PAREN WS*
    (
       (
          first_level_instruction
@@ -206,7 +206,7 @@ first_level_instruction
       PARSER.get_world().extra_computations().add(extra_computation);
    }
 
-   | DECLARE_EXTRA_TYPE_KW identifier WS+ argc=WORD WS+ comp=WORD WS* R_PAREN
+   | DECLARE_EXTRA_TYPE_KW identifier WS+ argc=word WS+ comp=word WS* R_PAREN
    {
       final Type new_type;
       final Origin start_origin;
@@ -413,24 +413,24 @@ first_level_instruction
    }
 
 
-   | IMP_IGNORE_ERROR_KW WORD WS+ first_level_instruction WS* R_PAREN
+   | IMP_IGNORE_ERROR_KW word WS+ first_level_instruction WS* R_PAREN
    {
       /* TODO: temporarily disable an compiler error category */
    }
 
 
-   | REQUIRE_EXTENSION_KW WORD WS* R_PAREN
+   | REQUIRE_EXTENSION_KW word WS* R_PAREN
    {
-      PARSER.get_world().add_required_extension(($WORD.text));
+      PARSER.get_world().add_required_extension(($word.result));
 
       /* TODO: error report if extension not explicitly enabled. */
    }
 
-   | REQUIRE_KW WORD WS* R_PAREN
+   | REQUIRE_KW word WS* R_PAREN
    {
       final String filename;
 
-      filename = Files.resolve_filename(PARSER.get_context(), ($WORD.text));
+      filename = Files.resolve_filename(PARSER.get_context(), ($word.result));
 
       if (!PARSER.get_world().has_loaded_file(filename))
       {
@@ -446,11 +446,11 @@ first_level_instruction
       }
    }
 
-   | INCLUDE_KW WORD WS* R_PAREN
+   | INCLUDE_KW word WS* R_PAREN
    {
       final String filename;
 
-      filename = Files.resolve_filename(PARSER.get_context(), ($WORD.text));
+      filename = Files.resolve_filename(PARSER.get_context(), ($word.result));
 
       PARSER.add_file_content
       (
@@ -464,29 +464,24 @@ first_level_instruction
    }
 
    /*
-   | EXTENSION_FIRST_LEVEL_KW WORD WS+ instruction_list WS* R_PAREN
+   | EXTENSION_FIRST_LEVEL_KW word WS+ instruction_list WS* R_PAREN
    {
       final Origin origin;
       final ExtensionInstruction instr;
 
-      origin =
-         CONTEXT.get_origin_at
-         (
-            ($WORD.getLine()),
-            ($WORD.getCharPositionInLine())
-         );
+      origin = ($word.origin);
 
       instr =
          PARSER.get_world().extension_first_level_instructions().get
          (
-            ($WORD.text)
+            ($word.result)
          );
 
       if (instr == null)
       {
          ErrorManager.handle
          (
-            new UnknownExtensionContentException(origin, ($WORD.text))
+            new UnknownExtensionContentException(origin, ($word.result))
          );
       }
       else
@@ -505,7 +500,7 @@ catch [final Throwable e]
 instruction
 returns [Instruction result]
 :
-   L_PAREN WS* maybe_instruction_list WS* R_PAREN
+   L_PAREN WS+ maybe_instruction_list WS* R_PAREN
    {
       /*
        * Don't define a local variable hierachy just for that group, as it would
@@ -818,7 +813,7 @@ returns [Instruction result]
 /**** ERRORS ******************************************************************/
 /******************************************************************************/
 
-   | IMP_IGNORE_ERROR_KW WORD WS+ instruction WS* R_PAREN
+   | IMP_IGNORE_ERROR_KW word WS+ instruction WS* R_PAREN
    {
       /* TODO: temporarily disable an compiler error category */
       $result = ($instruction.result);
@@ -926,7 +921,7 @@ returns [Instruction result]
 /******************************************************************************/
 /**** GENERIC INSTRUCTIONS ****************************************************/
 /******************************************************************************/
-   | L_PAREN identifier IMP_MARKER maybe_computation_list WS* R_PAREN
+   | L_PAREN WORD maybe_computation_list WS* R_PAREN
    {
       $result =
          GenericInstruction.build
@@ -936,7 +931,7 @@ returns [Instruction result]
                ($L_PAREN.getLine()),
                ($L_PAREN.getCharPositionInLine())
             ),
-            ($identifier.result),
+            ($WORD.text),
             ($maybe_computation_list.result)
          );
    }
@@ -1119,7 +1114,7 @@ returns [Instruction result]
       {
          PARSER.enable_restricted_variable_stack_of(pcd);
       }
-      L_PAREN WS* WORD maybe_computation_list WS* R_PAREN WS*
+      L_PAREN WS* word maybe_computation_list WS* R_PAREN WS*
       {
          PARSER.disable_restricted_stack_of(pcd);
          PARSER.increase_local_variables_hierarchy();
@@ -1139,7 +1134,7 @@ returns [Instruction result]
             ($L_PAREN.getCharPositionInLine())
          );
 
-      event = PARSER.get_world().events().get(origin, ($WORD.text));
+      event = PARSER.get_world().events().get(origin, ($word.result));
 
       $result =
          EventOption.build
@@ -1490,7 +1485,7 @@ returns [Computation result]
       // convert all computations to text.
       // return text node.
       $result =
-         new Paragraph
+         Paragraph.build
          (
             $computation_list.result.get(0).get_origin(),
             $computation_list.result
@@ -1509,26 +1504,22 @@ returns [Computation result]
    final StringBuilder string_builder = new StringBuilder();
 }
 :
-   first_word=WORD
+   first_word=word
    {
-      string_builder.append(($first_word.text));
+      string_builder.append(($first_word.result));
    }
    (
-      WS+ next_word=WORD
+      WS+ next_word=word
       {
          string_builder.append(" ");
-         string_builder.append(($next_word.text));
+         string_builder.append(($next_word.result));
       }
    )*
    {
       $result =
          Constant.build_string
          (
-            PARSER.get_origin_at
-            (
-               ($first_word.getLine()),
-               ($first_word.getCharPositionInLine())
-            ),
+            ($first_word.origin),
             string_builder.toString()
          );
    }
@@ -1541,18 +1532,9 @@ catch [final Throwable e]
 type
 returns [Type result]
 :
-   WORD
+   word
    {
-      $result =
-         PARSER.get_world().types().get
-         (
-            PARSER.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
+      $result = PARSER.get_world().types().get(($word.origin), ($word.result));
 
       if ($result.get_parameters().size() != 0)
       {
@@ -1956,9 +1938,9 @@ returns [List<Cons<Origin, Cons<String, Computation>>> result]
       WS*
       (
          (
-            L_PAREN WS* WORD WS+
+            L_PAREN WS* word WS+
             {
-               field_name = ($WORD.text);
+               field_name = ($word.result);
             }
          )
          |
@@ -1992,25 +1974,17 @@ returns [List<Cons<Origin, Cons<String, Computation>>> result]
 identifier
 returns [String result]
 :
-   WORD
+   word
    {
-      if (($WORD.text).indexOf('.') != -1)
+      if (($word.result).indexOf('.') != -1)
       {
          ErrorManager.handle
          (
-            new IllegalReferenceNameException
-            (
-               PARSER.get_origin_at
-               (
-                  ($WORD.getLine()),
-                  ($WORD.getCharPositionInLine())
-               ),
-               ($WORD.text)
-            )
+            new IllegalReferenceNameException(($word.origin), ($word.result))
          );
       }
 
-      $result = ($WORD.text);
+      $result = ($word.result);
    }
 ;
 catch [final Throwable e]
@@ -2029,53 +2003,25 @@ returns [Computation result]
    ParserData.LocalVariables previous_local_variables_stack;
 }
 :
-   WORD
+   word
    {
-      if ($WORD.text.matches("[0-9]+(\\.[0-9]+)?"))
+      if ($word.result.matches("(-?)[0-9]+(\\.[0-9]+)?"))
       {
-         $result =
-            Constant.build
-            (
-               PARSER.get_origin_at
-               (
-                  ($WORD.getLine()),
-                  ($WORD.getCharPositionInLine())
-               ),
-               ($WORD.text)
-            );
+         $result = Constant.build(($word.origin), ($word.result));
       }
       else
       {
-         $result =
-            new AmbiguousWord
-            (
-               PARSER,
-               PARSER.get_origin_at
-               (
-                  ($WORD.getLine()),
-                  ($WORD.getCharPositionInLine())
-               ),
-               ($WORD.text)
-            );
+         $result = new AmbiguousWord(PARSER, ($word.origin), ($word.result));
       }
    }
 
-   | VARIABLE_KW WORD WS* R_PAREN
+   | VARIABLE_KW word WS* R_PAREN
    {
       $result =
-         VariableFromWord.generate
-         (
-            PARSER,
-            PARSER.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
+         VariableFromWord.generate(PARSER, ($word.origin), ($word.result));
    }
 
-   | IGNORE_ERROR_KW WORD WS+ computation WS* R_PAREN
+   | IGNORE_ERROR_KW word WS+ computation WS* R_PAREN
    {
       $result = ($computation.result);
       /* TODO: temporarily disable an compiler error category */
@@ -2091,7 +2037,7 @@ returns [Computation result]
       $result = ($sentence.result);
    }
 
-   | FIELD_ACCESS_KW WORD WS+ computation WS* R_PAREN
+   | FIELD_ACCESS_KW word WS+ computation WS* R_PAREN
    {
       $result =
          FieldAccess.build
@@ -2102,7 +2048,7 @@ returns [Computation result]
                ($FIELD_ACCESS_KW.getCharPositionInLine())
             ),
             ($computation.result),
-            ($WORD.text)
+            ($word.result)
          );
    }
 
@@ -2244,29 +2190,17 @@ returns [Computation result]
          );
    }
 
-   | ENABLE_TEXT_EFFECT_KW WORD WS+ paragraph WS* R_PAREN
+   | ENABLE_TEXT_EFFECT_KW word WS+ paragraph WS* R_PAREN
    {
       final TextEffect effect;
 
       effect =
-         PARSER.get_world().text_effects().get
-         (
-            PARSER.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
+         PARSER.get_world().text_effects().get(($word.origin), ($word.result));
 
       $result =
          TextWithEffect.build
          (
-            PARSER.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
+            ($word.origin),
             effect,
             new ArrayList<Computation>(),
             ($paragraph.result)
@@ -2275,7 +2209,7 @@ returns [Computation result]
 
    | ENABLE_TEXT_EFFECT_KW
       L_PAREN
-         WORD WS+
+         word WS+
          computation_list WS*
       R_PAREN WS+
       paragraph WS*
@@ -2284,15 +2218,7 @@ returns [Computation result]
       final TextEffect effect;
 
       effect =
-         PARSER.get_world().text_effects().get
-         (
-            PARSER.get_origin_at
-            (
-               ($WORD.getLine()),
-               ($WORD.getCharPositionInLine())
-            ),
-            ($WORD.text)
-         );
+         PARSER.get_world().text_effects().get(($word.origin), ($word.result));
 
       $result =
          TextWithEffect.build
@@ -2308,7 +2234,7 @@ returns [Computation result]
          );
    }
 
-   | L_PAREN identifier maybe_computation_list WS* R_PAREN
+   | L_PAREN IDENTIFIER_KW maybe_computation_list WS* R_PAREN
    {
       $result =
          GenericComputation.build
@@ -2318,7 +2244,7 @@ returns [Computation result]
                ($L_PAREN.getLine()),
                ($L_PAREN.getCharPositionInLine())
             ),
-            ($identifier.result),
+            ($IDENTIFIER_KW.text),
             ($maybe_computation_list.result)
          );
    }
@@ -2446,3 +2372,27 @@ catch [final Throwable e]
 {
    PARSER.handle_error(e);
 }
+
+word returns [String result, Origin origin]:
+   WORD
+   {
+      $result = $WORD.text;
+      $origin =
+         PARSER.get_origin_at
+         (
+            ($WORD.getLine()),
+            ($WORD.getCharPositionInLine())
+         );
+   }
+
+   | IDENTIFIER_KW
+   {
+      $result = $IDENTIFIER_KW.text;
+      $origin =
+         PARSER.get_origin_at
+         (
+            ($IDENTIFIER_KW.getLine()),
+            ($IDENTIFIER_KW.getCharPositionInLine())
+         );
+   }
+;
