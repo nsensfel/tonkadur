@@ -376,38 +376,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
    }
 
 /*
-   @Override
-   public void visit_clear (final tonkadur.fate.v1.lang.instruction.Clear c)
-   throws Throwable
-   {
-      final ComputationCompiler address_compiler;
-      final Address collection_address;
-
-      address_compiler = new ComputationCompiler(compiler);
-
-      c.get_collection().get_visited_by(address_compiler);
-
-      if (address_compiler.has_init())
-      {
-         result.add(address_compiler.get_init());
-      }
-
-      collection_address = address_compiler.get_address();
-
-      result.add
-      (
-         Clear.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            collection_address
-         )
-      );
-
-      address_compiler.release_registers(result);
-   }
-*/
-/*
    public void visit_reverse_list
    (
       final tonkadur.fate.v1.lang.instruction.ReverseList n
@@ -2077,84 +2045,7 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
 
       cc.release_registers(result);
    }
-/*
-   @Override
-   public void visit_free (final tonkadur.fate.v1.lang.instruction.Free n)
-   throws Throwable
-   {
-      final ComputationCompiler cc;
-      final Address target;
 
-      cc = new ComputationCompiler(compiler);
-
-      n.get_reference().get_visited_by(cc);
-
-      if (cc.has_init())
-      {
-         result.add(cc.get_init());
-      }
-
-      target = cc.get_address();
-
-      if (target == null)
-      {
-         System.err.println
-         (
-            "[P] Argument in (free "
-            + n.get_reference()
-            + ") did not compile to a address."
-         );
-      }
-
-      result.add(new Remove(target));
-
-      cc.release_registers(result);
-   }
-*/
-/*
-   @Override
-   public void visit_allocate
-   (
-      final tonkadur.fate.v1.lang.instruction.Allocate n
-   )
-   throws Throwable
-   {
-      final ComputationCompiler cc;
-      final Address target;
-
-      cc = new ComputationCompiler(compiler);
-
-      n.get_target().get_visited_by(cc);
-
-      if (cc.has_init())
-      {
-         result.add(cc.get_init());
-      }
-
-      target = cc.get_address();
-
-      if (target == null)
-      {
-         System.err.println
-         (
-            "[P] Argument in (allocate "
-            + n.get_target()
-            + ") did not compile to a address."
-         );
-      }
-
-      result.add
-      (
-         new SetValue
-         (
-            target,
-            new New(TypeCompiler.compile(compiler, n.get_allocated_type()))
-         )
-      );
-
-      cc.release_registers(result);
-   }
-*/
    @Override
    public void visit_while (final tonkadur.fate.v1.lang.instruction.While n)
    throws Throwable
