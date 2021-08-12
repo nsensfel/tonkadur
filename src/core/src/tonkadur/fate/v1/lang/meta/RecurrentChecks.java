@@ -160,20 +160,24 @@ public class RecurrentChecks
       }
    }
 
-   public static void assert_is_a_list_of
+   public static void propagate_expected_types_and_assert_is_a_list_of
    (
       final Computation c,
       final Computation e
    )
    throws ParsingError
    {
-      assert_is_a_list_of
-      (
-         c.get_origin(),
-         c.get_type(),
-         e.get_origin(),
-         e.get_type()
-      );
+      final Type content_type;
+
+      c.expect_non_string();
+
+      assert_is_a_list(c);
+
+      content_type = ((CollectionType) c.get_type()).get_content_type();
+
+      handle_expected_type_propagation(e, content_type);
+
+      assert_can_be_used_as(e, content_type);
    }
 
    public static void assert_is_a_list_of
@@ -194,20 +198,24 @@ public class RecurrentChecks
       );
    }
 
-   public static void assert_is_a_set_of
+   public static void propagate_expected_types_and_assert_is_a_set_of
    (
       final Computation c,
       final Computation e
    )
    throws ParsingError
    {
-      assert_is_a_set_of
-      (
-         c.get_origin(),
-         c.get_type(),
-         e.get_origin(),
-         e.get_type()
-      );
+      final Type content_type;
+
+      c.expect_non_string();
+
+      assert_is_a_set(c);
+
+      content_type = ((CollectionType) c.get_type()).get_content_type();
+
+      handle_expected_type_propagation(e, content_type);
+
+      assert_can_be_used_as(e, content_type);
    }
 
    public static void assert_is_a_set_of
@@ -228,23 +236,59 @@ public class RecurrentChecks
       );
    }
 
-   public static void assert_is_a_collection_of
+   public static void assert_is_a_set_of (final Computation c, final Type e)
+   throws ParsingError
+   {
+      assert_can_be_used_as
+      (
+         c,
+         CollectionType.build
+         (
+            c.get_origin(),
+            e,
+            true,
+            "RecurrentChecks is_a_set_of test type"
+         )
+      );
+   }
+
+   public static void assert_is_a_list_of (final Computation c, final Type e)
+   throws ParsingError
+   {
+      assert_can_be_used_as
+      (
+         c,
+         CollectionType.build
+         (
+            c.get_origin(),
+            e,
+            false,
+            "RecurrentChecks is_a_set_of test type"
+         )
+      );
+   }
+
+   public static void propagate_expected_types_and_assert_is_a_collection_of
    (
       final Computation c,
       final Computation e
    )
    throws ParsingError
    {
-      assert_is_a_collection_of
-      (
-         c.get_origin(),
-         c.get_type(),
-         e.get_origin(),
-         e.get_type()
-      );
+      final Type content_type;
+
+      c.expect_non_string();
+
+      assert_is_a_collection(c);
+
+      content_type = ((CollectionType) c.get_type()).get_content_type();
+
+      handle_expected_type_propagation(e, content_type);
+
+      assert_can_be_used_as(e, content_type);
    }
 
-   public static void assert_is_a_collection_of
+   public static void propagate_expected_types_and_assert_is_a_collection_of
    (
       final Origin oc,
       final Type c,
@@ -262,7 +306,8 @@ public class RecurrentChecks
       );
    }
 
-   public static void assert_computations_matches_signature
+   public static void
+   propagate_expected_types_and_assert_computations_matches_signature
    (
       final Origin o,
       final List<Computation> c,
@@ -292,6 +337,7 @@ public class RecurrentChecks
             public Boolean risky_lambda (final Type t, final Computation p)
             throws ParsingError
             {
+               handle_expected_type_propagation(p, t);
                assert_can_be_used_as(p, t);
 
                return Boolean.TRUE;
@@ -463,7 +509,8 @@ public class RecurrentChecks
       }
    }
 
-   public static void assert_lambda_matches_computations
+   public static void
+   propagate_expected_types_and_assert_lambda_matches_computations
    (
       final Computation l,
       final Type r,
@@ -471,9 +518,11 @@ public class RecurrentChecks
    )
    throws ParsingError
    {
+      l.expect_non_string();
+
       assert_is_a_lambda_function(l);
       assert_return_type_is(l, r);
-      assert_computations_matches_signature
+      propagate_expected_types_and_assert_computations_matches_signature
       (
          l.get_origin(),
          c,
@@ -481,15 +530,18 @@ public class RecurrentChecks
       );
    }
 
-   public static void assert_lambda_matches_computations
+   public static void
+   propagate_expected_types_and_assert_lambda_matches_computations
    (
       final Computation l,
       final List<Computation> c
    )
    throws ParsingError
    {
+      l.expect_non_string();
+
       assert_is_a_lambda_function(l);
-      assert_computations_matches_signature
+      propagate_expected_types_and_assert_computations_matches_signature
       (
          l.get_origin(),
          c,
