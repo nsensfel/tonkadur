@@ -79,7 +79,7 @@ public class SequenceVariableJump extends Instruction
          );
       }
 
-      RecurrentChecks.assert_computations_matches_signature
+      RecurrentChecks.propagate_expected_types_and_assert_computations_matches_signature
       (
          origin,
          parameters,

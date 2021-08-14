@@ -54,7 +54,7 @@ public class TextWithEffect extends Computation
    )
    throws ParsingError
    {
-      RecurrentChecks.assert_computations_matches_signature
+      RecurrentChecks.propagate_expected_types_and_assert_computations_matches_signature
       (
          origin,
          parameters,

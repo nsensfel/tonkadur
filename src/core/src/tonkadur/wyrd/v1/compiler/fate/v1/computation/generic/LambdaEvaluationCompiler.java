@@ -44,7 +44,6 @@ public class LambdaEvaluationCompiler extends GenericComputationCompiler
 
       source = (LambdaEvaluation) computation;
 
-
       parameters = new ArrayList<Computation>();
       target_line_cc = new ComputationCompiler(compiler);
 

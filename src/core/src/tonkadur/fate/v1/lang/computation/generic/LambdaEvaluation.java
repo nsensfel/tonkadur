@@ -63,13 +63,7 @@ public class LambdaEvaluation extends GenericComputation
 
       call_parameters.remove(0);
 
-      RecurrentChecks.propagate_expected_types
-      (
-         call_parameters,
-         lambda_signature
-      );
-
-      RecurrentChecks.assert_computations_matches_signature
+      RecurrentChecks.propagate_expected_types_and_assert_computations_matches_signature
       (
          origin,
          call_parameters,

@@ -57,7 +57,7 @@ public class TextJoin extends GenericComputation
       text_collection.expect_non_string();
       link.expect_string();
 
-      RecurrentChecks.assert_is_a_collection_of
+      RecurrentChecks.propagate_expected_types_and_assert_is_a_collection_of
       (
          origin,
          text_collection.get_type(),

@@ -65,7 +65,7 @@ public class SequenceCall extends Instruction
          signature
       );
 
-      RecurrentChecks.assert_computations_matches_signature
+      RecurrentChecks.propagate_expected_types_and_assert_computations_matches_signature
       (
          get_origin(),
          parameters,
