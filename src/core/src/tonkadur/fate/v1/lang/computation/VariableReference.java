@@ -29,7 +29,6 @@ public class VariableReference extends Computation
       super(origin, reported_type);
       this.variable = variable;
    }
-   /**** Constructors *********************************************************/
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -56,6 +55,13 @@ public class VariableReference extends Computation
    public Variable get_variable ()
    {
       return variable;
+   }
+
+   @Override
+   public void use_as_reference ()
+   throws ParsingError
+   {
+      // This allows its use as reference.
    }
 
    /**** Misc. ****************************************************************/

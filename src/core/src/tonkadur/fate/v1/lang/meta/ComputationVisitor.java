@@ -22,16 +22,10 @@ public interface ComputationVisitor
    public void visit_constant (final Constant n)
    throws Throwable;
 
-   public void visit_if_else_value (final IfElseValue n)
-   throws Throwable;
-
    public void visit_lambda_expression (final LambdaExpression n)
    throws Throwable;
 
    public void visit_let (final Let n)
-   throws Throwable;
-
-   public void visit_newline (final Newline n)
    throws Throwable;
 
    public void visit_sequence_reference (final SequenceReference n)

@@ -25,14 +25,20 @@ public class RemoveAllOfElementComputation extends GenericComputation
       aliases.add("list:remove_each");
       aliases.add("list:removeeach");
       aliases.add("list:removeEach");
+      aliases.add("list:remove_every");
+      aliases.add("list:removeevery");
+      aliases.add("list:removeEvery");
       aliases.add("set:remove_each");
       aliases.add("set:removeeach");
       aliases.add("set:removeEach");
+      aliases.add("set:remove_every");
+      aliases.add("set:removeevery");
+      aliases.add("set:removeEvery");
 
       return aliases;
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String alias,

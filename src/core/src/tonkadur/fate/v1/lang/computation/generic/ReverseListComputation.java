@@ -30,7 +30,7 @@ public class ReverseListComputation extends GenericComputation
       return aliases;
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String alias,

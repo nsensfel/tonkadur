@@ -140,6 +140,13 @@ public class FieldAccess extends Computation
       return parent;
    }
 
+   @Override
+   public void use_as_reference ()
+   throws ParsingError
+   {
+      parent.use_as_reference();
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

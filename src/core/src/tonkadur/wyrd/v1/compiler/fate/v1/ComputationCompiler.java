@@ -154,6 +154,11 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       reserved_registers.addAll(cc.reserved_registers);
    }
 
+   protected void assimilate_reserved_registers (final ComputationCompiler cc)
+   {
+      reserved_registers.addAll(cc.reserved_registers);
+   }
+
    protected Register reserve (final Type t)
    {
       final Register result;
@@ -374,125 +379,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
                ).get_field_type(null, n.get_field_name())
             )
          );
-   }
-
-   @Override
-   public void visit_if_else_value
-   (
-      final tonkadur.fate.v1.lang.computation.IfElseValue n
-   )
-   throws Throwable
-   {
-      final ComputationCompiler cond_cc, if_true_cc, if_false_cc;
-
-      cond_cc = new ComputationCompiler(compiler);
-      if_true_cc = new ComputationCompiler(compiler);
-      if_false_cc = new ComputationCompiler(compiler);
-
-      n.get_condition().get_visited_by(cond_cc);
-      n.get_if_true().get_visited_by(if_true_cc);
-      n.get_if_false().get_visited_by(if_false_cc);
-
-      if (if_true_cc.has_init() || if_false_cc.has_init())
-      {
-         /*
-          * Unsafe ifelse computation: at least one of the branches needs to
-          * use instructions with values *before* the condition has been
-          * checked. This results in non-lazy evaluation, and is dangerous:
-          * the condition might be a test to ensure that the computations of the
-          * chosen branch are legal. In such cases, performing the potentially
-          * illegal branch's instructions is likely to result in a runtime error
-          * on the interpreter.
-          *
-          * Instead, we just convert the ifelse into an instruction-based
-          * equivalent and store the result in an anonymous register to be used
-          * here.
-          */
-         final Register if_else_result;
-         final List<Instruction> if_true_branch;
-         final List<Instruction> if_false_branch;
-
-         if_else_result = reserve(if_true_cc.get_computation().get_type());
-
-         if_true_branch = new ArrayList<Instruction>();
-         if_false_branch = new ArrayList<Instruction>();
-
-         if (if_true_cc.has_init())
-         {
-            if_true_branch.add(if_true_cc.get_init());
-         }
-
-         if (if_false_cc.has_init())
-         {
-            if_false_branch.add(if_false_cc.get_init());
-         }
-
-         if_true_branch.add
-         (
-            new SetValue
-            (
-               if_else_result.get_address(),
-               if_true_cc.get_computation()
-            )
-         );
-
-         if_false_branch.add
-         (
-            new SetValue
-            (
-               if_else_result.get_address(),
-               if_false_cc.get_computation()
-            )
-         );
-
-         if (cond_cc.has_init())
-         {
-            init_instructions.add(cond_cc.get_init());
-         }
-
-         init_instructions.add
-         (
-            IfElse.generate
-            (
-               compiler.registers(),
-               compiler.assembler(),
-               cond_cc.get_computation(),
-               compiler.assembler().merge(if_true_branch),
-               compiler.assembler().merge(if_false_branch)
-            )
-         );
-
-         reserved_registers.addAll(cond_cc.reserved_registers);
-         reserved_registers.addAll(if_true_cc.reserved_registers);
-         reserved_registers.addAll(if_false_cc.reserved_registers);
-
-         result_as_computation = if_else_result.get_value();
-         result_as_address = if_else_result.get_address();
-      }
-      else
-      {
-         assimilate(cond_cc);
-         assimilate(if_true_cc);
-         assimilate(if_false_cc);
-
-         result_as_computation =
-            new IfElseComputation
-            (
-               cond_cc.get_computation(),
-               if_true_cc.get_computation(),
-               if_false_cc.get_computation()
-            );
-      }
-   }
-
-   @Override
-   public void visit_newline
-   (
-      final tonkadur.fate.v1.lang.computation.Newline n
-   )
-   throws Throwable
-   {
-      result_as_computation = new Newline();
    }
 
    @Override

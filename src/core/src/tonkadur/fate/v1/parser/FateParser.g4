@@ -2100,6 +2100,20 @@ returns [Computation result]
          );
    }
 
+   | SEQUENCE_KW identifier WS* R_PAREN
+   {
+      $result =
+         new SequenceReference
+         (
+            PARSER.get_origin_at
+            (
+               ($SEQUENCE_KW.getLine()),
+               ($SEQUENCE_KW.getCharPositionInLine())
+            ),
+            $identifier.text
+         );
+   }
+
    | LAMBDA_KW
       {
          previous_local_variables_stack = PARSER.get_local_variables_stack();

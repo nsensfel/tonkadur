@@ -37,7 +37,7 @@ public class AtReference extends GenericComputation
       return aliases;
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String _alias,
@@ -89,6 +89,7 @@ public class AtReference extends GenericComputation
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
+   /**** Constructors *********************************************************/
    protected AtReference
    (
       final Origin origin,
@@ -100,17 +101,21 @@ public class AtReference extends GenericComputation
 
       this.parent = parent;
    }
-   /**** Constructors *********************************************************/
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-
    /**** Accessors ************************************************************/
    public Computation get_parent ()
    {
       return parent;
+   }
+
+   @Override
+   public void use_as_reference ()
+   throws ParsingError
+   {
+      // This allows its use as reference.
    }
 
    /**** Misc. ****************************************************************/

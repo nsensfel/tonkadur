@@ -151,7 +151,7 @@ public class Operation extends GenericComputation
       return ALIASED_OPERATOR.keySet();
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String alias,
@@ -162,7 +162,7 @@ public class Operation extends GenericComputation
       return build(origin, ALIASED_OPERATOR.get(alias), operands);
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final Operator operator,

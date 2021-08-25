@@ -33,7 +33,7 @@ public class LambdaEvaluation extends GenericComputation
    }
 
    /**** Constructors *********************************************************/
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String _alias,

@@ -100,6 +100,13 @@ public class AmbiguousWord extends Computation
       return as_string;
    }
 
+   @Override
+   public void use_as_reference ()
+   throws ParsingError
+   {
+      result.use_as_reference();
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

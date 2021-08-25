@@ -36,7 +36,7 @@ public class Allocate extends GenericInstruction
       return aliases;
    }
 
-   public static GenericInstruction build
+   public static Instruction build
    (
       final Origin origin,
       final String _alias,
@@ -65,6 +65,8 @@ public class Allocate extends GenericInstruction
 
       target_type = target.get_type();
 
+      target.use_as_reference();
+
       if (target_type instanceof PointerType)
       {
          return
@@ -88,6 +90,7 @@ public class Allocate extends GenericInstruction
             )
          )
       );
+
 
       return new Allocate(origin, Type.ANY, target);
    }

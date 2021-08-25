@@ -74,7 +74,7 @@ public abstract class GenericComputation extends Computation
       }
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String name,
@@ -99,7 +99,7 @@ public abstract class GenericComputation extends Computation
       }
 
       return
-         (GenericComputation) computation_class.getDeclaredMethod
+         (Computation) computation_class.getDeclaredMethod
          (
             "build",
             Origin.class,

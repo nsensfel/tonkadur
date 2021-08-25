@@ -37,7 +37,7 @@ public class PushElementComputation extends GenericComputation
       return aliases;
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String alias,
@@ -59,7 +59,7 @@ public class PushElementComputation extends GenericComputation
 
       collection = call_parameters.get(0);
       element = call_parameters.get(1);
-      is_from_left = alias.contains("eft");
+      is_from_left = alias.endsWith("eft");
 
       if (alias.startsWith("set:"))
       {
@@ -77,6 +77,7 @@ public class PushElementComputation extends GenericComputation
             element
          );
       }
+
       return
          new PushElementComputation
          (
@@ -86,6 +87,7 @@ public class PushElementComputation extends GenericComputation
             is_from_left
          );
    }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/

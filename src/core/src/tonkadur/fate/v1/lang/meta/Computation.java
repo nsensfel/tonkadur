@@ -48,6 +48,20 @@ public abstract class Computation extends Node
    {
    }
 
+   public void use_as_reference ()
+   throws ParsingError
+   {
+      // TODO: proper ParsingError.
+      System.err.println
+      (
+         "[W] Computation at "
+         + origin.toString
+         + " is being used as a reference, but isn't one. The instruction will"
+         + " not be able to modify the memory you thought was targeted by this"
+         + " computation."
+      );
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

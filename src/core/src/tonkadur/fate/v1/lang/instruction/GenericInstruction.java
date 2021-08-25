@@ -75,7 +75,7 @@ public abstract class GenericInstruction extends Instruction
       }
    }
 
-   public static GenericInstruction build
+   public static Instruction build
    (
       final Origin origin,
       final String name,
@@ -100,7 +100,7 @@ public abstract class GenericInstruction extends Instruction
       }
 
       return
-         (GenericInstruction) computation_class.getDeclaredMethod
+         (Instruction) computation_class.getDeclaredMethod
          (
             "build",
             Origin.class,

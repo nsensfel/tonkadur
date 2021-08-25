@@ -41,7 +41,7 @@ public class Access extends GenericComputation
       return aliases;
    }
 
-   public static GenericComputation build
+   public static Computation build
    (
       final Origin origin,
       final String alias,
@@ -135,7 +135,6 @@ public class Access extends GenericComputation
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-
    /**** Accessors ************************************************************/
    public Computation get_index ()
    {
@@ -145,6 +144,13 @@ public class Access extends GenericComputation
    public Computation get_parent ()
    {
       return parent;
+   }
+
+   @Override
+   public void use_as_reference ()
+   throws ParsingError
+   {
+      parent.use_as_reference();
    }
 
    /**** Misc. ****************************************************************/

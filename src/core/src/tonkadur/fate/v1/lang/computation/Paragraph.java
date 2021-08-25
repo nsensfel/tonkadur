@@ -6,6 +6,7 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
+
 import tonkadur.fate.v1.lang.type.Type;
 
 public class Paragraph extends Computation
@@ -31,9 +32,18 @@ public class Paragraph extends Computation
    )
    throws Throwable
    {
-      for (final Computation c: content)
+      for (int i = content.size(); i > 0; i--)
       {
+         final Computation c;
+
+         c = content.get(i);
+
          c.expect_string();
+
+         if (!c.get_type().can_be_used_as(Type.TEXT))
+         {
+            content.set(i, ValueToText.build(c));
+         }
       }
 
       return new Paragraph(origin, content);

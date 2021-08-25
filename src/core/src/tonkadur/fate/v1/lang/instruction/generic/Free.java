@@ -32,7 +32,7 @@ public class Free extends GenericInstruction
       return aliases;
    }
 
-   public static GenericInstruction build
+   public static Instruction build
    (
       final Origin origin,
       final String alias_,
