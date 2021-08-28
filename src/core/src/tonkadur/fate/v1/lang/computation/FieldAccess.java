@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.ParsingError;
 
 import tonkadur.error.ErrorManager;
 

@@ -55,7 +55,7 @@ public abstract class Computation extends Node
       System.err.println
       (
          "[W] Computation at "
-         + origin.toString
+         + origin.toString()
          + " is being used as a reference, but isn't one. The instruction will"
          + " not be able to modify the memory you thought was targeted by this"
          + " computation."

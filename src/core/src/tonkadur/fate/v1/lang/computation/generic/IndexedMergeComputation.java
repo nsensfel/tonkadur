@@ -35,6 +35,24 @@ public class IndexedMergeComputation extends GenericComputation
       aliases.add("set:indexedMerge");
       aliases.add("set:imerge");
 
+      aliases.add("list:indexed_safe_merge");
+      aliases.add("list:indexedsafemerge");
+      aliases.add("list:indexedSafeMerge");
+      aliases.add("list:isafemerge");
+      aliases.add("list:safe_indexed_merge");
+      aliases.add("list:safeindexedmerge");
+      aliases.add("list:safeIndexedMerge");
+      aliases.add("list:safeimerge");
+
+      aliases.add("set:indexed_safe_merge");
+      aliases.add("set:indexedsafemerge");
+      aliases.add("set:indexedSafeMerge");
+      aliases.add("set:isafemerge");
+      aliases.add("set:safe_indexed_merge");
+      aliases.add("set:safeindexedmerge");
+      aliases.add("set:safeIndexedMerge");
+      aliases.add("set:safeimerge");
+
       return aliases;
    }
 

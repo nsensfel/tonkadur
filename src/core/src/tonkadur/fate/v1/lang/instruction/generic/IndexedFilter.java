@@ -21,6 +21,8 @@ import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class IndexedFilter extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
@@ -29,12 +31,14 @@ public class IndexedFilter extends GenericInstruction
 
       aliases = new ArrayList<String>();
 
-      aliases.add("list:add_element_at");
-      aliases.add("list:addelementat");
-      aliases.add("list:addElementAt");
-      aliases.add("list:add_at");
-      aliases.add("list:addat");
-      aliases.add("list:addAt");
+      aliases.add("list:indexed_filter");
+      aliases.add("list:indexedfilter");
+      aliases.add("list:indexedFilter");
+      aliases.add("list:ifilter");
+      aliases.add("set:indexed_filter");
+      aliases.add("set:indexedfilter");
+      aliases.add("set:indexedFilter");
+      aliases.add("set:ifilter");
 
       return aliases;
    }
@@ -47,6 +51,43 @@ public class IndexedFilter extends GenericInstruction
    )
    throws Throwable
    {
+      final Computation lambda_function = null;
+      final Computation collection = null;
+      final List<Computation> extra_params = null;
+      final List<Type> target_signature;
+
+      target_signature = new ArrayList<Type>();
+
+      RecurrentChecks.assert_is_a_collection(collection);
+
+      target_signature.add(Type.INT);
+      target_signature.add
+      (
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
+
+      for (final Computation c: extra_params)
+      {
+         target_signature.add(c.get_type());
+      }
+
+      RecurrentChecks.assert_lambda_matches_types
+      (
+         lambda_function,
+         Type.BOOL,
+         target_signature
+      );
+
+      return
+         new IndexedFilter
+         (
+            origin,
+            lambda_function,
+            collection,
+            extra_params
+         );
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
@@ -76,51 +117,7 @@ public class IndexedFilter extends GenericInstruction
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public static IndexedFilter build
-   (
-      final Origin origin,
-      final Computation lambda_function,
-      final Computation collection,
-      final List<Computation> extra_params
-   )
-   throws ParsingError
-   {
-      final List<Type> target_signature;
-
-      target_signature = new ArrayList<Type>();
-
-      RecurrentChecks.assert_is_a_collection(collection);
-
-      target_signature.add(Type.INT);
-      target_signature.add
-      (
-         ((CollectionType) collection.get_type()).get_content_type()
-      );
-
-      for (final Computation c: extra_params)
-      {
-         target_signature.add(c.get_type());
-      }
-
-      RecurrentChecks.assert_lambda_matches_types
-      (
-         lambda_function,
-         Type.BOOL,
-         target_signature
-      );
-
-      return new IndexedFilter(origin, lambda_function, collection, extra_params);
-   }
-
    /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final InstructionVisitor iv)
-   throws Throwable
-   {
-      iv.visit_indexed_filter(this);
-   }
-
    public Computation get_lambda_function ()
    {
       return lambda_function;

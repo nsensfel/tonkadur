@@ -8,6 +8,9 @@ import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
+import tonkadur.fate.v1.lang.meta.Computation;
+
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
 
 public class Break extends GenericInstruction
 {
@@ -17,12 +20,7 @@ public class Break extends GenericInstruction
 
       aliases = new ArrayList<String>();
 
-      aliases.add("list:add_element_at");
-      aliases.add("list:addelementat");
-      aliases.add("list:addElementAt");
-      aliases.add("list:add_at");
-      aliases.add("list:addat");
-      aliases.add("list:addAt");
+      aliases.add("break");
 
       return aliases;
    }
@@ -35,6 +33,17 @@ public class Break extends GenericInstruction
    )
    throws Throwable
    {
+      if (call_parameters.size() != 0)
+      {
+         // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
+
+         return null;
+      }
+
+      return new Break(origin);
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
@@ -46,14 +55,6 @@ public class Break extends GenericInstruction
    public Break (final Origin origin)
    {
       super(origin);
-   }
-
-   /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final InstructionVisitor iv)
-   throws Throwable
-   {
-      iv.visit_break(this);
    }
 
    /**** Misc. ****************************************************************/

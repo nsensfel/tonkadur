@@ -19,6 +19,8 @@ import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class IndexedMap extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
@@ -27,12 +29,15 @@ public class IndexedMap extends GenericInstruction
 
       aliases = new ArrayList<String>();
 
-      aliases.add("list:add_element_at");
-      aliases.add("list:addelementat");
-      aliases.add("list:addElementAt");
-      aliases.add("list:add_at");
-      aliases.add("list:addat");
-      aliases.add("list:addAt");
+      aliases.add("list:indexed_map");
+      aliases.add("list:indexedmap");
+      aliases.add("list:indexedMap");
+      aliases.add("list:imap");
+      aliases.add("set:indexed_map");
+      aliases.add("set:indexedmap");
+      aliases.add("set:indexedMap");
+      aliases.add("set:imap");
+
 
       return aliases;
    }
@@ -45,6 +50,37 @@ public class IndexedMap extends GenericInstruction
    )
    throws Throwable
    {
+      final Computation lambda_function = null;
+      final Computation collection = null;
+      final List<Computation> extra_params = null;
+
+      final List<Type> in_types;
+
+      in_types = new ArrayList<Type>();
+
+      RecurrentChecks.assert_is_a_collection(collection);
+
+      in_types.add(Type.INT);
+      in_types.add
+      (
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
+
+      for (final Computation c: extra_params)
+      {
+         in_types.add(c.get_type());
+      }
+
+      RecurrentChecks.assert_lambda_matches_types
+      (
+         lambda_function,
+         ((CollectionType) collection.get_type()).get_content_type(),
+         in_types
+      );
+
+      return new IndexedMap(origin, lambda_function, collection, extra_params);
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
@@ -74,51 +110,7 @@ public class IndexedMap extends GenericInstruction
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public static IndexedMap build
-   (
-      final Origin origin,
-      final Computation lambda_function,
-      final Computation collection,
-      final List<Computation> extra_params
-   )
-   throws Throwable
-   {
-      final List<Type> in_types;
-
-      in_types = new ArrayList<Type>();
-
-      RecurrentChecks.assert_is_a_collection(collection);
-
-      in_types.add(Type.INT);
-      in_types.add
-      (
-         ((CollectionType) collection.get_type()).get_content_type()
-      );
-
-      for (final Computation c: extra_params)
-      {
-         in_types.add(c.get_type());
-      }
-
-      RecurrentChecks.assert_lambda_matches_types
-      (
-         lambda_function,
-         ((CollectionType) collection.get_type()).get_content_type(),
-         in_types
-      );
-
-      return new IndexedMap(origin, lambda_function, collection, extra_params);
-   }
-
    /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final InstructionVisitor iv)
-   throws Throwable
-   {
-      iv.visit_indexed_map(this);
-   }
-
    public Computation get_lambda_function ()
    {
       return lambda_function;

@@ -16,6 +16,8 @@ import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class PopElement extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
@@ -55,7 +57,7 @@ public class PopElement extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -98,7 +100,7 @@ public class PopElement extends GenericInstruction
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation storage_ptr;
+   protected final Computation storage;
    protected final Computation collection;
    protected final boolean is_from_left;
 
@@ -109,13 +111,14 @@ public class PopElement extends GenericInstruction
    protected PopElement
    (
       final Origin origin,
+      final Computation storage,
       final Computation collection,
       final boolean is_from_left
    )
    {
       super(origin);
 
-      this.storage_ptr = storage_ptr;
+      this.storage = storage;
       this.collection = collection;
       this.is_from_left = is_from_left;
    }

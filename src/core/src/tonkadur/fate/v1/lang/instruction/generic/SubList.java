@@ -14,6 +14,8 @@ import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class SubList extends GenericInstruction
 {
    public static Collection<String> get_aliases ()

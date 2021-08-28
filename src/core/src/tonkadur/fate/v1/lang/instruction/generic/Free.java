@@ -15,6 +15,7 @@ import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.PointerType;
 
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
 import tonkadur.fate.v1.lang.instruction.GenericInstruction;
 
@@ -25,6 +26,7 @@ public class Free extends GenericInstruction
       final List<String> aliases;
 
       aliases = new ArrayList<String>();
+
       aliases.add("free");
       aliases.add("delete");
       aliases.add("destroy");

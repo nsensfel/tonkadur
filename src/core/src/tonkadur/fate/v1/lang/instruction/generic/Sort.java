@@ -18,6 +18,8 @@ import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class Sort extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
@@ -42,7 +44,7 @@ public class Sort extends GenericInstruction
       // TODO: implement
       final Computation lambda_function = null;
       final Computation collection = null;
-      final List<Computation> extra_params = nulls;
+      final List<Computation> extra_params = null;
       final List<Type> types_in;
 
       types_in = new ArrayList<Type>();

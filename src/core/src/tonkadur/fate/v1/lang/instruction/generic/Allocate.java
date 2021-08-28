@@ -16,6 +16,7 @@ import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.PointerType;
 
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Instruction;
 
 import tonkadur.fate.v1.lang.instruction.GenericInstruction;
 

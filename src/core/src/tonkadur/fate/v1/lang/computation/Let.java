@@ -75,6 +75,13 @@ public class Let extends Computation
       return assignments;
    }
 
+   @Override
+   public void use_as_reference ()
+   throws ParsingError
+   {
+      computation.use_as_reference();
+   }
+
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()

@@ -19,6 +19,8 @@ import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class IndexedMerge extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
@@ -27,12 +29,14 @@ public class IndexedMerge extends GenericInstruction
 
       aliases = new ArrayList<String>();
 
-      aliases.add("list:add_element_at");
-      aliases.add("list:addelementat");
-      aliases.add("list:addElementAt");
-      aliases.add("list:add_at");
-      aliases.add("list:addat");
-      aliases.add("list:addAt");
+      aliases.add("list:indexed_merge");
+      aliases.add("list:indexedmerge");
+      aliases.add("list:indexedMerge");
+      aliases.add("list:imerge");
+      aliases.add("set:indexed_merge");
+      aliases.add("set:indexedmerge");
+      aliases.add("set:indexedMerge");
+      aliases.add("set:imerge");
 
       return aliases;
    }
@@ -45,57 +49,14 @@ public class IndexedMerge extends GenericInstruction
    )
    throws Throwable
    {
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final List<Computation> extra_params;
-   protected final Computation lambda_function;
-   protected final Computation collection;
-   protected final Computation default_a;
-   protected final Computation collection_in_b;
-   protected final Computation default_b;
+      // TODO: implement
+      final Computation lambda_function = null;
+      final Computation collection_in_b = null;
+      final Computation default_b = null;
+      final Computation collection = null;
+      final Computation default_a = null;
+      final List<Computation> extra_params = null;
 
-   /***************************************************************************/
-   /**** PROTECTED ************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   protected IndexedMerge
-   (
-      final Origin origin,
-      final Computation lambda_function,
-      final Computation collection_in_b,
-      final Computation default_b,
-      final Computation collection,
-      final Computation default_a,
-      final List<Computation> extra_params
-   )
-   {
-      super(origin);
-
-      this.lambda_function = lambda_function;
-      this.collection = collection;
-      this.default_a = default_a;
-      this.collection_in_b = collection_in_b;
-      this.default_b = default_b;
-      this.extra_params = extra_params;
-   }
-
-   /***************************************************************************/
-   /**** PUBLIC ***************************************************************/
-   /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public static IndexedMerge build
-   (
-      final Origin origin,
-      final Computation lambda_function,
-      final Computation collection_in_b,
-      final Computation default_b,
-      final Computation collection,
-      final Computation default_a,
-      final List<Computation> extra_params
-   )
-   throws Throwable
-   {
       final List<Type> types_in;
 
       types_in = new ArrayList<Type>();
@@ -106,7 +67,7 @@ public class IndexedMerge extends GenericInstruction
       }
       else
       {
-         RecurrentChecks.assert_is_a_collection_of(collection, default_a);
+         //RecurrentChecks.assert_is_a_collection_of(collection, default_a);
       }
 
       if (default_b == null)
@@ -115,7 +76,7 @@ public class IndexedMerge extends GenericInstruction
       }
       else
       {
-         RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
+         //RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
       }
 
       types_in.add(Type.INT);
@@ -159,14 +120,45 @@ public class IndexedMerge extends GenericInstruction
          );
    }
 
-   /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final InstructionVisitor iv)
-   throws Throwable
+   /***************************************************************************/
+   /**** MEMBERS **************************************************************/
+   /***************************************************************************/
+   protected final List<Computation> extra_params;
+   protected final Computation lambda_function;
+   protected final Computation collection;
+   protected final Computation default_a;
+   protected final Computation collection_in_b;
+   protected final Computation default_b;
+
+   /***************************************************************************/
+   /**** PROTECTED ************************************************************/
+   /***************************************************************************/
+   /**** Constructors *********************************************************/
+   protected IndexedMerge
+   (
+      final Origin origin,
+      final Computation lambda_function,
+      final Computation collection_in_b,
+      final Computation default_b,
+      final Computation collection,
+      final Computation default_a,
+      final List<Computation> extra_params
+   )
    {
-      iv.visit_indexed_merge(this);
+      super(origin);
+
+      this.lambda_function = lambda_function;
+      this.collection = collection;
+      this.default_a = default_a;
+      this.collection_in_b = collection_in_b;
+      this.default_b = default_b;
+      this.extra_params = extra_params;
    }
 
+   /***************************************************************************/
+   /**** PUBLIC ***************************************************************/
+   /***************************************************************************/
+   /**** Accessors ************************************************************/
    public Computation get_lambda_function ()
    {
       return lambda_function;

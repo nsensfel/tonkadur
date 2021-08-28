@@ -8,15 +8,6 @@ public interface InstructionVisitor
    public void visit_assert (final Assert n)
    throws Throwable;
 
-   public void visit_break (final Break n)
-   throws Throwable;
-
-   public void visit_end (final End n)
-   throws Throwable;
-
-   public void visit_done (final Done n)
-   throws Throwable;
-
    public void visit_while (final While n)
    throws Throwable;
 
@@ -68,16 +59,7 @@ public interface InstructionVisitor
    public void visit_sequence_jump (final SequenceJump n)
    throws Throwable;
 
-   public void visit_sequence_variable_call (final SequenceVariableCall n)
-   throws Throwable;
-
-   public void visit_sequence_variable_jump (final SequenceVariableJump n)
-   throws Throwable;
-
    public void visit_local_variable (final LocalVariable n)
-   throws Throwable;
-
-   public void visit_set_value (final SetValue n)
    throws Throwable;
 
    public void visit_set_fields (final SetFields n)

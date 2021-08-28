@@ -19,6 +19,8 @@ import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class Merge extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
@@ -27,12 +29,14 @@ public class Merge extends GenericInstruction
 
       aliases = new ArrayList<String>();
 
-      aliases.add("list:add_element_at");
-      aliases.add("list:addelementat");
-      aliases.add("list:addElementAt");
-      aliases.add("list:add_at");
-      aliases.add("list:addat");
-      aliases.add("list:addAt");
+      aliases.add("list:merge");
+      aliases.add("list:safe_merge");
+      aliases.add("list:safemerge");
+      aliases.add("list:safeMerge");
+      aliases.add("set:merge");
+      aliases.add("set:safe_merge");
+      aliases.add("set:safemerge");
+      aliases.add("set:safeMerge");
 
       return aliases;
    }
@@ -40,11 +44,76 @@ public class Merge extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
    {
+      // TODO: implement
+      final Computation lambda_function = null;
+      final Computation collection_in_b = null;
+      final Computation default_b = null;
+      final Computation collection = null;
+      final Computation default_a = null;
+      final List<Computation> extra_params = null;
+
+      final List<Type> types_in;
+
+      types_in = new ArrayList<Type>();
+
+      if (default_a == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection);
+      }
+      else
+      {
+         //RecurrentChecks.assert_is_a_collection_of(collection, default_a);
+      }
+
+      if (default_b == null)
+      {
+         RecurrentChecks.assert_is_a_collection(collection_in_b);
+      }
+      else
+      {
+         //RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
+      }
+
+      types_in.add
+      (
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
+
+      types_in.add
+      (
+         ((CollectionType) collection_in_b.get_type()).get_content_type()
+      );
+
+      for (final Computation c: extra_params)
+      {
+         types_in.add(c.get_type());
+      }
+
+      RecurrentChecks.assert_lambda_matches_types
+      (
+         lambda_function,
+         ((CollectionType) collection.get_type()).get_content_type(),
+         types_in
+      );
+
+      return
+         new Merge
+         (
+            origin,
+            lambda_function,
+            collection_in_b,
+            default_b,
+            collection,
+            default_a,
+            extra_params
+         );
+   }
+
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
@@ -83,84 +152,7 @@ public class Merge extends GenericInstruction
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-   /**** Constructors *********************************************************/
-   public static Merge build
-   (
-      final Origin origin,
-      final Computation lambda_function,
-      final Computation collection_in_b,
-      final Computation default_b,
-      final Computation collection,
-      final Computation default_a,
-      final List<Computation> extra_params
-   )
-   throws Throwable
-   {
-      final List<Type> types_in;
-
-      types_in = new ArrayList<Type>();
-
-      if (default_a == null)
-      {
-         RecurrentChecks.assert_is_a_collection(collection);
-      }
-      else
-      {
-         RecurrentChecks.assert_is_a_collection_of(collection, default_a);
-      }
-
-      if (default_b == null)
-      {
-         RecurrentChecks.assert_is_a_collection(collection_in_b);
-      }
-      else
-      {
-         RecurrentChecks.assert_is_a_collection_of(collection_in_b, default_b);
-      }
-
-      types_in.add
-      (
-         ((CollectionType) collection.get_type()).get_content_type()
-      );
-
-      types_in.add
-      (
-         ((CollectionType) collection_in_b.get_type()).get_content_type()
-      );
-
-      for (final Computation c: extra_params)
-      {
-         types_in.add(c.get_type());
-      }
-
-      RecurrentChecks.assert_lambda_matches_types
-      (
-         lambda_function,
-         ((CollectionType) collection.get_type()).get_content_type(),
-         types_in
-      );
-
-      return
-         new Merge
-         (
-            origin,
-            lambda_function,
-            collection_in_b,
-            default_b,
-            collection,
-            default_a,
-            extra_params
-         );
-   }
-
    /**** Accessors ************************************************************/
-   @Override
-   public void get_visited_by (final InstructionVisitor iv)
-   throws Throwable
-   {
-      iv.visit_merge(this);
-   }
-
    public Computation get_lambda_function ()
    {
       return lambda_function;

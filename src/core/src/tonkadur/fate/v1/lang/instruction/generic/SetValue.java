@@ -12,6 +12,8 @@ import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.instruction.GenericInstruction;
+
 public class SetValue extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
@@ -34,7 +36,7 @@ public class SetValue extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String alias,
+      final String _alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -42,9 +44,24 @@ public class SetValue extends GenericInstruction
       final Computation reference;
       final Computation value;
 
+      if (call_parameters.size() != 2)
+      {
+         // TODO: Error.
+         System.err.print
+         (
+            "[E] Wrong number of arguments at "
+            + origin.toString()
+         );
+
+         return null;
+      }
+
+      reference = call_parameters.get(0);
+      value = call_parameters.get(1);
+
       reference.expect_non_string();
 
-      RecurrentChecks.propagate_expected_type
+      RecurrentChecks.handle_expected_type_propagation
       (
          value,
          reference.get_type()

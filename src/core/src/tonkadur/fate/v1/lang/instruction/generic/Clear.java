@@ -8,6 +8,7 @@ import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 import tonkadur.fate.v1.lang.instruction.GenericInstruction;

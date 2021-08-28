@@ -27,7 +27,13 @@ public class MergeComputation extends GenericComputation
       aliases = new ArrayList<String>();
 
       aliases.add("list:merge");
+      aliases.add("list:safe_merge");
+      aliases.add("list:safemerge");
+      aliases.add("list:safeMerge");
       aliases.add("set:merge");
+      aliases.add("set:safe_merge");
+      aliases.add("set:safemerge");
+      aliases.add("set:safeMerge");
 
       return aliases;
    }
