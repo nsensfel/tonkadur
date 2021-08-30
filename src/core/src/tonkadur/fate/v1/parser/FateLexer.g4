@@ -19,8 +19,6 @@ IMP_MARKER: IMP;
 FATE_VERSION_KW: L_PAREN 'fate'US'version' SEP+;
 
 
-
-
 DECLARE_ALIAS_TYPE_KW:
    L_PAREN
       ((('declare'|('def''ine'?))US(('sub'|'alias')US)?'type')|'typedef')
@@ -58,18 +56,11 @@ DECLARE_LOCAL_VARIABLE_KW: L_PAREN 'local' SEP+;
 
 
 
-
-DICT_KW: L_PAREN 'dict'('ionary'?) SEP+;
-LIST_KW: L_PAREN 'list' SEP+;
-
+VARIABLE_KW: L_PAREN ('variable'|'var') SEP+;
 
 ENABLE_TEXT_EFFECT_KW: L_PAREN 'text'US'effect' SEP+;
 
-NEWLINE_KW: L_PAREN 'newline' SEP* R_PAREN;
 TEXT_KW: L_PAREN 'text' SEP+;
-
-
-CONS_KW: L_PAREN 'cons' SEP+;
 
 COND_KW: L_PAREN 'cond' SEP+;
 DO_WHILE_KW: L_PAREN 'do'US'while' SEP+;
@@ -77,13 +68,10 @@ FOR_KW: L_PAREN 'for' SEP+;
 FOR_EACH_KW: L_PAREN 'for'US'each' SEP+;
 WHILE_KW: L_PAREN 'while' SEP+;
 SWITCH_KW: L_PAREN 'switch' SEP+;
-IMP_BREAK_KW: L_PAREN 'break'('!'?) SEP* R_PAREN;
-IMP_CONTINUE_KW: L_PAREN 'continue'('!'?) SEP* R_PAREN;
 
-
+// FIXME: this hides generic if_else and if.
 IF_ELSE_KW: L_PAREN 'if'US'else' SEP+;
 IF_KW: L_PAREN 'if' SEP+;
-
 
 
 STRING_KW: L_PAREN 'string' SEP+;
@@ -100,10 +88,9 @@ IGNORE_ERROR_KW: L_PAREN 'ignore'US('error'|'warning') SEP+;
 
 
 
-EXTENSION_FIRST_LEVEL_KW: L_PAREN '@';
-EXTRA_INSTRUCTION_KW: L_PAREN '#';
-EXTRA_COMPUTATION_KW: L_PAREN '$';
-
+//EXTENSION_FIRST_LEVEL_KW: L_PAREN '@';
+//EXTRA_INSTRUCTION_KW: L_PAREN '#';
+//EXTRA_COMPUTATION_KW: L_PAREN '$';
 
 
 FIELD_ACCESS_KW: L_PAREN 'struct:get'(US'field')? SEP+;
@@ -123,30 +110,10 @@ PROMPT_INTEGER_KW: L_PAREN 'prompt'US'int''eger'?'!' SEP+;
 
 
 LET_KW: L_PAREN 'let' SEP+;
-REF_KW:
-   L_PAREN
-      (
-         ((('ref''erence'?)|'ptr'|'pointer')(US'to')?)
-         |('addr''ess'?(US'of')?)
-      )
-   SEP+;
-
-VARIABLE_KW: L_PAREN 'var''iable'? SEP+;
-
 
 LAMBDA_KW: L_PAREN 'lambda' SEP+;
 
 SEQUENCE_KW: L_PAREN 'seq''uence'? SEP+;
-DONE_KW: L_PAREN 'done''!'? SEP* R_PAREN;
-VISIT_KW:
-   L_PAREN ('call'|'visit')(US(('seq''uence'?)|('proc''edure'?)))?'!' SEP+;
-CONTINUE_AS_KW:
-   L_PAREN
-      (('continue'US('as'|'to'|'with'))|('jump'(US'to')?)|('go'US'to')|'exec')
-      (US(('seq''uence'?)|('proc''edure'?)))?
-      '!'
-   SEP+;
-END_KW: L_PAREN 'end'('!'?) SEP* R_PAREN;
 
 
 fragment IDENTIFIER_FRAG: ~([ \t\r\n()]|'!');

@@ -95,9 +95,13 @@ public abstract class GenericInstruction extends Instruction
             (
                "[E] Unknown Generic Fate Instruction '"
                + name
-               + "'."
+               + "' at "
+               + origin
+               + "."
             );
       }
+
+      System.out.println("Resolving GenericInstruction " + name + "...");
 
       return
          (Instruction) computation_class.getDeclaredMethod

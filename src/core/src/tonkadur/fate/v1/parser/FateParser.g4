@@ -42,6 +42,8 @@ options
    import tonkadur.fate.v1.lang.meta.*;
    import tonkadur.fate.v1.lang.type.*;
    import tonkadur.fate.v1.lang.computation.*;
+
+   import tonkadur.fate.v1.lang.instruction.generic.SetValue;
 }
 
 @members
@@ -931,7 +933,7 @@ returns [Instruction result]
                ($L_PAREN.getLine()),
                ($L_PAREN.getCharPositionInLine())
             ),
-            ($WORD.text),
+            ($WORD.text).substring(0, (($WORD.text).length() - 1)),
             ($maybe_computation_list.result)
          );
    }
@@ -1480,15 +1482,15 @@ returns [Computation result]
 {
 }
 :
-   computation_list
+   computation_list_with_explicit_spaces
    {
       // convert all computations to text.
       // return text node.
       $result =
          Paragraph.build
          (
-            $computation_list.result.get(0).get_origin(),
-            $computation_list.result
+            $computation_list_with_explicit_spaces.result.get(0).get_origin(),
+            $computation_list_with_explicit_spaces.result
          );
    }
 ;
@@ -1744,13 +1746,13 @@ returns [List<Instruction> result]
             SetValue.build
             (
                origin,
-               ($computation.result),
                VariableFromWord.generate
                (
                   PARSER,
                   origin,
                   var_name
-               )
+               ),
+               ($computation.result)
             )
          );
 
@@ -1835,8 +1837,8 @@ returns [List<Instruction> result]
             SetValue.build
             (
                origin,
-               ($computation.result),
-               VariableFromWord.generate(PARSER, origin, var_name)
+               VariableFromWord.generate(PARSER, origin, var_name),
+               ($computation.result)
             )
          );
 
@@ -2262,6 +2264,36 @@ returns [Computation result]
             ($maybe_computation_list.result)
          );
    }
+
+   | IF_KW maybe_computation_list WS* R_PAREN
+   {
+      $result =
+         GenericComputation.build
+         (
+            PARSER.get_origin_at
+            (
+               ($IF_KW.getLine()),
+               ($IF_KW.getCharPositionInLine())
+            ),
+            ($IF_KW.text).substring(1),
+            ($maybe_computation_list.result)
+         );
+   }
+
+   | IF_ELSE_KW maybe_computation_list WS* R_PAREN
+   {
+      $result =
+         GenericComputation.build
+         (
+            PARSER.get_origin_at
+            (
+               ($IF_ELSE_KW.getLine()),
+               ($IF_ELSE_KW.getCharPositionInLine())
+            ),
+            ($IF_ELSE_KW.text).substring(1),
+            ($maybe_computation_list.result)
+         );
+   }
 ;
 catch [final Throwable e]
 {
@@ -2374,6 +2406,47 @@ returns [List<Computation> result]
       ($result).add(($computation.result));
    }
    (WS+
+      computation
+      {
+         ($result).add(($computation.result));
+      }
+   )*
+   {
+   }
+;
+catch [final Throwable e]
+{
+   PARSER.handle_error(e);
+}
+
+computation_list_with_explicit_spaces
+returns [List<Computation> result]
+@init
+{
+   $result = new ArrayList<Computation>();
+}
+:
+   computation
+   {
+      ($result).add(($computation.result));
+   }
+   (
+      (WS+
+         {
+            ($result).add
+            (
+               Constant.build_string
+               (
+                  PARSER.get_origin_at
+                  (
+                     ($WS.getLine()),
+                     ($WS.getCharPositionInLine())
+                  ),
+                  " "
+               )
+            );
+         }
+      )*
       computation
       {
          ($result).add(($computation.result));

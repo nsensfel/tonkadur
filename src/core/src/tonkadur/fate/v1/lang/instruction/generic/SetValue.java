@@ -36,29 +36,11 @@ public class SetValue extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
-      final List<Computation> call_parameters
+      final Computation reference,
+      final Computation value
    )
    throws Throwable
    {
-      final Computation reference;
-      final Computation value;
-
-      if (call_parameters.size() != 2)
-      {
-         // TODO: Error.
-         System.err.print
-         (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
-         );
-
-         return null;
-      }
-
-      reference = call_parameters.get(0);
-      value = call_parameters.get(1);
-
       reference.expect_non_string();
 
       RecurrentChecks.handle_expected_type_propagation
@@ -72,6 +54,29 @@ public class SetValue extends GenericInstruction
       reference.use_as_reference();
 
       return new SetValue(origin, value, reference);
+   }
+
+   public static Instruction build
+   (
+      final Origin origin,
+      final String _alias,
+      final List<Computation> call_parameters
+   )
+   throws Throwable
+   {
+      if (call_parameters.size() != 2)
+      {
+         // TODO: Error.
+         System.err.print
+         (
+            "[E] Wrong number of arguments at "
+            + origin.toString()
+         );
+
+         return null;
+      }
+
+      return build(origin, call_parameters.get(0), call_parameters.get(1));
    }
 
    /***************************************************************************/

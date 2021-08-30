@@ -94,7 +94,9 @@ public abstract class GenericComputation extends Computation
             (
                "[E] Unknown Generic Fate Computation '"
                + name
-               + "'."
+               + "' at "
+               + origin
+               + "."
             );
       }
 

@@ -2,26 +2,25 @@
 
 (global string test_name)
 
-(let! test_name TRIVIAL)
+(set! test_name TRIVIAL)
 
-;;(global int test)
+(global int test)
 
+(assert! (= 1 1) [FAILED] (var test_name) Executing dead code 0.)
 
-;;(assert! (= 1 1) [FAILED] (var test_name) Executing dead code 0.)
+(if (= 1 2)
+   (assert! (= 1 2) [FAILED] (var test_name) Executing dead code 0.)
+)
 
-;;(if (= 1 2)
-;;   (assert! (= 1 2) [FAILED] (var test_name) Executing dead code 0.)
-;;)
+(ifelse (= 1 2)
+   (assert! (= 1 2) [FAILED] (var test_name) Executing dead code 1.)
+   (set! test 1)
+)
 
-;;(ifelse (= 1 2)
-;;   (assert! (= 1 2) [FAILED] (var test_name) Executing dead code 1.)
-;;   (set! test 1)
-;;)
+(assert! (= (var test) 1) [FAILED] (var test_name) ignored valid branch 0.)
 
-;;(assert! (= (var test) 0) [FAILED] (var test_name) ignored valid branch 0.)
+(assert! (= (min 5 -1 2 3 1 4) -1) [FAILED] (var test_name) min op)
 
-;;(assert! (= (min 5 -1 2 3 1 4) -1) [FAILED] (var test_name) min op)
+[COMPLETED] (var test_name)
 
-;;[COMPLETED] (var test_name)
-
-;;(end!)
+(end!)

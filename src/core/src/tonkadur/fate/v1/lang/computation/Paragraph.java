@@ -32,7 +32,7 @@ public class Paragraph extends Computation
    )
    throws Throwable
    {
-      for (int i = content.size(); i > 0; i--)
+      for (int i = content.size() - 1; i >= 0; i--)
       {
          final Computation c;
 
