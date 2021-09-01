@@ -3,7 +3,7 @@ package tonkadur.wyrd.v1.compiler.fate.v1.instruction.generic;
 import java.util.List;
 import java.util.ArrayList;
 
-import tonkadur.fate.v1.lang.instruction.generic.Merge;
+import tonkadur.fate.v1.lang.instruction.generic.IndexedSafeMerge;
 
 import tonkadur.wyrd.v1.compiler.fate.v1.Compiler;
 import tonkadur.wyrd.v1.compiler.fate.v1.ComputationCompiler;
@@ -16,14 +16,14 @@ import tonkadur.wyrd.v1.lang.instruction.SetValue;
 
 import tonkadur.wyrd.v1.compiler.fate.v1.instruction.GenericInstructionCompiler;
 
-public class MergeCompiler extends GenericInstructionCompiler
+public class IndexedSafeMergeCompiler extends GenericInstructionCompiler
 {
    public static Class get_target_class ()
    {
-      return Merge.class;
+      return IndexedSafeMerge.class;
    }
 
-   public MergeCompiler (final Compiler compiler)
+   public IndexedSafeMergeCompiler (final Compiler compiler)
    {
       super(compiler);
    }
@@ -34,19 +34,22 @@ public class MergeCompiler extends GenericInstructionCompiler
    )
    throws Throwable
    {
-      final Merge source;
+      final IndexedSafeMerge source;
       final Register holder;
       final ComputationCompiler lambda_cc;
+      final ComputationCompiler main_default_cc, secondary_default_cc;
       final List<Computation> params;
       final List<ComputationCompiler> param_cc_list;
       final ComputationCompiler main_collection_cc, secondary_collection_cc;
 
-      source = (Merge) instruction;
+      source = (IndexedSafeMerge) instruction;
 
       params = new ArrayList<Computation>();
       param_cc_list = new ArrayList<ComputationCompiler>();
 
       lambda_cc = new ComputationCompiler(compiler);
+      main_default_cc = new ComputationCompiler(compiler);
+      secondary_default_cc = new ComputationCompiler(compiler);
 
       source.get_lambda_function().get_visited_by(lambda_cc);
 
@@ -62,6 +65,24 @@ public class MergeCompiler extends GenericInstructionCompiler
       if (main_collection_cc.has_init())
       {
          result.add(main_collection_cc.get_init());
+      }
+
+      source.get_main_default().get_visited_by(main_default_cc);
+
+      main_default_cc.generate_address();
+
+      if (main_default_cc.has_init())
+      {
+         result.add(main_default_cc.get_init());
+      }
+
+      source.get_secondary_default().get_visited_by(secondary_default_cc);
+
+      secondary_default_cc.generate_address();
+
+      if (secondary_default_cc.has_init())
+      {
+         result.add(secondary_default_cc.get_init());
       }
 
       holder =
@@ -126,12 +147,14 @@ public class MergeCompiler extends GenericInstructionCompiler
 
       result.add
       (
-         tonkadur.wyrd.v1.compiler.util.MergeLambda.generate
+         tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda.generate
          (
             compiler.registers(),
             compiler.assembler(),
             lambda_cc.get_computation(),
+            secondary_default_cc.get_computation(),
             secondary_collection_cc.get_address(),
+            main_default_cc.get_computation(),
             holder.get_address(),
             main_collection_cc.get_address(),
             (
@@ -144,6 +167,8 @@ public class MergeCompiler extends GenericInstructionCompiler
 
       main_collection_cc.release_registers(result);
       secondary_collection_cc.release_registers(result);
+      main_default_cc.release_registers(result);
+      secondary_default_cc.release_registers(result);
       compiler.registers().release(holder, result);
 
       for (final ComputationCompiler cc: param_cc_list)

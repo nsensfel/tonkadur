@@ -41,33 +41,45 @@ public class PartitionComputation extends GenericComputation
    )
    throws Throwable
    {
-      // TODO: implement
-      final Computation lambda_function = null;
-      final Computation collection = null;
-      final List<Computation> extra_params = null;
+      final Computation lambda_function;
+      final Computation collection;
+      final List<Computation> extra_params;
       final Type type;
-      final List<Type> target_signature;
 
-      target_signature = new ArrayList<Type>();
-
-      RecurrentChecks.assert_is_a_collection(collection);
-
-      target_signature.add
-      (
-         ((CollectionType) collection.get_type()).get_content_type()
-      );
-
-      for (final Computation c: extra_params)
+      if (call_parameters.size() < 2)
       {
-         target_signature.add(c.get_type());
+         // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
+
+         return null;
       }
 
-      RecurrentChecks.assert_lambda_matches_types
+      lambda_function = call_parameters.get(0);
+      collection = call_parameters.get(1);
+      extra_params = call_parameters.subList(2, call_parameters.size());
+
+      collection.expect_non_string();
+
+      if (alias.startsWith("set:"))
+      {
+         RecurrentChecks.assert_is_a_set(collection);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_list(collection);
+      }
+
+      RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         Type.BOOL,
-         target_signature
+         Collections.singletonList
+         (
+            ((CollectionType) collection.get_type()).get_content_type()
+         ),
+         extra_params
       );
+
+      RecurrentChecks.assert_return_type_is(lambda_function, Type.BOOL);
 
       type =
          new ConsType

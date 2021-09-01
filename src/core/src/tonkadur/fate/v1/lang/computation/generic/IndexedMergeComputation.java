@@ -35,24 +35,6 @@ public class IndexedMergeComputation extends GenericComputation
       aliases.add("set:indexedMerge");
       aliases.add("set:imerge");
 
-      aliases.add("list:indexed_safe_merge");
-      aliases.add("list:indexedsafemerge");
-      aliases.add("list:indexedSafeMerge");
-      aliases.add("list:isafemerge");
-      aliases.add("list:safe_indexed_merge");
-      aliases.add("list:safeindexedmerge");
-      aliases.add("list:safeIndexedMerge");
-      aliases.add("list:safeimerge");
-
-      aliases.add("set:indexed_safe_merge");
-      aliases.add("set:indexedsafemerge");
-      aliases.add("set:indexedSafeMerge");
-      aliases.add("set:isafemerge");
-      aliases.add("set:safe_indexed_merge");
-      aliases.add("set:safeindexedmerge");
-      aliases.add("set:safeIndexedMerge");
-      aliases.add("set:safeimerge");
-
       return aliases;
    }
 
@@ -64,81 +46,68 @@ public class IndexedMergeComputation extends GenericComputation
    )
    throws Throwable
    {
-      // TODO: implement
-      final Computation lambda_function = null;
-      final Computation collection_in_a = null;
-      final Computation default_a = null;
-      final Computation collection_in_b = null;
-      final Computation default_b = null;
-      final boolean to_set = false;
-      final List<Computation> extra_params = null;
-      final List<Type> types_in;
+      final Computation lambda_function;
+      final Computation collection_a;
+      final Computation collection_b;
+      final List<Computation> extra_params;
+      final List<Type> base_param_types;
+      final boolean to_set;
 
-      types_in = new ArrayList<Type>();
+      base_param_types = new ArrayList<Type>();
 
-      if (default_a == null)
+      if (call_parameters.size() < 3)
       {
-         RecurrentChecks.assert_is_a_collection(collection_in_a);
-      }
-      else
-      {
-         RecurrentChecks.propagate_expected_types_and_assert_is_a_collection_of
-         (
-            collection_in_a,
-            default_a
-         );
+         // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
+
+         return null;
       }
 
-      if (default_b == null)
-      {
-         RecurrentChecks.assert_is_a_collection(collection_in_b);
-      }
-      else
-      {
-         RecurrentChecks.propagate_expected_types_and_assert_is_a_collection_of
-         (
-            collection_in_b,
-            default_b
-         );
-      }
+      lambda_function = call_parameters.get(0);
+      collection_a = call_parameters.get(1);
+      collection_b = call_parameters.get(2);
+      extra_params = call_parameters.subList(3, call_parameters.size());
 
-      types_in.add(Type.INT);
+      collection_a.expect_non_string();
+      collection_b.expect_non_string();
 
-      types_in.add
+      base_param_types.add(Type.INT);
+
+      base_param_types.add
       (
-         ((CollectionType) collection_in_a.get_type()).get_content_type()
+         ((CollectionType) collection_a.get_type()).get_content_type()
       );
 
-      if (default_b != null)
-      {
-         /*
-          * Safe-Mode: two indices.
-          * Unsafe-Mode: only one index, since out-of-bound means stopping.
-          */
-         types_in.add(Type.INT);
-      }
-
-      types_in.add
+      base_param_types.add
       (
-         ((CollectionType) collection_in_b.get_type()).get_content_type()
+         ((CollectionType) collection_b.get_type()).get_content_type()
       );
 
-      for (final Computation c: extra_params)
-      {
-         types_in.add(c.get_type());
-      }
+      RecurrentChecks.propagate_expected_types_and_assert_is_lambda
+      (
+         lambda_function,
+         base_param_types,
+         extra_params
+      );
 
-      RecurrentChecks.assert_lambda_matches_types(lambda_function, types_in);
+      to_set = alias.startsWith("set:");
+
+      if (to_set)
+      {
+         RecurrentChecks.assert_can_be_used_in_set
+         (
+            lambda_function.get_origin().with_hint("returned type"),
+            ((LambdaType) lambda_function.get_type()).get_return_type()
+         );
+      }
 
       return
          new IndexedMergeComputation
          (
             origin,
             lambda_function,
-            collection_in_a,
-            default_a,
-            collection_in_b,
-            default_b,
+            collection_a,
+            collection_b,
             to_set,
             extra_params,
             CollectionType.build
@@ -157,9 +126,7 @@ public class IndexedMergeComputation extends GenericComputation
    protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection_in_a;
-   protected final Computation default_a;
    protected final Computation collection_in_b;
-   protected final Computation default_b;
    protected final boolean to_set;
 
    /***************************************************************************/
@@ -171,9 +138,7 @@ public class IndexedMergeComputation extends GenericComputation
       final Origin origin,
       final Computation lambda_function,
       final Computation collection_in_a,
-      final Computation default_a,
       final Computation collection_in_b,
-      final Computation default_b,
       final boolean to_set,
       final List<Computation> extra_params,
       final Type output_type
@@ -183,9 +148,7 @@ public class IndexedMergeComputation extends GenericComputation
 
       this.lambda_function = lambda_function;
       this.collection_in_a = collection_in_a;
-      this.default_a = default_a;
       this.collection_in_b = collection_in_b;
-      this.default_b = default_b;
       this.to_set = to_set;
       this.extra_params = extra_params;
    }
@@ -204,19 +167,9 @@ public class IndexedMergeComputation extends GenericComputation
       return collection_in_a;
    }
 
-   public Computation get_default_a ()
-   {
-      return default_a;
-   }
-
    public Computation get_collection_in_b ()
    {
       return collection_in_b;
-   }
-
-   public Computation get_default_b ()
-   {
-      return default_b;
    }
 
    public List<Computation> get_extra_parameters ()
@@ -249,27 +202,7 @@ public class IndexedMergeComputation extends GenericComputation
       sb.append(collection_in_a.toString());
       sb.append(" ");
 
-      if (default_a == null)
-      {
-         sb.append("null");
-      }
-      else
-      {
-         sb.append(default_a.toString());
-      }
-
-      sb.append(" ");
       sb.append(collection_in_b.toString());
-      sb.append(" ");
-
-      if (default_b == null)
-      {
-         sb.append("null");
-      }
-      else
-      {
-         sb.append(default_b.toString());
-      }
 
       for (final Computation c: extra_params)
       {

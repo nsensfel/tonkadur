@@ -28,270 +28,6 @@ public class IndexedMergeCompiler extends GenericInstructionCompiler
       super(compiler);
    }
 
-   private void compile_indexed_merge_with_defaults (final IndexedMerge source)
-   throws Throwable
-   {
-      final Register holder;
-      final ComputationCompiler lambda_cc;
-      final ComputationCompiler main_default_cc, secondary_default_cc;
-      final List<Computation> params;
-      final List<ComputationCompiler> param_cc_list;
-      final ComputationCompiler main_collection_cc, secondary_collection_cc;
-
-      params = new ArrayList<Computation>();
-      param_cc_list = new ArrayList<ComputationCompiler>();
-
-      lambda_cc = new ComputationCompiler(compiler);
-      main_default_cc = new ComputationCompiler(compiler);
-      secondary_default_cc = new ComputationCompiler(compiler);
-
-      source.get_lambda_function().get_visited_by(lambda_cc);
-
-      if (lambda_cc.has_init())
-      {
-         result.add(lambda_cc.get_init());
-      }
-
-      main_collection_cc = new ComputationCompiler(compiler);
-
-      source.get_main_collection().get_visited_by(main_collection_cc);
-
-      if (main_collection_cc.has_init())
-      {
-         result.add(main_collection_cc.get_init());
-      }
-
-      source.get_main_default().get_visited_by(main_default_cc);
-
-      main_default_cc.generate_address();
-
-      if (main_default_cc.has_init())
-      {
-         result.add(main_default_cc.get_init());
-      }
-
-      source.get_secondary_default().get_visited_by(secondary_default_cc);
-
-      secondary_default_cc.generate_address();
-
-      if (secondary_default_cc.has_init())
-      {
-         result.add(secondary_default_cc.get_init());
-      }
-
-      holder =
-         compiler.registers().reserve
-         (
-            main_collection_cc.get_computation().get_type(),
-            result
-         );
-
-      result.add
-      (
-         new SetValue
-         (
-            holder.get_address(),
-            main_collection_cc.get_computation()
-         )
-      );
-
-      result.add
-      (
-         tonkadur.wyrd.v1.compiler.util.Clear.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            main_collection_cc.get_address()
-         )
-      );
-
-      secondary_collection_cc = new ComputationCompiler(compiler);
-
-      source.get_secondary_collection().get_visited_by(secondary_collection_cc);
-
-      if (secondary_collection_cc.has_init())
-      {
-         result.add(secondary_collection_cc.get_init());
-      }
-
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation p:
-            source.get_extra_parameters()
-      )
-      {
-         final ComputationCompiler param_cc;
-
-         param_cc = new ComputationCompiler(compiler);
-
-         p.get_visited_by(param_cc);
-
-         // Let's not re-compute the parameters on every iteration.
-         param_cc.generate_address();
-
-         if (param_cc.has_init())
-         {
-            result.add(param_cc.get_init());
-         }
-
-         param_cc_list.add(param_cc);
-
-         params.add(param_cc.get_computation());
-      }
-
-      result.add
-      (
-         tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            lambda_cc.get_computation(),
-            secondary_default_cc.get_computation(),
-            secondary_collection_cc.get_address(),
-            main_default_cc.get_computation(),
-            holder.get_address(),
-            main_collection_cc.get_address(),
-            (
-               (tonkadur.fate.v1.lang.type.CollectionType)
-               source.get_main_collection().get_type()
-            ).is_set(),
-            params
-         )
-      );
-
-      main_collection_cc.release_registers(result);
-      secondary_collection_cc.release_registers(result);
-      main_default_cc.release_registers(result);
-      secondary_default_cc.release_registers(result);
-      compiler.registers().release(holder, result);
-
-      for (final ComputationCompiler cc: param_cc_list)
-      {
-         cc.release_registers(result);
-      }
-   }
-
-   private void compile_indexed_merge_without_defaults
-   (
-      final IndexedMerge source
-   )
-   throws Throwable
-   {
-      final Register holder;
-      final ComputationCompiler lambda_cc;
-      final List<Computation> params;
-      final List<ComputationCompiler> param_cc_list;
-      final ComputationCompiler main_collection_cc, secondary_collection_cc;
-
-      params = new ArrayList<Computation>();
-      param_cc_list = new ArrayList<ComputationCompiler>();
-
-      lambda_cc = new ComputationCompiler(compiler);
-
-      source.get_lambda_function().get_visited_by(lambda_cc);
-
-      if (lambda_cc.has_init())
-      {
-         result.add(lambda_cc.get_init());
-      }
-
-      main_collection_cc = new ComputationCompiler(compiler);
-
-      source.get_main_collection().get_visited_by(main_collection_cc);
-
-      if (main_collection_cc.has_init())
-      {
-         result.add(main_collection_cc.get_init());
-      }
-
-      holder =
-         compiler.registers().reserve
-         (
-            main_collection_cc.get_computation().get_type(),
-            result
-         );
-
-      result.add
-      (
-         new SetValue
-         (
-            holder.get_address(),
-            main_collection_cc.get_computation()
-         )
-      );
-
-      result.add
-      (
-         tonkadur.wyrd.v1.compiler.util.Clear.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            main_collection_cc.get_address()
-         )
-      );
-
-      secondary_collection_cc = new ComputationCompiler(compiler);
-
-      source.get_secondary_collection().get_visited_by(secondary_collection_cc);
-
-      if (secondary_collection_cc.has_init())
-      {
-         result.add(secondary_collection_cc.get_init());
-      }
-
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation p:
-            source.get_extra_parameters()
-      )
-      {
-         final ComputationCompiler param_cc;
-
-         param_cc = new ComputationCompiler(compiler);
-
-         p.get_visited_by(param_cc);
-
-         // Let's not re-compute the parameters on every iteration.
-         param_cc.generate_address();
-
-         if (param_cc.has_init())
-         {
-            result.add(param_cc.get_init());
-         }
-
-         param_cc_list.add(param_cc);
-
-         params.add(param_cc.get_computation());
-      }
-
-      result.add
-      (
-         tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda.generate
-         (
-            compiler.registers(),
-            compiler.assembler(),
-            lambda_cc.get_computation(),
-            secondary_collection_cc.get_address(),
-            holder.get_address(),
-            main_collection_cc.get_address(),
-            (
-               (tonkadur.fate.v1.lang.type.CollectionType)
-               source.get_main_collection().get_type()
-            ).is_set(),
-            params
-         )
-      );
-
-      main_collection_cc.release_registers(result);
-      secondary_collection_cc.release_registers(result);
-      compiler.registers().release(holder, result);
-
-      for (final ComputationCompiler cc: param_cc_list)
-      {
-         cc.release_registers(result);
-      }
-   }
-
    public void compile
    (
       final tonkadur.fate.v1.lang.instruction.GenericInstruction instruction
@@ -299,16 +35,120 @@ public class IndexedMergeCompiler extends GenericInstructionCompiler
    throws Throwable
    {
       final IndexedMerge source;
+      final Register holder;
+      final ComputationCompiler lambda_cc;
+      final List<Computation> params;
+      final List<ComputationCompiler> param_cc_list;
+      final ComputationCompiler main_collection_cc, secondary_collection_cc;
 
       source = (IndexedMerge) instruction;
 
-      if (source.get_main_default() != null)
+      params = new ArrayList<Computation>();
+      param_cc_list = new ArrayList<ComputationCompiler>();
+
+      lambda_cc = new ComputationCompiler(compiler);
+
+      source.get_lambda_function().get_visited_by(lambda_cc);
+
+      if (lambda_cc.has_init())
       {
-         compile_indexed_merge_with_defaults(source);
+         result.add(lambda_cc.get_init());
       }
-      else
+
+      main_collection_cc = new ComputationCompiler(compiler);
+
+      source.get_main_collection().get_visited_by(main_collection_cc);
+
+      if (main_collection_cc.has_init())
       {
-         compile_indexed_merge_without_defaults(source);
+         result.add(main_collection_cc.get_init());
+      }
+
+      holder =
+         compiler.registers().reserve
+         (
+            main_collection_cc.get_computation().get_type(),
+            result
+         );
+
+      result.add
+      (
+         new SetValue
+         (
+            holder.get_address(),
+            main_collection_cc.get_computation()
+         )
+      );
+
+      result.add
+      (
+         tonkadur.wyrd.v1.compiler.util.Clear.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            main_collection_cc.get_address()
+         )
+      );
+
+      secondary_collection_cc = new ComputationCompiler(compiler);
+
+      source.get_secondary_collection().get_visited_by(secondary_collection_cc);
+
+      if (secondary_collection_cc.has_init())
+      {
+         result.add(secondary_collection_cc.get_init());
+      }
+
+      for
+      (
+         final tonkadur.fate.v1.lang.meta.Computation p:
+            source.get_extra_parameters()
+      )
+      {
+         final ComputationCompiler param_cc;
+
+         param_cc = new ComputationCompiler(compiler);
+
+         p.get_visited_by(param_cc);
+
+         // Let's not re-compute the parameters on every iteration.
+         param_cc.generate_address();
+
+         if (param_cc.has_init())
+         {
+            result.add(param_cc.get_init());
+         }
+
+         param_cc_list.add(param_cc);
+
+         params.add(param_cc.get_computation());
+      }
+
+      result.add
+      (
+         tonkadur.wyrd.v1.compiler.util.IndexedMergeLambda.generate
+         (
+            compiler.registers(),
+            compiler.assembler(),
+            lambda_cc.get_computation(),
+            secondary_collection_cc.get_address(),
+            holder.get_address(),
+            main_collection_cc.get_address(),
+            (
+               (tonkadur.fate.v1.lang.type.CollectionType)
+               source.get_main_collection().get_type()
+            ).is_set(),
+            params
+         )
+      );
+
+      main_collection_cc.release_registers(result);
+      secondary_collection_cc.release_registers(result);
+      compiler.registers().release(holder, result);
+
+      for (final ComputationCompiler cc: param_cc_list)
+      {
+         cc.release_registers(result);
       }
    }
 }

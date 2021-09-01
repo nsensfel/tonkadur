@@ -6,7 +6,13 @@ public class Origin
 
    static
    {
-      BASE_LANGUAGE = new Origin(Context.BASE_LANGUAGE, Location.BASE_LANGUAGE);
+      BASE_LANGUAGE =
+         new Origin
+         (
+            Context.BASE_LANGUAGE,
+            Location.BASE_LANGUAGE,
+            "base language/core feature/mandatory inclusion"
+         );
    }
 
    /***************************************************************************/
@@ -14,6 +20,7 @@ public class Origin
    /***************************************************************************/
    protected final Context context;
    protected final Location location;
+   protected final String hint;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -26,6 +33,19 @@ public class Origin
    {
       this.context = context;
       this.location = location;
+      this.hint = "";
+   }
+
+   public Origin
+   (
+      final Context context,
+      final Location location,
+      final String hint
+   )
+   {
+      this.context = context;
+      this.location = location;
+      this.hint = hint;
    }
 
    public Context get_context ()
@@ -38,6 +58,16 @@ public class Origin
       return location;
    }
 
+   public String get_hint ()
+   {
+      return hint;
+   }
+
+   public Origin with_hint (final String hint)
+   {
+      return new Origin(context.clone(), location.clone(), hint);
+   }
+
    @Override
    public String toString()
    {
@@ -46,12 +76,19 @@ public class Origin
       sb.append(context.toString());
       sb.append(location.toString());
 
+      if (hint.length() > 0)
+      {
+         sb.append("(hint: ");
+         sb.append(get_hint());
+         sb.append(")");
+      }
+
       return sb.toString();
    }
 
    @Override
    public Origin clone ()
    {
-      return new Origin(context.clone(), location.clone());
+      return new Origin(context.clone(), location.clone(), hint);
    }
 }

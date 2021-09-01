@@ -107,6 +107,27 @@ public class RecurrentChecks
       }
    }
 
+   public static void assert_can_be_used_in_set
+   (
+      final Origin o,
+      final Type t
+   )
+   throws ParsingError
+   {
+      if (!Type.COMPARABLE_TYPES.contains(t.get_act_as_type()))
+      {
+         ErrorManager.handle
+         (
+            new InvalidTypeException
+            (
+               o,
+               t,
+               Type.COMPARABLE_TYPES
+            )
+         );
+      }
+   }
+
    public static void assert_is_a_set (final Computation a)
    throws ParsingError
    {
@@ -352,6 +373,49 @@ public class RecurrentChecks
       {
          e.printStackTrace();
          System.exit(-1);
+      }
+   }
+
+   public static void propagate_expected_types_and_assert_is_lambda
+   (
+      final Computation lambda,
+      final List<Type> filled_types,
+      final List<Computation> extra_params
+   )
+   throws ParsingError
+   {
+      final List<Type> lambda_signature;
+      final int extra_params_size;
+
+      lambda.expect_non_string();
+
+      assert_is_a_lambda_function(lambda);
+
+      lambda_signature = ((LambdaType) lambda.get_type()).get_signature();
+
+      extra_params_size = extra_params.size();
+
+      if ((filled_types.size() + extra_params_size) != lambda_signature.size())
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException
+            (
+               lambda.get_origin(),
+               (filled_types.size() + extra_params_size),
+               lambda_signature.size(),
+               lambda_signature.size()
+            )
+         );
+      }
+
+      for (int i = filled_types.size(), j = 0; i < extra_params_size; ++i, ++j)
+      {
+         handle_expected_type_propagation
+         (
+            extra_params.get(j),
+            lambda_signature.get(i)
+         );
       }
    }
 
