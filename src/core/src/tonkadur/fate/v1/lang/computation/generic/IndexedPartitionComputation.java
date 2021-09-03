@@ -47,35 +47,52 @@ public class IndexedPartitionComputation extends GenericComputation
    )
    throws Throwable
    {
-      // TODO: implement
-      final Computation lambda_function = null;
-      final Computation collection = null;
-      final List<Computation> extra_params = null;
+      final Computation lambda_function;
+      final Computation collection;
+      final List<Computation> extra_params;
+      final List<Type> base_param_types;
       final Type type;
-      final List<Type> target_signature;
 
-      target_signature = new ArrayList<Type>();
+      base_param_types = new ArrayList<Type>();
 
-      RecurrentChecks.assert_is_a_collection(collection);
+      if (call_parameters.size() < 2)
+      {
+         // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
 
-      target_signature.add(Type.INT);
+         return null;
+      }
 
-      target_signature.add
+      lambda_function = call_parameters.get(0);
+      collection = call_parameters.get(1);
+      extra_params = call_parameters.subList(2, call_parameters.size());
+
+      collection.expect_non_string();
+
+      if (alias.startsWith("set:"))
+      {
+         RecurrentChecks.assert_is_a_set(collection);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_list(collection);
+      }
+
+      base_param_types.add(Type.INT);
+
+      base_param_types.add
       (
          ((CollectionType) collection.get_type()).get_content_type()
       );
 
-      for (final Computation c: extra_params)
-      {
-         target_signature.add(c.get_type());
-      }
-
-      RecurrentChecks.assert_lambda_matches_types
+      RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         Type.BOOL,
-         target_signature
+         base_param_types,
+         extra_params
       );
+
+      RecurrentChecks.assert_return_type_is(lambda_function, Type.BOOL);
 
       type =
          new ConsType
@@ -85,6 +102,7 @@ public class IndexedPartitionComputation extends GenericComputation
             collection.get_type(),
             "auto generated"
          );
+
 
       return
          new IndexedPartitionComputation

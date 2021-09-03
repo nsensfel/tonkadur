@@ -60,8 +60,12 @@ public class Fold extends GenericComputation
       final Computation collection;
       final boolean is_foldl;
       final List<Computation> extra_params;
-      final List<Type> signature;
-      final List<Type> expected_signature;
+      final List<Type> base_param_types;
+      final Type return_type;
+
+      is_foldl = (alias.contains("foldl") || alias.contains("eft"));
+
+      base_param_types = new ArrayList<Type>();
 
       if (call_parameters.size() < 3)
       {
@@ -74,71 +78,34 @@ public class Fold extends GenericComputation
       lambda_function = call_parameters.get(0);
       initial_value = call_parameters.get(1);
       collection = call_parameters.get(2);
+      extra_params = call_parameters.subList(3, call_parameters.size());
 
       lambda_function.expect_non_string();
       collection.expect_non_string();
 
-      is_foldl = (alias.contains("foldl") || alias.contains("eft"));
+      RecurrentChecks.assert_is_a_lambda_function(lambda_function);
+      RecurrentChecks.assert_is_a_collection(collection);
 
-      if (call_parameters.size() == 3)
-      {
-         extra_params = new ArrayList<Computation>();
-      }
-      else
-      {
-         extra_params = call_parameters.subList(3, call_parameters.size());
-      }
-
-      signature = ((LambdaType) lambda_function.get_type()).get_signature();
-
-      if (signature.size() < 2)
-      {
-         // TODO: Error.
-         System.err.println
-         (
-            "Lambda signature too small at "
-            + lambda_function.get_origin().toString()
-         );
-
-         return null;
-      }
-
-      if (signature.size() > 2)
-      {
-         RecurrentChecks.propagate_expected_types_and_assert_computations_matches_signature
-         (
-            origin,
-            extra_params,
-            signature.subList(2, signature.size())
-         );
-      }
-
-      if (alias.startsWith("set:"))
-      {
-         RecurrentChecks.assert_is_a_set_of(collection, signature.get(0));
-      }
-      else
-      {
-         RecurrentChecks.assert_is_a_list_of(collection, signature.get(0));
-      }
+      return_type = ((LambdaType) lambda_function.get_type()).get_return_type();
 
       RecurrentChecks.handle_expected_type_propagation
       (
          initial_value,
-         signature.get(1)
+         return_type
+      );
+      RecurrentChecks.assert_can_be_used_as(initial_value, return_type);
+
+      base_param_types.add(return_type);
+      base_param_types.add
+      (
+         ((CollectionType) collection.get_type()).get_content_type()
       );
 
-      RecurrentChecks.assert_can_be_used_as
+      RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
-         initial_value,
-         signature.get(1)
-      );
-
-      RecurrentChecks.assert_can_be_used_as
-      (
-         lambda_function.get_origin(),
-         ((LambdaType) lambda_function.get_type()).get_return_type(),
-         initial_value.get_type()
+         lambda_function,
+         base_param_types,
+         extra_params
       );
 
       return
@@ -150,7 +117,7 @@ public class Fold extends GenericComputation
             collection,
             is_foldl,
             extra_params,
-            initial_value.get_type()
+            return_type
          );
    }
 

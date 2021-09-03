@@ -42,7 +42,7 @@ public class LambdaEvaluation extends GenericComputation
    throws Throwable
    {
       final Computation lambda_function;
-      final List<Type> lambda_signature;
+      final List<Computation> parameters;
 
       if (call_parameters.size() < 1)
       {
@@ -53,21 +53,13 @@ public class LambdaEvaluation extends GenericComputation
       }
 
       lambda_function = call_parameters.get(0);
+      parameters = call_parameters.subList(1, call_parameters.size());
 
-      lambda_function.expect_non_string();
-
-      RecurrentChecks.assert_is_a_lambda_function(lambda_function);
-
-      lambda_signature =
-         ((LambdaType) lambda_function.get_type()).get_signature();
-
-      call_parameters.remove(0);
-
-      RecurrentChecks.propagate_expected_types_and_assert_computations_matches_signature
+      RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
-         origin,
-         call_parameters,
-         lambda_signature
+         lambda_function,
+         new ArrayList<Type>(),
+         parameters
       );
 
       return
@@ -75,7 +67,7 @@ public class LambdaEvaluation extends GenericComputation
          (
             origin,
             lambda_function,
-            call_parameters,
+            parameters,
             (((LambdaType) lambda_function.get_type()).get_return_type())
          );
    }

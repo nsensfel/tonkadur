@@ -45,46 +45,65 @@ public class IndexedPartition extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
    {
-      // TODO: implement
-      final Computation lambda_function = null;
-      final Computation collection_in = null;
-      final Computation collection_out = null;
-      final List<Computation> extra_params = null;
+      final Computation lambda_function;
+      final Computation collection_in;
+      final Computation collection_out;
+      final List<Computation> extra_params;
+      final List<Type> base_param_types;
 
-      final List<Type> target_signature;
+      base_param_types = new ArrayList<Type>();
 
-      target_signature = new ArrayList<Type>();
+      if (call_parameters.size() < 3)
+      {
+         // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
 
-      RecurrentChecks.assert_is_a_collection(collection_in);
-      RecurrentChecks.assert_is_a_collection(collection_out);
+         return null;
+      }
+
+      lambda_function = call_parameters.get(0);
+      collection_in = call_parameters.get(1);
+      collection_out = call_parameters.get(2);
+      extra_params = call_parameters.subList(3, call_parameters.size());
+
+      if (alias.startsWith("set:"))
+      {
+         RecurrentChecks.assert_is_a_set(collection_in);
+         RecurrentChecks.assert_is_a_set(collection_out);
+      }
+      else
+      {
+         RecurrentChecks.assert_is_a_list(collection_in);
+         RecurrentChecks.assert_is_a_list(collection_out);
+      }
+
       RecurrentChecks.assert_can_be_used_as
       (
          collection_in,
          collection_out.get_type()
       );
 
-      target_signature.add(Type.INT);
-      target_signature.add
+      base_param_types.add(Type.INT);
+      base_param_types.add
       (
          ((CollectionType) collection_in.get_type()).get_content_type()
       );
 
-      for (final Computation c: extra_params)
-      {
-         target_signature.add(c.get_type());
-      }
-
-      RecurrentChecks.assert_lambda_matches_types
+      RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         Type.BOOL,
-         target_signature
+         base_param_types,
+         extra_params
       );
+
+      RecurrentChecks.assert_return_type_is(lambda_function, Type.BOOL);
+
+      collection_out.use_as_reference();
 
       return
          new IndexedPartition
