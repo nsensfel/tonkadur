@@ -53,7 +53,32 @@ INCLUDE_KW: L_PAREN 'include' SEP+;
 
 DECLARE_LOCAL_VARIABLE_KW: L_PAREN 'local' SEP+;
 
+VISIT_KW:
+   L_PAREN
+   (
+      ('call'|'visit') US ((('seq'|'Seq')'uence'?)|('proc'|'Proc')'edure'?)?
+   )
+   IMP;
 
+CONTINUE_AS_KW:
+   L_PAREN
+   (
+      (
+         'jump'
+         | ('jump' US 'to')
+         | ('jumpTo')
+         | ('continue' US 'as')
+         | ('continueAs')
+         | ('continue' US 'to')
+         | ('continueTo')
+         | ('continue' US 'with')
+         | ('continueWith')
+         | ('go' US 'to')
+         | ('goTo')
+      )
+      (US ((('seq'|'Seq')'uence'?)|('proc'|'Proc')'edure'?))?
+   )
+   IMP;
 
 
 VARIABLE_KW: L_PAREN ('variable'|'var') SEP+;

@@ -19,6 +19,7 @@ import tonkadur.fate.v1.error.IncorrectReturnTypeException;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.LambdaType;
+import tonkadur.fate.v1.lang.type.SequenceType;
 import tonkadur.fate.v1.lang.type.Type;
 
 public class RecurrentChecks
@@ -376,6 +377,54 @@ public class RecurrentChecks
       }
    }
 
+   public static void propagate_expected_types_and_assert_is_sequence
+   (
+      final Computation sequence,
+      final List<Computation> params
+   )
+   throws ParsingError
+   {
+      final List<Type> sequence_signature;
+      final int params_size;
+
+      sequence.expect_non_string();
+
+      assert_is_a_sequence(sequence);
+
+      sequence_signature = ((SequenceType) sequence.get_type()).get_signature();
+
+      params_size = params.size();
+
+      if (params_size != sequence_signature.size())
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException
+            (
+               sequence.get_origin(),
+               params_size,
+               sequence_signature.size(),
+               sequence_signature.size()
+            )
+         );
+      }
+
+      for (int i = 0; i < params_size; ++i)
+      {
+         handle_expected_type_propagation
+         (
+            params.get(i),
+            sequence_signature.get(i)
+         );
+
+         assert_can_be_used_as
+         (
+            params.get(i),
+            sequence_signature.get(i)
+         );
+      }
+   }
+
    public static void propagate_expected_types_and_assert_is_lambda
    (
       final Computation lambda,
@@ -412,6 +461,12 @@ public class RecurrentChecks
       for (int i = filled_types.size(), j = 0; i < extra_params_size; ++i, ++j)
       {
          handle_expected_type_propagation
+         (
+            extra_params.get(j),
+            lambda_signature.get(i)
+         );
+
+         assert_can_be_used_as
          (
             extra_params.get(j),
             lambda_signature.get(i)
@@ -536,6 +591,23 @@ public class RecurrentChecks
                l.get_origin(),
                l.get_type(),
                Collections.singleton(LambdaType.ARCHETYPE)
+            )
+         );
+      }
+   }
+
+   public static void assert_is_a_sequence (final Computation l)
+   throws ParsingError
+   {
+      if (!(l.get_type() instanceof SequenceType))
+      {
+         ErrorManager.handle
+         (
+            new InvalidTypeException
+            (
+               l.get_origin(),
+               l.get_type(),
+               Collections.singleton(SequenceType.ARCHETYPE)
             )
          );
       }

@@ -20,6 +20,7 @@ import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
+import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 import tonkadur.fate.v1.lang.type.Type;
 
@@ -114,10 +115,15 @@ public class Sequence extends DeclaredEntity
 
       while (param_it.hasNext())
       {
+         final Computation param;
          final Type param_type, sign_type;
 
-         param_type = param_it.next().get_type();
+         param = param_it.next();
          sign_type = sign_it.next().get_type();
+
+         RecurrentChecks.handle_expected_type_propagation(param, sign_type);
+
+         param_type = param.get_type();
 
          if (param_type.can_be_used_as(sign_type))
          {

@@ -69,42 +69,24 @@ public class SequenceVariableCall extends GenericInstruction
    )
    throws Throwable
    {
-      // TODO: implement
-      // Quite a troublesome one, since we need to handle:
-      // * If first argument is a string, this is a reference to a sequence.
-      // * In that case, the expected type of each other parameter is to be
-      //   determined in the future.
-      final Computation sequence = null;
-      final List<Computation> parameters = null;
-      final List<Type> signature;
+      final Computation sequence;
+      final List<Computation> parameters;
 
-      sequence.expect_non_string();
-
-      // TODO: change this system, since we'd rather use the signature to tell
-      // the parameters what to expect.
-      ((SequenceType) sequence.get_type()).propose_signature_from_parameters
-      (
-         parameters
-      );
-
-      if (!sequence.get_type().get_act_as_type().equals(SequenceType.ARCHETYPE))
+      if (call_parameters.size() < 1)
       {
-         ErrorManager.handle
-         (
-            new InvalidTypeException
-            (
-               origin,
-               sequence.get_type(),
-               Collections.singleton(SequenceType.ARCHETYPE)
-            )
-         );
+         // TODO: Error.
+         System.err.println("Wrong number of params at " + origin.toString());
+
+         return null;
       }
 
-      RecurrentChecks.propagate_expected_types_and_assert_computations_matches_signature
+      sequence = call_parameters.get(0);
+      parameters = call_parameters.subList(1, call_parameters.size());
+
+      RecurrentChecks.propagate_expected_types_and_assert_is_sequence
       (
-         origin,
-         parameters,
-         ((SequenceType) sequence.get_type()).get_signature()
+         sequence,
+         parameters
       );
 
       return new SequenceVariableCall(origin, sequence, parameters);

@@ -103,7 +103,6 @@ public class IndexedPartitionComputation extends GenericComputation
             "auto generated"
          );
 
-
       return
          new IndexedPartitionComputation
          (

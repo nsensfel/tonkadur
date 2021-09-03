@@ -921,6 +921,109 @@ returns [Instruction result]
    }
 
 /******************************************************************************/
+/**** SEQUENCE CALL/JUMP ******************************************************/
+/******************************************************************************/
+   | VISIT_KW computation maybe_computation_list WS* R_PAREN
+   {
+      final Origin origin;
+      final Computation sequence;
+
+      sequence = ($computation.result);
+      origin =
+         PARSER.get_origin_at
+         (
+            ($VISIT_KW.getLine()),
+            ($VISIT_KW.getCharPositionInLine())
+         );
+
+      sequence.expect_string();
+
+      if (sequence instanceof AmbiguousWord)
+      {
+         final String sequence_name;
+
+         sequence_name = ((AmbiguousWord) sequence).get_value_as_string();
+
+         PARSER.get_world().add_sequence_use
+         (
+            origin,
+            sequence_name,
+            ($maybe_computation_list.result)
+         );
+
+         $result =
+            new SequenceCall
+            (
+               origin,
+               sequence_name,
+               ($maybe_computation_list.result)
+            );
+      }
+      else
+      {
+         $result =
+            GenericInstruction.build
+            (
+               origin,
+               ($VISIT_KW.text).substring(0, (($VISIT_KW.text).length() - 1)),
+               ($maybe_computation_list.result)
+            );
+      }
+   }
+
+   | CONTINUE_AS_KW computation maybe_computation_list WS* R_PAREN
+   {
+      final Origin origin;
+      final Computation sequence;
+
+      sequence = ($computation.result);
+      origin =
+         PARSER.get_origin_at
+         (
+            ($CONTINUE_AS_KW.getLine()),
+            ($CONTINUE_AS_KW.getCharPositionInLine())
+         );
+
+      sequence.expect_string();
+
+      if (sequence instanceof AmbiguousWord)
+      {
+         final String sequence_name;
+
+         sequence_name = ((AmbiguousWord) sequence).get_value_as_string();
+
+         PARSER.get_world().add_sequence_use
+         (
+            origin,
+            sequence_name,
+            ($maybe_computation_list.result)
+         );
+
+         $result =
+            new SequenceJump
+            (
+               origin,
+               sequence_name,
+               ($maybe_computation_list.result)
+            );
+      }
+      else
+      {
+         $result =
+            GenericInstruction.build
+            (
+               origin,
+               ($CONTINUE_AS_KW.text).substring
+               (
+                  0,
+                  (($CONTINUE_AS_KW.text).length() - 1)
+               ),
+               ($maybe_computation_list.result)
+            );
+      }
+   }
+
+/******************************************************************************/
 /**** GENERIC INSTRUCTIONS ****************************************************/
 /******************************************************************************/
    | L_PAREN WORD maybe_computation_list WS* R_PAREN
