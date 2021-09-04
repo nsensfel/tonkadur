@@ -7,7 +7,7 @@
 (global (list int) li)
 (global (ptr (list int)) li_ptr)
 
-(set! li (range 0 10 1))
+(set! li (list:range 0 10 1))
 (set! li_ptr (ptr li))
 
 (assert! (= (var li.0) 0) [FAILED] (var test_name) li.0)
@@ -38,7 +38,7 @@
 (global int i)
 
 (for (set! i 0) (=< i 10) (set! i (+ i 1))
-   (add! (range 0 i 1) lili)
+   (add! (list:range 0 i 1) lili)
 )
 
 (assert! (= (var lili.10.0) 0) [FAILED] (var test_name) lili.10.0 was (var lili.10.0).)

@@ -105,7 +105,10 @@ public class Operation extends GenericComputation
       operator = Operator.ONE_IN;
       ALIASED_OPERATOR.put("exactlyOneIn", operator);
       ALIASED_OPERATOR.put("exactlyonein", operator);
+      ALIASED_OPERATOR.put("exactlyOne", operator);
+      ALIASED_OPERATOR.put("exactlyone", operator);
       ALIASED_OPERATOR.put("exactly_one_in", operator);
+      ALIASED_OPERATOR.put("exactly_one", operator);
       ALIASED_OPERATOR.put("OneIn", operator);
       ALIASED_OPERATOR.put("onein", operator);
       ALIASED_OPERATOR.put("one_in", operator);

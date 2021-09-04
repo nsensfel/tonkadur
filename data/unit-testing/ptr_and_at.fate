@@ -71,12 +71,12 @@
 
 (global test_struct0 ts0)
 
-(set_fields! ts0
+(struct:set_fields! ts0
    (int0 3)
    (int1 40)
    (int_ptr0 (ptr ts0.int0))
    (int_ptr1 (ptr ts0.int1))
-   (int_list (range 0 10 1))
+   (int_list (list:range 0 10 1))
    (int_ptr_list_ptr (ptr ts0.int_ptr_list))
 )
 

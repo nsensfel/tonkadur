@@ -7,19 +7,19 @@
 (global (list int) li0)
 (global (list int) li1)
 
-(set! li0 (add_element -1 li0))
-(set! li0 (add_element 0 li0))
-(set! li0 (add_element 1 li0))
-(set! li0 (add_element 2 li0))
-(set! li0 (add_element 3 4 5 li0))
-(set! li0 (add_element 6 li0))
+(set! li0 (list:add_element -1 li0))
+(set! li0 (list:add_element 0 li0))
+(set! li0 (list:add_element 1 li0))
+(set! li0 (list:add_element 2 li0))
+(set! li0 (list:add_element 3 4 5 li0))
+(set! li0 (list:add_element 6 li0))
 
-(add_element! -1 li1)
-(add_element! 0 li1)
-(add_element! 1 li1)
-(add_element! 2 3 4 li1)
-(add_element! 5 li1)
-(add_element! 6 li1)
+(list:add_element! -1 li1)
+(list:add_element! 0 li1)
+(list:add_element! 1 li1)
+(list:add_element! 2 3 4 li1)
+(list:add_element! 5 li1)
+(list:add_element! 6 li1)
 
 (assert! (= (var li0) (var li1)) [FAILED] (var test_name) equality.)
 
@@ -35,14 +35,14 @@
 (global (list int) ali0)
 (global (list int) ali1)
 
-(set! ali0 (add_element 6 (range -1 5 1)))
+(set! ali0 (list:add_element 6 (list:range -1 5 1)))
 (set! ali1
-   (add_element 6
-      (add_element 5
-         (add_element 4
-            (add_element 1 2 3
-               (add_element 0
-                  (add_element -1 ali1)
+   (list:add_element 6
+      (list:add_element 5
+         (list:add_element 4
+            (list:add_element 1 2 3
+               (list:add_element 0
+                  (list:add_element -1 ali1)
                )
             )
          )
@@ -58,35 +58,35 @@
 
 (set! si_ptr (ptr si1))
 
-(set! si0 (add_element 6 si0))
-(set! si0 (add_element 0 si0))
-(set! si0 (add_element 1 4 -1 si0))
-(set! si0 (add_element 5 si0))
-(set! si0 (add_element 3 si0))
-(set! si0 (add_element 2 si0))
+(set! si0 (set:add_element 6 si0))
+(set! si0 (set:add_element 0 si0))
+(set! si0 (set:add_element 1 4 -1 si0))
+(set! si0 (set:add_element 5 si0))
+(set! si0 (set:add_element 3 si0))
+(set! si0 (set:add_element 2 si0))
 
-(add_element! 4 si1)
-(add_element! 0 (at (ptr si1)))
-(add_element! 3 -1 2 si1)
-(add_element! 6 si1)
-(add_element! 1 (at si_ptr))
-(add_element! 5 si1)
+(set:add_element! 4 si1)
+(set:add_element! 0 (at (ptr si1)))
+(set:add_element! 3 -1 2 si1)
+(set:add_element! 6 si1)
+(set:add_element! 1 (at si_ptr))
+(set:add_element! 5 si1)
 
 (assert! (= (var li0) (var li1) (var ali0) (var ali1) (var si0) (var si1)) [FAILED] (var test_name) equality 3.)
 
-(set! si0 (add_element 0 si0))
-(set! si0 (add_element 4 si0))
-(set! si0 (add_element 6 5 3 si0))
-(set! si0 (add_element -1 si0))
-(set! si0 (add_element 2 si0))
-(set! si0 (add_element 1 si0))
+(set! si0 (set:add_element 0 si0))
+(set! si0 (set:add_element 4 si0))
+(set! si0 (set:add_element 6 5 3 si0))
+(set! si0 (set:add_element -1 si0))
+(set! si0 (set:add_element 2 si0))
+(set! si0 (set:add_element 1 si0))
 
-(add_element! 4 si1)
-(add_element! 1 0 6 si1)
-(add_element! -1 si1)
-(add_element! 3 si1)
-(add_element! 2 si1)
-(add_element! 5 si1)
+(set:add_element! 4 si1)
+(set:add_element! 1 0 6 si1)
+(set:add_element! -1 si1)
+(set:add_element! 3 si1)
+(set:add_element! 2 si1)
+(set:add_element! 5 si1)
 
 (assert! (= (var li0) (var li1) (var ali0) (var ali1) (var si0) (var si1)) [FAILED] (var test_name) equality 4.)
 

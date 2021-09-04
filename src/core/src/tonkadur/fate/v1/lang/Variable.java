@@ -12,6 +12,7 @@ import tonkadur.parser.Origin;
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.FutureType;
 
 public class Variable extends DeclaredEntity
 {
@@ -73,6 +74,11 @@ public class Variable extends DeclaredEntity
    /**** Accessors ************************************************************/
    public Type get_type ()
    {
+      if (type instanceof FutureType)
+      {
+         return ((FutureType) type).get_current_type();
+      }
+
       return type;
    }
 

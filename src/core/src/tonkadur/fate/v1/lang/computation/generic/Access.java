@@ -38,6 +38,7 @@ public class Access extends GenericComputation
       aliases.add("set:at_index");
       aliases.add("set:atindex");
       aliases.add("set:atIndex");
+      aliases.add("collection:access");
 
       return aliases;
    }
@@ -97,7 +98,11 @@ public class Access extends GenericComputation
          );
       }
 
-      if (alias.startsWith("set:"))
+      if (alias.startsWith("collection:"))
+      {
+         RecurrentChecks.assert_is_a_collection(parent);
+      }
+      else if (alias.startsWith("set:"))
       {
          RecurrentChecks.assert_is_a_set(parent);
       }
@@ -106,7 +111,14 @@ public class Access extends GenericComputation
          RecurrentChecks.assert_is_a_list(parent);
       }
 
-      return new Access(origin, parent, current_type, index);
+      return
+         new Access
+         (
+            origin,
+            parent,
+            ((CollectionType) current_type).get_content_type(),
+            index
+         );
    }
 
    /***************************************************************************/

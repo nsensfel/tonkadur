@@ -202,7 +202,7 @@ public class ParserData
       }
    }
 
-   public void add_file_content (final Origin origin, final String filename)
+   public void add_file_content (final Origin origin, String filename)
    throws IOException, ParsingError
    {
       final CommonTokenStream tokens;

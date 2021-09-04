@@ -67,7 +67,11 @@ public class StructType extends Type
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof StructType)
+      if (t instanceof FutureType)
+      {
+         return can_be_used_as(((FutureType) t).get_resolved_type());
+      }
+      else if (t instanceof StructType)
       {
          final StructType dt;
 

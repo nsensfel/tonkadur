@@ -38,26 +38,26 @@
 
    (newline)
 
-   (set! current_deck (shuffle deck_template))
+   (set! current_deck (list:shuffle deck_template))
 
-   (pop_left! current_deck (ptr new_card))
-   (add! (var new_card) player.hand)
+   (list:pop_left! current_deck new_card)
+   (list:add! (var new_card) player.hand)
 
    (text_effect action_description
       You have been dealt the (var new_card.name).
       (newline)
    )
 
-   (pop_left! current_deck (ptr new_card))
-   (add! (var new_card) dealer_hand)
+   (list:pop_left! current_deck new_card)
+   (list:add! (var new_card) dealer_hand)
 
    (text_effect action_description
       The dealer has drawn the (var new_card.name).
       (newline)
    )
 
-   (pop_left! current_deck (ptr new_card))
-   (add! (var new_card) player.hand)
+   (list:pop_left! current_deck new_card)
+   (list:add! (var new_card) player.hand)
 
    (text_effect action_description
       You have been dealt the (var new_card.name).
@@ -66,8 +66,8 @@
 
    (newline)
 
-   (pop_left! current_deck (ptr new_card))
-   (add! (var new_card) dealer_hand)
+   (list:pop_left! current_deck new_card)
+   (list:add! (var new_card) dealer_hand)
 
    (text_effect action_description
       The dealer has drawn a card, face down.
@@ -76,8 +76,8 @@
 
    (visit! initial_draw)
 
-   (clear! dealer_hand)
-   (clear! player.hand)
+   (list:clear! dealer_hand)
+   (list:clear! player.hand)
 
    (newline)
    Interesting. Would you like to go again?
@@ -177,8 +177,8 @@
    (local card new_card)
    (local int player_score)
 
-   (pop_left! current_deck (ptr new_card))
-   (add! (var new_card) player.hand)
+   (list:pop_left! current_deck new_card)
+   (list:add! (var new_card) player.hand)
 
    (visit! compute_score (ptr player.hand) (ptr player_score))
 
@@ -207,7 +207,7 @@
       A bust! What a shame...
       (newline)
       (visit! money_loss (var bet))
-      (done)
+      (done!)
    )
 
    (if (var has_doubled)
@@ -253,8 +253,8 @@
    (while (< dealer_score 17)
       (local card new_card)
 
-      (pop_left! current_deck (ptr new_card))
-      (add! (var new_card) dealer_hand)
+      (list:pop_left! current_deck new_card)
+      (list:add! (var new_card) dealer_hand)
 
       (text_effect action_description
          The dealer has drawn the (var new_card.name).

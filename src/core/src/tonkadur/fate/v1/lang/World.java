@@ -27,6 +27,7 @@ import tonkadur.fate.v1.lang.meta.Instruction;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.ConsType;
+import tonkadur.fate.v1.lang.type.PointerType;
 import tonkadur.fate.v1.lang.type.DictionaryType;
 import tonkadur.fate.v1.lang.type.LambdaType;
 import tonkadur.fate.v1.lang.type.SequenceType;
@@ -327,6 +328,8 @@ public class World
          type_collection.add(ConsType.ARCHETYPE);
 
          type_collection.add(DictionaryType.ARCHETYPE);
+
+         type_collection.add(PointerType.ARCHETYPE);
 
          type_collection.add(LambdaType.ARCHETYPE);
          type_collection.add(SequenceType.ARCHETYPE);

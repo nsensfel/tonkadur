@@ -12,11 +12,11 @@
 (set! li0
    (map
       (lambda ((int i)) (* i 2))
-      (range 0 10 1)
+      (list:range 0 10 1)
    )
 )
 
-(set! li1 (range 0 10 1))
+(set! li1 (list:range 0 10 1))
 
 (map!
    (lambda ((int i)) (* i 2))
@@ -26,12 +26,12 @@
 (set! li2
    (map
       (lambda ((int i) (int mod)) (* i mod))
-      (range 0 10 1)
+      (list:range 0 10 1)
       2
    )
 )
 
-(set! li3 (range 0 10 1))
+(set! li3 (list:range 0 10 1))
 
 (map!
    (lambda ((int i) (int mod)) (* i mod))
@@ -99,11 +99,11 @@
 (set! li0
    (indexed_map
       (lambda ((int ix) (int i)) (+ (* i ix) 1000))
-      (range 10 20 1)
+      (list:range 10 20 1)
    )
 )
 
-(set! li1 (range 10 20 1))
+(set! li1 (list:range 10 20 1))
 
 (indexed_map!
    (lambda ((int ix) (int i)) (+ (* i ix) 1000))
@@ -113,12 +113,12 @@
 (set! li2
    (indexed_map
       (lambda ((int ix) (int i) (int mod)) (+ (* i ix) mod))
-      (range 10 20 1)
+      (list:range 10 20 1)
       1000
    )
 )
 
-(set! li3 (range 10 20 1))
+(set! li3 (list:range 10 20 1))
 
 (indexed_map!
    (lambda ((int ix) (int i) (int mod)) (+ (* i ix) mod))

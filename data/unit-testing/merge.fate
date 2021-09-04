@@ -20,7 +20,7 @@
 (global (list int) li1ob)
 
 (set! li0
-   (merge_to_list
+   (list:merge
       (lambda
          (
             (int a)
@@ -28,13 +28,13 @@
          )
          (- b a)
       )
-      (range 0 60 2)
-      (range 10 40 1)
+      (list:range 0 60 2)
+      (list:range 10 40 1)
    )
 )
 
 (set! li0oa
-   (merge_to_list
+   (list:merge
       (lambda
          (
             (int a)
@@ -42,13 +42,13 @@
          )
          (- b a)
       )
-      (range 0 60 2)
-      (range 10 70 1)
+      (list:range 0 60 2)
+      (list:range 10 70 1)
    )
 )
 
 (set! li0ob
-   (merge_to_list
+   (list:merge
       (lambda
          (
             (int a)
@@ -56,53 +56,13 @@
          )
          (- b a)
       )
-      (range 0 80 2)
-      (range 10 40 1)
+      (list:range 0 80 2)
+      (list:range 10 40 1)
    )
-)
-
-(set! li1 (range 10 40 1))
-(set! li1oa (range 10 60 1))
-(set! li1ob (range 10 40 1))
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-      )
-      (- b a)
-   )
-   (range 0 60 2)
-   li1
-)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-      )
-      (- b a)
-   )
-   (range 0 60 2)
-   li1oa
-)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-      )
-      (- b a)
-   )
-   (range 0 160 2)
-   li1ob
 )
 
 (assert!
-   (= (var li1) (var li0) (var li0oa) (var li0ob) (var li1oa) (var li1ob))
+   (= (var li0) (var li0oa) (var li0ob))
    [FAILED] (var test_name) Equality test 0.
 )
 
@@ -110,21 +70,15 @@
    (assert!
       (=
          (- (+ 10 i) (* 2 i))
-         (access i li0)
-         (access i li0oa)
-         (access i li0ob)
-         (access i li1)
-         (access i li1oa)
-         (access i li1ob)
+         (list:access i li0)
+         (list:access i li0oa)
+         (list:access i li0ob)
       )
       [FAILED] (var test_name) Basic test 0, index (var i), values:
       Expected: (- (+ 10 i) (* 2 i));
-      li0: (access i li0);
-      li0oa: (access i li0oa);
-      li0ob: (access i li0ob);
-      li1: (access i li1);
-      li1oa: (access i li1oa);
-      li1ob: (access i li1ob)
+      li0: (list:access i li0);
+      li0oa: (list:access i li0oa);
+      li0ob: (list:access i li0ob);
    )
 )
 
@@ -134,12 +88,9 @@
 (global (set int) si0)
 (global (set int) si0oa)
 (global (set int) si0ob)
-(global (set int) si1)
-(global (set int) si1oa)
-(global (set int) si1ob)
 
 (set! si0
-   (merge_to_set
+   (set:merge
       (lambda
          (
             (int a)
@@ -147,13 +98,13 @@
          )
          (- b a)
       )
-      (range 0 60 2)
-      (range 10 40 1)
+      (list:range 0 60 2)
+      (list:range 10 40 1)
    )
 )
 
 (set! si0oa
-   (merge_to_set
+   (set:merge
       (lambda
          (
             (int a)
@@ -161,13 +112,13 @@
          )
          (- b a)
       )
-      (range 0 60 2)
-      (range 10 70 1)
+      (list:range 0 60 2)
+      (list:range 10 70 1)
    )
 )
 
 (set! si0ob
-   (merge_to_set
+   (set:merge
       (lambda
          (
             (int a)
@@ -175,53 +126,13 @@
          )
          (- b a)
       )
-      (range 0 80 2)
-      (range 10 40 1)
+      (list:range 0 80 2)
+      (list:range 10 40 1)
    )
-)
-
-(add_all! (range 10 40 1) si1)
-(add_all! (range 10 60 1) si1oa)
-(add_all! (range 10 40 1) si1ob)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-      )
-      (- b a)
-   )
-   (range 0 60 2)
-   si1
-)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-      )
-      (- b a)
-   )
-   (range 0 60 2)
-   si1oa
-)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-      )
-      (- b a)
-   )
-   (range 0 80 2)
-   si1ob
 )
 
 (assert!
-   (= (var si0) (var si0oa) (var si0ob) (var si1) (var si1oa) (var si1ob))
+   (= (var si0) (var si0oa) (var si0ob))
    [FAILED] (var test_name) Equality test 1.
 )
 
@@ -238,21 +149,15 @@
    (assert!
       (=
          (- (+ 10 j) (* 2 j))
-         (access i si0)
-         (access i si0oa)
-         (access i si0ob)
-         (access i si1)
-         (access i si1oa)
-         (access i si1ob)
+         (set:access i si0)
+         (set:access i si0oa)
+         (set:access i si0ob)
       )
       [FAILED] (var test_name) Basic test 1, index (var i), values:
       Expected: (- (+ 10 j) (* 2 j));
-      si0: (access i si0);
-      si0oa: (access i si0oa);
-      si0ob: (access i si0ob);
-      si1: (access i si1);
-      si1oa: (access i si1oa);
-      si1ob: (access i si1ob);
+      si0: (set:access i si0);
+      si0oa: (set:access i si0oa);
+      si0ob: (set:access i si0ob);
    )
 )
 
@@ -262,12 +167,9 @@
 (global (set int) si2)
 (global (set int) si2oa)
 (global (set int) si2ob)
-(global (set int) si3)
-(global (set int) si3oa)
-(global (set int) si3ob)
 
 (set! si2
-   (merge_to_set
+   (set:merge
       (lambda
          (
             (int a)
@@ -276,14 +178,14 @@
          )
          (* (- b a) mod)
       )
-      (range 0 60 2)
-      (range 10 40 1)
+      (list:range 0 60 2)
+      (list:range 10 40 1)
       -1
    )
 )
 
 (set! si2oa
-   (merge_to_set
+   (set:merge
       (lambda
          (
             (int a)
@@ -292,14 +194,14 @@
          )
          (* (- b a) mod)
       )
-      (range 0 60 2)
-      (range 10 80 1)
+      (list:range 0 60 2)
+      (list:range 10 80 1)
       -1
    )
 )
 
 (set! si2ob
-   (merge_to_set
+   (set:merge
       (lambda
          (
             (int a)
@@ -308,60 +210,14 @@
          )
          (* (- b a) mod)
       )
-      (range 0 80 2)
-      (range 10 40 1)
+      (list:range 0 80 2)
+      (list:range 10 40 1)
       -1
    )
 )
 
-(add_all! (range 10 40 1) si3)
-(add_all! (range 10 80 1) si3oa)
-(add_all! (range 10 40 1) si3ob)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-         (int mod)
-      )
-      (* (- b a) mod)
-   )
-   (range 0 60 2)
-   si3
-   -1
-)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-         (int mod)
-      )
-      (* (- b a) mod)
-   )
-   (range 0 60 2)
-   si3oa
-   -1
-)
-
-(merge!
-   (lambda
-      (
-         (int a)
-         (int b)
-         (int mod)
-      )
-      (* (- b a) mod)
-   )
-   (range 0 90 2)
-   si3ob
-   -1
-)
-
 (assert!
-   (= (var si2) (var si2oa) (var si2ob) (var si3) (var si3oa) (var si3ob))
+   (= (var si2) (var si2oa) (var si2ob))
    [FAILED] (var test_name) Equality test 2.
 )
 
@@ -372,21 +228,15 @@
    (assert!
       (=
          (* (- (+ 10 i) (* 2 i)) -1)
-         (access i si2)
-         (access i si2oa)
-         (access i si2ob)
-         (access i si3)
-         (access i si3oa)
-         (access i si3ob)
+         (set:access i si2)
+         (set:access i si2oa)
+         (set:access i si2ob)
       )
       [FAILED] (var test_name) Basic test 2, index (var i), values:
       Expected: (* (- (+ 10 i) (* 2 i)) -1);
-      si2: (access i si2);
-      si2oa: (access i si2oa);
-      si2ob: (access i si2ob);
-      si3: (access i si3);
-      si3oa: (access i si3oa);
-      si3ob: (access i si3ob)
+      si2: (set:access i si2);
+      si2oa: (set:access i si2oa);
+      si2ob: (set:access i si2ob);
    )
 )
 
@@ -396,12 +246,9 @@
 (global (list int) ili0)
 (global (list int) ili0oa)
 (global (list int) ili0ob)
-(global (list int) ili1)
-(global (list int) ili1oa)
-(global (list int) ili1ob)
 
 (set! ili0
-   (indexed_merge_to_list
+   (list:indexed_merge
       (lambda
          (
             (int i)
@@ -410,13 +257,13 @@
          )
          (* (- b a) i)
       )
-      (range 0 60 2)
-      (range 10 40 1)
+      (list:range 0 60 2)
+      (list:range 10 40 1)
    )
 )
 
 (set! ili0oa
-   (indexed_merge_to_list
+   (list:indexed_merge
       (lambda
          (
             (int i)
@@ -425,13 +272,13 @@
          )
          (* (- b a) i)
       )
-      (range 0 60 2)
-      (range 10 70 1)
+      (list:range 0 60 2)
+      (list:range 10 70 1)
    )
 )
 
 (set! ili0ob
-   (indexed_merge_to_list
+   (list:indexed_merge
       (lambda
          (
             (int i)
@@ -440,56 +287,13 @@
          )
          (* (- b a) i)
       )
-      (range 0 80 2)
-      (range 10 40 1)
+      (list:range 0 80 2)
+      (list:range 10 40 1)
    )
-)
-
-(set! ili1 (range 10 40 1))
-(set! ili1oa (range 10 60 1))
-(set! ili1ob (range 10 40 1))
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-      )
-      (* (- b a) i)
-   )
-   (range 0 60 2)
-   ili1
-)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-      )
-      (* (- b a) i)
-   )
-   (range 0 60 2)
-   ili1oa
-)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-      )
-      (* (- b a) i)
-   )
-   (range 0 160 2)
-   ili1ob
 )
 
 (assert!
-   (= (var ili1) (var ili0) (var ili0oa) (var ili0ob) (var ili1oa) (var ili1ob))
+   (= (var ili0) (var ili0oa) (var ili0ob))
    [FAILED] (var test_name) Equality test indexed 0.
 )
 
@@ -497,21 +301,15 @@
    (assert!
       (=
          (* (- (+ 10 i) (* 2 i)) i)
-         (access i ili0)
-         (access i ili0oa)
-         (access i ili0ob)
-         (access i ili1)
-         (access i ili1oa)
-         (access i ili1ob)
+         (list:access i ili0)
+         (list:access i ili0oa)
+         (list:access i ili0ob)
       )
       [FAILED] (var test_name) Indexed test 0, index (var i), values:
       Expected: (* (- (+ 10 i) (* 2 i)) i);
-      ili0: (access i ili0);
-      ili0oa: (access i ili0oa);
-      ili0ob: (access i ili0ob);
-      ili1: (access i ili1);
-      ili1oa: (access i ili1oa);
-      ili1ob: (access i ili1ob)
+      ili0: (list:access i ili0);
+      ili0oa: (list:access i ili0oa);
+      ili0ob: (list:access i ili0ob);
    )
 )
 
@@ -523,18 +321,15 @@ For reference, the values found in the sets are:
    (local int o)
    (set! o (* (- (+ 10 i) (* 2 i)) (+ i 1)))
    (var o) (newline)
-   (add! (var o) oracle_set)
+   (set:add! (var o) oracle_set)
 )
 
 (global (set int) isi0)
 (global (set int) isi0oa)
 (global (set int) isi0ob)
-(global (set int) isi1)
-(global (set int) isi1oa)
-(global (set int) isi1ob)
 
 (set! isi0
-   (indexed_merge_to_set
+   (set:indexed_merge
       (lambda
          (
             (int i)
@@ -543,13 +338,13 @@ For reference, the values found in the sets are:
          )
          (* (- b a) (+ i 1))
       )
-      (range 0 60 2)
-      (range 10 40 1)
+      (list:range 0 60 2)
+      (list:range 10 40 1)
    )
 )
 
 (set! isi0oa
-   (indexed_merge_to_set
+   (set:indexed_merge
       (lambda
          (
             (int i)
@@ -558,13 +353,13 @@ For reference, the values found in the sets are:
          )
          (* (- b a) (+ i 1))
       )
-      (range 0 60 2)
-      (range 10 70 1)
+      (list:range 0 60 2)
+      (list:range 10 70 1)
    )
 )
 
 (set! isi0ob
-   (indexed_merge_to_set
+   (set:indexed_merge
       (lambda
          (
             (int i)
@@ -573,82 +368,33 @@ For reference, the values found in the sets are:
          )
          (* (- b a) (+ i 1))
       )
-      (range 0 80 2)
-      (range 10 40 1)
+      (list:range 0 80 2)
+      (list:range 10 40 1)
    )
-)
-
-(add_all! (range 10 40 1) isi1)
-(add_all! (range 10 60 1) isi1oa)
-(add_all! (range 10 40 1) isi1ob)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-      )
-      (* (- b a) (+ i 1))
-   )
-   (range 0 60 2)
-   isi1
-)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-      )
-      (* (- b a) (+ i 1))
-   )
-   (range 0 60 2)
-   isi1oa
-)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-      )
-      (* (- b a) (+ i 1))
-   )
-   (range 0 80 2)
-   isi1ob
 )
 
 (assert!
-   (= (var isi0) (var isi0oa) (var isi0ob) (var isi1) (var isi1oa) (var isi1ob))
+   (= (var isi0) (var isi0oa) (var isi0ob))
    [FAILED] (var test_name) Equality test indexed 1.
 )
 
-(for (set! i (- (size oracle_set) 1)) (>= i 0) (set! i (- i 1))
+(for (set! i (- (set:size oracle_set) 1)) (>= i 0) (set! i (- i 1))
    (assert!
       (=
-         (access i oracle_set)
-         (access i isi0)
-         (access i isi0oa)
-         (access i isi0ob)
-         (access i isi1)
-         (access i isi1oa)
-         (access i isi1ob)
+         (set:access i oracle_set)
+         (set:access i isi0)
+         (set:access i isi0oa)
+         (set:access i isi0ob)
       )
       [FAILED] (var test_name) Indexed test 1, index (var i), values:
-      Expected: (access i oracle_set);
-      isi0: (access i isi0);
-      isi0oa: (access i isi0oa);
-      isi0ob: (access i isi0ob);
-      isi1: (access i isi1);
-      isi1oa: (access i isi1oa);
-      isi1ob: (access i isi1ob);
+      Expected: (set:access i oracle_set);
+      isi0: (set:access i isi0);
+      isi0oa: (set:access i isi0oa);
+      isi0ob: (set:access i isi0ob);
    )
 )
 
-(clear! oracle_set)
+(set:clear! oracle_set)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; INDEXED TEST 2 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -659,7 +405,7 @@ For reference, the values found in the sets are:
    (local int o)
    (set! o (* (- (+ 10 i) (* 2 i)) -1 (+ i 1)))
    (var o) (newline)
-   (add! (var o) oracle_set)
+   (set:add! (var o) oracle_set)
 )
 
 (global (set int) isi2)
@@ -670,7 +416,7 @@ For reference, the values found in the sets are:
 (global (set int) isi3ob)
 
 (set! isi2
-   (indexed_merge_to_set
+   (set:indexed_merge
       (lambda
          (
             (int i)
@@ -680,14 +426,14 @@ For reference, the values found in the sets are:
          )
          (* (* (- b a) mod) (+ i 1))
       )
-      (range 0 60 2)
-      (range 10 40 1)
+      (list:range 0 60 2)
+      (list:range 10 40 1)
       -1
    )
 )
 
 (set! isi2oa
-   (indexed_merge_to_set
+   (set:indexed_merge
       (lambda
          (
             (int i)
@@ -697,14 +443,14 @@ For reference, the values found in the sets are:
          )
          (* (* (- b a) mod) (+ i 1))
       )
-      (range 0 60 2)
-      (range 10 80 1)
+      (list:range 0 60 2)
+      (list:range 10 80 1)
       -1
    )
 )
 
 (set! isi2ob
-   (indexed_merge_to_set
+   (set:indexed_merge
       (lambda
          (
             (int i)
@@ -714,138 +460,31 @@ For reference, the values found in the sets are:
          )
          (* (- b a) mod (+ i 1))
       )
-      (range 0 80 2)
-      (range 10 40 1)
+      (list:range 0 80 2)
+      (list:range 10 40 1)
       -1
    )
 )
 
-(add_all! (range 10 40 1) isi3)
-(add_all! (range 10 80 1) isi3oa)
-(add_all! (range 10 40 1) isi3ob)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-         (int mod)
-      )
-      (* (- b a) mod (+ i 1))
-   )
-   (range 0 60 2)
-   isi3
-   -1
-)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-         (int mod)
-      )
-      (* (- b a) mod (+ i 1))
-   )
-   (range 0 60 2)
-   isi3oa
-   -1
-)
-
-(indexed_merge!
-   (lambda
-      (
-         (int i)
-         (int a)
-         (int b)
-         (int mod)
-      )
-      (* (- b a) mod (+ i 1))
-   )
-   (range 0 90 2)
-   isi3ob
-   -1
-)
-
 (assert!
-   (= (var isi2) (var isi2oa) (var isi2ob) (var isi3) (var isi3oa) (var isi3ob))
+   (= (var isi2) (var isi2oa) (var isi2ob))
    [FAILED] (var test_name) Equality test indexed 2.
 )
 
-(for (set! i (- (size oracle_set) 1)) (>= i 0) (set! i (- i 1))
+(for (set! i (- (set:size oracle_set) 1)) (>= i 0) (set! i (- i 1))
    (assert!
       (=
-         (access i oracle_set)
-         (access i isi2)
-         (access i isi2oa)
-         (access i isi2ob)
-         (access i isi3)
-         (access i isi3oa)
-         (access i isi3ob)
+         (set:access i oracle_set)
+         (set:access i isi2)
+         (set:access i isi2oa)
+         (set:access i isi2ob)
       )
       [FAILED] (var test_name) Indexed test 2, index (var i), values:
-      Expected: (access i oracle_set);
-      isi2: (access i isi2);
-      isi2oa: (access i isi2oa);
-      isi2ob: (access i isi2ob);
-      isi3: (access i isi3);
-      isi3oa: (access i isi3oa);
-      isi3ob: (access i isi3ob)
+      Expected: (set:access i oracle_set);
+      isi2: (set:access i isi2);
+      isi2oa: (set:access i isi2oa);
+      isi2ob: (set:access i isi2ob);
    )
-)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; SAFE TEST 0 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(global (list int) sli0)
-(global (list int) sli1)
-(global (list int) sli2)
-(global (list int) sli3)
-
-(set! sli0
-   (safe_merge_to_list
-      (lambda
-         (
-            (int a)
-            (int b)
-         )
-         (- a b)
-      )
-      999
-      (range 0 10 1)
-      1
-      (default (list int))
-   )
-)
-
-(set! sli1
-   (safe_merge_to_list
-      (lambda
-         (
-            (int a)
-            (int b)
-         )
-         (- b a)
-      )
-      1
-      (default (list int))
-      999
-      (range 0 10 1)
-   )
-)
-
-(for (set! i 0) (=< i 10) (set! i (+ i 1))
-   (assert!
-      (= (access i sli0) (access i sli1) (- i 1))
-      [FAILED] (var test_name) Equality test safe 0.
-   )
-)
-
-(assert!
-   (= (var sli0) (var sli1))
-   [FAILED] (var test_name) Equality test safe 0.
 )
 
 [COMPLETED] (var test_name)

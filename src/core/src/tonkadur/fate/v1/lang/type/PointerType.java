@@ -1,6 +1,7 @@
 package tonkadur.fate.v1.lang.type;
 
 import java.util.Collections;
+import java.util.List;
 
 import tonkadur.parser.Origin;
 
@@ -37,20 +38,39 @@ public class PointerType extends Type
       final String name
    )
    {
-      super(origin, null, name, Collections.singletonList(referenced_type));
+      super
+      (
+         origin,
+         ((referenced_type == Type.ANY) ? null : ARCHETYPE),
+         name,
+         Collections.singletonList(referenced_type)
+      );
    }
 
    /**** Accessors ************************************************************/
    public Type get_referenced_type ()
    {
-      return parameters.get(0);
+      final Type result;
+
+      result = parameters.get(0);
+
+      if (result instanceof FutureType)
+      {
+         return ((FutureType) result).get_resolved_type();
+      }
+
+      return result;
    }
 
    /**** Compatibility ********************************************************/
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof PointerType)
+      if (t instanceof FutureType)
+      {
+         return can_be_used_as(((FutureType) t).get_resolved_type());
+      }
+      else if (t instanceof PointerType)
       {
          final PointerType dt;
 
@@ -80,6 +100,7 @@ public class PointerType extends Type
       }
 
       dt = (PointerType) de;
+
       resulting_referenced_type =
          (Type) get_referenced_type().generate_comparable_to
          (
@@ -100,6 +121,22 @@ public class PointerType extends Type
    public Type generate_alias (final Origin origin, final String name)
    {
       return new PointerType(origin, get_referenced_type(), name);
+   }
+
+   @Override
+   public Type generate_variant
+   (
+      final Origin origin,
+      final List<Type> parameters
+   )
+   throws Throwable
+   {
+      if (this.parameters.size() != 1)
+      {
+         // TODO: error;
+      }
+
+      return new PointerType(origin, parameters.get(0), "auto gen");
    }
 
    @Override

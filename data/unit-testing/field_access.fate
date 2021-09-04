@@ -34,7 +34,7 @@
    (i 42)
    (j 69)
    (k 420)
-   (li (range 0 10 1))
+   (li (list:range 0 10 1))
 )
 
 (set_fields! ts0_1
@@ -44,7 +44,7 @@
    (k 42)
    (j 69)
    (i 420)
-   (li (range 11 20 1))
+   (li (list:range 11 20 1))
 )
 
 (set_fields! ts1_0

@@ -1,6 +1,7 @@
 package tonkadur.fate.v1.lang.type;
 
 import java.util.Arrays;
+import java.util.List;
 
 import tonkadur.parser.Origin;
 
@@ -39,22 +40,60 @@ public class ConsType extends Type
       super(origin, null, name, Arrays.asList(new Type[]{car, cdr}));
    }
 
+   @Override
+   public Type generate_variant
+   (
+      final Origin origin,
+      final List<Type> parameters
+   )
+   throws Throwable
+   {
+      if (this.parameters.size() != parameters.size())
+      {
+         // TODO: error;
+      }
+
+      return new ConsType(origin, parameters.get(0), parameters.get(1), name);
+   }
+
    /**** Accessors ************************************************************/
    public Type get_car_type ()
    {
-      return parameters.get(0);
+      final Type result;
+
+      result = parameters.get(0);
+
+      if (result instanceof FutureType)
+      {
+         return ((FutureType) result).get_resolved_type();
+      }
+
+      return result;
    }
 
    public Type get_cdr_type ()
    {
-      return parameters.get(1);
+      final Type result;
+
+      result = parameters.get(1);
+
+      if (result instanceof FutureType)
+      {
+         return ((FutureType) result).get_resolved_type();
+      }
+
+      return result;
    }
 
    /**** Compatibility ********************************************************/
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof ConsType)
+      if (t instanceof FutureType)
+      {
+         return can_be_used_as(((FutureType) t).get_resolved_type());
+      }
+      else if (t instanceof ConsType)
       {
          final ConsType dt;
 

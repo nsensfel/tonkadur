@@ -10,13 +10,13 @@
    (assert! (false) [FAILED] (var test_name) Executing dead code 0.)
 )
 
-
 (set! test (false))
 
 (ifelse (false)
    (assert! (false) [FAILED] (var test_name) Executing dead code 1.)
    (set! test (true))
 )
+
 
 (assert! test [FAILED] (var test_name) ignored valid branch 0.)
 
@@ -27,12 +27,14 @@
 
 (assert! test [FAILED] (var test_name) Executing dead code 3.)
 
+(global string st_name)
 (set! test
    (ifelse (false)
       (false)
       (true)
    )
 )
+(global string tt_name)
 
 (assert! test [FAILED] (var test_name) Executing dead code 4.)
 

@@ -26,15 +26,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
 
       aliases = new ArrayList<String>();
 
-      aliases.add("list:indexed_merge");
-      aliases.add("list:indexedmerge");
-      aliases.add("list:indexedMerge");
-      aliases.add("list:imerge");
-      aliases.add("set:indexed_merge");
-      aliases.add("set:indexedmerge");
-      aliases.add("set:indexedMerge");
-      aliases.add("set:imerge");
-
       aliases.add("list:indexed_safe_merge");
       aliases.add("list:indexedsafemerge");
       aliases.add("list:indexedSafeMerge");

@@ -82,7 +82,6 @@ public class FutureType extends Type
       FUTURE_TYPES.add(this);
    }
 
-
    /**** Accessors ************************************************************/
    public Type get_base_type ()
    {
@@ -96,6 +95,20 @@ public class FutureType extends Type
       assert_is_resolved();
 
       return resolved_type.get_act_as_type();
+   }
+
+   public Type get_current_type ()
+   {
+      if (resolved_type == null)
+      {
+         return this;
+      }
+      else if (resolved_type instanceof FutureType)
+      {
+         return ((FutureType) resolved_type).get_current_type();
+      }
+
+      return resolved_type;
    }
 
    public boolean is_base_type ()

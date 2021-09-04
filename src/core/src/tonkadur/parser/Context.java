@@ -13,7 +13,12 @@ public class Context
 
    static
    {
-      BASE_LANGUAGE = new Context(null, "<Base Language>");
+      BASE_LANGUAGE =
+         new Context
+         (
+            Paths.get(System.getProperty("user.dir")),
+            "<Base Language>"
+         );
    }
 
    /***************************************************************************/

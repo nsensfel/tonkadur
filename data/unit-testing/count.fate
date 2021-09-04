@@ -4,57 +4,57 @@
 
 (set! test_name ( COUNT ))
 
-(assert! (= (count 10 (range 0 60 1)) 1)
-   [FAILED] (var test_name) Failed to find 10 in range 0 60 1.
+(assert! (= (list:count 10 (list:range 0 60 1)) 1)
+   [FAILED] (var test_name) Failed to find 10 in list:range 0 60 1.
 )
 
 (global (list int) li)
 
-(add_all! (range 0 10 1) li)
-(add_all! (range 0 10 1) li)
-(add_all! (range 0 10 1) li)
-(add_all! (range 0 10 1) li)
+(list:add_all! (list:range 0 10 1) li)
+(list:add_all! (list:range 0 10 1) li)
+(list:add_all! (list:range 0 10 1) li)
+(list:add_all! (list:range 0 10 1) li)
 
-(assert! (= (count 10 li) 4)
+(assert! (= (list:count 10 li) 4)
    [FAILED] (var test_name) Failed to find 10 four times in li.
 )
 
 (global (set int) si)
 
-(add_all! (range 0 10 1) si)
-(add_all! (range 0 10 1) si)
-(add_all! (range 0 10 1) si)
-(add_all! (range 0 10 1) si)
+(list:add_all! (list:range 0 10 1) si)
+(list:add_all! (list:range 0 10 1) si)
+(list:add_all! (list:range 0 10 1) si)
+(list:add_all! (list:range 0 10 1) si)
 
-(assert! (= (count 10 si) 1)
+(assert! (= (set:count 10 si) 1)
    [FAILED] (var test_name) Failed to find 10 exactly once in si.
 )
 
 (global (list string) ls)
 
-(add! test0 ls)
-(add! test1 ls)
-(add! test2 ls)
-(add! test3 ls)
+(list:add! test0 ls)
+(list:add! test1 ls)
+(list:add! test2 ls)
+(list:add! test3 ls)
 
-(assert! (= (count test0 ls) 1)
+(assert! (= (list:count test0 ls) 1)
    [FAILED] (var test_name) Failed to find test0 exactly once in ls.
 )
 
-(add! test0 ls)
-(add! test1 ls)
-(add! test2 ls)
-(add! test3 ls)
-(add! test0 ls)
-(add! test1 ls)
-(add! test2 ls)
-(add! test3 ls)
-(add! test0 ls)
-(add! test1 ls)
-(add! test2 ls)
-(add! test3 ls)
+(list:add! test0 ls)
+(list:add! test1 ls)
+(list:add! test2 ls)
+(list:add! test3 ls)
+(list:add! test0 ls)
+(list:add! test1 ls)
+(list:add! test2 ls)
+(list:add! test3 ls)
+(list:add! test0 ls)
+(list:add! test1 ls)
+(list:add! test2 ls)
+(list:add! test3 ls)
 
-(assert! (= (count test0 ls) 4)
+(assert! (= (list:count test0 ls) 4)
    [FAILED] (var test_name) Failed to find test0 four times in ls.
 )
 
@@ -62,14 +62,14 @@
 (local int i)
 
 (for (set! i 0) (=< i 10) (set! i (+ i 1))
-   (add! (= (mod i 2) 0) lb)
+   (list:add! (= (mod i 2) 0) lb)
 )
 
-(assert! (= (count (true) lb) 6)
+(assert! (= (list:count (true) lb) 6)
    [FAILED] (var test_name) Failed to find six even numbers.
 )
 
-(assert! (= (count (false) lb) 5)
+(assert! (= (list:count (false) lb) 5)
    [FAILED] (var test_name) Failed to find four odd numbers.
 )
 

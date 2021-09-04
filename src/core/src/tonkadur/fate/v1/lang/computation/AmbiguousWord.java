@@ -65,6 +65,11 @@ public class AmbiguousWord extends Computation
    {
       if (result == null)
       {
+         if (type instanceof FutureType)
+         {
+            return ((FutureType) type).get_current_type();
+         }
+
          return type;
       }
 

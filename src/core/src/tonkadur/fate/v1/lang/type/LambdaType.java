@@ -50,7 +50,16 @@ public class LambdaType extends Type
    /**** Accessors ************************************************************/
    public Type get_return_type ()
    {
-      return return_type;
+      final Type result;
+
+      result = return_type;
+
+      if (result instanceof FutureType)
+      {
+         return ((FutureType) result).get_resolved_type();
+      }
+
+      return result;
    }
 
    public List<Type> get_signature ()
@@ -62,7 +71,11 @@ public class LambdaType extends Type
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof LambdaType)
+      if (t instanceof FutureType)
+      {
+         return can_be_used_as(((FutureType) t).get_resolved_type());
+      }
+      else if (t instanceof LambdaType)
       {
          final Iterator<Type> i0, i1;
          final LambdaType lt;

@@ -30,8 +30,6 @@ public abstract class TonkadurPlugin
 
    public static void register_as_loadable_superclass (final Class c)
    {
-      System.out.println("[D] Will load subclasses of " + c.getName() + "...");
-
       LOADABLE_SUPERCLASSES.add(c);
    }
 
@@ -110,15 +108,6 @@ public abstract class TonkadurPlugin
             {
                if (superclass.isAssignableFrom(c) && !c.equals(superclass))
                {
-                  System.out.println
-                  (
-                     "[D] Registering class "
-                     + candidate
-                     + " as a "
-                     + superclass.getName()
-                     + "..."
-                  );
-
                   superclass.getDeclaredMethod
                   (
                      "register",

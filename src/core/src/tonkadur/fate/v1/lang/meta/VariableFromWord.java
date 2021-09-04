@@ -17,6 +17,9 @@ import tonkadur.fate.v1.lang.computation.Constant;
 import tonkadur.fate.v1.lang.computation.FieldAccess;
 import tonkadur.fate.v1.lang.computation.VariableReference;
 
+import tonkadur.fate.v1.lang.computation.generic.AtReference;
+import tonkadur.fate.v1.lang.computation.generic.Access;
+
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.PointerType;
 import tonkadur.fate.v1.lang.type.StructType;
@@ -33,7 +36,7 @@ public class VariableFromWord
       final Origin origin,
       final String word
    )
-   throws ParsingError
+   throws Throwable
    {
       final String[] subrefs;
       Computation result;
@@ -67,29 +70,44 @@ public class VariableFromWord
             while (t instanceof PointerType)
             {
                t = ((PointerType) t).get_referenced_type();
+
+               result =
+                  AtReference.build
+                  (
+                     origin.with_hint(subref),
+                     "at",
+                     Collections.singletonList(result)
+                  );
             }
-/*
+
             if (t instanceof CollectionType)
             {
                result =
-                  AccessAsReference.build
+                  Access.build
                   (
-                     origin,
-                     result,
-                     Constant.build(origin, subref)
+                     origin.with_hint(subref),
+                     "collection:access",
+                     Arrays.asList
+                     (
+                        new Computation[]
+                        {
+                           Constant.build(origin.with_hint(subref), subref),
+                           result
+                        }
+                     )
                   );
             }
             else if (t instanceof StructType)
             {
                result =
-                  FieldReference.build
+                  FieldAccess.build
                   (
-                     origin,
+                     origin.with_hint(subref),
                      result,
                      Collections.singletonList(subref)
                   );
             }
-            else */
+            else
             {
                /* TODO: error */
                System.err.println("Unimplemented error in VariableFromWord.");

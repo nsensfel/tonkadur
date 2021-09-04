@@ -1,5 +1,8 @@
 package tonkadur.fate.v1.lang.type;
 
+import java.util.List;
+import java.util.Arrays;
+
 import tonkadur.error.ErrorManager;
 import tonkadur.parser.ParsingError;
 
@@ -9,6 +12,8 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
+// TODO: implement.
+// TODO: Use parameters list instead of separate type members.
 public class DictionaryType extends Type
 {
    public static final DictionaryType ARCHETYPE;
@@ -24,12 +29,6 @@ public class DictionaryType extends Type
             "dict"
          );
    }
-
-   /***************************************************************************/
-   /**** MEMBERS **************************************************************/
-   /***************************************************************************/
-   protected final Type key_type;
-   protected final Type value_type;
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
@@ -60,12 +59,30 @@ public class DictionaryType extends Type
    /**** Accessors ************************************************************/
    public Type get_key_type ()
    {
-      return key_type;
+      final Type result;
+
+      result = parameters.get(0);
+
+      if (result instanceof FutureType)
+      {
+         return ((FutureType) result).get_resolved_type();
+      }
+
+      return result;
    }
 
    public Type get_value_type ()
    {
-      return value_type;
+      final Type result;
+
+      result = parameters.get(1);
+
+      if (result instanceof FutureType)
+      {
+         return ((FutureType) result).get_resolved_type();
+      }
+
+      return result;
    }
 
    @Override
@@ -78,7 +95,11 @@ public class DictionaryType extends Type
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof DictionaryType)
+      if (t instanceof FutureType)
+      {
+         return can_be_used_as(((FutureType) t).get_resolved_type());
+      }
+      else if (t instanceof DictionaryType)
       {
          final DictionaryType ct;
 
@@ -86,8 +107,8 @@ public class DictionaryType extends Type
 
          return
             (
-               key_type.can_be_used_as(ct.key_type)
-               && value_type.can_be_used_as(ct.value_type)
+               get_key_type().can_be_used_as(ct.get_key_type())
+               && get_value_type().can_be_used_as(ct.get_value_type())
             );
       }
 
@@ -116,8 +137,8 @@ public class DictionaryType extends Type
          new DictionaryType
          (
             get_origin(),
-            ((Type) key_type.generate_comparable_to(ct.key_type)),
-            ((Type) value_type.generate_comparable_to(ct.value_type)),
+            ((Type) get_key_type().generate_comparable_to(ct.get_key_type())),
+            ((Type) get_value_type().generate_comparable_to(ct.get_value_type())),
             name
          );
    }
@@ -127,7 +148,7 @@ public class DictionaryType extends Type
    @Override
    public Type generate_alias (final Origin origin, final String name)
    {
-      return new DictionaryType(origin, key_type, value_type, name);
+      return new DictionaryType(origin, get_key_type(), get_value_type(), name);
    }
 
    @Override
@@ -136,9 +157,9 @@ public class DictionaryType extends Type
       final StringBuilder sb = new StringBuilder();
 
       sb.append("(Dict ");
-      sb.append(key_type.toString());
+      sb.append(get_key_type().toString());
       sb.append(" ");
-      sb.append(value_type.toString());
+      sb.append(get_value_type().toString());
       sb.append(")::");
       sb.append(name);
 
@@ -158,9 +179,28 @@ public class DictionaryType extends Type
       final String name
    )
    {
-      super(origin, null, name);
+      super(origin, null, name, Arrays.asList(new Type[]{key_type, value_type}));
+   }
 
-      this.key_type = key_type;
-      this.value_type = value_type;
+   public Type generate_variant
+   (
+      final Origin origin,
+      final List<Type> parameters
+   )
+   throws Throwable
+   {
+      if (this.parameters.size() != parameters.size())
+      {
+         // TODO: error;
+      }
+
+      return
+         new DictionaryType
+         (
+            origin,
+            parameters.get(0),
+            parameters.get(1),
+            name
+         );
    }
 }

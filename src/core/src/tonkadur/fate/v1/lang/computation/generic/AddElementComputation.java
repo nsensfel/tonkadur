@@ -44,16 +44,60 @@ public class AddElementComputation extends GenericComputation
       final Computation element;
       final Computation collection;
 
-      if (call_parameters.size() != 2)
+      if (call_parameters.size() < 2)
       {
          // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         System.err.println
+         (
+            "Wrong number of params ("
+            + (call_parameters.size())
+            + " given, 2 expected) at"
+            + origin.toString()
+         );
 
          return null;
       }
 
-      element = call_parameters.get(0);
-      collection = call_parameters.get(1);
+
+      if (call_parameters.size() > 2)
+      {
+         final int param_size;
+         Computation temp_collection;
+         List<Computation> temp_params;
+
+         param_size = call_parameters.size();
+
+         temp_collection = call_parameters.get(param_size - 1);
+
+         temp_params = new ArrayList<Computation>();
+         temp_params.add(temp_collection);
+         temp_params.add(temp_collection);
+
+         for
+         (
+            final Computation addition:
+               call_parameters.subList(0, (param_size - 2))
+         )
+         {
+            temp_params.set(0, addition);
+
+            temp_collection =
+               build
+               (
+                  origin,
+                  alias,
+                  temp_params
+               );
+         }
+
+         element = call_parameters.get(param_size - 2);
+         collection = temp_collection;
+      }
+      else
+      {
+         element = call_parameters.get(0);
+         collection = call_parameters.get(1);
+      }
 
       if (alias.startsWith("set:"))
       {

@@ -10,13 +10,13 @@
 
 (set! card_generator
    (lambda ( (string family) )
-      (map
+      (list:map
          (lambda
             (
                (int number)
                (string family)
             )
-            (set_fields (default card)
+            (struct:set_fields (default card)
                (number (var number))
                (name
                   (text
@@ -33,7 +33,7 @@
                (score (clamp 1 number 10))
             )
          )
-         (range 1 13 1)
+         (list:range 1 13 1)
          (var family)
       )
    )
@@ -41,10 +41,10 @@
 
 (global (list card) deck_template)
 
-(add_all! (eval card_generator Hearts) deck_template)
-(add_all! (eval card_generator Spades) deck_template)
-(add_all! (eval card_generator Diamonds) deck_template)
-(add_all! (eval card_generator Clubs) deck_template)
+(list:add_all! (eval card_generator Hearts) deck_template)
+(list:add_all! (eval card_generator Spades) deck_template)
+(list:add_all! (eval card_generator Diamonds) deck_template)
+(list:add_all! (eval card_generator Clubs) deck_template)
 
 (define_sequence compute_score (((ptr (list card)) deck) ((ptr int) result))
    (local int aces_count)

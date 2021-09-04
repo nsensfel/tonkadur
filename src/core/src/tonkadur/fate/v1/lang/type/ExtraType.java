@@ -19,7 +19,7 @@ public class ExtraType extends Type
    public ExtraType
    (
       final Origin origin,
-      final ExtraType parent,
+      final Type parent,
       final String name,
       final List<Type> parameters
    )
@@ -27,13 +27,34 @@ public class ExtraType extends Type
       super(origin, parent, name, parameters);
    }
 
+   @Override
+   public Type generate_variant
+   (
+      final Origin origin,
+      final List<Type> parameters
+   )
+   throws Throwable
+   {
+      if (this.parameters.size() != parameters.size())
+      {
+         // TODO: error;
+      }
+
+      return new ExtraType(origin, this, name, parameters);
+   }
+
+
    /**** Accessors ************************************************************/
 
    /**** Compatibility ********************************************************/
    @Override
    public boolean can_be_used_as (final Type t)
    {
-      if (t instanceof ExtraType)
+      if (t instanceof FutureType)
+      {
+         return can_be_used_as(((FutureType) t).get_resolved_type());
+      }
+      else if (t instanceof ExtraType)
       {
          final ExtraType e;
 

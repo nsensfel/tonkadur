@@ -155,7 +155,11 @@ public class Type extends DeclaredEntity
    /**** Compatibility ********************************************************/
    public boolean can_be_used_as (final Type t)
    {
-      if (!get_act_as_type().equals(t.get_act_as_type()))
+      if (t instanceof FutureType)
+      {
+         return can_be_used_as(((FutureType) t).get_resolved_type());
+      }
+      else if (!get_act_as_type().equals(t.get_act_as_type()))
       {
          return false;
       }

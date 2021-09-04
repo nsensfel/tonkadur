@@ -3,7 +3,7 @@
 (global (list int) li)
 (global (ptr (list int)) li_ptr)
 
-(set! li (range 0 10 1))
+(set! li (list:range 0 10 1))
 (set! li_ptr (ptr li))
 
 (global int i)

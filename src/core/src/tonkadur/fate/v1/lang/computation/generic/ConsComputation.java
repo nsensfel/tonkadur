@@ -48,8 +48,8 @@ public class ConsComputation extends GenericComputation
       car = call_parameters.get(0);
       cdr = call_parameters.get(1);
 
-      car.expect_non_string();
-      cdr.expect_non_string();
+      car.expect_string();
+      cdr.expect_string();
 
       return new ConsComputation(origin, car, cdr);
    }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.io.IOException;
 
 import tonkadur.parser.Origin;
+import tonkadur.parser.Context;
 
 import tonkadur.fate.v1.parser.ParserData;
 
@@ -61,7 +62,11 @@ public class Main
          parser_data.add_file_content
          (
             Origin.BASE_LANGUAGE,
-            RuntimeParameters.get_input_file()
+            Files.resolve_filename
+            (
+               Context.BASE_LANGUAGE,
+               RuntimeParameters.get_input_file()
+            )
          );
 
          System.out.println("Parsing completed.");

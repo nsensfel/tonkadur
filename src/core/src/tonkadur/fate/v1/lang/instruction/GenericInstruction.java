@@ -101,8 +101,6 @@ public abstract class GenericInstruction extends Instruction
             );
       }
 
-      System.out.println("Resolving GenericInstruction " + name + "...");
-
       return
          (Instruction) computation_class.getDeclaredMethod
          (

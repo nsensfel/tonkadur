@@ -58,7 +58,7 @@ VISIT_KW:
    (
       ('call'|'visit') US ((('seq'|'Seq')'uence'?)|('proc'|'Proc')'edure'?)?
    )
-   IMP;
+   IMP SEP+;
 
 CONTINUE_AS_KW:
    L_PAREN
@@ -78,7 +78,7 @@ CONTINUE_AS_KW:
       )
       (US ((('seq'|'Seq')'uence'?)|('proc'|'Proc')'edure'?))?
    )
-   IMP;
+   IMP SEP+;
 
 
 VARIABLE_KW: L_PAREN ('variable'|'var') SEP+;

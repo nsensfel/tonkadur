@@ -1,6 +1,7 @@
 package tonkadur.parser;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Location
 {
@@ -11,7 +12,15 @@ public class Location
 
    static
    {
-      BASE_LANGUAGE = new Location(true, null, "", -1, -1);
+      BASE_LANGUAGE =
+         new Location
+         (
+            true,
+            Paths.get(System.getProperty("user.dir")),
+            "",
+            -1,
+            -1
+         );
    }
 
    /***************************************************************************/

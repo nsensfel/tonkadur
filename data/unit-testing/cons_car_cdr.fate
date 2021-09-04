@@ -28,7 +28,7 @@
    (cdr (cdr (cdr (cdr (cons 1 (cons 2 (cons 3 (cons 4 5)))))))).
 )
 
-(assert! (= (car (cons test 0)) test)
+(assert! (= (car (cons test 0)) (string test))
    [FAILED] (var test_name) test string:
    (car (cons test 0))
 )
@@ -39,7 +39,7 @@
 (set! cfs (cons 3.14 pi))
 
 (assert! (= (car cfs) 3.14) [FAILED] (var test_name) test 3.14: (car cfs).)
-(assert! (= (cdr cfs) pi) [FAILED] (var test_name) test pi: (cdr cfs).)
+(assert! (= (cdr cfs) (string pi)) [FAILED] (var test_name) test pi: (cdr cfs).)
 
 
 (set! cfs2 (cons (car cfs) (cdr cfs)))

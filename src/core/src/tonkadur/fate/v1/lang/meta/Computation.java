@@ -4,6 +4,7 @@ import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
 import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.FutureType;
 
 public abstract class Computation extends Node
 {
@@ -35,6 +36,11 @@ public abstract class Computation extends Node
 
    public Type get_type ()
    {
+      if (type instanceof FutureType)
+      {
+         return ((FutureType) type).get_current_type();
+      }
+
       return type;
    }
 
