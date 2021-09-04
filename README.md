@@ -13,8 +13,7 @@ implications when it comes time to add support for it to your engine.
 
 ### Sample:
          (define_sequence in_your_room ()
-            (ifelse
-               (is_member visited_your_room progress)
+            (if_else (set:is_member visited_your_room progress)
                (text_effect narrator
                   You room is still a mess. You don't have time to clean things up,
                   though.
@@ -28,13 +27,13 @@ implications when it comes time to add support for it to your engine.
                   make the cut.
                )
             )
-            (add visited_your_room progress)
+            (set:add visited_your_room progress)
             (player_choice
-               (
+               (option
                   ( Look for healing items )
                   (jump_to look_for_healing_items)
                )
-               (
+               (option
                   ( No time! Let's go adventuring! )
                   (jump_to leave_your_room)
                )
