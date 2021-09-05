@@ -7,6 +7,10 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -59,18 +63,20 @@ public class SetValue extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
    {
       if (call_parameters.size() != 2)
       {
-         // TODO: Error.
-         System.err.print
+         ErrorManager.handle
          (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + "! <X REFERENCE> <X>)"
+            )
          );
 
          return null;

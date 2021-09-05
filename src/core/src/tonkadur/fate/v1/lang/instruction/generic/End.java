@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
@@ -28,15 +32,21 @@ public class End extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
    {
       if (call_parameters.size() != 0)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + "!)"
+            )
+         );
 
          return null;
       }

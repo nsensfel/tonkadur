@@ -10,6 +10,7 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.error.ErrorManager;
 
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
 import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.SequenceType;
@@ -64,7 +65,7 @@ public class SequenceVariableCall extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -74,8 +75,14 @@ public class SequenceVariableCall extends GenericInstruction
 
       if (call_parameters.size() < 1)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + "! <(SEQUENCE X0...XN)> <X0>...<XN>)"
+            )
+         );
 
          return null;
       }

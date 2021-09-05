@@ -7,6 +7,10 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -23,7 +27,6 @@ public class Shuffle extends GenericInstruction
       aliases = new ArrayList<String>();
 
       aliases.add("list:shuffle");
-      aliases.add("set:shuffle");
 
       return aliases;
    }
@@ -40,11 +43,13 @@ public class Shuffle extends GenericInstruction
 
       if (call_parameters.size() != 1)
       {
-         // TODO: Error.
-         System.err.print
+         ErrorManager.handle
          (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + "! <(LIST X) REFERENCE>)"
+            )
          );
 
          return null;
@@ -54,14 +59,7 @@ public class Shuffle extends GenericInstruction
 
       collection.expect_non_string();
 
-      if (alias.startsWith("set:"))
-      {
-         RecurrentChecks.assert_is_a_set(collection);
-      }
-      else
-      {
-         RecurrentChecks.assert_is_a_list(collection);
-      }
+      RecurrentChecks.assert_is_a_list(collection);
 
       collection.use_as_reference();
 

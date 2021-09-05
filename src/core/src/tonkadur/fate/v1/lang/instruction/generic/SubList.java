@@ -7,6 +7,10 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -51,11 +55,13 @@ public class SubList extends GenericInstruction
 
       if (call_parameters.size() != 3)
       {
-         // TODO: Error.
-         System.err.print
+         ErrorManager.handle
          (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + "! <(LIST X)|(SET X) REFERENCE>)"
+            )
          );
 
          return null;

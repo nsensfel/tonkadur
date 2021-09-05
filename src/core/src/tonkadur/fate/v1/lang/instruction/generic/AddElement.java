@@ -7,6 +7,10 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.meta.InstructionVisitor;
 import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
@@ -48,11 +52,17 @@ public class AddElement extends GenericInstruction
 
       if (call_parameters.size() != 2)
       {
-         // TODO: Error.
-         System.err.print
+         ErrorManager.handle
          (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
+            new WrongNumberOfParametersException
+            (
+               origin,
+               (
+                  "("
+                  + alias
+                  + "! <element: X> <collection: (LIST X)|(SET X)>)"
+               )
+            )
          );
 
          return null;

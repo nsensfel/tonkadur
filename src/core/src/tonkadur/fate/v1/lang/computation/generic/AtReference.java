@@ -10,9 +10,10 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.error.ErrorManager;
 
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.error.UnknownStructureFieldException;
-
 
 import tonkadur.fate.v1.lang.Variable;
 
@@ -41,7 +42,7 @@ public class AtReference extends GenericComputation
    public static Computation build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -50,8 +51,14 @@ public class AtReference extends GenericComputation
 
       if (call_parameters.size() != 1)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + " <POINTER>)"
+            )
+         );
 
          return null;
       }

@@ -7,6 +7,10 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
@@ -51,14 +55,20 @@ public class PushElementComputation extends GenericComputation
 
       if (call_parameters.size() != 2)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + " <element: X> <(LIST X)|(SET X)>)"
+            )
+         );
 
          return null;
       }
 
-      collection = call_parameters.get(0);
-      element = call_parameters.get(1);
+      element = call_parameters.get(0);
+      collection = call_parameters.get(1);
       is_from_left = alias.endsWith("eft");
 
       if (alias.startsWith("set:"))

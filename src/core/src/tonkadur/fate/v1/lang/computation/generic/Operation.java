@@ -11,6 +11,8 @@ import tonkadur.error.ErrorManager;
 import tonkadur.parser.Origin;
 
 //import tonkadur.fate.v1.error.ConflictingTypeException;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
 import tonkadur.fate.v1.error.IncomparableTypeException;
 import tonkadur.fate.v1.error.IncompatibleTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;

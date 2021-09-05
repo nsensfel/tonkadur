@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
@@ -36,7 +40,7 @@ public class Clear extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String alias_,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -45,12 +49,20 @@ public class Clear extends GenericInstruction
 
       if (call_parameters.size() != 1)
       {
-         // TODO: Error.
-         System.err.print
+         ErrorManager.handle
          (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
+            new WrongNumberOfParametersException
+            (
+               origin,
+               (
+                  "("
+                  + alias
+                  + "! <(LIST X)|(SET X)>)"
+               )
+            )
          );
+
+         return null;
       }
 
       collection = call_parameters.get(0);

@@ -10,6 +10,8 @@ import tonkadur.parser.ParsingError;
 
 import tonkadur.error.ErrorManager;
 
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
@@ -48,8 +50,14 @@ public class CarCdr extends GenericComputation
 
       if (call_parameters.size() != 1)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + " <CONS>)"
+            )
+         );
 
          return null;
       }

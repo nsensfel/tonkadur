@@ -7,6 +7,8 @@ import java.util.List;
 
 import tonkadur.error.ErrorManager;
 
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
@@ -37,7 +39,7 @@ public class Free extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String alias_,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -47,12 +49,16 @@ public class Free extends GenericInstruction
 
       if (call_parameters.size() != 1)
       {
-         // TODO: Error.
-         System.err.print
+         ErrorManager.handle
          (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + "! <(POINTER X)>)"
+            )
          );
+
+         return null;
       }
 
       call_parameters.get(0).expect_non_string();

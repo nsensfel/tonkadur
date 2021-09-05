@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
@@ -51,8 +55,19 @@ public class Partition extends GenericInstruction
 
       if (call_parameters.size() < 3)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "("
+               + alias
+               + "! <(LAMBDA BOOL (X Y0...YN))>"
+               + " <if_true: (LIST X)|(SET X) REFERENCE>"
+               + " <if_false: (LIST X)|(SET X) REFERENCE>"
+               + " <Y0>...<YN>)"
+            )
+         );
 
          return null;
       }

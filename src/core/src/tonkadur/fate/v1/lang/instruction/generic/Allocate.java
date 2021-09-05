@@ -5,11 +5,12 @@ import java.util.Collections;
 import java.util.Collection;
 import java.util.List;
 
-import tonkadur.error.ErrorManager;
-
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
 import tonkadur.fate.v1.error.InvalidTypeException;
 
 import tonkadur.fate.v1.lang.type.Type;
@@ -40,7 +41,7 @@ public class Allocate extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -50,11 +51,13 @@ public class Allocate extends GenericInstruction
 
       if (call_parameters.size() != 1)
       {
-         // TODO: Error.
-         System.err.print
+         ErrorManager.handle
          (
-            "[E] Wrong number of arguments at "
-            + origin.toString()
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "(" + alias + "! <(POINTER X) REFERENCE>)"
+            )
          );
 
          return null;

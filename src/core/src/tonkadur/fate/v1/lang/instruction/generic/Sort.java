@@ -10,6 +10,10 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.CollectionType;
 
@@ -36,35 +40,59 @@ public class Sort extends GenericInstruction
    public static Instruction build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
    {
-      // TODO: implement
-      final Computation lambda_function = null;
-      final Computation collection = null;
-      final List<Computation> extra_params = null;
-      final List<Type> types_in;
+      final Computation lambda_function;
+      final Computation collection;
+      final List<Computation> extra_params;
+      final List<Type> base_param_types;
 
-      types_in = new ArrayList<Type>();
+      base_param_types = new ArrayList<Type>();
+      base_param_types.add(Type.INT);
+
+      if (call_parameters.size() < 2)
+      {
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "("
+               + alias
+               + "! <(LAMBDA INT (X Y0...YN))> <(LIST X)|(SET X) REFERENCE>"
+               + " <Y0>...<YN>)"
+            )
+         );
+
+         return null;
+      }
+
+      lambda_function = call_parameters.get(0);
+      collection = call_parameters.get(1);
+      extra_params = call_parameters.subList(2, call_parameters.size());
+
+      collection.expect_non_string();
 
       RecurrentChecks.assert_is_a_list(collection);
 
-      types_in.add(((CollectionType) collection.get_type()).get_content_type());
-      types_in.add(types_in.get(0));
+      base_param_types.add
+      (
+         ((CollectionType) collection.get_type()).get_content_type()
+      );
 
-      for (final Computation c: extra_params)
-      {
-         types_in.add(c.get_type());
-      }
+      base_param_types.add(base_param_types.get(0));
 
-      RecurrentChecks.assert_lambda_matches_types
+      RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         Type.INT,
-         types_in
+         base_param_types,
+         extra_params
       );
+
+      RecurrentChecks.assert_return_type_is(lambda_function, Type.INT);
 
       collection.use_as_reference();
 

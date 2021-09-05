@@ -7,6 +7,10 @@ import java.util.List;
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.fate.v1.lang.meta.ComputationVisitor;
@@ -36,7 +40,7 @@ public class AddElementAtComputation extends GenericComputation
    public static Computation build
    (
       final Origin origin,
-      final String _alias,
+      final String alias,
       final List<Computation> call_parameters
    )
    throws Throwable
@@ -47,8 +51,18 @@ public class AddElementAtComputation extends GenericComputation
 
       if (call_parameters.size() != 3)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               (
+                  "("
+                  + alias
+                  + " <index: INT> <element: X> <collection: (LIST X)|(SET X)>)"
+               )
+            )
+         );
 
          return null;
       }

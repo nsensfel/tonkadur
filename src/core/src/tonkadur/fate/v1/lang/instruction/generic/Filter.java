@@ -8,6 +8,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
+import tonkadur.error.ErrorManager;
+
+import tonkadur.fate.v1.error.WrongNumberOfParametersException;
+
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
 
@@ -50,8 +54,17 @@ public class Filter extends GenericInstruction
 
       if (call_parameters.size() < 2)
       {
-         // TODO: Error.
-         System.err.println("Wrong number of params at " + origin.toString());
+         ErrorManager.handle
+         (
+            new WrongNumberOfParametersException
+            (
+               origin,
+               "("
+               + alias
+               + "! <(LAMBDA BOOL (X Y0...YN))> <(LIST X)|(SET X) REFERENCE>"
+               + " <Y0>...<YN>)"
+            )
+         );
 
          return null;
       }
