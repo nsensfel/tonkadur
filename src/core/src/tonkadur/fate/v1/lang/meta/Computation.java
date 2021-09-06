@@ -1,7 +1,11 @@
 package tonkadur.fate.v1.lang.meta;
 
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
+
+import tonkadur.fate.v1.error.NotAReferenceException;
 
 import tonkadur.fate.v1.lang.type.Type;
 import tonkadur.fate.v1.lang.type.FutureType;
@@ -57,14 +61,9 @@ public abstract class Computation extends Node
    public void use_as_reference ()
    throws ParsingError
    {
-      // TODO: proper ParsingError.
-      System.err.println
+      ErrorManager.handle
       (
-         "[W] Computation at "
-         + origin.toString()
-         + " is being used as a reference, but isn't one. The instruction will"
-         + " not be able to modify the memory you thought was targeted by this"
-         + " computation."
+         new NotAReferenceException(this)
       );
    }
 

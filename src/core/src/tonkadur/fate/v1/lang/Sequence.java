@@ -82,7 +82,7 @@ public class Sequence extends DeclaredEntity
       return null;
    }
 
-   public boolean assert_can_take_parameters
+   public boolean propagate_expected_types_and_assert_can_take_parameters
    (
       final Origin origin,
       final List<Computation> parameters

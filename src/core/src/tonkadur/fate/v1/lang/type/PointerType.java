@@ -3,7 +3,11 @@ package tonkadur.fate.v1.lang.type;
 import java.util.Collections;
 import java.util.List;
 
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.error.InvalidTypeArityException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
@@ -133,7 +137,7 @@ public class PointerType extends Type
    {
       if (this.parameters.size() != 1)
       {
-         // TODO: error;
+         ErrorManager.handle(new InvalidTypeArityException(origin, this));
       }
 
       return new PointerType(origin, parameters.get(0), "auto gen");

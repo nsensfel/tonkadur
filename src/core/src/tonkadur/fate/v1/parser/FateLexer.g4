@@ -94,7 +94,6 @@ FOR_EACH_KW: L_PAREN 'for'US'each' SEP+;
 WHILE_KW: L_PAREN 'while' SEP+;
 SWITCH_KW: L_PAREN 'switch' SEP+;
 
-// FIXME: this hides generic if_else and if.
 IF_ELSE_KW: L_PAREN 'if'US'else' SEP+;
 IF_KW: L_PAREN 'if' SEP+;
 

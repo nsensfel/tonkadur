@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.Collections;
 
 import tonkadur.error.ErrorManager;
-import tonkadur.parser.ParsingError;
 
+import tonkadur.parser.ParsingError;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.fate.v1.error.InvalidTypeArityException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
@@ -223,7 +224,7 @@ public class CollectionType extends Type
    {
       if (this.parameters.size() != parameters.size())
       {
-         // TODO: error;
+         ErrorManager.handle(new InvalidTypeArityException(origin, this));
       }
 
       return new CollectionType(origin, parameters.get(0), is_set, name);

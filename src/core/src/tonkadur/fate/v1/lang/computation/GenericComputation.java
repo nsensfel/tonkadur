@@ -5,7 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import tonkadur.error.BasicError;
+import tonkadur.error.ErrorCategory;
+import tonkadur.error.ErrorLevel;
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Origin;
+import tonkadur.parser.BasicParsingError;
 
 import tonkadur.functional.Cons;
 
@@ -45,16 +51,22 @@ public abstract class GenericComputation extends Computation
 
             if (previous_entry != null)
             {
-               // TODO Exception handling.
-               throw new Exception
+               ErrorManager.handle
                (
-                  "[F] Unable to add alias for Generic Fate Computation '"
-                  + alias
-                  + "' from class '"
-                  + c.getName()
-                  + "': it has already been claimed by class '"
-                  + previous_entry.getName()
-                  + "'."
+                  new BasicError
+                  (
+                     ErrorLevel.FATAL,
+                     ErrorCategory.PROGRAMMING_ERROR,
+                     (
+                        "Unable to add alias for Generic Fate Computation '"
+                        + alias
+                        + "' from class '"
+                        + c.getName()
+                        + "': it has already been claimed by class '"
+                        + previous_entry.getName()
+                        + "'."
+                     )
+                  )
                );
             }
 
@@ -88,16 +100,16 @@ public abstract class GenericComputation extends Computation
 
       if (computation_class == null)
       {
-         // TODO use a separate class for this.
-         throw
-            new Exception
+         ErrorManager.handle
+         (
+            new BasicParsingError
             (
-               "[E] Unknown Generic Fate Computation '"
-               + name
-               + "' at "
-               + origin
-               + "."
-            );
+               ErrorLevel.ERROR,
+               tonkadur.fate.v1.error.ErrorCategory.UNKNOWN,
+               origin,
+               ("Unknown Generic Fate Computation '" + name + "'.")
+            )
+         );
       }
 
       return

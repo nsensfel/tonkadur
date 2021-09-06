@@ -4,7 +4,11 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.error.InvalidTypeArityException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
@@ -37,7 +41,7 @@ public class ExtraType extends Type
    {
       if (this.parameters.size() != parameters.size())
       {
-         // TODO: error;
+         ErrorManager.handle(new InvalidTypeArityException(origin, this));
       }
 
       return new ExtraType(origin, this, name, parameters);

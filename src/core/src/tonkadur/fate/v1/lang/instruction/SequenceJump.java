@@ -38,7 +38,6 @@ public class SequenceJump extends Instruction
    }
 
    /**** Accessors ************************************************************/
-   // TODO: call this at some point.
    public void perform_signature_checks (final List<Type> signature)
    throws ParsingError
    {

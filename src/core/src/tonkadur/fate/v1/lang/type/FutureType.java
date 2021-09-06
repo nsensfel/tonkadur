@@ -6,10 +6,14 @@ import java.util.Collection;
 import java.util.Collections;
 
 import tonkadur.error.ErrorManager;
+import tonkadur.error.BasicError;
+import tonkadur.error.ErrorLevel;
 
 import tonkadur.parser.Context;
 import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.error.ErrorCategory;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
@@ -31,16 +35,28 @@ public class FutureType extends Type
    {
       if (resolved_type == null)
       {
-         // TODO: proper error handling
-         //
-         System.err.println
-         (
-            "[F] Future Type from "
-            + get_origin().toString()
-            + " used prior to resolution."
-         );
-
-         System.exit(-1);
+         try
+         {
+            ErrorManager.handle
+            (
+               new BasicError
+               (
+                  ErrorLevel.FATAL,
+                  ErrorCategory.MISSING_DECLARATION,
+                  (
+                     "Future Type from "
+                     + get_origin().toString()
+                     + " used prior to resolution."
+                  )
+               )
+            );
+         }
+         catch (final Throwable t)
+         {
+            t.printStackTrace();
+            System.err.println(t.toString());
+            System.exit(-1);
+         }
       }
    }
 

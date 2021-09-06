@@ -85,7 +85,7 @@ public class FieldAccess extends Computation
             (
                origin,
                current_type,
-               Collections.singleton(Type.ANY), // FIXME: Type.STRUCT
+               Collections.singleton(Type.ANY), // TODO: add StructType.ARCHETYPE
                parent.toString()
             )
          );

@@ -3,7 +3,11 @@ package tonkadur.fate.v1.lang.type;
 import java.util.Arrays;
 import java.util.List;
 
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Origin;
+
+import tonkadur.fate.v1.error.InvalidTypeArityException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
@@ -50,7 +54,7 @@ public class ConsType extends Type
    {
       if (this.parameters.size() != parameters.size())
       {
-         // TODO: error;
+         ErrorManager.handle(new InvalidTypeArityException(origin, this));
       }
 
       return new ConsType(origin, parameters.get(0), parameters.get(1), name);

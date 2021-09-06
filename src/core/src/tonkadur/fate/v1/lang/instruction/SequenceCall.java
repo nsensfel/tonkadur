@@ -55,7 +55,6 @@ public class SequenceCall extends Instruction
       return parameters;
    }
 
-   // TODO: call this at some point.
    public void perform_signature_checks (final List<Type> signature)
    throws ParsingError
    {

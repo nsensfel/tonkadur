@@ -19,6 +19,8 @@ options
 
    import tonkadur.Files;
 
+   import tonkadur.error.ErrorLevel;
+   import tonkadur.error.ErrorCategory;
    import tonkadur.error.ErrorManager;
 
    import tonkadur.functional.Cons;
@@ -26,6 +28,7 @@ options
    import tonkadur.parser.Context;
    import tonkadur.parser.Location;
    import tonkadur.parser.Origin;
+   import tonkadur.parser.BasicParsingError;
 
 /* Conflicts with an existing package */
 /*   import tonkadur.fate.v1.tonkadur.fate.v1.Utils; */
@@ -34,6 +37,7 @@ options
    import tonkadur.fate.v1.error.IllegalReferenceNameException;
    import tonkadur.fate.v1.error.InvalidArityException;
    import tonkadur.fate.v1.error.InvalidTypeException;
+   import tonkadur.fate.v1.error.InvalidTypeArityException;
    import tonkadur.fate.v1.error.UpdatingIllegalVariableFromChoiceException;
    import tonkadur.fate.v1.error.UnknownExtensionContentException;
 
@@ -228,13 +232,33 @@ first_level_instruction
 
          if (arg_count < 0)
          {
-            // TODO: show error.
+            ErrorManager.handle
+            (
+               new BasicParsingError
+               (
+                  ErrorLevel.FATAL,
+                  ErrorCategory.INVALID_INPUT,
+                  start_origin.with_hint("second parameter"),
+                  "An integer higher than zero is needed here."
+               )
+            );
          }
       }
       catch (final Exception e)
       {
          arg_count = 0;
-         // TODO: show error.
+
+         ErrorManager.handle
+         (
+            new BasicParsingError
+            (
+               ErrorLevel.FATAL,
+               ErrorCategory.INVALID_INPUT,
+               start_origin.with_hint("second parameter"),
+               "An integer higher than zero is needed here."
+            )
+         );
+
          throw e;
       }
 
@@ -245,7 +269,18 @@ first_level_instruction
       catch (final Exception e)
       {
          is_comparable = false;
-         // TODO: show error.
+
+         ErrorManager.handle
+         (
+            new BasicParsingError
+            (
+               ErrorLevel.FATAL,
+               ErrorCategory.INVALID_INPUT,
+               start_origin.with_hint("third parameter"),
+               "An boolean is needed here."
+            )
+         );
+
          throw e;
       }
 
@@ -1649,7 +1684,10 @@ returns [Type result]
 
       if ($result.get_parameters().size() != 0)
       {
-         // TODO: throw error.
+         ErrorManager.handle
+         (
+            new InvalidTypeArityException(($word.origin), ($result))
+         );
       }
    }
 

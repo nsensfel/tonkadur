@@ -14,6 +14,7 @@ import tonkadur.parser.Location;
 import tonkadur.parser.Origin;
 
 import tonkadur.fate.v1.error.InvalidTypeException;
+import tonkadur.fate.v1.error.InvalidTypeArityException;
 
 import tonkadur.fate.v1.lang.meta.DeclaredEntity;
 
@@ -262,7 +263,7 @@ public class Type extends DeclaredEntity
    {
       if (this.parameters.size() != parameters.size())
       {
-         // TODO: error;
+         ErrorManager.handle(new InvalidTypeArityException(origin, this));
       }
 
       return new Type(origin, get_base_type(), name, parameters);

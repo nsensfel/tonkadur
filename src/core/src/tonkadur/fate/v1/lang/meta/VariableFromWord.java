@@ -7,10 +7,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
+import tonkadur.error.ErrorLevel;
+import tonkadur.error.ErrorManager;
+
 import tonkadur.parser.Origin;
 import tonkadur.parser.ParsingError;
+import tonkadur.parser.BasicParsingError;
+
+import tonkadur.fate.v1.error.ErrorCategory;
 
 import tonkadur.fate.v1.parser.ParserData;
+
 import tonkadur.fate.v1.lang.Variable;
 
 import tonkadur.fate.v1.lang.computation.Constant;
@@ -109,10 +116,21 @@ public class VariableFromWord
             }
             else
             {
-               /* TODO: error */
-               System.err.println("Unimplemented error in VariableFromWord.");
-
-               System.exit(-1);
+               ErrorManager.handle
+               (
+                  new BasicParsingError
+                  (
+                     ErrorLevel.ERROR,
+                     ErrorCategory.INVALID_USE,
+                     origin.with_hint(subref),
+                     (
+                        "Attempting to access a subreference from a value of"
+                        + " type "
+                        + t.toString()
+                        + ", despite this type not being useable in this way."
+                     )
+                  )
+               );
             }
          }
       }

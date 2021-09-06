@@ -391,7 +391,11 @@ public class World
             {
                if
                (
-                  !seq.assert_can_take_parameters(use.get_car(), use.get_cdr())
+                  !seq.propagate_expected_types_and_assert_can_take_parameters
+                  (
+                     use.get_car(),
+                     use.get_cdr()
+                  )
                )
                {
                   is_sane = false;
