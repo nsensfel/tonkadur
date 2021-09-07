@@ -27,6 +27,8 @@
    ((ptr (list (ptr int))) int_ptr_list_ptr)
 )
 
+(global test_struct0 test_struct0)
+
 (global (list test_struct0) test_struct0_list)
 
 (declare_structure test_struct1
@@ -80,11 +82,11 @@
    (int_ptr_list_ptr (ptr ts0.int_ptr_list))
 )
 
-(add! (ptr i) ts0.int_ptr_list)
-(add! (ptr j) ts0.int_ptr_list)
-(add! (at int_ptr_ptr) ts0.int_ptr_list)
-(add! (var ts0.int_ptr0) ts0.int_ptr_list)
-(add! (var ts0.int_ptr1) ts0.int_ptr_list)
+(list:add! (ptr i) ts0.int_ptr_list)
+(list:add! (ptr j) ts0.int_ptr_list)
+(list:add! (at int_ptr_ptr) ts0.int_ptr_list)
+(list:add! (var ts0.int_ptr0) ts0.int_ptr_list)
+(list:add! (var ts0.int_ptr1) ts0.int_ptr_list)
 
 (assert! (= (var ts0.int_ptr_list.0) (var i_ptr) (ptr i)) [FAILED] (var test_name) equality 3.)
 (assert! (= (var ts0.int_ptr_list.1) (var j_ptr) (ptr j)) [FAILED] (var test_name) equality 4.)

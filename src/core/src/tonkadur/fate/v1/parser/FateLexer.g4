@@ -117,7 +117,7 @@ IGNORE_ERROR_KW: L_PAREN 'ignore'US('error'|'warning') SEP+;
 //EXTRA_COMPUTATION_KW: L_PAREN '$';
 
 
-FIELD_ACCESS_KW: L_PAREN 'struct:get'(US'field')? SEP+;
+FIELD_ACCESS_KW: L_PAREN 'struct:'(('get'(US'field')?)|'field') SEP+;
 SET_FIELDS_KW: L_PAREN 'struct:set'(US'fields')? SEP+;
 IMP_SET_FIELDS_KW: L_PAREN 'struct:set'((US'fields!')|'!') SEP+;
 

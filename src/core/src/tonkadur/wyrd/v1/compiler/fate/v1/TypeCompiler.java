@@ -49,6 +49,8 @@ public class TypeCompiler
 
       if (fate_type instanceof tonkadur.fate.v1.lang.type.PointerType)
       {
+         System.out.println("Pointer type: " + fate_type.toString());
+
          return
             new PointerType
             (
@@ -111,7 +113,15 @@ public class TypeCompiler
          return Type.STRING;
       }
 
-      System.err.println("[P] Unknown basic fate type '" + fate_type + "'.");
+      System.err.println
+      (
+         "[P] Unknown basic fate type '"
+         + fate_type
+         + "'. Using java class '"
+         + fate_type.getClass().toString()
+         + "'. It was defined at: "
+         + fate_type.get_origin()
+      );
 
       return null;
    }
@@ -202,6 +212,10 @@ public class TypeCompiler
          return MapType.MAP_TO_INT;
       }
 
-      return new MapType(compile(compiler, fate_content_type));
+      return
+         new MapType
+         (
+            compile(compiler, fate_collection_type.get_content_type())
+         );
    }
 }

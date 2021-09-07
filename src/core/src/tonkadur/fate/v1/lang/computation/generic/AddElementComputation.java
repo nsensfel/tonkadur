@@ -65,41 +65,30 @@ public class AddElementComputation extends GenericComputation
 
          return null;
       }
-
-
-      if (call_parameters.size() > 2)
+      else if (call_parameters.size() > 2)
       {
-         final int param_size;
-         Computation temp_collection;
-         List<Computation> temp_params;
+         final int size_minus_one;
+         Computation result;
 
-         param_size = call_parameters.size();
+         size_minus_one = call_parameters.size() - 1;
 
-         temp_collection = call_parameters.get(param_size - 1);
+         result = call_parameters.get(size_minus_one);
 
-         temp_params = new ArrayList<Computation>();
-         temp_params.add(temp_collection);
-         temp_params.add(temp_collection);
-
-         for
-         (
-            final Computation addition:
-               call_parameters.subList(0, (param_size - 2))
-         )
+         for (int i = 0; i < size_minus_one; ++i)
          {
-            temp_params.set(0, addition);
+            final List<Computation> temp_params;
+            final Computation addition;
 
-            temp_collection =
-               build
-               (
-                  origin,
-                  alias,
-                  temp_params
-               );
+            addition = call_parameters.get(i);
+            temp_params = new ArrayList<Computation>();
+
+            temp_params.add(addition);
+            temp_params.add(result);
+
+            result = build(addition.get_origin(), alias, temp_params);
          }
 
-         element = call_parameters.get(param_size - 2);
-         collection = temp_collection;
+         return result;
       }
       else
       {

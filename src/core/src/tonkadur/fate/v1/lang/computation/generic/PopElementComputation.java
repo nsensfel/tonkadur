@@ -17,6 +17,10 @@ import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 import tonkadur.fate.v1.lang.computation.GenericComputation;
 
+import tonkadur.fate.v1.lang.type.Type;
+import tonkadur.fate.v1.lang.type.ConsType;
+import tonkadur.fate.v1.lang.type.CollectionType;
+
 public class PopElementComputation extends GenericComputation
 {
    public static Collection<String> get_aliases ()
@@ -93,7 +97,20 @@ public class PopElementComputation extends GenericComputation
          RecurrentChecks.assert_is_a_list(collection);
       }
 
-      return new PopElementComputation(origin, collection, is_from_left);
+      return
+         new PopElementComputation
+         (
+            origin,
+            collection,
+            is_from_left,
+            new ConsType
+            (
+               origin,
+               ((CollectionType) collection.get_type()).get_content_type(),
+               collection.get_type(),
+               "auto gen"
+            )
+         );
    }
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -109,10 +126,11 @@ public class PopElementComputation extends GenericComputation
    (
       final Origin origin,
       final Computation collection,
-      final boolean is_from_left
+      final boolean is_from_left,
+      final Type type
    )
    {
-      super(origin, collection.get_type());
+      super(origin, type);
 
       this.collection = collection;
       this.is_from_left = is_from_left;
