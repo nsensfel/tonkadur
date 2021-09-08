@@ -70,7 +70,7 @@ public class Decrement extends GenericInstruction
          result = new ArrayList<Instruction>();
          sub_call_parameters = new ArrayList<Computation>();
 
-         sub_call_parameters.add(call_parameters.get(size_minus_one));
+         sub_call_parameters.add(call_parameters.get(0));
 
          for (int i = 0; i < size_minus_one; ++i)
          {
@@ -88,9 +88,9 @@ public class Decrement extends GenericInstruction
 
       element = call_parameters.get(0);
 
-      RecurrentChecks.assert_can_be_used_as(element, Type.INT);
-
       element.expect_non_string();
+
+      RecurrentChecks.assert_can_be_used_as(element, Type.INT);
 
       element.use_as_reference();
 

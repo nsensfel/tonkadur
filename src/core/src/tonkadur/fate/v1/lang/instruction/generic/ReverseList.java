@@ -67,7 +67,7 @@ public class ReverseList extends GenericInstruction
          result = new ArrayList<Instruction>();
          sub_call_parameters = new ArrayList<Computation>();
 
-         sub_call_parameters.add(sub_call_parameters.get(0));
+         sub_call_parameters.add(call_parameters.get(0));
 
          for (int i = 0; i < size_minus_one; ++i)
          {

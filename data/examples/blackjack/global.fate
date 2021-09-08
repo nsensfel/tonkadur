@@ -15,11 +15,7 @@
    )
 )
 
-(global int marker_0)
-
 (declare_text_effect action_description)
-
-(global int marker_1)
 
 (define_sequence money_acquisition ((int amount))
    (set! player.money (+ player.money amount))
@@ -30,8 +26,6 @@
    )
 )
 
-(global int marker_2)
-
 (define_sequence money_loss ((int amount))
    (set! player.money (- player.money amount))
    (if (> amount 0)
@@ -41,8 +35,4 @@
    )
 )
 
-(global int marker_3)
-
 (declare_input_event escape)
-
-(global int marker_4)

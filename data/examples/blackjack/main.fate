@@ -19,7 +19,7 @@ you some coins.
 Just between you and me, someone left those laying around, they aren't mine.
 
 (visit! money_acquisition (+ 100 (rand 0 100)))
-(set! original_amount (var player.money))
+(set! original_amount player.money)
 
 Now, you're all set to go... unless you don't know how to play?
 
@@ -72,8 +72,8 @@ Now, you're all set to go... unless you don't know how to play?
 )
 
 (text_effect action_description
-   You walk out, having turned (eval coins_word (var original_amount)) into
-   (eval coins_word (var player.money)).
+   You walk out, having turned (eval coins_word original_amount) into
+   (eval coins_word player.money).
 )
 
 (end!)

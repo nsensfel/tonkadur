@@ -371,6 +371,44 @@ first_level_instruction
       PARSER.get_world().variables().add(new_variable);
    }
 
+   | DECLARE_GLOBAL_VARIABLE_KW
+         type WS+
+         name=identifier WS+
+         value=computation WS*
+      R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_GLOBAL_VARIABLE_KW.getLine()),
+            ($DECLARE_GLOBAL_VARIABLE_KW.getCharPositionInLine())
+         );
+
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            ($type.result),
+            ($name.result),
+            false
+         );
+
+      PARSER.get_world().variables().add(new_variable);
+
+      PARSER.get_world().add_global_instruction
+      (
+         SetValue.build
+         (
+            start_origin,
+            new VariableReference(start_origin, new_variable),
+            ($value.result)
+         )
+      );
+   }
+
    | DECLARE_EXTERNAL_VARIABLE_KW type WS+ name=identifier WS* R_PAREN
    {
       final Origin start_origin, type_origin;
@@ -590,6 +628,51 @@ returns [Instruction result]
       PARSER.add_local_variable(new_variable);
 
       $result = new LocalVariable(new_variable);
+   }
+
+   | DECLARE_LOCAL_VARIABLE_KW
+      type WS+
+      name=identifier WS+
+      value=computation WS*
+      R_PAREN
+   {
+      final Origin start_origin, type_origin;
+      final Variable new_variable;
+      final Map<String, Variable> variable_map;
+      final List<Instruction> shorthand;
+
+      shorthand = new ArrayList<Instruction>();
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_LOCAL_VARIABLE_KW.getLine()),
+            ($DECLARE_LOCAL_VARIABLE_KW.getCharPositionInLine())
+         );
+
+      new_variable =
+         new Variable
+         (
+            start_origin,
+            ($type.result),
+            ($name.result),
+            false
+         );
+
+      PARSER.add_local_variable(new_variable);
+
+      shorthand.add(new LocalVariable(new_variable));
+      shorthand.add
+      (
+         SetValue.build
+         (
+            start_origin,
+            new VariableReference(start_origin, new_variable),
+            ($value.result)
+         )
+      );
+
+      $result = new InstructionList(start_origin, shorthand);
    }
 
 /******************************************************************************/

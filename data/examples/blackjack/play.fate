@@ -4,13 +4,11 @@
 (require global.fate)
 (require cards.fate)
 
-(global bool has_played)
+(global bool has_played (false))
 (global (list card) current_deck)
 (global (list card) dealer_hand)
 (global int bet)
 (global bool has_doubled)
-
-(set! has_played (false))
 
 (define_sequence play_a_game ()
    (local card new_card)
@@ -29,7 +27,7 @@
    (prompt_integer!
       (ptr bet)
       1
-      (var player.money)
+      player.money
       How much would you like to bet?
    )
    (text_effect action_description
@@ -41,7 +39,7 @@
    (set! current_deck (list:shuffle deck_template))
 
    (list:pop_left! current_deck new_card)
-   (list:add! (var new_card) player.hand)
+   (list:add! new_card player.hand)
 
    (text_effect action_description
       You have been dealt the (var new_card.name).
@@ -49,7 +47,7 @@
    )
 
    (list:pop_left! current_deck new_card)
-   (list:add! (var new_card) dealer_hand)
+   (list:add! new_card dealer_hand)
 
    (text_effect action_description
       The dealer has drawn the (var new_card.name).
@@ -57,7 +55,7 @@
    )
 
    (list:pop_left! current_deck new_card)
-   (list:add! (var new_card) player.hand)
+   (list:add! new_card player.hand)
 
    (text_effect action_description
       You have been dealt the (var new_card.name).
@@ -67,7 +65,7 @@
    (newline)
 
    (list:pop_left! current_deck new_card)
-   (list:add! (var new_card) dealer_hand)
+   (list:add! new_card dealer_hand)
 
    (text_effect action_description
       The dealer has drawn a card, face down.
@@ -76,8 +74,7 @@
 
    (visit! initial_draw)
 
-   (list:clear! dealer_hand)
-   (list:clear! player.hand)
+   (list:clear! dealer_hand player.hand)
 
    (newline)
    Interesting. Would you like to go again?

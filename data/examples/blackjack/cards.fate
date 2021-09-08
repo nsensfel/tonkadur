@@ -41,21 +41,26 @@
 
 (global (list card) deck_template)
 
-(list:add_all! (eval card_generator Hearts) deck_template)
-(list:add_all! (eval card_generator Spades) deck_template)
-(list:add_all! (eval card_generator Diamonds) deck_template)
-(list:add_all! (eval card_generator Clubs) deck_template)
+(list:add_all!
+   (eval card_generator Hearts)
+   (eval card_generator Spades)
+   (eval card_generator Diamonds)
+   (eval card_generator Clubs)
+   deck_template
+)
+
+
 
 (define_sequence compute_score (((ptr (list card)) deck) ((ptr int) result))
-   (local int aces_count)
-   (local int maybe_better_score)
+   (local int aces_count 0)
+   (local int maybe_better_score 0)
 
    (set! (at result) 0)
 
    (foreach (at deck) card
       (set! (at result) (+ card.score (at result)))
       (if (= (var card.number) 1)
-         (set! aces_count (+ aces_count 1))
+         (++! aces_count)
       )
    )
 
@@ -64,6 +69,6 @@
       (if (=< maybe_better_score 21)
          (set! (at result) (var maybe_better_score))
       )
-      (set! aces_count (- aces_count 1))
+      (--! aces_count)
    )
 )
