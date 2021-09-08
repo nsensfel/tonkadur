@@ -4,12 +4,11 @@
 
 (global player player)
 
-(global (lambda text (int)) coins_word)
-
-(set! coins_word
+(global (lambda text (int)) coins_word
    (lambda ((int i))
-      (if_else (= (var i) 1)
-         (text a single coin)
+      (switch (var i)
+         (0 (text no coins))
+         (1 (text a single coin))
          (text (var i) coins)
       )
    )
