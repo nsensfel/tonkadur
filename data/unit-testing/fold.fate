@@ -10,12 +10,12 @@
 
 (assert!
    (= 55
-      (foldl
+      (list:foldl
          (lambda ((int res) (int e)) (+ res e))
          0
          0to10
       )
-      (foldr
+      (list:foldr
          (lambda ((int res) (int e)) (+ res e))
          0
          0to10
@@ -24,14 +24,14 @@
    [FAILED] (var test_name) Failed sum.
    (newline)
    foldl yielded:
-   (foldl
+   (list:foldl
       (lambda ((int res) (int e)) (+ res e))
       0
       0to10
    )
    (newline)
    foldr yielded:
-   (foldr
+   (list:foldr
       (lambda ((int res) (int e)) (+ res e))
       0
       0to10
@@ -42,9 +42,9 @@
 (global (list int) 10to0_1)
 
 (set! 10to0_0
-   (foldr
+   (list:foldr
       (lambda (((list int) res) (int e))
-         (add (- e 10) res)
+         (list:add (- e 10) res)
       )
       (default (list int))
       (list:range 10 20 1)
@@ -52,9 +52,9 @@
 )
 
 (set! 10to0_1
-   (foldr
+   (list:foldr
       (lambda (((list int) res) (int e) (int mod))
-         (add (- e mod) res)
+         (list:add (- e mod) res)
       )
       (default (list int))
       (list:range 10 20 1)
@@ -132,9 +132,9 @@
 (global (list int) 10to20_1)
 
 (set! 10to20_0
-   (foldl
+   (list:foldl
       (lambda (((list int) res) (int e))
-         (add (- e 10) res)
+         (list:add (- e 10) res)
       )
       (default (list int))
       (list:range 20 30 1)
@@ -142,9 +142,9 @@
 )
 
 (set! 10to20_1
-   (foldl
+   (list:foldl
       (lambda (((list int) res) (int e) (int mod))
-         (add (- e mod) res)
+         (list:add (- e mod) res)
       )
       (default (list int))
       (list:range 20 30 1)

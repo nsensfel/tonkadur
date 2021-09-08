@@ -60,7 +60,13 @@ public class SubList extends GenericInstruction
             new WrongNumberOfParametersException
             (
                origin,
-               "(" + alias + "! <(LIST X)|(SET X) REFERENCE>)"
+               (
+                  "("
+                  + alias
+                  + "! <start_at: INT>"
+                  + " <stop_before: INT>"
+                  + " <(LIST X)|(SET X) REFERENCE>)"
+               )
             )
          );
 

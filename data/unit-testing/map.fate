@@ -5,129 +5,95 @@
 (set! test_name ( MAP ))
 
 (global (list int) li0)
-(global (list int) li1)
 (global (list int) li2)
-(global (list int) li3)
 
 (set! li0
-   (map
+   (list:map
       (lambda ((int i)) (* i 2))
       (list:range 0 10 1)
    )
 )
 
-(set! li1 (list:range 0 10 1))
-
-(map!
-   (lambda ((int i)) (* i 2))
-   li1
-)
-
 (set! li2
-   (map
+   (list:map
       (lambda ((int i) (int mod)) (* i mod))
       (list:range 0 10 1)
       2
    )
 )
 
-(set! li3 (list:range 0 10 1))
-
-(map!
-   (lambda ((int i) (int mod)) (* i mod))
-   li3
-   2
-)
-
 (assert!
-   (= (var li1) (var li0) (var li2) (var li3))
+   (= (var li0) (var li2))
    [FAILED] (var test_name) Equality test 0.
 )
 
 (assert!
-   (= 0 (var li1.0) (var li0.0))
-   [FAILED] (var test_name) Test for 0: (var li1.0), (var li0.0).
+   (= 0 (var li2.0) (var li0.0))
+   [FAILED] (var test_name) Test for 0: (var li2.0), (var li0.0).
 )
 
 (assert!
-   (= 2 (var li1.1) (var li0.1))
-   [FAILED] (var test_name) Test for 2: (var li1.1), (var li0.1).
+   (= 2 (var li2.1) (var li0.1))
+   [FAILED] (var test_name) Test for 2: (var li2.1), (var li0.1).
 )
 
 (assert!
-   (= 4 (var li1.2) (var li0.2))
-   [FAILED] (var test_name) Test for 4: (var li1.2), (var li0.2).
+   (= 4 (var li2.2) (var li0.2))
+   [FAILED] (var test_name) Test for 4: (var li2.2), (var li0.2).
 )
 (assert!
-   (= 6 (var li1.3) (var li0.3))
-   [FAILED] (var test_name) Test for 6: (var li1.3), (var li0.3).
+   (= 6 (var li2.3) (var li0.3))
+   [FAILED] (var test_name) Test for 6: (var li2.3), (var li0.3).
 )
 (assert!
-   (= 8 (var li1.4) (var li0.4))
-   [FAILED] (var test_name) Test for 8: (var li1.4), (var li0.4).
+   (= 8 (var li2.4) (var li0.4))
+   [FAILED] (var test_name) Test for 8: (var li2.4), (var li0.4).
 )
 (assert!
-   (= 10 (var li1.5) (var li0.5))
-   [FAILED] (var test_name) Test for 10: (var li1.5), (var li0.5).
+   (= 10 (var li2.5) (var li0.5))
+   [FAILED] (var test_name) Test for 10: (var li2.5), (var li0.5).
 )
 (assert!
-   (= 12 (var li1.6) (var li0.6))
-   [FAILED] (var test_name) Test for 12: (var li1.6), (var li0.6).
+   (= 12 (var li2.6) (var li0.6))
+   [FAILED] (var test_name) Test for 12: (var li2.6), (var li0.6).
 )
 (assert!
-   (= 14 (var li1.7) (var li0.7))
-   [FAILED] (var test_name) Test for 14: (var li1.7), (var li0.7).
+   (= 14 (var li2.7) (var li0.7))
+   [FAILED] (var test_name) Test for 14: (var li2.7), (var li0.7).
 )
 (assert!
-   (= 16 (var li1.8) (var li0.8))
-   [FAILED] (var test_name) Test for 16: (var li1.8), (var li0.8).
+   (= 16 (var li2.8) (var li0.8))
+   [FAILED] (var test_name) Test for 16: (var li2.8), (var li0.8).
 )
 (assert!
-   (= 18 (var li1.9) (var li0.9))
-   [FAILED] (var test_name) Test for 18: (var li1.9), (var li0.9).
+   (= 18 (var li2.9) (var li0.9))
+   [FAILED] (var test_name) Test for 18: (var li2.9), (var li0.9).
 )
 (assert!
-   (= 20 (var li1.10) (var li0.10))
-   [FAILED] (var test_name) Test for 20: (var li1.10), (var li0.10).
+   (= 20 (var li2.10) (var li0.10))
+   [FAILED] (var test_name) Test for 20: (var li2.10), (var li0.10).
 )
 
-(clear! li0)
-(clear! li1)
-(clear! li2)
-(clear! li3)
+(list:clear! li0)
+(list:clear! li2)
 
 (set! li0
-   (indexed_map
+   (list:indexed_map
       (lambda ((int ix) (int i)) (+ (* i ix) 1000))
       (list:range 10 20 1)
    )
 )
 
-(set! li1 (list:range 10 20 1))
-
-(indexed_map!
-   (lambda ((int ix) (int i)) (+ (* i ix) 1000))
-   li1
-)
-
 (set! li2
-   (indexed_map
+   (list:indexed_map
       (lambda ((int ix) (int i) (int mod)) (+ (* i ix) mod))
       (list:range 10 20 1)
       1000
    )
 )
 
-(set! li3 (list:range 10 20 1))
-
-(indexed_map!
-   (lambda ((int ix) (int i) (int mod)) (+ (* i ix) mod))
-   li3
-   1000
-)
-
 (assert!
-   (= (var li1) (var li0) (var li2) (var li3))
+   (= (var li0) (var li2))
    [FAILED] (var test_name) Equality test 1.
 )
 
@@ -136,11 +102,12 @@
 (for (set! i 0) (=< i 10) (set! i (+ i 1))
    (assert!
       (=
-         (access i li1) (access i li0) (access i li2) (access i li3)
+         (list:access i li0)
+         (list:access i li2)
          (+ (* i (+ 10 i)) 1000)
       )
       [FAILED] (var test_name) Indexed map at (var i):
-      (access i li1), (access i li0), (access i li2), (access i li3)
+      (list:access i li0), (list:access i li2)
    )
 )
 

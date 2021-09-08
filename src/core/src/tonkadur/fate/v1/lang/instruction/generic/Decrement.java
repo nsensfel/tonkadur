@@ -16,10 +16,12 @@ import tonkadur.fate.v1.lang.meta.Instruction;
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
+import tonkadur.fate.v1.lang.type.Type;
+
 import tonkadur.fate.v1.lang.instruction.GenericInstruction;
 import tonkadur.fate.v1.lang.instruction.InstructionList;
 
-public class ReverseList extends GenericInstruction
+public class Decrement extends GenericInstruction
 {
    public static Collection<String> get_aliases ()
    {
@@ -27,8 +29,9 @@ public class ReverseList extends GenericInstruction
 
       aliases = new ArrayList<String>();
 
-      aliases.add("list:reverse");
-      aliases.add("set:reverse");
+      aliases.add("decrement");
+      aliases.add("dec");
+      aliases.add("--");
 
       return aliases;
    }
@@ -41,7 +44,7 @@ public class ReverseList extends GenericInstruction
    )
    throws Throwable
    {
-      final Computation collection;
+      final Computation element;
 
       if (call_parameters.size() < 1)
       {
@@ -50,7 +53,7 @@ public class ReverseList extends GenericInstruction
             new WrongNumberOfParametersException
             (
                origin,
-               "(" + alias + "! <(LIST X)|(SET X) REFERENCE>+)"
+               "(" + alias + "! <INT REFERENCE>+)"
             )
          );
 
@@ -67,7 +70,7 @@ public class ReverseList extends GenericInstruction
          result = new ArrayList<Instruction>();
          sub_call_parameters = new ArrayList<Computation>();
 
-         sub_call_parameters.add(sub_call_parameters.get(0));
+         sub_call_parameters.add(call_parameters.get(size_minus_one));
 
          for (int i = 0; i < size_minus_one; ++i)
          {
@@ -83,51 +86,44 @@ public class ReverseList extends GenericInstruction
          return new InstructionList(origin, result);
       }
 
-      collection = call_parameters.get(0);
+      element = call_parameters.get(0);
 
-      collection.expect_non_string();
+      RecurrentChecks.assert_can_be_used_as(element, Type.INT);
 
-      if (alias.startsWith("set:"))
-      {
-         RecurrentChecks.assert_is_a_set(collection);
-      }
-      else
-      {
-         RecurrentChecks.assert_is_a_list(collection);
-      }
+      element.expect_non_string();
 
-      collection.use_as_reference();
+      element.use_as_reference();
 
-      return new ReverseList(origin, collection);
+      return new Decrement(origin, element);
    }
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Computation collection;
+   protected final Computation element;
 
    /***************************************************************************/
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected ReverseList
+   protected Decrement
    (
       final Origin origin,
-      final Computation collection
+      final Computation element
    )
    {
       super(origin);
 
-      this.collection = collection;
+      this.element = element;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Accessors ************************************************************/
-   public Computation get_collection ()
+   public Computation get_reference ()
    {
-      return collection;
+      return element;
    }
 
    /**** Misc. ****************************************************************/
@@ -136,9 +132,8 @@ public class ReverseList extends GenericInstruction
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(ReverseList ");
-      sb.append(collection.toString());
-
+      sb.append("(Decrement ");
+      sb.append(element.toString());
       sb.append(")");
 
       return sb.toString();

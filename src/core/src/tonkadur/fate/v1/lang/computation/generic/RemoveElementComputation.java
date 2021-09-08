@@ -54,18 +54,43 @@ public class RemoveElementComputation extends GenericComputation
       final Computation element;
       final Computation collection;
 
-      if (call_parameters.size() != 1)
+      if (call_parameters.size() < 2)
       {
          ErrorManager.handle
          (
             new WrongNumberOfParametersException
             (
                origin,
-               "(" + alias + " <element: X> <(LIST X)|(SET X)>)"
+               "(" + alias + " <element: X>+ <(LIST X)|(SET X)>)"
             )
          );
 
          return null;
+      }
+      else if (call_parameters.size() > 2)
+      {
+         final int size_minus_one;
+         Computation result;
+
+         size_minus_one = call_parameters.size() - 1;
+
+         result = call_parameters.get(size_minus_one);
+
+         for (int i = 0; i < size_minus_one; ++i)
+         {
+            final List<Computation> temp_params;
+            final Computation addition;
+
+            addition = call_parameters.get(i);
+            temp_params = new ArrayList<Computation>();
+
+            temp_params.add(addition);
+            temp_params.add(result);
+
+            result = build(addition.get_origin(), alias, temp_params);
+         }
+
+         return result;
       }
 
       element = call_parameters.get(0);
