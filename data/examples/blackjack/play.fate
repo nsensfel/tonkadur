@@ -5,13 +5,13 @@
 (require cards.fate)
 
 (global bool has_played (false))
-(global (list card) current_deck)
-(global (list card) dealer_hand)
+(global (list #card) current_deck)
+(global (list #card) dealer_hand)
 (global int bet)
 (global bool has_doubled)
 
 (define_sequence play_a_game ()
-   (local card new_card)
+   (local #card new_card)
 
    (if (not has_played)
       (text_effect action_description
@@ -171,7 +171,7 @@
 )
 
 (define_sequence acquire_card ()
-   (local card new_card)
+   (local #card new_card)
    (local int player_score)
 
    (list:pop_left! current_deck new_card)
@@ -248,7 +248,7 @@
    (newline)
 
    (while (< dealer_score 17)
-      (local card new_card)
+      (local #card new_card)
 
       (list:pop_left! current_deck new_card)
       (list:add! (var new_card) dealer_hand)

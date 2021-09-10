@@ -37,6 +37,10 @@ DECLARE_TEXT_EFFECT_KW:
    L_PAREN ('declare'|('def''ine'?))US'text'US'effect' SEP+;
 DECLARE_GLOBAL_VARIABLE_KW: L_PAREN 'global' SEP+;
 DECLARE_EXTERNAL_VARIABLE_KW: L_PAREN 'extern'('al'?) SEP+;
+DECLARE_INSTRUCTION_KW:
+   L_PAREN ('declare'|('def''ine'?))US'instruction' SEP+;
+DECLARE_COMPUTATION_KW:
+   L_PAREN ('declare'|('def''ine'?))US'computation' SEP+;
 
 DEFINE_SEQUENCE_KW:
    L_PAREN
@@ -144,7 +148,7 @@ fragment IDENTIFIER_FRAG: ~([ \t\r\n()]|'!');
 
 IDENTIFIER_KW: IDENTIFIER_FRAG+;
 
-WORD: (IDENTIFIER_FRAG|'!'|'(lp)'|'(rp)'|'(sp)')+
+WORD: (IDENTIFIER_FRAG|'!'|'(lp)'|'(rp)'|'(sp)'|'(2;)')+
    {
       setText
       (
@@ -160,6 +164,10 @@ WORD: (IDENTIFIER_FRAG|'!'|'(lp)'|'(rp)'|'(sp)')+
          (
             "\\(rp\\)",
             ")"
+         ).replaceAll
+         (
+            "\\(2;\\)",
+            ";;"
          )
       );
    };

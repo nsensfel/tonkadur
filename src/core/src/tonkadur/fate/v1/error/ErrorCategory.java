@@ -8,6 +8,7 @@ public class ErrorCategory extends tonkadur.error.ErrorCategory
    public static final ErrorCategory INCOMPATIBLE;
    public static final ErrorCategory INVALID_USE;
    public static final ErrorCategory MISSING_DECLARATION;
+   public static final ErrorCategory RECOMMENDATION;
    public static final ErrorCategory UNKNOWN;
 
    static
@@ -18,6 +19,7 @@ public class ErrorCategory extends tonkadur.error.ErrorCategory
       INCOMPATIBLE = new ErrorCategory("incompatible");
       INVALID_USE = new ErrorCategory("invalid_use");
       MISSING_DECLARATION = new ErrorCategory("missing_declaration");
+      RECOMMENDATION = new ErrorCategory("recommendation");
       UNKNOWN = new ErrorCategory("unknown");
    }
 

@@ -49,8 +49,6 @@ public class TypeCompiler
 
       if (fate_type instanceof tonkadur.fate.v1.lang.type.PointerType)
       {
-         System.out.println("Pointer type: " + fate_type.toString());
-
          return
             new PointerType
             (

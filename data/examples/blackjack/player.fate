@@ -2,8 +2,8 @@
 
 (require cards.fate)
 
-(define_structure player
+(define_structure #player
    (string name)
    (int money)
-   ((list card) hand)
+   ((list #card) hand)
 )

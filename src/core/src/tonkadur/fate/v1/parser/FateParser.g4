@@ -128,6 +128,12 @@ first_level_instruction
          );
 
       PARSER.get_world().types().add(new_type);
+
+      RecurrentChecks.assert_has_user_content_prefix
+      (
+         start_origin,
+         ($identifier.result)
+      );
    }
 
    | DECLARE_STRUCT_TYPE_KW identifier WS* variable_list WS* R_PAREN
@@ -159,6 +165,12 @@ first_level_instruction
          );
 
       PARSER.get_world().types().add(new_type);
+
+      RecurrentChecks.assert_has_user_content_prefix
+      (
+         start_origin,
+         ($identifier.result)
+      );
    }
 
    | DECLARE_EXTRA_INSTRUCTION_KW identifier maybe_type_list WS* R_PAREN
@@ -182,6 +194,12 @@ first_level_instruction
          );
 
       PARSER.get_world().extra_instructions().add(extra_instruction);
+
+      RecurrentChecks.assert_has_user_content_prefix
+      (
+         start_origin,
+         ($identifier.result)
+      );
    }
 
    | DECLARE_EXTRA_COMPUTATION_KW
@@ -210,6 +228,12 @@ first_level_instruction
          );
 
       PARSER.get_world().extra_computations().add(extra_computation);
+
+      RecurrentChecks.assert_has_user_content_prefix
+      (
+         start_origin,
+         ($identifier.result)
+      );
    }
 
    | DECLARE_EXTRA_TYPE_KW identifier WS+ argc=word WS+ comp=word WS* R_PAREN
@@ -299,6 +323,12 @@ first_level_instruction
       {
          Type.COMPARABLE_TYPES.add(new_type);
       }
+
+      RecurrentChecks.assert_has_user_content_prefix
+      (
+         start_origin,
+         ($identifier.result)
+      );
    }
 
    | DECLARE_EVENT_TYPE_KW identifier maybe_type_list WS* R_PAREN

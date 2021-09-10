@@ -2,7 +2,7 @@
 
 (require player.fate)
 
-(global player player)
+(global #player player)
 
 (global (lambda text (int)) coins_word
    (lambda ((int i))

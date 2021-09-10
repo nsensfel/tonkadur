@@ -16,6 +16,7 @@ import tonkadur.fate.v1.error.InvalidTypeException;
 import tonkadur.fate.v1.error.InvalidArityException;
 import tonkadur.fate.v1.error.SignatureTypeMismatchException;
 import tonkadur.fate.v1.error.IncorrectReturnTypeException;
+import tonkadur.fate.v1.error.DangerouslyNamedUserContentException;
 
 import tonkadur.fate.v1.lang.type.CollectionType;
 import tonkadur.fate.v1.lang.type.LambdaType;
@@ -35,6 +36,22 @@ public class RecurrentChecks
    throws ParsingError
    {
       return assert_can_be_used_as(a.get_origin(), a.get_type(), b.get_type());
+   }
+
+   public static void assert_has_user_content_prefix
+   (
+      final Origin origin,
+      final String name
+   )
+   throws ParsingError
+   {
+      if (!name.startsWith("#"))
+      {
+         ErrorManager.handle
+         (
+            new DangerouslyNamedUserContentException(origin, name)
+         );
+      }
    }
 
    public static Type assert_can_be_used_as

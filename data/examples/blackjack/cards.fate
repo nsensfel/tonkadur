@@ -1,12 +1,12 @@
 (fate_version 1)
 
-(declare_structure card
+(declare_structure #card
    (text name)
    (int number)
    (int score)
 )
 
-(local (lambda (list card) (string)) card_generator)
+(local (lambda (list #card) (string)) card_generator)
 
 (set! card_generator
    (lambda ( (string family) )
@@ -16,7 +16,7 @@
                (int number)
                (string family)
             )
-            (struct:set_fields (default card)
+            (struct:set_fields (default #card)
                (number (var number))
                (name
                   (text
@@ -39,7 +39,7 @@
    )
 )
 
-(global (list card) deck_template)
+(global (list #card) deck_template)
 
 (list:add_all!
    (eval card_generator Hearts)
@@ -49,9 +49,7 @@
    deck_template
 )
 
-
-
-(define_sequence compute_score (((ptr (list card)) deck) ((ptr int) result))
+(define_sequence compute_score (((ptr (list #card)) deck) ((ptr int) result))
    (local int aces_count 0)
    (local int maybe_better_score 0)
 
