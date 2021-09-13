@@ -86,6 +86,50 @@ public abstract class GenericComputation extends Computation
       }
    }
 
+   public static void register (final String alias, final Class c)
+   {
+      try
+      {
+         final Class previous_entry;
+
+         previous_entry = REGISTERED.get(alias);
+
+         if (previous_entry != null)
+         {
+            ErrorManager.handle
+            (
+               new BasicError
+               (
+                  ErrorLevel.FATAL,
+                  ErrorCategory.PROGRAMMING_ERROR,
+                  (
+                     "Unable to add alias for Generic Fate Computation '"
+                     + alias
+                     + "' from class '"
+                     + c.getName()
+                     + "': it has already been claimed by class '"
+                     + previous_entry.getName()
+                     + "'."
+                  )
+               )
+            );
+         }
+
+         REGISTERED.put(alias, c);
+      }
+      catch (final Throwable t)
+      {
+         System.err.println
+         (
+            "Could not register Generic Fate Computation class '"
+            + c.getName()
+            + "': "
+         );
+
+         t.printStackTrace();
+      }
+   }
+
    public static Computation build
    (
       final Origin origin,

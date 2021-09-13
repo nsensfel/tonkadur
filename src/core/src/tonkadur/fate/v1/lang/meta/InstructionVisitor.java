@@ -2,6 +2,8 @@ package tonkadur.fate.v1.lang.meta;
 
 import tonkadur.fate.v1.lang.instruction.*;
 
+import tonkadur.fate.v1.lang.instruction.generic.ExtraInstruction;
+
 public interface InstructionVisitor
 {
    /* Instruction Nodes */
@@ -63,9 +65,6 @@ public interface InstructionVisitor
    throws Throwable;
 
    public void visit_set_fields (final SetFields n)
-   throws Throwable;
-
-   public void visit_extra_instruction (final ExtraInstructionInstance n)
    throws Throwable;
 
    public void visit_generic_instruction (final GenericInstruction n)

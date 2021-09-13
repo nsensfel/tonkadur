@@ -20,8 +20,6 @@ import tonkadur.fate.v1.error.UnknownSequenceException;
 
 import tonkadur.fate.v1.lang.meta.Computation;
 import tonkadur.fate.v1.lang.meta.DeclarationCollection;
-import tonkadur.fate.v1.lang.meta.ExtraInstruction;
-import tonkadur.fate.v1.lang.meta.ExtraComputation;
 import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 import tonkadur.fate.v1.lang.meta.Instruction;
 
@@ -47,8 +45,6 @@ public class World
       sequence_uses;
    protected final Map<String, List<SequenceReference>> sequence_variables;
 
-   protected final DeclarationCollection<ExtraInstruction> ei_collection;
-   protected final DeclarationCollection<ExtraComputation> ec_collection;
    protected final DeclarationCollection<Event> event_collection;
    protected final DeclarationCollection<Sequence> sequence_collection;
    protected final DeclarationCollection<TextEffect> text_effect_collection;
@@ -71,17 +67,6 @@ public class World
          new HashMap<String, List<Cons<Origin, List<Computation>>>>();
 
       sequence_variables = new HashMap<String, List<SequenceReference>>();
-
-      ei_collection =
-         new DeclarationCollection<ExtraInstruction>
-         (
-            ExtraInstruction.value_on_missing()
-         );
-      ec_collection =
-         new DeclarationCollection<ExtraComputation>
-         (
-            ExtraComputation.value_on_missing()
-         );
 
       event_collection =
          new DeclarationCollection<Event>(Event.value_on_missing());
@@ -171,16 +156,6 @@ public class World
    }
 
    /**** Collections ****/
-   public DeclarationCollection<ExtraInstruction> extra_instructions ()
-   {
-      return ei_collection;
-   }
-
-   public DeclarationCollection<ExtraComputation> extra_computations ()
-   {
-      return ec_collection;
-   }
-
    public DeclarationCollection<Event> events ()
    {
       return event_collection;
@@ -258,20 +233,6 @@ public class World
          sb.append(filename);
          sb.append(System.lineSeparator());
       }
-
-      sb.append(System.lineSeparator());
-      sb.append("Extra Instructions:");
-      sb.append(System.lineSeparator());
-      sb.append(ei_collection.toString());
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
-
-      sb.append(System.lineSeparator());
-      sb.append("Extra Computations:");
-      sb.append(System.lineSeparator());
-      sb.append(ec_collection.toString());
-      sb.append(System.lineSeparator());
-      sb.append(System.lineSeparator());
 
       sb.append(System.lineSeparator());
       sb.append("Events:");

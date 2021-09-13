@@ -47,7 +47,10 @@ options
    import tonkadur.fate.v1.lang.type.*;
    import tonkadur.fate.v1.lang.computation.*;
 
+   import tonkadur.fate.v1.lang.computation.generic.ExtraComputation;
+
    import tonkadur.fate.v1.lang.instruction.generic.SetValue;
+   import tonkadur.fate.v1.lang.instruction.generic.ExtraInstruction;
 }
 
 @members
@@ -185,15 +188,11 @@ first_level_instruction
             ($DECLARE_EXTRA_INSTRUCTION_KW.getCharPositionInLine())
          );
 
-      extra_instruction =
-         new ExtraInstruction
-         (
-            start_origin,
-            ($identifier.result),
-            ($maybe_type_list.result)
-         );
-
-      PARSER.get_world().extra_instructions().add(extra_instruction);
+      ExtraInstruction.register
+      (
+         ($identifier.result),
+         ($maybe_type_list.result)
+      );
 
       RecurrentChecks.assert_has_user_content_prefix
       (
@@ -218,16 +217,12 @@ first_level_instruction
             ($DECLARE_EXTRA_COMPUTATION_KW.getCharPositionInLine())
          );
 
-      extra_computation =
-         new ExtraComputation
-         (
-            start_origin,
-            ($type.result),
-            ($identifier.result),
-            ($maybe_type_list.result)
-         );
-
-      PARSER.get_world().extra_computations().add(extra_computation);
+      ExtraComputation.register
+      (
+         ($type.result),
+         ($identifier.result),
+         ($maybe_type_list.result)
+      );
 
       RecurrentChecks.assert_has_user_content_prefix
       (
@@ -517,6 +512,114 @@ first_level_instruction
       PARSER.restore_local_variables_stack(previous_local_variables_stack);
    }
 
+   | DECLARE_INSTRUCTION_KW
+         {
+            previous_local_variables_stack = PARSER.get_local_variables_stack();
+            PARSER.discard_local_variables_stack();
+            PARSER.increase_local_variables_hierarchy();
+         }
+         identifier
+         WS*
+         (
+            L_PAREN WS* variable_list WS* R_PAREN
+            {
+               PARSER.add_local_variables(($variable_list.result).as_map());
+               PARSER.increase_local_variables_hierarchy();
+            }
+         )
+         pre_sequence_point=WS+
+         maybe_instruction_list
+         WS*
+      R_PAREN
+   {
+      final Origin start_origin, sequence_origin;
+      final Sequence new_sequence;
+
+      start_origin =
+         PARSER.get_origin_at
+         (
+            ($DECLARE_INSTRUCTION_KW.getLine()),
+            ($DECLARE_INSTRUCTION_KW.getCharPositionInLine())
+         );
+
+      sequence_origin =
+         PARSER.get_origin_at
+         (
+            ($pre_sequence_point.getLine()),
+            ($pre_sequence_point.getCharPositionInLine())
+         );
+
+      new_sequence =
+         new Sequence
+         (
+            start_origin,
+            new InstructionList
+            (
+               sequence_origin,
+               ($maybe_instruction_list.result)
+            ),
+            ($identifier.result),
+            ($variable_list.result).get_entries()
+         );
+
+      //PARSER.get_world().user_defined_instructions().add(new_sequence);
+      PARSER.restore_local_variables_stack(previous_local_variables_stack);
+
+      RecurrentChecks.assert_has_user_content_prefix
+      (
+         start_origin,
+         ($identifier.result)
+      );
+   }
+
+   | DECLARE_COMPUTATION_KW
+      {
+         previous_local_variables_stack = PARSER.get_local_variables_stack();
+         PARSER.discard_local_variables_stack();
+         PARSER.increase_local_variables_hierarchy();
+      }
+         identifier WS*
+         L_PAREN WS* variable_list WS* R_PAREN
+         {
+            PARSER.add_local_variables(($variable_list.result).as_map());
+         }
+         WS*
+         computation
+         WS*
+      R_PAREN
+      {
+         final Origin start_origin;
+         final LambdaExpression computation;
+
+         PARSER.restore_local_variables_stack(previous_local_variables_stack);
+
+         start_origin =
+            PARSER.get_origin_at
+            (
+               ($DECLARE_COMPUTATION_KW.getLine()),
+               ($DECLARE_COMPUTATION_KW.getCharPositionInLine())
+            );
+
+         computation =
+            LambdaExpression.build
+            (
+               start_origin,
+               ($variable_list.result).get_entries(),
+               ($computation.result)
+            );
+         /*
+         PARSER.get_world().user_defined_computations().add
+         (
+            ($identifier.result),
+            new_sequence
+         );
+         */
+         RecurrentChecks.assert_has_user_content_prefix
+         (
+            start_origin,
+            ($identifier.result)
+         );
+      }
 
    | IMP_IGNORE_ERROR_KW word WS+ first_level_instruction WS* R_PAREN
    {

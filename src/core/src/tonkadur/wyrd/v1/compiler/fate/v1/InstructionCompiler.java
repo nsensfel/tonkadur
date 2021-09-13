@@ -34,7 +34,6 @@ import tonkadur.wyrd.v1.lang.instruction.AddEventOption;
 import tonkadur.wyrd.v1.lang.instruction.Assert;
 import tonkadur.wyrd.v1.lang.instruction.Display;
 import tonkadur.wyrd.v1.lang.instruction.End;
-import tonkadur.wyrd.v1.lang.instruction.ExtraInstruction;
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.PromptInteger;
 import tonkadur.wyrd.v1.lang.instruction.PromptString;
@@ -783,60 +782,6 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       }
 
       result.add(compiler.assembler().merge(previous_else_branch));
-   }
-
-   @Override
-   public void visit_extra_instruction
-   (
-      final tonkadur.fate.v1.lang.instruction.ExtraInstructionInstance n
-   )
-   throws Throwable
-   {
-      /*
-       * Fate: (event_call <string> c0 ... cn)
-       *
-       * Wyrd (event_call <string> c0 ... cn)
-       */
-      final List<ComputationCompiler> cc_list;
-      final List<Computation> parameters;
-
-      cc_list = new ArrayList<ComputationCompiler>();
-      parameters = new ArrayList<Computation>();
-
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation fate_computation:
-            n.get_parameters()
-      )
-      {
-         final ComputationCompiler cc;
-
-         cc = new ComputationCompiler(compiler);
-
-         fate_computation.get_visited_by(cc);
-
-         if (cc.has_init())
-         {
-            result.add(cc.get_init());
-         }
-
-         cc_list.add(cc);
-         parameters.add(cc.get_computation());
-      }
-
-      result.add
-      (
-         new ExtraInstruction
-         (
-            n.get_instruction_type().get_name(),
-            parameters
-         )
-      );
-
-      for (final ComputationCompiler cc: cc_list)
-      {
-         cc.release_registers(result);
-      }
    }
 
    @Override

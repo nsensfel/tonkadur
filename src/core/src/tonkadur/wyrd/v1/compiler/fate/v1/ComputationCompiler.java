@@ -382,43 +382,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    }
 
    @Override
-   public void visit_extra_computation
-   (
-      final tonkadur.fate.v1.lang.computation.ExtraComputationInstance n
-   )
-   throws Throwable
-   {
-      final List<Computation> parameters;
-
-      parameters = new ArrayList<Computation>();
-
-      for (final tonkadur.fate.v1.lang.meta.Computation p: n.get_parameters())
-      {
-         final ComputationCompiler cc;
-
-         cc = new ComputationCompiler(compiler);
-
-         p.get_visited_by(cc);
-
-         assimilate(cc);
-
-         parameters.add(cc.get_computation());
-      }
-
-      result_as_computation =
-         new ExtraComputation
-         (
-            TypeCompiler.compile
-            (
-               compiler,
-               n.get_computation_type().get_returned_type()
-            ),
-            n.get_computation_type().get_name(),
-            parameters
-         );
-   }
-
-   @Override
    public void visit_default
    (
       final tonkadur.fate.v1.lang.computation.Default n

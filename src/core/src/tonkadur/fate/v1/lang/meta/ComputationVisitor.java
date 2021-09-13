@@ -2,6 +2,8 @@ package tonkadur.fate.v1.lang.meta;
 
 import tonkadur.fate.v1.lang.computation.*;
 
+import tonkadur.fate.v1.lang.computation.generic.ExtraComputation;
+
 public interface ComputationVisitor
 {
    public void visit_field_access (final FieldAccess n)
@@ -44,9 +46,6 @@ public interface ComputationVisitor
    throws Throwable;
 
    public void visit_set_fields (final SetFieldsComputation n)
-   throws Throwable;
-
-   public void visit_extra_computation (final ExtraComputationInstance n)
    throws Throwable;
 
    public void visit_generic_computation (final GenericComputation n)
