@@ -34,20 +34,22 @@ public class IndexedPartitionLambda
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
+      final Address lambda,
       final Address collection_in,
       final Address collection_out,
-      final boolean to_set,
-      final List<Computation> extra_params
+      final boolean to_set
    )
    {
       final List<Instruction> result, while_body, remove_instructions;
       final Register iterator, index_storage, collection_size, storage;
       final Computation iterator_target;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
       remove_instructions = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator = registers.reserve(Type.INT, result);
       index_storage = registers.reserve(Type.INT, result);
@@ -71,8 +73,8 @@ public class IndexedPartitionLambda
          new SetValue(collection_size.get_address(), new Size(collection_in))
       );
 
-      extra_params.add(0, iterator_target);
-      extra_params.add(0, iterator.get_value());
+      lambda_params.add(0, iterator.get_value());
+      lambda_params.add(0, iterator_target);
 
       remove_instructions.add
       (
@@ -123,7 +125,7 @@ public class IndexedPartitionLambda
              * be a set.
              */
             storage.get_address(),
-            extra_params
+            lambda_params
          )
       );
 

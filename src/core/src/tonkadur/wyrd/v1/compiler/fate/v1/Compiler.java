@@ -42,6 +42,9 @@ public class Compiler
 //      compiler.compile_types(fate_world);
       compiler.compile_variables(fate_world);
 
+      compiler.compile_user_instructions(fate_world);
+      compiler.compile_user_computations(fate_world);
+
       compiler.compile_sequences(fate_world);
 
       compiler.compile_main_sequence(fate_world);
@@ -141,8 +144,43 @@ public class Compiler
             fate_world.sequences().get_all()
       )
       {
-         SequenceCompiler.compile(this, sequence);
+         SequenceCompiler.compile(this, sequence, "");
       }
+   }
+
+   protected void compile_user_instructions
+   (
+      final tonkadur.fate.v1.lang.World fate_world
+   )
+   throws Throwable
+   {
+      for
+      (
+         final tonkadur.fate.v1.lang.Sequence sequence:
+            tonkadur.fate.v1.lang.instruction.generic.UserInstruction.get_all_definitions()
+      )
+      {
+         SequenceCompiler.compile(this, sequence, "User Instruction ");
+      }
+   }
+
+   protected void compile_user_computations
+   (
+      final tonkadur.fate.v1.lang.World fate_world
+   )
+   throws Throwable
+   {
+      // TODO: implement.
+      /*
+      for
+      (
+         final tonkadur.fate.v1.lang.Sequence sequence:
+            tonkadur.fate.v1.lang.computation.generic.UserComputation.get_all_definitions()
+      )
+      {
+         SequenceCompiler.compile(this, sequence, "User Instruction ");
+      }
+      */
    }
 
    protected void compile_main_sequence

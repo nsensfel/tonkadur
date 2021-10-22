@@ -22,7 +22,7 @@ import tonkadur.fate.v1.lang.meta.RecurrentChecks;
 
 import tonkadur.fate.v1.lang.computation.GenericComputation;
 
-public class LambdaEvaluation extends GenericComputation
+public class PartialLambdaEvaluation extends GenericComputation
 {
    public static Collection<String> get_aliases ()
    {
@@ -30,8 +30,13 @@ public class LambdaEvaluation extends GenericComputation
 
       aliases = new ArrayList<String>();
 
-      aliases.add("eval");
-      aliases.add("evaluate");
+      aliases.add("partial");
+      aliases.add("partial_eval");
+      aliases.add("partialeval");
+      aliases.add("partialEval");
+      aliases.add("partial_evaluate");
+      aliases.add("partialevaluate");
+      aliases.add("partialEvaluate");
 
       return aliases;
    }
@@ -47,6 +52,9 @@ public class LambdaEvaluation extends GenericComputation
    {
       final Computation lambda_function;
       final List<Computation> parameters;
+      final LambdaType initial_type;
+      final List<Type> initial_signature;
+      final List<Type> remaining_signature;
 
       if (call_parameters.size() < 1)
       {
@@ -55,7 +63,7 @@ public class LambdaEvaluation extends GenericComputation
             new WrongNumberOfParametersException
             (
                origin,
-               "(" + alias + " <(LAMBDA X (Y0...YN))> <Y0>...<YN>)"
+               "(" + alias + " <(LAMBDA X (Y0...YN))> <Y0>...<YM, with M =< N>)"
             )
          );
 
@@ -65,19 +73,35 @@ public class LambdaEvaluation extends GenericComputation
       lambda_function = call_parameters.get(0);
       parameters = call_parameters.subList(1, call_parameters.size());
 
-      RecurrentChecks.propagate_expected_types_and_assert_is_lambda_params
+      RecurrentChecks.propagate_partial_expected_types_and_assert_is_lambda
       (
          lambda_function,
+         new ArrayList<Type>(),
          parameters
       );
 
+      initial_type = (LambdaType) lambda_function.get_type();
+      initial_signature = initial_type.get_signature();
+      remaining_signature =
+         initial_signature.subList
+         (
+            (call_parameters.size() - 1),
+            initial_signature.size()
+         );
+
       return
-         new LambdaEvaluation
+         new PartialLambdaEvaluation
          (
             origin,
             lambda_function,
             parameters,
-            (((LambdaType) lambda_function.get_type()).get_return_type())
+            new LambdaType
+            (
+               origin,
+               initial_type.get_return_type(),
+               ("(Partial from " + initial_type.get_name() + ")"),
+               remaining_signature
+            )
          );
    }
 
@@ -91,7 +115,7 @@ public class LambdaEvaluation extends GenericComputation
    /**** PROTECTED ************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   protected LambdaEvaluation
+   protected PartialLambdaEvaluation
    (
       final Origin origin,
       final Computation lambda_function,
@@ -126,7 +150,7 @@ public class LambdaEvaluation extends GenericComputation
    {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("(LambdaEvaluation (");
+      sb.append("(PartialLambdaEvaluation (");
       sb.append(lambda_function.toString());
 
       for (final Computation param: parameters)

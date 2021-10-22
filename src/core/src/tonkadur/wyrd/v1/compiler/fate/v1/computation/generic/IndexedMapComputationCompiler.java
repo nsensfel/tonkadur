@@ -40,7 +40,6 @@ extends GenericComputationCompiler
    throws Throwable
    {
       final IndexedMapComputation source;
-      final List<Computation> params;
       final ComputationCompiler lambda_cc, in_collection_cc;
       final Register result;
 
@@ -51,31 +50,11 @@ extends GenericComputationCompiler
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
 
-      params = new ArrayList<Computation>();
-
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation p:
-            source.get_extra_parameters()
-      )
-      {
-         final ComputationCompiler param_cc;
-
-         param_cc = new ComputationCompiler(compiler);
-
-         p.get_visited_by(param_cc);
-
-         // Let's not re-compute the parameters on every iteration.
-         param_cc.generate_address();
-
-         assimilate(param_cc);
-
-         params.add(param_cc.get_computation());
-      }
-
       lambda_cc = new ComputationCompiler(compiler);
 
       source.get_lambda_function().get_visited_by(lambda_cc);
+
+      lambda_cc.generate_address();
 
       assimilate(lambda_cc);
 
@@ -91,14 +70,13 @@ extends GenericComputationCompiler
          (
             compiler.registers(),
             compiler.assembler(),
-            lambda_cc.get_computation(),
+            lambda_cc.get_address(),
             in_collection_cc.get_address(),
             result_as_address,
             (
                (tonkadur.fate.v1.lang.type.CollectionType)
                source.get_collection().get_type()
-            ).is_set(),
-            params
+            ).is_set()
          )
       );
    }

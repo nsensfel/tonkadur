@@ -10,7 +10,6 @@ import tonkadur.wyrd.v1.compiler.fate.v1.ComputationCompiler;
 
 import tonkadur.wyrd.v1.compiler.fate.v1.computation.GenericComputationCompiler;
 
-
 public class AtReferenceCompiler extends GenericComputationCompiler
 {
    public static Class get_target_class ()

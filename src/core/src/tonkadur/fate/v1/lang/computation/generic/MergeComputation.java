@@ -47,13 +47,12 @@ public class MergeComputation extends GenericComputation
       final Computation lambda_function;
       final Computation collection_a;
       final Computation collection_b;
-      final List<Computation> extra_params;
       final List<Type> base_param_types;
       final boolean to_set;
 
       base_param_types = new ArrayList<Type>();
 
-      if (call_parameters.size() < 3)
+      if (call_parameters.size() != 3)
       {
          ErrorManager.handle
          (
@@ -62,8 +61,8 @@ public class MergeComputation extends GenericComputation
                origin,
                "("
                + alias
-               + " <(LAMBDA X (Y Z W0...WN))> <(LIST Y)|(SET Y)>"
-               + " <(LIST Z)|(SET Z)> <W0>...<WN>)"
+               + " <(LAMBDA X (Y Z))> <(LIST Y)|(SET Y)>"
+               + " <(LIST Z)|(SET Z)>)"
             )
          );
 
@@ -73,7 +72,6 @@ public class MergeComputation extends GenericComputation
       lambda_function = call_parameters.get(0);
       collection_a = call_parameters.get(1);
       collection_b = call_parameters.get(2);
-      extra_params = call_parameters.subList(3, call_parameters.size());
 
       collection_a.expect_non_string();
       collection_b.expect_non_string();
@@ -91,8 +89,7 @@ public class MergeComputation extends GenericComputation
       RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         base_param_types,
-         extra_params
+         base_param_types
       );
 
       to_set = alias.startsWith("set:");
@@ -114,7 +111,6 @@ public class MergeComputation extends GenericComputation
             collection_a,
             collection_b,
             to_set,
-            extra_params,
             CollectionType.build
             (
                origin,
@@ -127,7 +123,6 @@ public class MergeComputation extends GenericComputation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection_in_a;
    protected final Computation collection_in_b;
@@ -144,7 +139,6 @@ public class MergeComputation extends GenericComputation
       final Computation collection_in_a,
       final Computation collection_in_b,
       final boolean to_set,
-      final List<Computation> extra_params,
       final Type output_type
    )
    {
@@ -154,7 +148,6 @@ public class MergeComputation extends GenericComputation
       this.collection_in_a = collection_in_a;
       this.collection_in_b = collection_in_b;
       this.to_set = to_set;
-      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -174,11 +167,6 @@ public class MergeComputation extends GenericComputation
    public Computation get_collection_in_b ()
    {
       return collection_in_b;
-   }
-
-   public List<Computation> get_extra_parameters ()
-   {
-      return extra_params;
    }
 
    public boolean to_set ()
@@ -205,15 +193,7 @@ public class MergeComputation extends GenericComputation
       sb.append(" ");
       sb.append(collection_in_a.toString());
       sb.append(" ");
-
       sb.append(collection_in_b.toString());
-
-      for (final Computation c: extra_params)
-      {
-         sb.append(" ");
-         sb.append(c.toString());
-      }
-
       sb.append(")");
 
       return sb.toString();

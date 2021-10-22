@@ -39,7 +39,6 @@ extends GenericComputationCompiler
    throws Throwable
    {
       final IndexedSafeMergeComputation source;
-      final List<Computation> params;
       final ComputationCompiler lambda_cc, default_a_cc, default_b_cc;
       final ComputationCompiler in_collection_a_cc, in_collection_b_cc;
       final Register result;
@@ -51,31 +50,11 @@ extends GenericComputationCompiler
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
 
-      params = new ArrayList<Computation>();
-
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation p:
-            source.get_extra_parameters()
-      )
-      {
-         final ComputationCompiler param_cc;
-
-         param_cc = new ComputationCompiler(compiler);
-
-         p.get_visited_by(param_cc);
-
-         // Let's not re-compute the parameters on every iteration.
-         param_cc.generate_address();
-
-         assimilate(param_cc);
-
-         params.add(param_cc.get_computation());
-      }
-
       lambda_cc = new ComputationCompiler(compiler);
 
       source.get_lambda_function().get_visited_by(lambda_cc);
+
+      lambda_cc.generate_address();
 
       assimilate(lambda_cc);
 
@@ -113,14 +92,13 @@ extends GenericComputationCompiler
          (
             compiler.registers(),
             compiler.assembler(),
-            lambda_cc.get_computation(),
+            lambda_cc.get_address(),
             default_a_cc.get_computation(),
             in_collection_a_cc.get_address(),
             default_b_cc.get_computation(),
             in_collection_b_cc.get_address(),
             result_as_address,
-            source.to_set(),
-            params
+            source.to_set()
          )
       );
 

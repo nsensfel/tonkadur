@@ -52,13 +52,12 @@ public class IndexedMapComputation extends GenericComputation
    {
       final Computation lambda_function;
       final Computation collection;
-      final List<Computation> extra_params;
       final List<Type> base_param_types;
 
       base_param_types = new ArrayList<Type>();
       base_param_types.add(Type.INT);
 
-      if (call_parameters.size() < 2)
+      if (call_parameters.size() != 2)
       {
          ErrorManager.handle
          (
@@ -67,8 +66,7 @@ public class IndexedMapComputation extends GenericComputation
                origin,
                "("
                + alias
-               + " <(LAMBDA X (INT Y Z0...ZN))> <(LIST Y)|(SET Y)>"
-               + " <Z0>...<ZN>)"
+               + " <(LAMBDA X (INT Y))> <(LIST Y)|(SET Y)>)"
             )
          );
 
@@ -77,7 +75,6 @@ public class IndexedMapComputation extends GenericComputation
 
       lambda_function = call_parameters.get(0);
       collection = call_parameters.get(1);
-      extra_params = call_parameters.subList(2, call_parameters.size());
 
       collection.expect_non_string();
 
@@ -98,8 +95,7 @@ public class IndexedMapComputation extends GenericComputation
       RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         base_param_types,
-         extra_params
+         base_param_types
       );
 
       return
@@ -108,7 +104,6 @@ public class IndexedMapComputation extends GenericComputation
             origin,
             lambda_function,
             collection,
-            extra_params,
             CollectionType.build
             (
                origin,
@@ -122,7 +117,6 @@ public class IndexedMapComputation extends GenericComputation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection;
 
@@ -135,7 +129,6 @@ public class IndexedMapComputation extends GenericComputation
       final Origin origin,
       final Computation lambda_function,
       final Computation collection,
-      final List<Computation> extra_params,
       final Type output_type
    )
    {
@@ -143,7 +136,6 @@ public class IndexedMapComputation extends GenericComputation
 
       this.lambda_function = lambda_function;
       this.collection = collection;
-      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -160,11 +152,6 @@ public class IndexedMapComputation extends GenericComputation
       return collection;
    }
 
-   public List<Computation> get_extra_parameters ()
-   {
-      return extra_params;
-   }
-
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -175,13 +162,6 @@ public class IndexedMapComputation extends GenericComputation
       sb.append(lambda_function.toString());
       sb.append(" ");
       sb.append(collection.toString());
-
-      for (final Computation c: extra_params)
-      {
-         sb.append(" ");
-         sb.append(c.toString());
-      }
-
       sb.append(")");
 
       return sb.toString();

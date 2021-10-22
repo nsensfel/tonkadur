@@ -29,23 +29,24 @@ public class IndexedFilterLambda
    /* Utility Class */
    private IndexedFilterLambda () {}
 
-   /* Uses Durstenfeld's shuffling algorithm */
    public static Instruction generate
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
-      final Address collection,
-      final List<Computation> extra_params
+      final Address lambda,
+      final Address collection
    )
    {
       final List<Instruction> result, while_body, remove_instructions;
       final Register iterator, index_storage, collection_size, storage;
       final Register index_counter;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
       remove_instructions = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator = registers.reserve(Type.INT, result);
       index_counter = registers.reserve(Type.INT, result);
@@ -60,9 +61,9 @@ public class IndexedFilterLambda
          new SetValue(collection_size.get_address(), new Size(collection))
       );
 
-      extra_params.add
+      lambda_params.add(index_counter.get_value());
+      lambda_params.add
       (
-         0,
          new ValueOf
          (
             new RelativeAddress
@@ -74,7 +75,6 @@ public class IndexedFilterLambda
          )
       );
 
-      extra_params.add(0, index_counter.get_value());
 
       remove_instructions.add
       (
@@ -113,7 +113,7 @@ public class IndexedFilterLambda
              * be a set.
              */
             storage.get_address(),
-            extra_params
+            lambda_params
          )
       );
 

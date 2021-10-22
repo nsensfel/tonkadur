@@ -29,23 +29,24 @@ public class IndexedMapLambda
    /* Utility Class */
    private IndexedMapLambda () {}
 
-   /* Uses Durstenfeld's shuffling algorithm */
    public static Instruction generate
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
+      final Address lambda,
       final Address collection_in,
       final Address collection_out,
-      final boolean to_set,
-      final List<Computation> extra_params
+      final boolean to_set
    )
    {
       final List<Instruction> result, while_body;
       final Register iterator, collection_in_size, storage;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator = registers.reserve(Type.INT, result);
       collection_in_size = registers.reserve(Type.INT, result);
@@ -67,9 +68,9 @@ public class IndexedMapLambda
       );
 
 
-      extra_params.add
+      lambda_params.add(iterator.get_value());
+      lambda_params.add
       (
-         0,
          new ValueOf
          (
             new RelativeAddress
@@ -81,7 +82,6 @@ public class IndexedMapLambda
          )
       );
 
-      extra_params.add(0, iterator.get_value());
 
       while_body.add
       (
@@ -94,7 +94,7 @@ public class IndexedMapLambda
              * be a set.
              */
             storage.get_address(),
-            extra_params
+            lambda_params
          )
       );
 

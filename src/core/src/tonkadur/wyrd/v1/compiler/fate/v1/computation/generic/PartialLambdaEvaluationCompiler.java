@@ -3,13 +3,16 @@ package tonkadur.wyrd.v1.compiler.fate.v1.computation.generic;
 import java.util.List;
 import java.util.ArrayList;
 
-import tonkadur.fate.v1.lang.computation.generic.LambdaEvaluation;
+import tonkadur.fate.v1.lang.computation.generic.PartialLambdaEvaluation;
+
+import tonkadur.fate.v1.lang.type.LambdaType;
+import tonkadur.fate.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.lang.Register;
 
-import tonkadur.wyrd.v1.lang.meta.Computation;
-
 import tonkadur.wyrd.v1.lang.type.DictType;
+
+import tonkadur.wyrd.v1.lang.meta.Computation;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
 
@@ -19,15 +22,14 @@ import tonkadur.wyrd.v1.compiler.fate.v1.ComputationCompiler;
 
 import tonkadur.wyrd.v1.compiler.fate.v1.computation.GenericComputationCompiler;
 
-
-public class LambdaEvaluationCompiler extends GenericComputationCompiler
+public class PartialLambdaEvaluationCompiler extends GenericComputationCompiler
 {
    public static Class get_target_class ()
    {
-      return LambdaEvaluation.class;
+      return PartialLambdaEvaluation.class;
    }
 
-   public LambdaEvaluationCompiler (final Compiler compiler)
+   public PartialLambdaEvaluationCompiler (final Compiler compiler)
    {
       super(compiler);
    }
@@ -38,26 +40,32 @@ public class LambdaEvaluationCompiler extends GenericComputationCompiler
    )
    throws Throwable
    {
-      final LambdaEvaluation source;
-      final ComputationCompiler lambda_cc;
+      final PartialLambdaEvaluation source;
+      final ComputationCompiler parent_lambda_cc;
       final List<Computation> parameters;
       final Register result;
+      final int max_number_of_arguments;
 
-      source = (LambdaEvaluation) computation;
+      source = (PartialLambdaEvaluation) computation;
 
       parameters = new ArrayList<Computation>();
-      lambda_cc = new ComputationCompiler(compiler);
+      parent_lambda_cc = new ComputationCompiler(compiler);
 
-      source.get_lambda_function().get_visited_by(lambda_cc);
+      source.get_lambda_function().get_visited_by(parent_lambda_cc);
 
-      lambda_cc.generate_address();
+      parent_lambda_cc.generate_address();
 
-      assimilate(lambda_cc);
+      assimilate(parent_lambda_cc);
 
       result = reserve(DictType.WILD);
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();
+
+      max_number_of_arguments =
+         (
+            (LambdaType) source.get_lambda_function().get_type()
+         ).get_signature().size();
 
       for
       (
@@ -78,13 +86,14 @@ public class LambdaEvaluationCompiler extends GenericComputationCompiler
 
       init_instructions.add
       (
-         tonkadur.wyrd.v1.compiler.util.LambdaEvaluation.generate
+         tonkadur.wyrd.v1.compiler.util.AddParametersToLambda.generate
          (
             compiler.registers(),
             compiler.assembler(),
-            lambda_cc.get_address(),
+            parent_lambda_cc.get_address(),
             result_as_address,
-            parameters
+            parameters,
+            (max_number_of_arguments - parameters.size())
          )
       );
    }

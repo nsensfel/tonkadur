@@ -63,7 +63,6 @@ public class Fold extends GenericComputation
       final Computation initial_value;
       final Computation collection;
       final boolean is_foldl;
-      final List<Computation> extra_params;
       final List<Type> base_param_types;
       final Type return_type;
 
@@ -71,7 +70,7 @@ public class Fold extends GenericComputation
 
       base_param_types = new ArrayList<Type>();
 
-      if (call_parameters.size() < 3)
+      if (call_parameters.size() != 3)
       {
          ErrorManager.handle
          (
@@ -80,8 +79,7 @@ public class Fold extends GenericComputation
                origin,
                "("
                + alias
-               + " <(LAMBDA X (X Y Z0...ZN))> <initial_value: X>"
-               + " <(LIST Y)|(SET Y)> <Z0>...<ZN>)"
+               + " <(LAMBDA X (X Y))> <initial_value: X> <(SET Y)|(LIST Y)>)"
             )
          );
 
@@ -91,7 +89,6 @@ public class Fold extends GenericComputation
       lambda_function = call_parameters.get(0);
       initial_value = call_parameters.get(1);
       collection = call_parameters.get(2);
-      extra_params = call_parameters.subList(3, call_parameters.size());
 
       lambda_function.expect_non_string();
       collection.expect_non_string();
@@ -117,8 +114,7 @@ public class Fold extends GenericComputation
       RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         base_param_types,
-         extra_params
+         base_param_types
       );
 
       return
@@ -129,7 +125,6 @@ public class Fold extends GenericComputation
             initial_value,
             collection,
             is_foldl,
-            extra_params,
             return_type
          );
    }
@@ -137,7 +132,6 @@ public class Fold extends GenericComputation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation initial_value;
    protected final Computation collection;
@@ -154,7 +148,6 @@ public class Fold extends GenericComputation
       final Computation initial_value,
       final Computation collection,
       final boolean is_foldl,
-      final List<Computation> extra_params,
       final Type act_as
    )
    {
@@ -164,7 +157,6 @@ public class Fold extends GenericComputation
       this.initial_value = initial_value;
       this.collection = collection;
       this.is_foldl = is_foldl;
-      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -191,11 +183,6 @@ public class Fold extends GenericComputation
       return is_foldl;
    }
 
-   public List<Computation> get_extra_parameters ()
-   {
-      return extra_params;
-   }
-
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -217,13 +204,6 @@ public class Fold extends GenericComputation
       sb.append(initial_value.toString());
       sb.append(" ");
       sb.append(collection.toString());
-
-      for (final Computation c: extra_params)
-      {
-         sb.append(" ");
-         sb.append(c.toString());
-      }
-
       sb.append(")");
 
       return sb.toString();

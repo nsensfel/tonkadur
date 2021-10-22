@@ -34,20 +34,22 @@ public class IndexedMergeLambda
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
+      final Address lambda,
       final Address collection_in_a,
       final Address collection_in_b,
       final Address collection_out,
-      final boolean to_set,
-      final List<Computation> extra_params
+      final boolean to_set
    )
    {
       final List<Instruction> result, while_body;
       final Register iterator, collection_in_size, storage;
       final Register collection_in_b_size;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator = registers.reserve(Type.INT, result);
       collection_in_size = registers.reserve(Type.INT, result);
@@ -98,23 +100,10 @@ public class IndexedMergeLambda
       );
 
 
-      extra_params.add
-      (
-         0,
-         new ValueOf
-         (
-            new RelativeAddress
-            (
-               collection_in_b,
-               new Cast(iterator.get_value(), Type.STRING),
-               ((MapType) collection_in_b.get_target_type()).get_member_type()
-            )
-         )
-      );
 
-      extra_params.add
+      lambda_params.add(iterator.get_value());
+      lambda_params.add
       (
-         0,
          new ValueOf
          (
             new RelativeAddress
@@ -125,8 +114,18 @@ public class IndexedMergeLambda
             )
          )
       );
-
-      extra_params.add(0, iterator.get_value());
+      lambda_params.add
+      (
+         new ValueOf
+         (
+            new RelativeAddress
+            (
+               collection_in_b,
+               new Cast(iterator.get_value(), Type.STRING),
+               ((MapType) collection_in_b.get_target_type()).get_member_type()
+            )
+         )
+      );
 
       while_body.add
       (
@@ -139,7 +138,7 @@ public class IndexedMergeLambda
              * be a set.
              */
             storage.get_address(),
-            extra_params
+            lambda_params
          )
       );
 
@@ -191,25 +190,27 @@ public class IndexedMergeLambda
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
+      final Address lambda,
       final Computation default_a,
       final Address collection_in_a,
       final Computation default_b,
       final Address collection_in_b,
       final Address collection_out,
-      final boolean to_set,
-      final List<Computation> extra_params
+      final boolean to_set
    )
    {
       final List<Instruction> result, while_body, oob_a_body, oob_b_body;
       final Register iterator_a, iterator_b, oob_a, oob_b;
       final Register collection_a_size, collection_b_size;
       final Register storage;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
       oob_a_body = new ArrayList<Instruction>();
       oob_b_body = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator_a = registers.reserve(Type.INT, result);
       iterator_b = registers.reserve(Type.INT, result);
@@ -274,32 +275,12 @@ public class IndexedMergeLambda
          )
       );
 
-      extra_params.add
-      (
-         0,
-         new IfElseComputation
-         (
-            oob_b.get_value(),
-            default_b,
-            new ValueOf
-            (
-               new RelativeAddress
-               (
-                  collection_in_b,
-                  new Cast(iterator_b.get_value(), Type.STRING),
-                  (
-                     (MapType) collection_in_b.get_target_type()
-                  ).get_member_type()
-               )
-            )
-         )
-      );
 
-      extra_params.add(0, iterator_b.get_value());
 
-      extra_params.add
+      lambda_params.add(iterator_a.get_value());
+
+      lambda_params.add
       (
-         0,
          new IfElseComputation
          (
             oob_a.get_value(),
@@ -318,7 +299,27 @@ public class IndexedMergeLambda
          )
       );
 
-      extra_params.add(0, iterator_a.get_value());
+      lambda_params.add(iterator_b.get_value());
+
+      lambda_params.add
+      (
+         new IfElseComputation
+         (
+            oob_b.get_value(),
+            default_b,
+            new ValueOf
+            (
+               new RelativeAddress
+               (
+                  collection_in_b,
+                  new Cast(iterator_b.get_value(), Type.STRING),
+                  (
+                     (MapType) collection_in_b.get_target_type()
+                  ).get_member_type()
+               )
+            )
+         )
+      );
 
       while_body.add
       (
@@ -331,7 +332,7 @@ public class IndexedMergeLambda
              * be a set.
              */
             storage.get_address(),
-            extra_params
+            lambda_params
          )
       );
 

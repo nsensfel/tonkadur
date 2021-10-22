@@ -29,24 +29,25 @@ public class Fold
    /* Utility Class */
    private Fold () {}
 
-   /* Uses Durstenfeld's shuffling algorithm */
    public static Instruction generate
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
+      final Address lambda,
       final Address storage_address,
       final Address collection_in,
-      final boolean is_foldl,
-      final List<Computation> extra_params
+      final boolean is_foldl
    )
    {
       final List<Instruction> result, while_body;
       final Register iterator, collection_in_size;
       final Computation start_point, end_point, condition, increment;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator = registers.reserve(Type.INT, result);
       collection_in_size = registers.reserve(Type.INT, result);
@@ -80,9 +81,9 @@ public class Fold
 
       result.add(new SetValue(iterator.get_address(), start_point));
 
-      extra_params.add
+      lambda_params.add(new ValueOf(storage_address));
+      lambda_params.add
       (
-         0,
          new ValueOf
          (
             new RelativeAddress
@@ -95,7 +96,6 @@ public class Fold
             )
          )
       );
-      extra_params.add(0, new ValueOf(storage_address));
 
       while_body.add
       (
@@ -108,7 +108,7 @@ public class Fold
              * be a set.
              */
             storage_address,
-            extra_params
+            lambda_params
          )
       );
 

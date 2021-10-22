@@ -51,9 +51,8 @@ public class Partition extends GenericInstruction
       final Computation lambda_function;
       final Computation collection_in;
       final Computation collection_out;
-      final List<Computation> extra_params;
 
-      if (call_parameters.size() < 3)
+      if (call_parameters.size() != 3)
       {
          ErrorManager.handle
          (
@@ -62,10 +61,9 @@ public class Partition extends GenericInstruction
                origin,
                "("
                + alias
-               + "! <(LAMBDA BOOL (X Y0...YN))>"
+               + "! <(LAMBDA BOOL (X))>"
                + " <if_true: (LIST X)|(SET X) REFERENCE>"
-               + " <if_false: (LIST X)|(SET X) REFERENCE>"
-               + " <Y0>...<YN>)"
+               + " <if_false: (LIST X)|(SET X) REFERENCE>)"
             )
          );
 
@@ -75,7 +73,6 @@ public class Partition extends GenericInstruction
       lambda_function = call_parameters.get(0);
       collection_in = call_parameters.get(1);
       collection_out = call_parameters.get(2);
-      extra_params = call_parameters.subList(3, call_parameters.size());
 
       if (alias.startsWith("set:"))
       {
@@ -100,8 +97,7 @@ public class Partition extends GenericInstruction
          Collections.singletonList
          (
             ((CollectionType) collection_in.get_type()).get_content_type()
-         ),
-         extra_params
+         )
       );
 
       RecurrentChecks.assert_return_type_is(lambda_function, Type.BOOL);
@@ -114,15 +110,13 @@ public class Partition extends GenericInstruction
             origin,
             lambda_function,
             collection_in,
-            collection_out,
-            extra_params
+            collection_out
          );
    }
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection_in;
    protected final Computation collection_out;
@@ -136,8 +130,7 @@ public class Partition extends GenericInstruction
       final Origin origin,
       final Computation lambda_function,
       final Computation collection_in,
-      final Computation collection_out,
-      final List<Computation> extra_params
+      final Computation collection_out
    )
    {
       super(origin);
@@ -145,7 +138,6 @@ public class Partition extends GenericInstruction
       this.lambda_function = lambda_function;
       this.collection_in = collection_in;
       this.collection_out = collection_out;
-      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -167,11 +159,6 @@ public class Partition extends GenericInstruction
       return collection_out;
    }
 
-   public List<Computation> get_extra_parameters ()
-   {
-      return extra_params;
-   }
-
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -184,13 +171,6 @@ public class Partition extends GenericInstruction
       sb.append(collection_in.toString());
       sb.append(" ");
       sb.append(collection_out.toString());
-
-      for (final Computation c: extra_params)
-      {
-         sb.append(" ");
-         sb.append(c.toString());
-      }
-
       sb.append(")");
 
       return sb.toString();

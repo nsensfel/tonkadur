@@ -20,7 +20,8 @@ public class SequenceCompiler
    public static void compile
    (
       final Compiler compiler,
-      final tonkadur.fate.v1.lang.Sequence fate_sequence
+      final tonkadur.fate.v1.lang.Sequence fate_sequence,
+      final String name_prefix
    )
    throws Throwable
    {
@@ -29,25 +30,27 @@ public class SequenceCompiler
       final String end_of_sequence;
       final List<Register> to_be_cleaned;
       final InstructionCompiler ic;
+      final String name;
 
       init_instructions = new ArrayList<Instruction>();
       parameters = new ArrayList<Register>();
       to_be_cleaned = new ArrayList<Register>();
       ic = new InstructionCompiler(compiler);
+      name = (name_prefix + fate_sequence.get_name());
 
       end_of_sequence = compiler.assembler().generate_label("<sequence#end>");
 
       compiler.world().add_sequence_label
       (
-         fate_sequence.get_name(),
+         name,
          (compiler.world().get_current_line() + 1)
       );
 
-      compiler.assembler().add_fixed_name_label(fate_sequence.get_name());
+      compiler.assembler().add_fixed_name_label(name);
 
       compiler.registers().create_stackable_context
       (
-         fate_sequence.get_name(),
+         name,
          init_instructions
       );
 
@@ -56,24 +59,21 @@ public class SequenceCompiler
          new SetPC(compiler.assembler().get_label_constant(end_of_sequence))
       );
 
-      System.out.println("[D] Defining Context " + fate_sequence.get_name());
+      System.out.println("[D] Defining Context " + name);
 
       init_instructions.add
       (
          compiler.assembler().mark
          (
-            fate_sequence.get_name(),
+            name,
             compiler.assembler().merge
             (
-               compiler.registers().get_initialize_context_instructions
-               (
-                  fate_sequence.get_name()
-               )
+               compiler.registers().get_initialize_context_instructions(name)
             )
          )
       );
 
-      compiler.registers().push_context(fate_sequence.get_name());
+      compiler.registers().push_context(name);
 
       for
       (
@@ -114,7 +114,6 @@ public class SequenceCompiler
       }
       */
 
-
       init_instructions.addAll
       (
          compiler.registers().get_finalize_context_instructions()
@@ -130,7 +129,6 @@ public class SequenceCompiler
       (
          compiler.registers().get_leave_context_instructions()
       );
-
 
       compiler.registers().pop_context();
 

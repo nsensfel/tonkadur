@@ -38,6 +38,26 @@ public class Constant extends Computation
       this.as_string = as_string;
    }
 
+   public static Constant string_value (final String s)
+   {
+      return new Constant(Type.STRING, s);
+   }
+
+   public static Constant integer_value (final int s)
+   {
+      return new Constant(Type.INT, Integer.toString(s));
+   }
+
+   public static Constant boolean_value (final boolean s)
+   {
+      return s ? TRUE : FALSE;
+   }
+
+   public static Constant float_value (final float s)
+   {
+      return new Constant(Type.FLOAT, Float.toString(s));
+   }
+
    /**** Accessors ************************************************************/
    public String get_as_string ()
    {

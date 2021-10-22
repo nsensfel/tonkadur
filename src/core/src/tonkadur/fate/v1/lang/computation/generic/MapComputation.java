@@ -47,9 +47,8 @@ public class MapComputation extends GenericComputation
    {
       final Computation lambda_function;
       final Computation collection;
-      final List<Computation> extra_params;
 
-      if (call_parameters.size() < 2)
+      if (call_parameters.size() != 2)
       {
          ErrorManager.handle
          (
@@ -58,8 +57,7 @@ public class MapComputation extends GenericComputation
                origin,
                "("
                + alias
-               + " <(LAMBDA X (Y Z0...ZN))> <(LIST Y)|(SET Y)>"
-               + " <Z0>...<ZN>)"
+               + " <(LAMBDA X (Y))> <(LIST Y)|(SET Y)>)"
             )
          );
 
@@ -68,7 +66,6 @@ public class MapComputation extends GenericComputation
 
       lambda_function = call_parameters.get(0);
       collection = call_parameters.get(1);
-      extra_params = call_parameters.subList(2, call_parameters.size());
 
       collection.expect_non_string();
 
@@ -87,8 +84,7 @@ public class MapComputation extends GenericComputation
          Collections.singletonList
          (
             ((CollectionType) collection.get_type()).get_content_type()
-         ),
-         extra_params
+         )
       );
 
       return
@@ -97,7 +93,6 @@ public class MapComputation extends GenericComputation
             origin,
             lambda_function,
             collection,
-            extra_params,
             CollectionType.build
             (
                origin,
@@ -110,7 +105,6 @@ public class MapComputation extends GenericComputation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection;
 
@@ -123,7 +117,6 @@ public class MapComputation extends GenericComputation
       final Origin origin,
       final Computation lambda_function,
       final Computation collection,
-      final List<Computation> extra_params,
       final Type output_type
    )
    {
@@ -131,7 +124,6 @@ public class MapComputation extends GenericComputation
 
       this.lambda_function = lambda_function;
       this.collection = collection;
-      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -148,11 +140,6 @@ public class MapComputation extends GenericComputation
       return collection;
    }
 
-   public List<Computation> get_extra_parameters ()
-   {
-      return extra_params;
-   }
-
    /**** Misc. ****************************************************************/
    @Override
    public String toString ()
@@ -163,13 +150,6 @@ public class MapComputation extends GenericComputation
       sb.append(lambda_function.toString());
       sb.append(" ");
       sb.append(collection.toString());
-
-      for (final Computation c: extra_params)
-      {
-         sb.append(" ");
-         sb.append(c.toString());
-      }
-
       sb.append(")");
 
       return sb.toString();

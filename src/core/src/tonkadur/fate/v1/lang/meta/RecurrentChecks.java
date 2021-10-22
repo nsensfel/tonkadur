@@ -442,7 +442,7 @@ public class RecurrentChecks
       }
    }
 
-   public static void propagate_expected_types_and_assert_is_lambda
+   public static void propagate_partial_expected_types_and_assert_is_lambda
    (
       final Computation lambda,
       final List<Type> filled_types,
@@ -461,7 +461,7 @@ public class RecurrentChecks
 
       extra_params_size = extra_params.size();
 
-      if ((filled_types.size() + extra_params_size) != lambda_signature.size())
+      if ((filled_types.size() + extra_params_size) > lambda_signature.size())
       {
          ErrorManager.handle
          (
@@ -487,6 +487,84 @@ public class RecurrentChecks
          (
             extra_params.get(j),
             lambda_signature.get(i)
+         );
+      }
+   }
+
+   public static void propagate_expected_types_and_assert_is_lambda_params
+   (
+      final Computation lambda,
+      final List<Computation> params
+   )
+   throws ParsingError
+   {
+      final List<Type> lambda_signature;
+      final int params_size;
+
+      lambda.expect_non_string();
+
+      assert_is_a_lambda_function(lambda);
+
+      lambda_signature = ((LambdaType) lambda.get_type()).get_signature();
+
+      params_size = params.size();
+
+      if (params_size != lambda_signature.size())
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException
+            (
+               lambda.get_origin(),
+               params_size,
+               lambda_signature.size(),
+               lambda_signature.size()
+            )
+         );
+      }
+
+      for (int i = 0; i < params_size; ++i)
+      {
+         handle_expected_type_propagation
+         (
+            params.get(i),
+            lambda_signature.get(i)
+         );
+
+         assert_can_be_used_as
+         (
+            params.get(i),
+            lambda_signature.get(i)
+         );
+      }
+   }
+
+   public static void propagate_expected_types_and_assert_is_lambda
+   (
+      final Computation lambda,
+      final List<Type> filled_types
+   )
+   throws ParsingError
+   {
+      final List<Type> lambda_signature;
+
+      lambda.expect_non_string();
+
+      assert_is_a_lambda_function(lambda);
+
+      lambda_signature = ((LambdaType) lambda.get_type()).get_signature();
+
+      if (filled_types.size() != lambda_signature.size())
+      {
+         ErrorManager.handle
+         (
+            new InvalidArityException
+            (
+               lambda.get_origin(),
+               filled_types.size(),
+               lambda_signature.size(),
+               lambda_signature.size()
+            )
          );
       }
    }

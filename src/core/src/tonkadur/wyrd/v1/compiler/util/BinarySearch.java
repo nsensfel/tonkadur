@@ -268,13 +268,12 @@ public class BinarySearch
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation sort_fun,
+      final Address sort_fun,
       final Computation target,
       final Computation collection_size,
       final Address collection,
       final Address result_was_found,
-      final Address result_index,
-      final List<Computation> sort_fun_extra_params
+      final Address result_index
    )
    {
       final List<Instruction> result;
@@ -299,7 +298,6 @@ public class BinarySearch
             collection,
             result_was_found,
             result_index,
-            sort_fun_extra_params,
             bot,
             top,
             midval,
@@ -319,13 +317,12 @@ public class BinarySearch
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation sort_fun,
+      final Address sort_fun,
       final Computation target,
       final Computation collection_size,
       final Address collection,
       final Address result_was_found,
       final Address result_index,
-      final List<Computation> sort_fun_extra_params,
       final Register bot,
       final Register top,
       final Register midval,
@@ -335,9 +332,12 @@ public class BinarySearch
       final List<Instruction> result, while_body;
       final Type element_type;
       final Computation value_of_result_index;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       element_type = target.get_type();
 
@@ -413,8 +413,8 @@ public class BinarySearch
          )
       );
 
-      sort_fun_extra_params.add(0, target);
-      sort_fun_extra_params.add(0, midval.get_value());
+      lambda_params.add(midval.get_value());
+      lambda_params.add(target);
 
       while_body.add
       (
@@ -424,7 +424,7 @@ public class BinarySearch
             assembler,
             sort_fun,
             cmp.get_address(),
-            sort_fun_extra_params
+            lambda_params
          )
       );
 

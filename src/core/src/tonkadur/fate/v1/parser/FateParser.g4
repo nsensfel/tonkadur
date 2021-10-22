@@ -48,9 +48,11 @@ options
    import tonkadur.fate.v1.lang.computation.*;
 
    import tonkadur.fate.v1.lang.computation.generic.ExtraComputation;
+   import tonkadur.fate.v1.lang.computation.generic.UserComputation;
 
    import tonkadur.fate.v1.lang.instruction.generic.SetValue;
    import tonkadur.fate.v1.lang.instruction.generic.ExtraInstruction;
+   import tonkadur.fate.v1.lang.instruction.generic.UserInstruction;
 }
 
 @members
@@ -562,8 +564,9 @@ first_level_instruction
             ($variable_list.result).get_entries()
          );
 
-      //PARSER.get_world().user_defined_instructions().add(new_sequence);
       PARSER.restore_local_variables_stack(previous_local_variables_stack);
+
+      UserInstruction.register(new_sequence);
 
       RecurrentChecks.assert_has_user_content_prefix
       (
@@ -607,13 +610,9 @@ first_level_instruction
                ($variable_list.result).get_entries(),
                ($computation.result)
             );
-         /*
-         PARSER.get_world().user_defined_computations().add
-         (
-            ($identifier.result),
-            new_sequence
-         );
-         */
+
+         UserComputation.register(($identifier.result), computation);
+
          RecurrentChecks.assert_has_user_content_prefix
          (
             start_origin,

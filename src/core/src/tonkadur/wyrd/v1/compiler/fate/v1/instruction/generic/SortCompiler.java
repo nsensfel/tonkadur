@@ -36,19 +36,16 @@ public class SortCompiler extends GenericInstructionCompiler
    {
       final Sort source;
       final ComputationCompiler lambda_cc;
-      final List<Computation> params;
-      final List<ComputationCompiler> param_cc_list;
       final ComputationCompiler collection_cc;
       final Register sorted_result;
 
       source = (Sort) instruction;
 
-      params = new ArrayList<Computation>();
-      param_cc_list = new ArrayList<ComputationCompiler>();
-
       lambda_cc = new ComputationCompiler(compiler);
 
       source.get_lambda_function().get_visited_by(lambda_cc);
+
+      lambda_cc.generate_address();
 
       if (lambda_cc.has_init())
       {
@@ -64,31 +61,6 @@ public class SortCompiler extends GenericInstructionCompiler
          result.add(collection_cc.get_init());
       }
 
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation p:
-            source.get_extra_parameters()
-      )
-      {
-         final ComputationCompiler param_cc;
-
-         param_cc = new ComputationCompiler(compiler);
-
-         p.get_visited_by(param_cc);
-
-         // Let's not re-compute the parameters on every iteration.
-         param_cc.generate_address();
-
-         if (param_cc.has_init())
-         {
-            result.add(param_cc.get_init());
-         }
-
-         param_cc_list.add(param_cc);
-
-         params.add(param_cc.get_computation());
-      }
-
       sorted_result =
          compiler.registers().reserve
          (
@@ -102,10 +74,9 @@ public class SortCompiler extends GenericInstructionCompiler
          (
             compiler.registers(),
             compiler.assembler(),
-            lambda_cc.get_computation(),
+            lambda_cc.get_address(),
             collection_cc.get_address(),
-            sorted_result.get_address(),
-            params
+            sorted_result.get_address()
          )
       );
 
@@ -117,10 +88,5 @@ public class SortCompiler extends GenericInstructionCompiler
       compiler.registers().release(sorted_result, result);
 
       collection_cc.release_registers(result);
-
-      for (final ComputationCompiler cc: param_cc_list)
-      {
-         cc.release_registers(result);
-      }
    }
 }

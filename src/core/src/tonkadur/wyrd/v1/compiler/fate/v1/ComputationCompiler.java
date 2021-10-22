@@ -728,16 +728,23 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
    throws Throwable
    {
       final String out_label, in_label;
+      final List<Register> side_channel_parameters;
       final List<Register> parameters;
       final Register result_holder;
       final ComputationCompiler expr_compiler;
       final Type result_type;
       final String context_name;
+      final Register lambda_data_register;
+      final Address lambda_function_line_address;
+      int i;
 
       out_label = compiler.assembler().generate_label("<lambda_expr#out>");
       in_label = compiler.assembler().generate_label("<lambda_expr#in>");
 
       parameters = new ArrayList<Register>();
+      side_channel_parameters = new ArrayList<Register>();
+
+      lambda_data_register = reserve(DictType.WILD);
 
       context_name = compiler.registers().create_stackable_context_name();
 
@@ -777,7 +784,18 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             init_instructions
          );
 
-      parameters.add(result_holder);
+      side_channel_parameters.add(result_holder);
+      side_channel_parameters.add(lambda_data_register);
+
+      // TODO: read two params:
+      // - result holder
+      // - wild dict, where the real params are.
+      init_instructions.addAll
+      (
+         compiler.registers().read_parameters(side_channel_parameters)
+      );
+
+      i = n.get_parameters().size() - 1;
 
       for (final tonkadur.fate.v1.lang.Variable param: n.get_parameters())
       {
@@ -794,12 +812,29 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
          parameters.add(r);
 
          compiler.registers().bind(param.get_name(), r);
-      }
+         init_instructions.add
+         (
+            new SetValue
+            (
+               r.get_address(),
+               new ValueOf
+               (
+                  new RelativeAddress
+                  (
+                     new Address
+                     (
+                        lambda_data_register.get_value(),
+                        DictType.WILD
+                     ),
+                     Constant.string_value(Integer.toString(i)),
+                     r.get_value().get_type()
+                  )
+               )
+            )
+         );
 
-      init_instructions.addAll
-      (
-         compiler.registers().read_parameters(parameters)
-      );
+         --i;
+      }
 
       expr_compiler = new ComputationCompiler(compiler);
 
@@ -846,7 +881,30 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       compiler.registers().pop_context();
 
-      result_as_computation = compiler.assembler().get_label_constant(in_label);
+      lambda_function_line_address =
+         new RelativeAddress
+         (
+            lambda_data_register.get_address(),
+            Constant.string_value("l"),
+            Type.INT
+         );
+
+      init_instructions.add
+      (
+         new Initialize(lambda_function_line_address, Type.INT)
+      );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            lambda_function_line_address,
+            compiler.assembler().get_label_constant(in_label)
+         )
+      );
+
+      result_as_computation = lambda_data_register.get_value();
+      result_as_address = lambda_data_register.get_address();
    }
 
    @Override

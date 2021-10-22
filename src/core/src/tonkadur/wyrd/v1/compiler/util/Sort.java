@@ -34,10 +34,9 @@ public class Sort
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda_fun,
+      final Address lambda_fun,
       final Address collection,
-      final Address sorted_result_holder,
-      final List<Computation> extra_params
+      final Address sorted_result_holder
    )
    {
       final Type element_type;
@@ -102,7 +101,6 @@ public class Sort
             sorted_result_holder,
             result_was_found.get_address(),
             result_index.get_address(),
-            extra_params,
             bot,
             top,
             midval,

@@ -60,7 +60,7 @@ public class SubListComputation extends GenericComputation
                "("
                + alias
                + " <start_at_index: INT> <end_before_index: INT>"
-               + " <(LIST X)|(SET X)> <Y0>...<YN>)"
+               + " <(LIST X)|(SET X)>)"
             )
          );
 

@@ -34,20 +34,22 @@ public class MergeLambda
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
+      final Address lambda,
       final Address collection_in_a,
       final Address collection_in_b,
       final Address collection_out,
-      final boolean to_set,
-      final List<Computation> extra_params
+      final boolean to_set
    )
    {
       final List<Instruction> result, while_body;
       final Register iterator, collection_in_size, storage;
       final Register collection_in_b_size;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator = registers.reserve(Type.INT, result);
       collection_in_size = registers.reserve(Type.INT, result);
@@ -97,23 +99,8 @@ public class MergeLambda
          )
       );
 
-      extra_params.add
+      lambda_params.add
       (
-         0,
-         new ValueOf
-         (
-            new RelativeAddress
-            (
-               collection_in_b,
-               new Cast(iterator.get_value(), Type.STRING),
-               ((MapType) collection_in_b.get_target_type()).get_member_type()
-            )
-         )
-      );
-
-      extra_params.add
-      (
-         0,
          new ValueOf
          (
             new RelativeAddress
@@ -121,6 +108,19 @@ public class MergeLambda
                collection_in_a,
                new Cast(iterator.get_value(), Type.STRING),
                ((MapType) collection_in_a.get_target_type()).get_member_type()
+            )
+         )
+      );
+
+      lambda_params.add
+      (
+         new ValueOf
+         (
+            new RelativeAddress
+            (
+               collection_in_b,
+               new Cast(iterator.get_value(), Type.STRING),
+               ((MapType) collection_in_b.get_target_type()).get_member_type()
             )
          )
       );
@@ -136,7 +136,7 @@ public class MergeLambda
              * be a set.
              */
             storage.get_address(),
-            extra_params
+            lambda_params
          )
       );
 
@@ -188,23 +188,25 @@ public class MergeLambda
    (
       final RegisterManager registers,
       final InstructionManager assembler,
-      final Computation lambda,
+      final Address lambda,
       final Computation default_a,
       final Address collection_in_a,
       final Computation default_b,
       final Address collection_in_b,
       final Address collection_out,
-      final boolean to_set,
-      final List<Computation> extra_params
+      final boolean to_set
    )
    {
       final List<Instruction> result, while_body;
       final Register iterator_a, iterator_b;
       final Register collection_a_size, collection_b_size;
       final Register storage;
+      final List<Computation> lambda_params;
 
       result = new ArrayList<Instruction>();
       while_body = new ArrayList<Instruction>();
+
+      lambda_params = new ArrayList<Computation>();
 
       iterator_a = registers.reserve(Type.INT, result);
       iterator_b = registers.reserve(Type.INT, result);
@@ -240,34 +242,9 @@ public class MergeLambda
          )
       );
 
-      extra_params.add
-      (
-         0,
-         new IfElseComputation
-         (
-            Operation.less_than
-            (
-               iterator_b.get_value(),
-               collection_b_size.get_value()
-            ),
-            new ValueOf
-            (
-               new RelativeAddress
-               (
-                  collection_in_b,
-                  new Cast(iterator_b.get_value(), Type.STRING),
-                  (
-                     (MapType) collection_in_b.get_target_type()
-                  ).get_member_type()
-               )
-            ),
-            default_b
-         )
-      );
 
-      extra_params.add
+      lambda_params.add
       (
-         0,
          new IfElseComputation
          (
             Operation.less_than
@@ -290,6 +267,30 @@ public class MergeLambda
          )
       );
 
+      lambda_params.add
+      (
+         new IfElseComputation
+         (
+            Operation.less_than
+            (
+               iterator_b.get_value(),
+               collection_b_size.get_value()
+            ),
+            new ValueOf
+            (
+               new RelativeAddress
+               (
+                  collection_in_b,
+                  new Cast(iterator_b.get_value(), Type.STRING),
+                  (
+                     (MapType) collection_in_b.get_target_type()
+                  ).get_member_type()
+               )
+            ),
+            default_b
+         )
+      );
+
       while_body.add
       (
          LambdaEvaluation.generate
@@ -301,7 +302,7 @@ public class MergeLambda
              * be a set.
              */
             storage.get_address(),
-            extra_params
+            lambda_params
          )
       );
 

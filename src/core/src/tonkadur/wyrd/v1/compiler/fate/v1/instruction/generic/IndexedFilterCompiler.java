@@ -31,43 +31,15 @@ public class IndexedFilterCompiler extends GenericInstructionCompiler
    throws Throwable
    {
       final IndexedFilter source;
-      final List<Computation> params;
-      final List<ComputationCompiler> param_cc_list;
       final ComputationCompiler lambda_cc, collection_cc;
 
       source = (IndexedFilter) instruction;
 
-      params = new ArrayList<Computation>();
-      param_cc_list = new ArrayList<ComputationCompiler>();
-
-      for
-      (
-         final tonkadur.fate.v1.lang.meta.Computation p:
-            source.get_extra_parameters()
-      )
-      {
-         final ComputationCompiler param_cc;
-
-         param_cc = new ComputationCompiler(compiler);
-
-         p.get_visited_by(param_cc);
-
-         // Let's not re-compute the parameters on every iteration.
-         param_cc.generate_address();
-
-         if (param_cc.has_init())
-         {
-            result.add(param_cc.get_init());
-         }
-
-         param_cc_list.add(param_cc);
-
-         params.add(param_cc.get_computation());
-      }
-
       lambda_cc = new ComputationCompiler(compiler);
 
       source.get_lambda_function().get_visited_by(lambda_cc);
+
+      lambda_cc.generate_address();
 
       if (lambda_cc.has_init())
       {
@@ -89,18 +61,12 @@ public class IndexedFilterCompiler extends GenericInstructionCompiler
          (
             compiler.registers(),
             compiler.assembler(),
-            lambda_cc.get_computation(),
-            collection_cc.get_address(),
-            params
+            lambda_cc.get_address(),
+            collection_cc.get_address()
          )
       );
 
       lambda_cc.release_registers(result);
       collection_cc.release_registers(result);
-
-      for (final ComputationCompiler cc: param_cc_list)
-      {
-         cc.release_registers(result);
-      }
    }
 }

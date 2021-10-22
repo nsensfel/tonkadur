@@ -72,13 +72,13 @@ public class UserInstruction extends GenericInstruction
          call_parameters
       );
 
-      return new UserInstruction(origin, definition, call_parameters);
+      return new UserInstruction(origin, alias, call_parameters);
    }
 
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final Sequence definition;
+   protected final String instruction_name;
    protected final List<Computation> parameters;
 
    /***************************************************************************/
@@ -88,24 +88,23 @@ public class UserInstruction extends GenericInstruction
    protected UserInstruction
    (
       final Origin origin,
-      final Sequence definition,
+      final String instruction_name,
       final List<Computation> parameters
    )
    {
       super(origin);
 
-      this.definition = definition;
+      this.instruction_name = instruction_name;
       this.parameters = parameters;
    }
 
    /***************************************************************************/
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
-
    /**** Accessors ************************************************************/
-   public Sequence get_definition ()
+   public String get_instruction_name ()
    {
-      return definition;
+      return instruction_name;
    }
 
    public List<Computation> get_parameters ()
@@ -120,9 +119,9 @@ public class UserInstruction extends GenericInstruction
       final StringBuilder sb = new StringBuilder();
 
       sb.append("(");
-      sb.append(definition.get_name());
+      sb.append(get_instruction_name());
 
-      for (final Computation param: parameters)
+      for (final Computation param: get_parameters())
       {
          sb.append(" ");
          sb.append(param.toString());

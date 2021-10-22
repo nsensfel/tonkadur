@@ -64,13 +64,12 @@ public class IndexedSafeMergeComputation extends GenericComputation
       final Computation default_a;
       final Computation collection_b;
       final Computation default_b;
-      final List<Computation> extra_params;
       final List<Type> base_param_types;
       final boolean to_set;
 
       base_param_types = new ArrayList<Type>();
 
-      if (call_parameters.size() < 5)
+      if (call_parameters.size() != 5)
       {
          ErrorManager.handle
          (
@@ -79,9 +78,8 @@ public class IndexedSafeMergeComputation extends GenericComputation
                origin,
                "("
                + alias
-               + " <(LAMBDA X (INT Y Z W0...WN))> <(LIST Y)|(SET Y)>"
-               + " <default_y: Y> <(LIST Z)|(SET Z)> <default_z: Z>"
-               + " <W0>...<WN>)"
+               + " <(LAMBDA X (INT Y Z))> <(LIST Y)|(SET Y)>"
+               + " <default_y: Y> <(LIST Z)|(SET Z)> <default_z: Z>)"
             )
          );
 
@@ -93,7 +91,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
       default_a = call_parameters.get(2);
       collection_b = call_parameters.get(3);
       default_b = call_parameters.get(4);
-      extra_params = call_parameters.subList(5, call_parameters.size());
 
       RecurrentChecks.propagate_expected_types_and_assert_is_a_collection_of
       (
@@ -124,8 +121,7 @@ public class IndexedSafeMergeComputation extends GenericComputation
       RecurrentChecks.propagate_expected_types_and_assert_is_lambda
       (
          lambda_function,
-         base_param_types,
-         extra_params
+         base_param_types
       );
 
       to_set = alias.startsWith("set:");
@@ -149,7 +145,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
             collection_b,
             default_b,
             to_set,
-            extra_params,
             CollectionType.build
             (
                origin,
@@ -163,7 +158,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
    /***************************************************************************/
-   protected final List<Computation> extra_params;
    protected final Computation lambda_function;
    protected final Computation collection_in_a;
    protected final Computation default_a;
@@ -184,7 +178,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
       final Computation collection_in_b,
       final Computation default_b,
       final boolean to_set,
-      final List<Computation> extra_params,
       final Type output_type
    )
    {
@@ -196,7 +189,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
       this.collection_in_b = collection_in_b;
       this.default_b = default_b;
       this.to_set = to_set;
-      this.extra_params = extra_params;
    }
 
    /***************************************************************************/
@@ -226,11 +218,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
    public Computation get_default_b ()
    {
       return default_b;
-   }
-
-   public List<Computation> get_extra_parameters ()
-   {
-      return extra_params;
    }
 
    public boolean to_set ()
@@ -278,12 +265,6 @@ public class IndexedSafeMergeComputation extends GenericComputation
       else
       {
          sb.append(default_b.toString());
-      }
-
-      for (final Computation c: extra_params)
-      {
-         sb.append(" ");
-         sb.append(c.toString());
       }
 
       sb.append(")");
