@@ -53,12 +53,14 @@
 
 (set! 10to0_1
    (list:foldr
-      (lambda (((list int) res) (int e) (int mod))
-         (list:add (- e mod) res)
+      (partial
+         (lambda ((int mod) ((list int) res) (int e))
+            (list:add (- e mod) res)
+         )
+         10
       )
       (default (list int))
       (list:range 10 20 1)
-      10
    )
 )
 
@@ -143,12 +145,14 @@
 
 (set! 10to20_1
    (list:foldl
-      (lambda (((list int) res) (int e) (int mod))
-         (list:add (- e mod) res)
+      (partial
+         (lambda ((int mod) ((list int) res) (int e))
+            (list:add (- e mod) res)
+         )
+         10
       )
       (default (list int))
       (list:range 20 30 1)
-      10
    )
 )
 

@@ -11,16 +11,15 @@
    [FAILED] Test 0
 )
 
-(free! (at p0))
+(free! p0)
 
-(add! (default (ptr int)) lp0)
-(add! (default (ptr int)) lp0)
-(add! (default (ptr int)) lp0)
-(add! (default (ptr int)) lp0)
+(list:add! (default (ptr int)) lp0)
+(list:add! (default (ptr int)) lp0)
+(list:add! (default (ptr int)) lp0)
+(list:add! (default (ptr int)) lp0)
 
 (allocate! lp0.0)
-(allocate! (at (access_pointer 1 lp0)))
-(allocate! (access_pointer 1 lp0)))
+(allocate! (at (ptr lp0.1)))
 
 [COMPLETED]
 

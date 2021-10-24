@@ -16,9 +16,8 @@
 
 (set! li2
    (list:map
-      (lambda ((int i) (int mod)) (* i mod))
+      (partial (lambda ((int mod) (int i)) (* i mod)) 2)
       (list:range 0 10 1)
-      2
    )
 )
 
@@ -86,9 +85,8 @@
 
 (set! li2
    (list:indexed_map
-      (lambda ((int ix) (int i) (int mod)) (+ (* i ix) mod))
+      (partial (lambda ((int mod) (int ix) (int i)) (+ (* i ix) mod)) 1000)
       (list:range 10 20 1)
-      1000
    )
 )
 

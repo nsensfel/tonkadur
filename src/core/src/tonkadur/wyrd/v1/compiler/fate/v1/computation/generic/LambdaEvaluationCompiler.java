@@ -54,7 +54,7 @@ public class LambdaEvaluationCompiler extends GenericComputationCompiler
 
       assimilate(lambda_cc);
 
-      result = reserve(DictType.WILD);
+      result = reserve(TypeCompiler.compile(compiler, source.get_type()));
 
       result_as_address = result.get_address();
       result_as_computation = result.get_value();

@@ -12,17 +12,28 @@
 
 (set! 0to10odd
    (list:filter
-      (lambda ((int i) (int two) (int one)) (= (mod i two) (var one)))
+      (partial
+         (lambda
+            (
+               (int two)
+               (int one)
+               (int i)
+            )
+            (= (mod i two) (var one))
+         )
+         2
+         1
+      )
       0to10
-      2
-      1
    )
 )
 
-(local (lambda bool (int)) filter_fun)
+(local
+   (lambda bool (int)) filter_fun
+   (lambda ((int i)) (= (mod i 2) 0))
+)
 
 (global (list int) 0to10evena)
-(set! filter_fun (lambda ((int i)) (= (mod i 2) 0)))
 (global (list int) 0to10eveno)
 (set! 0to10even
    (list:filter filter_fun 0to10)
@@ -90,10 +101,19 @@
 (set! 0to10even2 (var 0to10))
 
 (list:filter!
-   (lambda ((int i) (int two) (int one)) (= (mod i two) (var one)))
+   (partial
+      (lambda
+         (
+            (int two)
+            (int one)
+            (int i)
+         )
+         (= (mod i two) (var one))
+      )
+      2
+      1
+   )
    0to10odd2
-   2
-   1
 )
 
 (list:filter! filter_fun 0to10even2)
@@ -155,10 +175,20 @@
 
 (set! 0to10odd
    (list:indexed_filter
-      (lambda ((int ix) (int i) (int two) (int one)) (= (mod i two) (var one)))
+      (partial
+         (lambda
+            (
+               (int two)
+               (int one)
+               (int ix)
+               (int i)
+            )
+            (= (mod i two) (var one))
+         )
+         2
+         1
+      )
       0to10
-      2
-      1
    )
 )
 
@@ -226,10 +256,20 @@
 (set! 0to10even2 (var 0to10))
 
 (list:indexed_filter!
-   (lambda ((int ix) (int i) (int two) (int one)) (= (mod i two) (var one)))
+   (partial
+      (lambda
+         (
+            (int two)
+            (int one)
+            (int ix)
+            (int i)
+         )
+         (= (mod i two) (var one))
+      )
+      2
+      1
+   )
    0to10odd2
-   2
-   1
 )
 
 (list:indexed_filter! indexed_filter_fun 0to10even2)
@@ -308,14 +348,21 @@
 )
 
 (list:indexed_filter!
-   (lambda ((int ix) (int i) ((list int) o))
-      (exactly_one
-         (> i 0)
-         (list:is_member (var ix) o)
+   (partial
+      (lambda
+         (
+            ((list int) o)
+            (int ix)
+            (int i)
+         )
+         (exactly_one
+            (> i 0)
+            (list:is_member (var ix) o)
+         )
       )
+      (list:range 1 21 2)
    )
    oli1
-   (list:range 1 21 2)
 )
 
 (assert!

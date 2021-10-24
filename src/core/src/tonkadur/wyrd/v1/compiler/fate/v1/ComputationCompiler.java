@@ -734,8 +734,8 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       final ComputationCompiler expr_compiler;
       final Type result_type;
       final String context_name;
-      final Register lambda_data_register;
-      final Address lambda_function_line_address;
+      final Register result, lambda_data_register;
+      final Address result_line_address;
       int i;
 
       out_label = compiler.assembler().generate_label("<lambda_expr#out>");
@@ -744,7 +744,32 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
       parameters = new ArrayList<Register>();
       side_channel_parameters = new ArrayList<Register>();
 
-      lambda_data_register = reserve(DictType.WILD);
+      result = reserve(DictType.WILD);
+
+      result_line_address =
+         new RelativeAddress
+         (
+            result.get_address(),
+            Constant.string_value("l"),
+            Type.INT
+         );
+
+      init_instructions.add
+      (
+         new Initialize(result_line_address, Type.INT)
+      );
+
+      init_instructions.add
+      (
+         new SetValue
+         (
+            result_line_address,
+            compiler.assembler().get_label_constant(in_label)
+         )
+      );
+
+      result_as_computation = result.get_value();
+      result_as_address = result.get_address();
 
       context_name = compiler.registers().create_stackable_context_name();
 
@@ -784,12 +809,16 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
             init_instructions
          );
 
+      lambda_data_register =
+         compiler.registers().reserve
+         (
+            DictType.WILD,
+            init_instructions
+         );
+
       side_channel_parameters.add(result_holder);
       side_channel_parameters.add(lambda_data_register);
 
-      // TODO: read two params:
-      // - result holder
-      // - wild dict, where the real params are.
       init_instructions.addAll
       (
          compiler.registers().read_parameters(side_channel_parameters)
@@ -881,30 +910,6 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       compiler.registers().pop_context();
 
-      lambda_function_line_address =
-         new RelativeAddress
-         (
-            lambda_data_register.get_address(),
-            Constant.string_value("l"),
-            Type.INT
-         );
-
-      init_instructions.add
-      (
-         new Initialize(lambda_function_line_address, Type.INT)
-      );
-
-      init_instructions.add
-      (
-         new SetValue
-         (
-            lambda_function_line_address,
-            compiler.assembler().get_label_constant(in_label)
-         )
-      );
-
-      result_as_computation = lambda_data_register.get_value();
-      result_as_address = lambda_data_register.get_address();
    }
 
    @Override

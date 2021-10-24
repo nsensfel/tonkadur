@@ -38,7 +38,7 @@
 (global int i)
 
 (for (set! i 0) (=< i 10) (set! i (+ i 1))
-   (add! (list:range 0 i 1) lili)
+   (list:add! (list:range 0 i 1) lili)
 )
 
 (assert! (= (var lili.10.0) 0) [FAILED] (var test_name) lili.10.0 was (var lili.10.0).)

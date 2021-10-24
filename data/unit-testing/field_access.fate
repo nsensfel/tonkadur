@@ -4,40 +4,40 @@
 
 (set! test_name ( FIELD ACCESS ))
 
-(declare_structure test_struct_type0
+(declare_structure #test_struct_type0
    (int i)
    (int j)
    (int k)
    ((list int) li)
 )
 
-(declare_structure test_struct_type1
+(declare_structure #test_struct_type1
    (int i)
-   (test_struct_type0 ts0)
-   ((list test_struct_type0) lts)
+   (#test_struct_type0 ts0)
+   ((list #test_struct_type0) lts)
 )
 
-(declare_structure test_struct_type2
+(declare_structure #test_struct_type2
    (int i)
-   (test_struct_type0 ts0)
-   (test_struct_type1 ts1)
+   (#test_struct_type0 ts0)
+   (#test_struct_type1 ts1)
 )
 
-(global test_struct_type0 ts0_0)
-(global test_struct_type0 ts0_1)
-(global test_struct_type1 ts1_0)
-(global test_struct_type1 ts1_1)
-(global test_struct_type2 ts2_0)
+(global #test_struct_type0 ts0_0)
+(global #test_struct_type0 ts0_1)
+(global #test_struct_type1 ts1_0)
+(global #test_struct_type1 ts1_1)
+(global #test_struct_type2 ts2_0)
 
 
-(set_fields! ts0_0
+(struct:set_fields! ts0_0
    (i 42)
    (j 69)
    (k 420)
    (li (list:range 0 10 1))
 )
 
-(set_fields! ts0_1
+(struct:set_fields! ts0_1
    (i 42)
    (j 69)
    (k 420)
@@ -47,20 +47,30 @@
    (li (list:range 11 20 1))
 )
 
-(set_fields! ts1_0
+(struct:set_fields! ts1_0
    (i 1337)
    (ts0 (var ts0_0))
-   (lts (add (var ts0_1) (add (var ts0_0) (default (list test_struct_type0)))))
+   (lts
+      (list:add
+         (var ts0_1)
+         (list:add (var ts0_0) (default (list #test_struct_type0)))
+      )
+   )
 )
 
-(set_fields! ts1_1
+(struct:set_fields! ts1_1
    (i 1337)
    (ts0 (var ts0_1))
-   (lts (add (var ts0_0) (add (var ts0_1) (default (list test_struct_type0)))))
+   (lts
+      (list:add
+         (var ts0_0)
+         (list:add (var ts0_1) (default (list #test_struct_type0)))
+      )
+   )
 )
 
 (set! ts2_0
-   (set_fields (default test_struct_type2)
+   (struct:set_fields (default #test_struct_type2)
       (i -1337)
       (ts0 (var ts0_0))
       (ts1 (var ts1_1))
@@ -68,7 +78,13 @@
 )
 
 (assert!
-   (= (get_field i ts0_0) (var ts0_0.i) (get_field k ts0_1) (var ts0_1.k) 42)
+   (=
+      (struct:get_field i ts0_0)
+      (var ts0_0.i)
+      (struct:get_field k ts0_1)
+      (var ts0_1.k)
+      42
+   )
    [FAILED] (var test_name) Test 0.
    (newline)
    ts0_0.i = (var ts0_0.i)
@@ -77,7 +93,13 @@
 )
 
 (assert!
-   (= (get_field i ts0_1) (var ts0_1.i) (get_field k ts0_0) (var ts0_0.k) 420)
+   (=
+      (struct:get_field i ts0_1)
+      (var ts0_1.i)
+      (struct:get_field k ts0_0)
+      (var ts0_0.k)
+      420
+   )
    [FAILED] (var test_name) Test 1.
    (newline)
    ts0_0.k = (var ts0_0.k)
@@ -87,9 +109,9 @@
 
 (assert!
    (=
-      (field i ts0_1)
-      (get_field i (set_fields ts1_0 (i 420)))
-      (get_field i (field ts0 (field ts1 ts2_0)))
+      (struct:field i ts0_1)
+      (struct:get_field i (struct:set_fields ts1_0 (i 420)))
+      (struct:get_field i (struct:field ts0 (struct:field ts1 ts2_0)))
       420
    )
    [FAILED] (var test_name) Test 2.
