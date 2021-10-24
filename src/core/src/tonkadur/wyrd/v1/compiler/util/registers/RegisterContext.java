@@ -151,7 +151,11 @@ class RegisterContext
    public void unbind (final String name, final List<Instruction> instr_holder)
    {
       release(aliased_registers.get(name), instr_holder);
+      unbind_but_do_not_free(name);
+   }
 
+   public void unbind_but_do_not_free(final String name)
+   {
       aliased_registers.remove(name);
 
       if (!hierarchical_aliases.isEmpty())

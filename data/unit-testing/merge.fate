@@ -170,49 +170,55 @@
 
 (set! si2
    (set:merge
-      (lambda
-         (
-            (int a)
-            (int b)
-            (int mod)
+      (partial
+         (lambda
+            (
+               (int mod)
+               (int a)
+               (int b)
+            )
+            (* (- b a) mod)
          )
-         (* (- b a) mod)
+         -1
       )
       (list:range 0 60 2)
       (list:range 10 40 1)
-      -1
    )
 )
 
 (set! si2oa
    (set:merge
-      (lambda
-         (
-            (int a)
-            (int b)
-            (int mod)
+      (partial
+         (lambda
+            (
+               (int mod)
+               (int a)
+               (int b)
+            )
+            (* (- b a) mod)
          )
-         (* (- b a) mod)
+         -1
       )
       (list:range 0 60 2)
       (list:range 10 80 1)
-      -1
    )
 )
 
 (set! si2ob
    (set:merge
-      (lambda
-         (
-            (int a)
-            (int b)
-            (int mod)
+      (partial
+         (lambda
+            (
+               (int mod)
+               (int a)
+               (int b)
+            )
+            (* (- b a) mod)
          )
-         (* (- b a) mod)
+         -1
       )
       (list:range 0 80 2)
       (list:range 10 40 1)
-      -1
    )
 )
 
@@ -417,52 +423,58 @@ For reference, the values found in the sets are:
 
 (set! isi2
    (set:indexed_merge
-      (lambda
-         (
-            (int i)
-            (int a)
-            (int b)
-            (int mod)
+      (partial
+         (lambda
+            (
+               (int mod)
+               (int i)
+               (int a)
+               (int b)
+            )
+            (* (* (- b a) mod) (+ i 1))
          )
-         (* (* (- b a) mod) (+ i 1))
+         -1
       )
       (list:range 0 60 2)
       (list:range 10 40 1)
-      -1
    )
 )
 
 (set! isi2oa
    (set:indexed_merge
-      (lambda
-         (
-            (int i)
-            (int a)
-            (int b)
-            (int mod)
+      (partial
+         (lambda
+            (
+               (int mod)
+               (int i)
+               (int a)
+               (int b)
+            )
+            (* (* (- b a) mod) (+ i 1))
          )
-         (* (* (- b a) mod) (+ i 1))
+         -1
       )
       (list:range 0 60 2)
       (list:range 10 80 1)
-      -1
    )
 )
 
 (set! isi2ob
    (set:indexed_merge
-      (lambda
-         (
-            (int i)
-            (int a)
-            (int b)
-            (int mod)
+      (partial
+         (lambda
+            (
+               (int mod)
+               (int i)
+               (int a)
+               (int b)
+            )
+            (* (- b a) mod (+ i 1))
          )
-         (* (- b a) mod (+ i 1))
+         -1
       )
       (list:range 0 80 2)
       (list:range 10 40 1)
-      -1
    )
 )
 

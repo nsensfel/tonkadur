@@ -162,6 +162,11 @@ public class RegisterManager
       context.peekFirst().unbind(name, instr_holder);
    }
 
+   public void unbind_but_do_not_free (final String name)
+   {
+      context.peekFirst().unbind_but_do_not_free(name);
+   }
+
    public Register get_context_register (final String name)
    {
       final Register result;

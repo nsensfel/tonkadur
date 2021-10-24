@@ -959,11 +959,9 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
          name = a.get_car().get_name();
          r =
-            /* These are free by the unbind below */
-            compiler.registers().reserve
+            reserve
             (
-               TypeCompiler.compile(compiler, a.get_car().get_type()),
-               init_instructions
+               TypeCompiler.compile(compiler, a.get_car().get_type())
             );
 
          compiler.registers().bind(name, r);
@@ -985,7 +983,7 @@ implements tonkadur.fate.v1.lang.meta.ComputationVisitor
 
       for (final String name: names)
       {
-         compiler.registers().unbind(name, init_instructions);
+         compiler.registers().unbind_but_do_not_free(name);
       }
    }
 
