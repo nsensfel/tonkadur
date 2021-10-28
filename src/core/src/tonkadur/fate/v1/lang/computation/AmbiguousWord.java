@@ -19,6 +19,7 @@ public class AmbiguousWord extends Computation
    /***************************************************************************/
    protected final ParserData parser;
    protected final String as_string;
+   protected final Computation as_variable;
    protected Computation result;
 
    protected void assert_is_resolved ()
@@ -40,13 +41,15 @@ public class AmbiguousWord extends Computation
    (
       final ParserData parser,
       final Origin origin,
-      final String as_string
+      final String as_string,
+      final Computation as_variable
    )
    {
       super(origin, new FutureType(origin));
 
       this.parser = parser;
       this.as_string = as_string;
+      this.as_variable = as_variable;
       result = null;
    }
 
@@ -79,15 +82,30 @@ public class AmbiguousWord extends Computation
    @Override
    public void expect_non_string ()
    {
-      try
+      if (as_variable != null)
       {
-         result = VariableFromWord.generate(parser, get_origin(), as_string);
+         result = as_variable;
       }
-      catch (final Throwable t)
+      else
       {
-         t.printStackTrace();
+         System.err.println
+         (
+            "[P] Somehow, the variable '"
+            + as_string
+            + "' was an ambiguous word that wasn't a variable when it was used."
+            + get_origin().toString()
+         );
 
-         System.exit(-1);
+         try
+         {
+            result = VariableFromWord.generate(parser, get_origin(), as_string);
+         }
+         catch (final Throwable t)
+         {
+            t.printStackTrace();
+
+            System.exit(-1);
+         }
       }
 
       ((FutureType) type).resolve_to(result.get_type());

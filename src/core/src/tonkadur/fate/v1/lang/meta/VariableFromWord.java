@@ -137,4 +137,116 @@ public class VariableFromWord
 
       return result;
    }
+
+   public static Computation attempt
+   (
+      final ParserData parser,
+      final Origin origin,
+      final String word
+   )
+   throws Throwable
+   {
+      final String[] subrefs;
+      Computation result;
+      Variable target_var;
+
+      subrefs = word.split("\\.");
+
+      if (subrefs.length == 0)
+      {
+         // 'word' is made only of '.' characters.
+         return null;
+      }
+
+      target_var = parser.maybe_get_local_variable(subrefs[0]);
+
+      if (target_var == null)
+      {
+         target_var = parser.get_world().variables().get_or_null(subrefs[0]);
+      }
+
+      if (target_var == null)
+      {
+         return null;
+      }
+
+      result = new VariableReference(origin, target_var);
+
+      /* TODO don't rely on the other classes to generate the subrefs. */
+      if (subrefs.length > 1)
+      {
+         Type t;
+         final List<String> subrefs_list;
+
+         subrefs_list = new ArrayList(Arrays.asList(subrefs));
+
+         subrefs_list.remove(0);
+
+         for (final String subref: subrefs_list)
+         {
+            t = result.get_type();
+
+            while (t instanceof PointerType)
+            {
+               t = ((PointerType) t).get_referenced_type();
+
+               result =
+                  AtReference.build
+                  (
+                     origin.with_hint(subref),
+                     "at",
+                     Collections.singletonList(result)
+                  );
+            }
+
+            if (t instanceof CollectionType)
+            {
+               result =
+                  Access.build
+                  (
+                     origin.with_hint(subref),
+                     "collection:access",
+                     Arrays.asList
+                     (
+                        new Computation[]
+                        {
+                           Constant.build(origin.with_hint(subref), subref),
+                           result
+                        }
+                     )
+                  );
+            }
+            else if (t instanceof StructType)
+            {
+               result =
+                  FieldAccess.build
+                  (
+                     origin.with_hint(subref),
+                     result,
+                     Collections.singletonList(subref)
+                  );
+            }
+            else
+            {
+               ErrorManager.handle
+               (
+                  new BasicParsingError
+                  (
+                     ErrorLevel.ERROR,
+                     ErrorCategory.INVALID_USE,
+                     origin.with_hint(subref),
+                     (
+                        "Attempting to access a subreference from a value of"
+                        + " type "
+                        + t.toString()
+                        + ", despite this type not being useable in this way."
+                     )
+                  )
+               );
+            }
+         }
+      }
+
+      return result;
+   }
 }

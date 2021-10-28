@@ -50,6 +50,8 @@ options
    import tonkadur.fate.v1.lang.computation.generic.ExtraComputation;
    import tonkadur.fate.v1.lang.computation.generic.UserComputation;
 
+   import tonkadur.fate.v1.lang.computation.generic.Newline;
+
    import tonkadur.fate.v1.lang.instruction.generic.SetValue;
    import tonkadur.fate.v1.lang.instruction.generic.ExtraInstruction;
    import tonkadur.fate.v1.lang.instruction.generic.UserInstruction;
@@ -1443,12 +1445,12 @@ returns [Instruction result]
    TEXT_OPTION_KW
       L_PAREN WS*
       {
-         PARSER.enable_restricted_variable_stack_of(pcd);
+         //PARSER.enable_restricted_variable_stack_of(pcd);
       }
       paragraph
       WS* R_PAREN WS*
       {
-         PARSER.disable_restricted_stack_of(pcd);
+         //PARSER.disable_restricted_stack_of(pcd);
          PARSER.increase_local_variables_hierarchy();
       }
       maybe_instruction_list WS*
@@ -1471,11 +1473,11 @@ returns [Instruction result]
 
    | EVENT_OPTION_KW
       {
-         PARSER.enable_restricted_variable_stack_of(pcd);
+         //PARSER.enable_restricted_variable_stack_of(pcd);
       }
       L_PAREN WS* word maybe_computation_list WS* R_PAREN WS*
       {
-         PARSER.disable_restricted_stack_of(pcd);
+         //PARSER.disable_restricted_stack_of(pcd);
          PARSER.increase_local_variables_hierarchy();
       }
       maybe_instruction_list WS*
@@ -1521,11 +1523,11 @@ returns [Instruction result]
 
    | IF_KW
          {
-            PARSER.enable_restricted_variable_stack_of(pcd);
+           // PARSER.enable_restricted_variable_stack_of(pcd);
          }
          computation WS*
          {
-            PARSER.disable_restricted_stack_of(pcd);
+           // PARSER.disable_restricted_stack_of(pcd);
          }
          player_choice_list[pcd] WS*
       R_PAREN
@@ -1545,11 +1547,11 @@ returns [Instruction result]
 
    | IF_ELSE_KW
          {
-            PARSER.enable_restricted_variable_stack_of(pcd);
+           // PARSER.enable_restricted_variable_stack_of(pcd);
          }
          computation WS*
          {
-            PARSER.disable_restricted_stack_of(pcd);
+           // PARSER.disable_restricted_stack_of(pcd);
          }
          if_true=player_choice[pcd] WS*
          if_false=player_choice[pcd] WS*
@@ -1585,11 +1587,11 @@ returns [Instruction result]
 
    | SWITCH_KW
          {
-            PARSER.enable_restricted_variable_stack_of(pcd);
+            //PARSER.enable_restricted_variable_stack_of(pcd);
          }
          computation WS*
          {
-            PARSER.disable_restricted_stack_of(pcd);
+            //PARSER.disable_restricted_stack_of(pcd);
          }
          player_choice_switch_list[pcd] WS+
          player_choice[pcd] WS*
@@ -1612,8 +1614,8 @@ returns [Instruction result]
    | FOR_KW
          l0=L_PAREN
          {
-            PARSER.enable_restricted_variable_stack_of(pcd);
-            PARSER.increase_local_variables_hierarchy();
+            //PARSER.enable_restricted_variable_stack_of(pcd);
+            //PARSER.increase_local_variables_hierarchy();
             pcd.increase_variable_names_hierarchy();
          }
          choice_for_variable_list[pcd] WS*
@@ -1623,15 +1625,15 @@ returns [Instruction result]
          choice_for_update_variable_list[pcd] WS*
          R_PAREN WS*
          {
-            PARSER.disable_restricted_stack_of(pcd);
+            //PARSER.disable_restricted_stack_of(pcd);
          }
          player_choice_list[pcd] WS*
       R_PAREN
    {
       pcd.decrease_variable_names_hierarchy();
-      PARSER.enable_restricted_variable_stack_of(pcd);
-      PARSER.decrease_local_variables_hierarchy();
-      PARSER.disable_restricted_stack_of(pcd);
+      //PARSER.enable_restricted_variable_stack_of(pcd);
+      //PARSER.decrease_local_variables_hierarchy();
+      //PARSER.disable_restricted_stack_of(pcd);
 
       $result =
          For.build
@@ -1666,7 +1668,7 @@ returns [Instruction result]
 
    | FOR_EACH_KW
          {
-            PARSER.enable_restricted_variable_stack_of(pcd);
+            //PARSER.enable_restricted_variable_stack_of(pcd);
             PARSER.increase_local_variables_hierarchy();
          }
          computation WS+
@@ -1722,15 +1724,15 @@ returns [Instruction result]
             );
 
          PARSER.add_local_variable(new_variable);
-         PARSER.disable_restricted_stack_of(pcd);
+         //PARSER.disable_restricted_stack_of(pcd);
       }
       WS+
       player_choice_list[pcd] WS*
    R_PAREN
    {
-      PARSER.enable_restricted_variable_stack_of(pcd);
+      //PARSER.enable_restricted_variable_stack_of(pcd);
       PARSER.decrease_local_variables_hierarchy();
-      PARSER.disable_restricted_stack_of(pcd);
+      //PARSER.disable_restricted_stack_of(pcd);
       $result =
          ForEach.build
          (
@@ -1759,7 +1761,7 @@ returns [List<Cons<Computation, Instruction>> result]
    condition = null;
 
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   PARSER.enable_restricted_variable_stack_of(pcd);
+   //PARSER.enable_restricted_variable_stack_of(pcd);
 }
 :
    (
@@ -1769,7 +1771,7 @@ returns [List<Cons<Computation, Instruction>> result]
             {
                condition = ($computation.result);
 
-               PARSER.disable_restricted_stack_of(pcd);
+    //           PARSER.disable_restricted_stack_of(pcd);
             }
          )
          |
@@ -1788,7 +1790,7 @@ returns [List<Cons<Computation, Instruction>> result]
                      ($something_else.text).substring(1).trim()
                   );
 
-               PARSER.disable_restricted_stack_of(pcd);
+    //           PARSER.disable_restricted_stack_of(pcd);
             }
          )
       )
@@ -1811,14 +1813,14 @@ returns [List<Cons<Computation, Instruction>> result]
 @init
 {
    $result = new ArrayList<Cons<Computation, Instruction>>();
-   PARSER.enable_restricted_variable_stack_of(pcd);
+   //PARSER.enable_restricted_variable_stack_of(pcd);
 }
 :
    (
       L_PAREN
          WS* computation
          {
-            PARSER.disable_restricted_stack_of(pcd);
+    //        PARSER.disable_restricted_stack_of(pcd);
          }
          WS* player_choice[pcd] WS*
       R_PAREN
@@ -2394,7 +2396,14 @@ returns [Computation result]
       }
       else
       {
-         $result = new AmbiguousWord(PARSER, ($word.origin), ($word.result));
+         $result =
+            new AmbiguousWord
+            (
+               PARSER,
+               ($word.origin),
+               ($word.result),
+               VariableFromWord.attempt(PARSER, ($word.origin), ($word.result))
+            );
       }
    }
 
@@ -2810,31 +2819,67 @@ returns [List<Computation> result]
 @init
 {
    $result = new ArrayList<Computation>();
+   boolean follows_newline, just_added_space;
+
+   just_added_space = false;
 }
 :
    computation
    {
+
+      if (($computation.result) instanceof Newline)
+      {
+         follows_newline = true;
+      }
+      else
+      {
+         follows_newline = false;
+      }
+
+      just_added_space = false;
+
       ($result).add(($computation.result));
    }
    (
       (WS+
          {
-            ($result).add
-            (
-               Constant.build_string
+            if (!follows_newline)
+            {
+               ($result).add
                (
-                  PARSER.get_origin_at
+                  Constant.build_string
                   (
-                     ($WS.getLine()),
-                     ($WS.getCharPositionInLine())
-                  ),
-                  " "
-               )
-            );
+                     PARSER.get_origin_at
+                     (
+                        ($WS.getLine()),
+                        ($WS.getCharPositionInLine())
+                     ),
+                     " "
+                  )
+               );
+
+               just_added_space = true;
+            }
          }
       )*
       computation
       {
+         if (($computation.result) instanceof Newline)
+         {
+            follows_newline = true;
+
+            if (just_added_space)
+            {
+               ($result).remove(($result).size() - 1);
+            }
+         }
+         else
+         {
+            follows_newline = false;
+         }
+
+         just_added_space = false;
+
          ($result).add(($computation.result));
       }
    )*

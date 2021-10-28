@@ -26,6 +26,7 @@ public class Newline extends GenericComputation
       aliases = new ArrayList<String>();
 
       aliases.add("newline");
+      aliases.add("n");
 
       return aliases;
    }
