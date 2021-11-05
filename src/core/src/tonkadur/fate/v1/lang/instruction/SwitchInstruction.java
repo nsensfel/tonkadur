@@ -57,7 +57,7 @@ public class SwitchInstruction extends Instruction
    {
       final Type target_type;
 
-      target.expect_string();
+      target.expect_non_string();
 
       target_type = target.get_type();
 

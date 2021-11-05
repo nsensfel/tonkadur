@@ -61,7 +61,7 @@ public class SwitchValue extends Computation
 
       target_type = target.get_type();
 
-      target.expect_string();
+      target.expect_non_string();
 
       candidate_hint = branches.get(0).get_car().get_type();
 
