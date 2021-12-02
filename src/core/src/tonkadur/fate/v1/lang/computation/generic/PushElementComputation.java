@@ -53,6 +53,7 @@ public class PushElementComputation extends GenericComputation
       final Computation collection;
       final boolean is_from_left;
 
+      //
       if (call_parameters.size() != 2)
       {
          ErrorManager.handle
@@ -117,6 +118,7 @@ public class PushElementComputation extends GenericComputation
       final boolean is_from_left
    )
    {
+      // FIXME: this should always return a list.
       super(origin, collection.get_type());
 
       this.collection = collection;

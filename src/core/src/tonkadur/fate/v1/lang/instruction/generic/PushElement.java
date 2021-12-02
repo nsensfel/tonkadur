@@ -32,13 +32,6 @@ public class PushElement extends GenericInstruction
       aliases.add("list:push_right");
       aliases.add("list:pushright");
       aliases.add("list:pushRight");
-      aliases.add("set:push_left");
-      aliases.add("set:pushleft");
-      aliases.add("set:pushLeft");
-      aliases.add("set:push_right");
-      aliases.add("set:pushright");
-      aliases.add("set:pushRight");
-
       return aliases;
    }
 
@@ -61,7 +54,7 @@ public class PushElement extends GenericInstruction
             new WrongNumberOfParametersException
             (
                origin,
-               "(" + alias + "! <X> <(LIST X)|(SET X) REFERENCE>)"
+               "(" + alias + "! <X> <(LIST X REFERENCE>)"
             )
          );
 
@@ -72,22 +65,11 @@ public class PushElement extends GenericInstruction
       collection = call_parameters.get(1);
       is_from_left = alias.endsWith("eft");
 
-      if (alias.startsWith("set:"))
-      {
-         RecurrentChecks.propagate_expected_types_and_assert_is_a_set_of
-         (
-            collection,
-            element
-         );
-      }
-      else
-      {
-         RecurrentChecks.propagate_expected_types_and_assert_is_a_list_of
-         (
-            collection,
-            element
-         );
-      }
+      RecurrentChecks.propagate_expected_types_and_assert_is_a_list_of
+      (
+         collection,
+         element
+      );
 
       collection.use_as_reference();
 

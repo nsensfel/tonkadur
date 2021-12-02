@@ -102,6 +102,7 @@ public class Partition extends GenericInstruction
 
       RecurrentChecks.assert_return_type_is(lambda_function, Type.BOOL);
 
+      collection_in.use_as_reference();
       collection_out.use_as_reference();
 
       return

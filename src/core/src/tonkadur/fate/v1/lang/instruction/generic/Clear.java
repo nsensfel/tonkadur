@@ -95,6 +95,7 @@ public class Clear extends GenericInstruction
       collection = call_parameters.get(0);
 
       collection.expect_non_string();
+      collection.use_as_reference();
 
       RecurrentChecks.assert_is_a_collection(collection);
 

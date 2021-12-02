@@ -58,7 +58,7 @@ public class SortComputation extends GenericComputation
                origin,
                "("
                + alias
-               + " <(LAMBDA INT (X))> <(LIST X)|(SET X)>)"
+               + " <(LAMBDA INT (X X))> <(LIST X)|(SET X)>)"
             )
          );
 

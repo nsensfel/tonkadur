@@ -144,7 +144,7 @@ LAMBDA_KW: L_PAREN 'lambda' SEP+;
 SEQUENCE_KW: L_PAREN 'seq''uence'? SEP+;
 
 
-fragment IDENTIFIER_FRAG: ~([ \t\r\n()]|'!');
+fragment IDENTIFIER_FRAG: ~([ \t\r\n()]|'!'|';');
 
 IDENTIFIER_KW: IDENTIFIER_FRAG+;
 

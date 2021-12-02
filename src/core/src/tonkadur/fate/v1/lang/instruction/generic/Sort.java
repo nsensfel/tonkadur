@@ -61,7 +61,7 @@ public class Sort extends GenericInstruction
                origin,
                "("
                + alias
-               + "! <(LAMBDA INT (X))> <(LIST X)|(SET X) REFERENCE>)"
+               + "! <(LAMBDA INT (X X))> <(LIST X)|(SET X) REFERENCE>)"
             )
          );
 

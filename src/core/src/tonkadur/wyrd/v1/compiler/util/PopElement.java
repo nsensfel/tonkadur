@@ -58,7 +58,8 @@ public class PopElement
       }
       else
       {
-         target_index = collection_size.get_value();
+         target_index =
+            Operation.minus(collection_size.get_value(), Constant.ONE);
       }
 
       result.add(new SetValue(index.get_address(), target_index));
