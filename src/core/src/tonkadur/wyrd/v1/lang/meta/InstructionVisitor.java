@@ -31,6 +31,9 @@ public interface InstructionVisitor
    public void visit_set_pc (final SetPC n)
    throws Throwable;
 
+   public void visit_prompt_command (final PromptCommand n)
+   throws Throwable;
+
    public void visit_prompt_integer (final PromptInteger n)
    throws Throwable;
 

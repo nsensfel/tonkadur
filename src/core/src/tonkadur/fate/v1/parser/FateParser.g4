@@ -403,7 +403,7 @@ first_level_instruction
    | DECLARE_GLOBAL_VARIABLE_KW
          type WS+
          name=identifier WS+
-         value=computation WS*
+         value=computation[true] WS*
       R_PAREN
    {
       final Origin start_origin, type_origin;
@@ -589,7 +589,7 @@ first_level_instruction
             PARSER.add_local_variables(($variable_list.result).as_map());
          }
          WS*
-         computation
+         computation[true]
          WS*
       R_PAREN
       {
@@ -767,7 +767,7 @@ returns [Instruction result]
    | DECLARE_LOCAL_VARIABLE_KW
       type WS+
       name=identifier WS+
-      value=computation WS*
+      value=computation[true] WS*
       R_PAREN
    {
       final Origin start_origin, type_origin;
@@ -826,7 +826,7 @@ returns [Instruction result]
          );
    }
 
-   | DO_WHILE_KW computation WS*
+   | DO_WHILE_KW computation[true] WS*
          {
             PARSER.increment_breakable_levels();
             PARSER.increment_continue_levels();
@@ -856,7 +856,7 @@ returns [Instruction result]
          {
             PARSER.increase_local_variables_hierarchy();
          }
-         pre=instruction WS* computation WS* post=instruction WS*
+         pre=instruction WS* computation[true] WS* post=instruction WS*
          {
             PARSER.increment_breakable_levels();
             PARSER.increment_continue_levels();
@@ -884,7 +884,7 @@ returns [Instruction result]
          );
    }
 
-   | FOR_EACH_KW coll=computation WS+ identifier
+   | FOR_EACH_KW coll=computation[true] WS+ identifier
       {
          final Variable new_variable;
          final Type collection_type;
@@ -959,7 +959,7 @@ returns [Instruction result]
          );
    }
 
-   | WHILE_KW computation WS*
+   | WHILE_KW computation[true] WS*
       {
          PARSER.increase_local_variables_hierarchy();
          PARSER.increment_breakable_levels();
@@ -984,7 +984,7 @@ returns [Instruction result]
          );
    }
 
-   | SWITCH_KW computation WS*
+   | SWITCH_KW computation[true] WS*
          {
             PARSER.increment_breakable_levels();
          }
@@ -1015,7 +1015,7 @@ returns [Instruction result]
 /******************************************************************************/
 /**** IF ELSE *****************************************************************/
 /******************************************************************************/
-   | IF_KW computation WS*
+   | IF_KW computation[true] WS*
          {
             PARSER.increase_local_variables_hierarchy();
          }
@@ -1037,7 +1037,7 @@ returns [Instruction result]
          );
    }
 
-   | IF_ELSE_KW computation
+   | IF_ELSE_KW computation[true]
          {
             PARSER.increase_local_variables_hierarchy();
          }
@@ -1075,7 +1075,7 @@ returns [Instruction result]
       $result = ($instruction.result);
    }
 
-   | IMP_ASSERT_KW computation WS+ paragraph WS* R_PAREN
+   | IMP_ASSERT_KW computation[true] WS+ paragraph WS* R_PAREN
    {
       $result =
          Assert.build
@@ -1094,7 +1094,7 @@ returns [Instruction result]
 /**** STRUCTURES **************************************************************/
 /******************************************************************************/
 
-   | IMP_SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
+   | IMP_SET_FIELDS_KW computation[true] WS* field_value_list WS* R_PAREN
    {
       $result =
          SetFields.build
@@ -1130,10 +1130,32 @@ returns [Instruction result]
          );
    }
 
+   | PROMPT_COMMAND_KW
+         targetv=computation[true] WS+
+         min_size=computation[true] WS+
+         max_size=computation[true] WS+
+         paragraph WS*
+      R_PAREN
+   {
+      $result =
+         PromptCommand.build
+         (
+            PARSER.get_origin_at
+            (
+               ($PROMPT_COMMAND_KW.getLine()),
+               ($PROMPT_COMMAND_KW.getCharPositionInLine())
+            ),
+            ($targetv.result),
+            ($min_size.result),
+            ($max_size.result),
+            ($paragraph.result)
+         );
+   }
+
    | PROMPT_STRING_KW
-         targetv=computation WS+
-         min_size=computation WS+
-         max_size=computation WS+
+         targetv=computation[true] WS+
+         min_size=computation[true] WS+
+         max_size=computation[true] WS+
          paragraph WS*
       R_PAREN
    {
@@ -1153,9 +1175,9 @@ returns [Instruction result]
    }
 
    | PROMPT_INTEGER_KW
-         targetv=computation WS+
-         min_size=computation WS+
-         max_size=computation WS+
+         targetv=computation[true] WS+
+         min_size=computation[true] WS+
+         max_size=computation[true] WS+
          paragraph WS*
       R_PAREN
    {
@@ -1177,7 +1199,7 @@ returns [Instruction result]
 /******************************************************************************/
 /**** SEQUENCE CALL/JUMP ******************************************************/
 /******************************************************************************/
-   | VISIT_KW computation maybe_computation_list WS* R_PAREN
+   | VISIT_KW computation[true] maybe_computation_list WS* R_PAREN
    {
       final Origin origin;
       final Computation sequence;
@@ -1228,7 +1250,7 @@ returns [Instruction result]
       }
    }
 
-   | CONTINUE_AS_KW computation maybe_computation_list WS* R_PAREN
+   | CONTINUE_AS_KW computation[true] maybe_computation_list WS* R_PAREN
    {
       final Origin origin;
       final Computation sequence;
@@ -1329,7 +1351,7 @@ returns [List<Cons<Computation, Instruction>> result]
    (
       (
          (
-            (L_PAREN WS* computation WS+)
+            (L_PAREN WS* computation[true] WS+)
             {
                condition = ($computation.result);
             }
@@ -1379,7 +1401,7 @@ returns [List<Cons<Computation, Instruction>> result]
 }
 :
    (
-      L_PAREN WS* computation WS+
+      L_PAREN WS* computation[true] WS+
          {
             PARSER.increase_local_variables_hierarchy();
          }
@@ -1525,7 +1547,7 @@ returns [Instruction result]
          {
            // PARSER.enable_restricted_variable_stack_of(pcd);
          }
-         computation WS*
+         computation[true] WS*
          {
            // PARSER.disable_restricted_stack_of(pcd);
          }
@@ -1549,7 +1571,7 @@ returns [Instruction result]
          {
            // PARSER.enable_restricted_variable_stack_of(pcd);
          }
-         computation WS*
+         computation[true] WS*
          {
            // PARSER.disable_restricted_stack_of(pcd);
          }
@@ -1589,7 +1611,7 @@ returns [Instruction result]
          {
             //PARSER.enable_restricted_variable_stack_of(pcd);
          }
-         computation WS*
+         computation[true] WS*
          {
             //PARSER.disable_restricted_stack_of(pcd);
          }
@@ -1620,7 +1642,7 @@ returns [Instruction result]
          }
          choice_for_variable_list[pcd] WS*
          R_PAREN WS*
-         computation WS*
+         computation[true] WS*
          l1=L_PAREN
          choice_for_update_variable_list[pcd] WS*
          R_PAREN WS*
@@ -1671,7 +1693,7 @@ returns [Instruction result]
             //PARSER.enable_restricted_variable_stack_of(pcd);
             PARSER.increase_local_variables_hierarchy();
          }
-         computation WS+
+         computation[true] WS+
          {
          }
       identifier
@@ -1767,7 +1789,7 @@ returns [List<Cons<Computation, Instruction>> result]
    (
       (
          (
-            (L_PAREN WS* computation WS+)
+            (L_PAREN WS* computation[true] WS+)
             {
                condition = ($computation.result);
 
@@ -1818,7 +1840,7 @@ returns [List<Cons<Computation, Instruction>> result]
 :
    (
       L_PAREN
-         WS* computation
+         WS* computation[true]
          {
     //        PARSER.disable_restricted_stack_of(pcd);
          }
@@ -2050,7 +2072,7 @@ returns [List<Cons<Variable, Computation>> result]
                }
             )
          )
-         WS+ computation WS* R_PAREN
+         WS+ computation[true] WS* R_PAREN
       {
          final Variable v;
 
@@ -2122,7 +2144,7 @@ returns [List<Instruction> result]
                }
             )
          )
-         WS+ computation WS* R_PAREN
+         WS+ computation[true] WS* R_PAREN
       {
          $result.add
          (
@@ -2198,7 +2220,7 @@ returns [List<Instruction> result]
                }
             )
          )
-         WS+ computation WS* R_PAREN
+         WS+ computation[true] WS* R_PAREN
       {
          final Variable new_var;
 
@@ -2336,7 +2358,7 @@ returns [List<Cons<Origin, Cons<String, Computation>>> result]
             }
          )
       )
-      computation WS* R_PAREN
+      computation[true] WS* R_PAREN
       {
          $result.add
          (
@@ -2381,7 +2403,7 @@ catch [final Throwable e]
 /**** VALUES ******************************************************************/
 /******************************************************************************/
 
-computation
+computation [boolean allows_var_shorthand]
 returns [Computation result]
 @init
 {
@@ -2390,7 +2412,11 @@ returns [Computation result]
 :
    word
    {
-      if ($word.result.matches("(-?)[0-9]+(\\.[0-9]+)?"))
+      if
+      (
+         !allows_var_shorthand
+         || $word.result.matches("(-?)[0-9]+(\\.[0-9]+)?")
+      )
       {
          $result = Constant.build(($word.origin), ($word.result));
       }
@@ -2413,7 +2439,7 @@ returns [Computation result]
          VariableFromWord.generate(PARSER, ($word.origin), ($word.result));
    }
 
-   | IGNORE_ERROR_KW word WS+ computation WS* R_PAREN
+   | IGNORE_ERROR_KW word WS+ computation[true] WS* R_PAREN
    {
       $result = ($computation.result);
       /* TODO: temporarily disable an compiler error category */
@@ -2429,7 +2455,7 @@ returns [Computation result]
       $result = ($sentence.result);
    }
 
-   | FIELD_ACCESS_KW word WS+ computation WS* R_PAREN
+   | FIELD_ACCESS_KW word WS+ computation[true] WS* R_PAREN
    {
       $result =
          FieldAccess.build
@@ -2473,9 +2499,9 @@ returns [Computation result]
    }
 
    | SWITCH_KW
-         target=computation WS*
+         target=computation[true] WS*
          computation_switch_list WS*
-         default_val=computation WS*
+         default_val=computation[true] WS*
       R_PAREN
    {
       $result =
@@ -2517,7 +2543,7 @@ returns [Computation result]
             PARSER.add_local_variables(($variable_list.result).as_map());
          }
          WS*
-         computation
+         computation[true]
          WS*
       R_PAREN
       {
@@ -2542,7 +2568,7 @@ returns [Computation result]
       }
          L_PAREN WS* let_variable_list WS* R_PAREN
          WS*
-         computation
+         computation[true]
          WS*
       R_PAREN
       {
@@ -2565,7 +2591,7 @@ returns [Computation result]
             );
       }
 
-   | CAST_KW type WS+ computation WS* R_PAREN
+   | CAST_KW type WS+ computation[true] WS* R_PAREN
    {
       $result =
          Cast.build
@@ -2581,7 +2607,7 @@ returns [Computation result]
          );
    }
 
-   | SET_FIELDS_KW computation WS* field_value_list WS* R_PAREN
+   | SET_FIELDS_KW computation[true] WS* field_value_list WS* R_PAREN
    {
       $result =
          SetFieldsComputation.build
@@ -2710,7 +2736,7 @@ returns [List<Cons<Computation, Computation>> result]
       (
          (
             (
-               L_PAREN WS* c=computation WS+
+               L_PAREN WS* c=computation[true] WS+
             )
             {
                condition = ($c.result);
@@ -2734,7 +2760,7 @@ returns [List<Cons<Computation, Computation>> result]
             }
          )
       )
-      v=computation WS* R_PAREN WS*
+      v=computation[true] WS* R_PAREN WS*
       {
          $result.add(new Cons(condition, ($v.result)));
       }
@@ -2755,7 +2781,7 @@ returns [List<Cons<Computation, Computation>> result]
 }
 :
    (
-      L_PAREN WS* c=computation WS+ v=computation WS* R_PAREN WS*
+      L_PAREN WS* c=computation[true] WS+ v=computation[true] WS* R_PAREN WS*
       {
          $result.add(new Cons(($c.result), ($v.result)));
       }
@@ -2776,7 +2802,7 @@ returns [List<Computation> result]
 }
 :
    (WS+
-      computation
+      computation[true]
       {
          ($result).add(($computation.result));
       }
@@ -2796,12 +2822,12 @@ returns [List<Computation> result]
    $result = new ArrayList<Computation>();
 }
 :
-   computation
+   computation[true]
    {
       ($result).add(($computation.result));
    }
    (WS+
-      computation
+      computation[true]
       {
          ($result).add(($computation.result));
       }
@@ -2824,7 +2850,7 @@ returns [List<Computation> result]
    just_added_space = false;
 }
 :
-   computation
+   computation[false]
    {
 
       if (($computation.result) instanceof Newline)
@@ -2862,7 +2888,7 @@ returns [List<Computation> result]
             }
          }
       )*
-      computation
+      computation[false]
       {
          if (($computation.result) instanceof Newline)
          {

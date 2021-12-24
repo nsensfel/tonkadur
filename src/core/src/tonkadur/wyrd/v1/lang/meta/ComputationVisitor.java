@@ -19,9 +19,6 @@ public interface ComputationVisitor
    public void visit_if_else_computation (final IfElseComputation n)
    throws Throwable;
 
-   public void visit_new (final New n)
-   throws Throwable;
-
    public void visit_newline (final Newline n)
    throws Throwable;
 
@@ -32,6 +29,9 @@ public interface ComputationVisitor
    throws Throwable;
 
    public void visit_relative_address (final RelativeAddress n)
+   throws Throwable;
+
+   public void visit_get_allocable_address (final GetAllocableAddress n)
    throws Throwable;
 
    public void visit_get_last_choice_index (final GetLastChoiceIndex n)

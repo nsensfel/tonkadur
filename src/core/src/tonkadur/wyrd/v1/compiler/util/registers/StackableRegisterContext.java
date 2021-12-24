@@ -12,11 +12,11 @@ import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
+import tonkadur.wyrd.v1.lang.computation.Cast;
+import tonkadur.wyrd.v1.lang.computation.Constant;
+import tonkadur.wyrd.v1.lang.computation.GetAllocableAddress;
 import tonkadur.wyrd.v1.lang.computation.Operation;
 import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
-import tonkadur.wyrd.v1.lang.computation.Constant;
-import tonkadur.wyrd.v1.lang.computation.Cast;
-import tonkadur.wyrd.v1.lang.computation.New;
 import tonkadur.wyrd.v1.lang.computation.ValueOf;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
@@ -122,7 +122,16 @@ class StackableRegisterContext extends RegisterContext
          new SetValue
          (
             current_context_address_holder,
-            new New(DictType.WILD)
+            new GetAllocableAddress(DictType.WILD)
+         )
+      );
+
+      result.add
+      (
+         new Initialize
+         (
+            new Address(new ValueOf(current_context_address_holder), DictType.WILD),
+            DictType.WILD
          )
       );
 

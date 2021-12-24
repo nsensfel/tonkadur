@@ -3,9 +3,12 @@ package tonkadur.wyrd.v1.compiler.fate.v1.instruction.generic;
 import tonkadur.fate.v1.lang.instruction.generic.Allocate;
 
 import tonkadur.wyrd.v1.lang.computation.Address;
-import tonkadur.wyrd.v1.lang.computation.New;
+import tonkadur.wyrd.v1.lang.computation.GetAllocableAddress;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.Initialize;
+
+import tonkadur.wyrd.v1.lang.type.Type;
 
 import tonkadur.wyrd.v1.compiler.fate.v1.Compiler;
 import tonkadur.wyrd.v1.compiler.fate.v1.TypeCompiler;
@@ -35,6 +38,7 @@ public class AllocateCompiler extends GenericInstructionCompiler
       final Allocate source;
       final ComputationCompiler cc;
       final Address target;
+      final Type t;
 
       source = (Allocate) instruction;
 
@@ -61,14 +65,10 @@ public class AllocateCompiler extends GenericInstructionCompiler
          System.exit(-1);
       }
 
-      result.add
-      (
-         new SetValue
-         (
-            target,
-            new New(TypeCompiler.compile(compiler, source.get_allocated_type()))
-         )
-      );
+      t = TypeCompiler.compile(compiler, source.get_allocated_type());
+
+      result.add(new SetValue(target, new GetAllocableAddress(t)));
+      result.add(new Initialize(target, t));
 
       cc.release_registers(result);
    }

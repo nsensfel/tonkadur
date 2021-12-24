@@ -11,30 +11,32 @@
 (set! card_generator
    (lambda ( (string family) )
       (list:map
-         (lambda
-            (
-               (int number)
-               (string family)
-            )
-            (struct:set_fields (default #card)
-               (number (var number))
-               (name
-                  (text
-                     (switch (var number)
-                        (1 Ace)
-                        (11 Jack)
-                        (12 Queen)
-                        (13 Kind)
-                        (cast string (var number))
-                     )
-                     of (var family)
-                  )
+         (partial
+            (lambda
+               (
+                  (string family)
+                  (int number)
                )
-               (score (clamp 1 number 10))
+               (struct:set_fields (default #card)
+                  (number (var number))
+                  (name
+                     (text
+                        (switch (var number)
+                           (1 Ace)
+                           (11 Jack)
+                           (12 Queen)
+                           (13 Kind)
+                           (cast string (var number))
+                        )
+                        of (var family)
+                     )
+                  )
+                  (score (clamp 1 number 10))
+               )
             )
+            (var family)
          )
          (list:range 1 13 1)
-         (var family)
       )
    )
 )

@@ -31,22 +31,22 @@ public class PromptInteger extends Instruction
    }
 
    /**** Accessors ************************************************************/
-   public Computation get_target()
+   public Computation get_target ()
    {
       return target;
    }
 
-   public Computation get_min()
+   public Computation get_min ()
    {
       return min;
    }
 
-   public Computation get_max()
+   public Computation get_max ()
    {
       return max;
    }
 
-   public Computation get_label()
+   public Computation get_label ()
    {
       return label;
    }

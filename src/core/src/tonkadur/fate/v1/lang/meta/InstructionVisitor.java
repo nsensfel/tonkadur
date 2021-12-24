@@ -46,6 +46,9 @@ public interface InstructionVisitor
    public void visit_prompt_string (final PromptString n)
    throws Throwable;
 
+   public void visit_prompt_command (final PromptCommand n)
+   throws Throwable;
+
    public void visit_player_choice (final PlayerChoice n)
    throws Throwable;
 

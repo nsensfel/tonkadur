@@ -1,14 +1,12 @@
 package tonkadur.wyrd.v1.lang.computation;
 
-import java.util.List;
-
 import tonkadur.wyrd.v1.lang.type.Type;
 import tonkadur.wyrd.v1.lang.type.PointerType;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
-public class New extends Computation
+public class GetAllocableAddress extends Computation
 {
    /***************************************************************************/
    /**** MEMBERS **************************************************************/
@@ -19,7 +17,7 @@ public class New extends Computation
    /**** PUBLIC ***************************************************************/
    /***************************************************************************/
    /**** Constructors *********************************************************/
-   public New (final Type target_type)
+   public GetAllocableAddress (final Type target_type)
    {
       super(new PointerType(target_type));
 
@@ -36,7 +34,7 @@ public class New extends Computation
    public void get_visited_by (final ComputationVisitor cv)
    throws Throwable
    {
-      cv.visit_new(this);
+      cv.visit_get_allocable_address(this);
    }
 
    /**** Misc. ****************************************************************/
@@ -47,7 +45,7 @@ public class New extends Computation
 
       sb = new StringBuilder();
 
-      sb.append("(New ");
+      sb.append("(GetAllocableAddress ");
       sb.append(target_type.toString());
       sb.append(")");
 

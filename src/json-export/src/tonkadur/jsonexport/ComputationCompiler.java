@@ -99,12 +99,12 @@ public class ComputationCompiler implements ComputationVisitor
       result.put("if_false", if_false_cc.get_result());
    }
 
-   public void visit_new (final New n)
+   public void visit_get_allocable_address (final GetAllocableAddress n)
    throws Throwable
    {
       result = new JSONObject();
 
-      result.put("category", "new");
+      result.put("category", "get_allocable_address");
       result.put("target", Translator.compile_type(n.get_target_type()));
    }
 
