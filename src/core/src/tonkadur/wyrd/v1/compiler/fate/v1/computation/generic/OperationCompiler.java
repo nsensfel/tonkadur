@@ -15,6 +15,7 @@ import tonkadur.wyrd.v1.lang.computation.ValueOf;
 import tonkadur.wyrd.v1.lang.computation.RelativeAddress;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.SetRandom;
 
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.Instruction;
@@ -337,10 +338,11 @@ public class OperationCompiler extends GenericComputationCompiler
 
          push_rand.add
          (
-            new SetValue
+            new SetRandom
             (
                result_as_address,
-               Operation.rand(operands.get(0), operands.get(1))
+               operands.get(0),
+               operands.get(1)
             )
          );
 
@@ -412,10 +414,11 @@ public class OperationCompiler extends GenericComputationCompiler
                   compiler.registers().get_rand_mode_holder().get_value(),
                   Constant.ZERO
                ),
-               new SetValue
+               new SetRandom
                (
                   result_as_address,
-                  Operation.rand(operands.get(0), operands.get(1))
+                  operands.get(0),
+                  operands.get(1)
                ),
                tonkadur.wyrd.v1.compiler.util.IfElse.generate
                (

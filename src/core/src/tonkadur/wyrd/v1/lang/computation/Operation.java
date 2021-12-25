@@ -15,7 +15,6 @@ public class Operation extends Computation
    public static final String MODULO = "modulo";
    public static final String PLUS = "plus";
    public static final String POWER = "power";
-   public static final String RAND = "rand";
    public static final String TIMES = "times";
 
    /* Logic operations ********************************************************/
@@ -78,15 +77,6 @@ public class Operation extends Computation
    )
    {
       return new Operation(POWER, param_a.get_type(), param_a, param_b);
-   }
-
-   public static Operation rand
-   (
-      final Computation param_a,
-      final Computation param_b
-   )
-   {
-      return new Operation(RAND, Type.INT, param_a, param_b);
    }
 
    /* Logic operations ********************************************************/

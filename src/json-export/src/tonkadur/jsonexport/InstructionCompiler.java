@@ -156,6 +156,27 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("value", cc.get_result());
    }
 
+   public void visit_set_random (final SetRandom n)
+   throws Throwable
+   {
+      final ComputationCompiler target_cc, min_cc, max_cc;
+
+      target_cc = new ComputationCompiler();
+      min_cc = new ComputationCompiler();
+      max_cc = new ComputationCompiler();
+
+      n.get_target().get_visited_by(target_cc);
+      n.get_min().get_visited_by(min_cc);
+      n.get_max().get_visited_by(max_cc);
+
+      result = new JSONObject();
+
+      result.put("category", "set_random");
+      result.put("target", target_cc.get_result());
+      result.put("min", min_cc.get_result());
+      result.put("max", max_cc.get_result());
+   }
+
    public void visit_set_value (final SetValue n)
    throws Throwable
    {
@@ -213,6 +234,7 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("max", max_cc.get_result());
       result.put("label", label_cc.get_result());
    }
+
 
    public void visit_prompt_integer (final PromptInteger n)
    throws Throwable

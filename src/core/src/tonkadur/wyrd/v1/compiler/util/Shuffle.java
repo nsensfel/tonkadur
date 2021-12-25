@@ -19,6 +19,7 @@ import tonkadur.wyrd.v1.lang.computation.ValueOf;
 import tonkadur.wyrd.v1.lang.computation.Size;
 
 import tonkadur.wyrd.v1.lang.instruction.SetValue;
+import tonkadur.wyrd.v1.lang.instruction.SetRandom;
 
 import tonkadur.wyrd.v1.compiler.util.registers.RegisterManager;
 
@@ -69,10 +70,11 @@ public class Shuffle
 
       while_body.add
       (
-         new SetValue
+         new SetRandom
          (
             target_index.get_address(),
-            Operation.rand(Constant.ZERO, iterator.get_value())
+            Constant.ZERO,
+            iterator.get_value()
          )
       );
 
