@@ -35,6 +35,7 @@ import tonkadur.wyrd.v1.lang.instruction.Display;
 import tonkadur.wyrd.v1.lang.instruction.End;
 import tonkadur.wyrd.v1.lang.instruction.Initialize;
 import tonkadur.wyrd.v1.lang.instruction.PromptCommand;
+import tonkadur.wyrd.v1.lang.instruction.PromptFloat;
 import tonkadur.wyrd.v1.lang.instruction.PromptInteger;
 import tonkadur.wyrd.v1.lang.instruction.PromptString;
 import tonkadur.wyrd.v1.lang.instruction.Remove;
@@ -1489,6 +1490,69 @@ implements tonkadur.fate.v1.lang.meta.InstructionVisitor
       result.add
       (
          new PromptCommand
+         (
+            target_cc.get_computation(),
+            min_cc.get_computation(),
+            max_cc.get_computation(),
+            label_cc.get_computation()
+         )
+      );
+
+      target_cc.release_registers(result);
+      min_cc.release_registers(result);
+      max_cc.release_registers(result);
+      label_cc.release_registers(result);
+   }
+
+   @Override
+   public void visit_prompt_float
+   (
+      final tonkadur.fate.v1.lang.instruction.PromptFloat n
+   )
+   throws Throwable
+   {
+      /*
+       * Fate: (prompt_integer target min max label)
+       * Wyrd: (prompt_integer target min max label)
+       */
+      final ComputationCompiler target_cc, min_cc, max_cc, label_cc;
+
+      target_cc = new ComputationCompiler(compiler);
+      min_cc = new ComputationCompiler(compiler);
+      max_cc = new ComputationCompiler(compiler);
+      label_cc = new ComputationCompiler(compiler);
+
+      n.get_target().get_visited_by(target_cc);
+
+      if (target_cc.has_init())
+      {
+         result.add(target_cc.get_init());
+      }
+
+      n.get_min().get_visited_by(min_cc);
+
+      if (min_cc.has_init())
+      {
+         result.add(min_cc.get_init());
+      }
+
+      n.get_max().get_visited_by(max_cc);
+
+      if (max_cc.has_init())
+      {
+         result.add(max_cc.get_init());
+      }
+
+      n.get_label().get_visited_by(label_cc);
+
+      if (label_cc.has_init())
+      {
+         result.add(label_cc.get_init());
+      }
+
+      result.add
+      (
+         new PromptFloat
          (
             target_cc.get_computation(),
             min_cc.get_computation(),

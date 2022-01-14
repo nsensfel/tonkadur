@@ -24,7 +24,7 @@ public class InstructionCompiler implements InstructionVisitor
       result = new JSONObject();
 
       result.put("category", "add_text_option");
-      result.put("label", label_cc.get_result());
+      result.put("value", label_cc.get_result());
    }
 
    public void visit_add_event_option (final AddEventOption n)
@@ -48,7 +48,7 @@ public class InstructionCompiler implements InstructionVisitor
       result = new JSONObject();
 
       result.put("category", "add_event_option");
-      result.put("event", n.get_name());
+      result.put("name", n.get_name());
       result.put("parameters", params);
    }
 
@@ -82,7 +82,7 @@ public class InstructionCompiler implements InstructionVisitor
       result = new JSONObject();
 
       result.put("category", "display");
-      result.put("content", cc.get_result());
+      result.put("value", cc.get_result());
    }
 
    public void visit_end (final End n)
@@ -130,7 +130,7 @@ public class InstructionCompiler implements InstructionVisitor
       result = new JSONObject();
 
       result.put("category", "remove");
-      result.put("reference", cc.get_result());
+      result.put("target", cc.get_result());
    }
 
    public void visit_resolve_choice (final ResolveChoice n)
@@ -191,7 +191,7 @@ public class InstructionCompiler implements InstructionVisitor
       result = new JSONObject();
 
       result.put("category", "set_value");
-      result.put("reference", ref_cc.get_result());
+      result.put("target", ref_cc.get_result());
       result.put("value", val_cc.get_result());
    }
 
@@ -207,7 +207,7 @@ public class InstructionCompiler implements InstructionVisitor
       result = new JSONObject();
 
       result.put("category", "initialize");
-      result.put("reference", ref_cc.get_result());
+      result.put("target", ref_cc.get_result());
       result.put("type", Translator.compile_type(n.get_type()));
    }
 
@@ -232,9 +232,32 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("target", target_cc.get_result());
       result.put("min", min_cc.get_result());
       result.put("max", max_cc.get_result());
-      result.put("label", label_cc.get_result());
+      result.put("message", label_cc.get_result());
    }
 
+   public void visit_prompt_float (final PromptFloat n)
+   throws Throwable
+   {
+      final ComputationCompiler target_cc, min_cc, max_cc, label_cc;
+
+      target_cc = new ComputationCompiler();
+      min_cc = new ComputationCompiler();
+      max_cc = new ComputationCompiler();
+      label_cc = new ComputationCompiler();
+
+      n.get_target().get_visited_by(target_cc);
+      n.get_min().get_visited_by(min_cc);
+      n.get_max().get_visited_by(max_cc);
+      n.get_label().get_visited_by(label_cc);
+
+      result = new JSONObject();
+
+      result.put("category", "prompt_float");
+      result.put("target", target_cc.get_result());
+      result.put("min", min_cc.get_result());
+      result.put("max", max_cc.get_result());
+      result.put("message", label_cc.get_result());
+   }
 
    public void visit_prompt_integer (final PromptInteger n)
    throws Throwable
@@ -257,7 +280,7 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("target", target_cc.get_result());
       result.put("min", min_cc.get_result());
       result.put("max", max_cc.get_result());
-      result.put("label", label_cc.get_result());
+      result.put("message", label_cc.get_result());
    }
 
    public void visit_prompt_string (final PromptString n)
@@ -281,7 +304,7 @@ public class InstructionCompiler implements InstructionVisitor
       result.put("target", target_cc.get_result());
       result.put("min", min_cc.get_result());
       result.put("max", max_cc.get_result());
-      result.put("label", label_cc.get_result());
+      result.put("message", label_cc.get_result());
    }
 
    public JSONObject get_result ()

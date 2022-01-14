@@ -1174,6 +1174,28 @@ returns [Instruction result]
          );
    }
 
+   | PROMPT_FLOAT_KW
+         targetv=computation[true] WS+
+         min_size=computation[true] WS+
+         max_size=computation[true] WS+
+         paragraph WS*
+      R_PAREN
+   {
+      $result =
+         PromptFloat.build
+         (
+            PARSER.get_origin_at
+            (
+               ($PROMPT_FLOAT_KW.getLine()),
+               ($PROMPT_FLOAT_KW.getCharPositionInLine())
+            ),
+            ($targetv.result),
+            ($min_size.result),
+            ($max_size.result),
+            ($paragraph.result)
+         );
+   }
+
    | PROMPT_INTEGER_KW
          targetv=computation[true] WS+
          min_size=computation[true] WS+

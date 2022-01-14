@@ -40,6 +40,9 @@ public interface InstructionVisitor
    public void visit_instruction_list (final InstructionList n)
    throws Throwable;
 
+   public void visit_prompt_float (final PromptFloat n)
+   throws Throwable;
+
    public void visit_prompt_integer (final PromptInteger n)
    throws Throwable;
 

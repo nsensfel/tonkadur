@@ -132,6 +132,7 @@ PLAYER_CHOICE_KW:
 TEXT_OPTION_KW: L_PAREN ('option'|'user'US'option'|'player'US'option') SEP+;
 EVENT_OPTION_KW: L_PAREN ('event'|'user'US'event'|'player'US'event') SEP+;
 PROMPT_STRING_KW: L_PAREN 'prompt'US'str''ing'?'!' SEP+;
+PROMPT_FLOAT_KW: L_PAREN 'prompt'US'float!' SEP+;
 PROMPT_INTEGER_KW: L_PAREN 'prompt'US'int''eger'?'!' SEP+;
 PROMPT_COMMAND_KW: L_PAREN 'prompt'US('cmd'|'command')'!' SEP+;
 

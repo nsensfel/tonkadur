@@ -45,9 +45,9 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "add_text_effect");
-      result.put("effect", n.get_effect_name());
+      result.put("name", n.get_effect_name());
       result.put("parameters", params);
-      result.put("content", content);
+      result.put("values", content);
    }
 
    public void visit_cast (final Cast n)
@@ -62,9 +62,9 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "cast");
-      result.put("from", Translator.compile_type(n.get_parent().get_type()));
-      result.put("to", Translator.compile_type(n.get_type()));
-      result.put("content", cc.get_result());
+      result.put("from", n.get_parent().get_type().get_name());
+      result.put("to", n.get_type().get_name());
+      result.put("value", cc.get_result());
    }
 
    public void visit_constant (final Constant n)
@@ -73,7 +73,7 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "constant");
-      result.put("type", Translator.compile_type(n.get_type()));
+      result.put("type", n.get_type().get_name());
       result.put("value", n.get_as_string());
    }
 
@@ -93,7 +93,7 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "if_else");
-      result.put("type", Translator.compile_type(n.get_type()));
+      result.put("type", n.get_type().get_name());
       result.put("condition", cond_cc.get_result());
       result.put("if_true", if_true_cc.get_result());
       result.put("if_false", if_false_cc.get_result());
@@ -105,7 +105,7 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "get_allocable_address");
-      result.put("target", Translator.compile_type(n.get_target_type()));
+      result.put("type", n.get_target_type().get_name());
    }
 
    public void visit_newline (final Newline n)
@@ -137,7 +137,7 @@ public class ComputationCompiler implements ComputationVisitor
 
       result.put("category", "operation");
       result.put("operator", n.get_operator());
-      result.put("type", Translator.compile_type(n.get_type()));
+      result.put("type", n.get_type().get_name());
       result.put("x", cc.get_result());
 
       if (n.get_second_parameter() != null)
@@ -162,8 +162,8 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "address");
-      result.put("target_type", Translator.compile_type(n.get_type()));
-      result.put("address", cc.get_result());
+      result.put("type", n.get_type().get_name());
+      result.put("value_or_target", cc.get_result());
    }
 
    public void visit_relative_address (final RelativeAddress n)
@@ -180,8 +180,8 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "relative_address");
-      result.put("type", Translator.compile_type(n.get_type()));
-      result.put("base", cc.get_result());
+      result.put("type", n.get_type().get_name());
+      result.put("target", cc.get_result());
       result.put("extra", param_cc.get_result());
    }
 
@@ -206,7 +206,7 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "text");
-      result.put("content", content);
+      result.put("values", content);
    }
 
    public void visit_size (final Size n)
@@ -221,7 +221,7 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "size");
-      result.put("reference", cc.get_result());
+      result.put("value", cc.get_result());
    }
 
    public void visit_extra_computation (final ExtraComputation n)
@@ -261,8 +261,8 @@ public class ComputationCompiler implements ComputationVisitor
       result = new JSONObject();
 
       result.put("category", "value_of");
-      result.put("type", Translator.compile_type(n.get_type()));
-      result.put("reference", cc.get_result());
+      result.put("type", n.get_type().get_name());
+      result.put("target", cc.get_result());
    }
 
    public JSONObject get_result ()
