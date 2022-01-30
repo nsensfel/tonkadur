@@ -2874,7 +2874,6 @@ returns [List<Computation> result]
 :
    computation[false]
    {
-
       if (($computation.result) instanceof Newline)
       {
          follows_newline = true;
@@ -2886,6 +2885,7 @@ returns [List<Computation> result]
 
       just_added_space = false;
 
+      ($result).add(Constant.build_string(Origin.BASE_LANGUAGE, " "));
       ($result).add(($computation.result));
    }
    (

@@ -208,7 +208,7 @@ public class InstructionCompiler implements InstructionVisitor
 
       result.put("category", "initialize");
       result.put("target", ref_cc.get_result());
-      result.put("type", Translator.compile_type(n.get_type()));
+      result.put("type", Translator.get_compiled_type_name(n.get_type()));
    }
 
    public void visit_prompt_command (final PromptCommand n)

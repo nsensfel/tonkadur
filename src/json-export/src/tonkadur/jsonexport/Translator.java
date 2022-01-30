@@ -55,7 +55,7 @@ public class Translator
          obj = new JSONObject();
 
          obj.put("name", e.get_name());
-         obj.put("type", compile_type(e.get_type()));
+         obj.put("type",get_compiled_type_name(e.get_type()));
 
          result.add(obj);
       }
@@ -129,7 +129,7 @@ public class Translator
             f = new JSONObject();
 
             f.put("name", field.getKey());
-            f.put("type", compile_type(field.getValue()));
+            f.put("type",get_compiled_type_name(field.getValue()));
 
             fields.add(f);
          }
@@ -166,40 +166,17 @@ public class Translator
       return result;
    }
 
-   public static JSONObject compile_type (final Type t)
+   public static String get_compiled_type_name (final Type t)
    {
-      final JSONObject result;
-
-      result = new JSONObject();
-
-      if (t instanceof DictType)
+      if (t instanceof PointerType)
       {
-         result.put("category", "structure");
-         result.put("name", t.get_name());
-      }
-      else if (t instanceof PointerType)
-      {
-         result.put("category", "pointer");
-         result.put
-         (
-            "target",
-            compile_type(((PointerType) t).get_target_type())
-         );
+         return "ptr";
       }
       else if (t instanceof MapType)
       {
-         result.put("category", "list");
-         result.put
-         (
-            "member_type",
-            compile_type(((MapType) t).get_member_type())
-         );
-      }
-      else
-      {
-         result.put("category", t.get_name());
+         return "list";
       }
 
-      return result;
+      return t.get_name();
    }
 }

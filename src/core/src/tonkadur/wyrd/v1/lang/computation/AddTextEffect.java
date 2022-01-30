@@ -4,6 +4,8 @@ import java.util.List;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
+import tonkadur.wyrd.v1.optimizer.TextConstantOptimizer;
+
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
@@ -30,6 +32,8 @@ public class AddTextEffect extends Text
 
       this.effect_name = effect_name;
       this.effect_parameters = effect_parameters;
+
+      TextConstantOptimizer.optimize(content);
    }
 
    /**** Accessors ************************************************************/

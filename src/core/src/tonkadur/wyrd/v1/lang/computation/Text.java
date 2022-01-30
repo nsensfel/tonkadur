@@ -4,6 +4,8 @@ import java.util.List;
 
 import tonkadur.wyrd.v1.lang.type.Type;
 
+import tonkadur.wyrd.v1.optimizer.TextConstantOptimizer;
+
 import tonkadur.wyrd.v1.lang.meta.Computation;
 import tonkadur.wyrd.v1.lang.meta.ComputationVisitor;
 
@@ -23,6 +25,8 @@ public class Text extends Computation
       super(Type.TEXT);
 
       this.content = content;
+
+      TextConstantOptimizer.optimize(content);
    }
 
    /**** Accessors ************************************************************/
