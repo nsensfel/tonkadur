@@ -1075,7 +1075,7 @@ returns [Instruction result]
       $result = ($instruction.result);
    }
 
-   | IMP_ASSERT_KW computation[true] WS+ paragraph WS* R_PAREN
+   | IMP_ASSERT_KW computation[true] WS+ paragraph[false] WS* R_PAREN
    {
       $result =
          Assert.build
@@ -1134,7 +1134,7 @@ returns [Instruction result]
          targetv=computation[true] WS+
          min_size=computation[true] WS+
          max_size=computation[true] WS+
-         paragraph WS*
+         paragraph[false] WS*
       R_PAREN
    {
       $result =
@@ -1156,7 +1156,7 @@ returns [Instruction result]
          targetv=computation[true] WS+
          min_size=computation[true] WS+
          max_size=computation[true] WS+
-         paragraph WS*
+         paragraph[false] WS*
       R_PAREN
    {
       $result =
@@ -1178,7 +1178,7 @@ returns [Instruction result]
          targetv=computation[true] WS+
          min_size=computation[true] WS+
          max_size=computation[true] WS+
-         paragraph WS*
+         paragraph[false] WS*
       R_PAREN
    {
       $result =
@@ -1200,7 +1200,7 @@ returns [Instruction result]
          targetv=computation[true] WS+
          min_size=computation[true] WS+
          max_size=computation[true] WS+
-         paragraph WS*
+         paragraph[false] WS*
       R_PAREN
    {
       $result =
@@ -1344,7 +1344,7 @@ returns [Instruction result]
 /******************************************************************************/
 /**** DISPLAYED COMPUTATIONS **************************************************/
 /******************************************************************************/
-   | paragraph
+   | paragraph[true]
    {
       $result =
          Display.build
@@ -1491,7 +1491,7 @@ returns [Instruction result]
       {
          //PARSER.enable_restricted_variable_stack_of(pcd);
       }
-      paragraph
+      paragraph[false]
       WS* R_PAREN WS*
       {
          //PARSER.disable_restricted_stack_of(pcd);
@@ -1881,7 +1881,7 @@ catch [final Throwable e]
    PARSER.handle_error(e);
 }
 
-paragraph
+paragraph [boolean precede_by_space]
 returns [Computation result]
 @init
 {
@@ -1889,13 +1889,22 @@ returns [Computation result]
 :
    computation_list_with_explicit_spaces
    {
+      List<Computation> content;
       // convert all computations to text.
       // return text node.
+
+      content = $computation_list_with_explicit_spaces.result;
+
+      if (precede_by_space)
+      {
+         content.add(0, Constant.build_string(Origin.BASE_LANGUAGE, " "));
+      }
+
       $result =
          Paragraph.build
          (
             $computation_list_with_explicit_spaces.result.get(0).get_origin(),
-            $computation_list_with_explicit_spaces.result
+            content
          );
    }
 ;
@@ -2644,12 +2653,12 @@ returns [Computation result]
          );
    }
 
-   | TEXT_KW paragraph WS* R_PAREN
+   | TEXT_KW paragraph[false] WS* R_PAREN
    {
       $result = ($paragraph.result);
    }
 
-   | ENABLE_TEXT_EFFECT_KW word WS+ paragraph WS* R_PAREN
+   | ENABLE_TEXT_EFFECT_KW word WS+ paragraph[false] WS* R_PAREN
    {
       final TextEffect effect;
 
@@ -2671,7 +2680,7 @@ returns [Computation result]
          word WS+
          computation_list WS*
       R_PAREN WS+
-      paragraph WS*
+      paragraph[false] WS*
       R_PAREN
    {
       final TextEffect effect;
@@ -2885,7 +2894,6 @@ returns [List<Computation> result]
 
       just_added_space = false;
 
-      ($result).add(Constant.build_string(Origin.BASE_LANGUAGE, " "));
       ($result).add(($computation.result));
    }
    (
