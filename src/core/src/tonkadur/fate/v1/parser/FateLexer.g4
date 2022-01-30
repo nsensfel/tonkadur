@@ -150,7 +150,7 @@ fragment IDENTIFIER_FRAG: ~([ \t\r\n()]|'!'|';');
 
 IDENTIFIER_KW: IDENTIFIER_FRAG+;
 
-WORD: (IDENTIFIER_FRAG|'!'|'(lp)'|'(rp)'|'(sp)'|'(2;)')+
+WORD: (IDENTIFIER_FRAG|'!'|'(lp)'|'(rp)'|'(sp)'|'(2;)'|';')+
    {
       setText
       (
